@@ -5,12 +5,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="This tool shows you everything that's going on in Warframe right now in a hopefully useful way.">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
 	<style>
 		abbr { text-decoration: underline dotted; text-decoration-skip-ink: none; }
 		[data-bs-toggle=tooltip] { cursor: help; }
 		[data-notif-toggle], [data-notif-toggle] > span, .completion-check { text-decoration:none;cursor:pointer;color:inherit }
-		.completion-check { display: inline-block; width: 15px }
+		.completion-check { display: inline-block; width: 15px; font-size: 0.75rem }
 		.card-block:not(:last-child) { margin-bottom: .5rem; }
 		[data-collapse-toggle], [data-collapse-toggle] > span { cursor:pointer }
 		.card:has([data-collapse-toggle].engaged) {

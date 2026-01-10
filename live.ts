@@ -1369,12 +1369,12 @@ function createCompletionToggle(oid: string): HTMLAnchorElement
 
 	const a = document.createElement("a");
 	a.className = "completion-check";
-	a.textContent = isOidMarkedAsCompleted(oid) ? "🗹" : "☐";
+	a.innerHTML = isOidMarkedAsCompleted(oid) ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
 	const tooltip = addTooltip(a, (isOidMarkedAsCompleted(oid) ? "Unmark as " : "Mark as ") + what);
 	a.onclick = function()
 	{
 		toggleOidCompletion(oid);
-		a.textContent = isOidMarkedAsCompleted(oid) ? "🗹" : "☐";
+		a.innerHTML = isOidMarkedAsCompleted(oid) ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
 		tooltip.setContent({ ".tooltip-inner": (isOidMarkedAsCompleted(oid) ? "Unmark as " : "Mark as ") + what });
 	};
 	return a;

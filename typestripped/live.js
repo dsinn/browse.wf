@@ -508,7 +508,6 @@ async function updateNewsSources() {
 function updateWorldStateLocalised() {
     updateNewsTicker();
     updateSorties();
-    updateKinePage();
     updateDarvosDeal();
     updateBaro();
     updateAlerts();
@@ -614,13 +613,6 @@ async function updateSorties() {
     document.getElementById("litesortie-body").innerHTML = "";
     document.getElementById("litesortie-body").appendChild(span);
     document.getElementById("litesortie-body").innerHTML += " • " + mission_names.join(", ");
-}
-function updateKinePage() {
-    const Tmp = JSON.parse(window.worldState.Tmp ?? "{}");
-    const lang_code = (localStorage.getItem("lang") ?? "en");
-    if (Tmp.pgr && Tmp.pgr[lang_code]) {
-        document.getElementById("pgr").textContent = Tmp.pgr[lang_code];
-    }
 }
 async function updateDarvosDeal() {
     window.dailyDeal = window.worldState.DailyDeals.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));

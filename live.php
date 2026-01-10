@@ -168,10 +168,6 @@
 								</div>
 							</div>
 						</div>
-						<div class="card">
-							<h5 class="card-header"><span data-collapse-toggle="pgr"></span> KinePage</h5>
-							<div class="card-body" id="pgr">No new messages. Scanning...</div>
-						</div>
 					</div>
 				</div>
 			</div>

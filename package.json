@@ -1,4 +1,5 @@
 {
+  "name": "browse.wf",
   "scripts": {
     "dev": "php-ts-dev",
     "lint": "eslint *.ts"

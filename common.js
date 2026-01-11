@@ -91,3 +91,78 @@ function resolveTextIcons(text)
 		return "&lt;" + name + "&gt;";
 	});
 }
+
+// Navbar fixed toggle
+
+function updateNavbarPinAppearance()
+{
+	const isFixed = !localStorage.getItem("navbar.unfixed");
+	const navbar = document.getElementById("main-navbar");
+	const spacer = document.getElementById("navbar-spacer");
+	const pinMobile = document.getElementById("navbar-pin-mobile");
+	const pinDesktop = document.getElementById("navbar-pin-desktop");
+
+	const tooltipText = isFixed ? "Unfix navbar from the top" : "Fix navbar to the top";
+
+	if (isFixed)
+	{
+		navbar.classList.add("fixed-top");
+		spacer.style.height = "56px";
+		pinMobile.classList.remove("navbar-pin-unfixed");
+		pinDesktop.classList.remove("navbar-pin-unfixed");
+	}
+	else
+	{
+		navbar.classList.remove("fixed-top");
+		spacer.style.height = "0";
+		pinMobile.classList.add("navbar-pin-unfixed");
+		pinDesktop.classList.add("navbar-pin-unfixed");
+	}
+
+	// Update tooltips if Bootstrap is loaded
+	if (window.bootstrap && window.bootstrap.Tooltip)
+	{
+		const tooltipMobile = window.bootstrap.Tooltip.getInstance(pinMobile);
+		if (tooltipMobile)
+		{
+			tooltipMobile.dispose();
+		}
+		pinMobile.setAttribute("data-bs-title", tooltipText);
+		new window.bootstrap.Tooltip(pinMobile);
+
+		const tooltipDesktop = window.bootstrap.Tooltip.getInstance(pinDesktop);
+		if (tooltipDesktop)
+		{
+			tooltipDesktop.dispose();
+		}
+		pinDesktop.setAttribute("data-bs-title", tooltipText);
+		new window.bootstrap.Tooltip(pinDesktop);
+	}
+}
+
+function toggleNavbarFixed()
+{
+	if (localStorage.getItem("navbar.unfixed"))
+	{
+		localStorage.removeItem("navbar.unfixed");
+	}
+	else
+	{
+		localStorage.setItem("navbar.unfixed", "1");
+	}
+	updateNavbarPinAppearance();
+}
+
+// Initialize navbar pin state on page load
+if (document.getElementById("main-navbar"))
+{
+	// Wait for DOM to be fully loaded
+	if (document.readyState === "loading")
+	{
+		document.addEventListener("DOMContentLoaded", updateNavbarPinAppearance);
+	}
+	else
+	{
+		updateNavbarPinAppearance();
+	}
+}

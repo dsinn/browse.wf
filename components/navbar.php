@@ -1,9 +1,28 @@
 <?php
 $ext = substr($_SERVER["SERVER_SOFTWARE"] ?? "", 0, 3) == "PHP" ? ".php" : "";
 ?>
-<nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary">
+<style>
+	.navbar-pin {
+		font-size: 1.25rem;
+		text-decoration: none;
+		cursor: pointer;
+		transition: filter 0.2s ease;
+		filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(0.9);
+	}
+	.navbar-pin:hover {
+		filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(1.1);
+	}
+	.navbar-pin-unfixed {
+		filter: grayscale(100%) brightness(1.8);
+	}
+	.navbar-pin-unfixed:hover {
+		filter: grayscale(100%) brightness(2.2);
+	}
+</style>
+<nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" id="main-navbar">
 	<div class="container-fluid">
 		<a class="navbar-brand" href="/" <?php if ($_SERVER["REQUEST_URI"] == "/"): ?> onclick="event.preventDefault();" <?php endif; ?>>browse.wf</a>
+		<a id="navbar-pin-mobile" class="navbar-pin d-lg-none" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
@@ -53,7 +72,8 @@ $ext = substr($_SERVER["SERVER_SOFTWARE"] ?? "", 0, 3) == "PHP" ? ".php" : "";
 					<li><a class="dropdown-item" href="#" data-lang="th" onclick="event.preventDefault();setLanguage('th');">แบบไทย</a></li>
 				</ul>
 			</div>
+			<a id="navbar-pin-desktop" class="navbar-pin d-none d-lg-block ms-2" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
 		</div>
 	</div>
 </nav>
-<div style="height:56px"></div>
+<div id="navbar-spacer" style="height:56px"></div>

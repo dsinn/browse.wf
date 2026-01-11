@@ -1,5 +1,8 @@
 node_modules/
 
+# Compiled TypeScript output
+typestripped/
+
 # Symlinks
 EE
 Lotus

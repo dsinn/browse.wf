@@ -1,7 +1,7 @@
 {
   "name": "browse.wf",
   "scripts": {
-    "dev": "php-ts-dev",
+    "dev": "php-ts-dev --port ${PORT:-60969}",
     "lint": "eslint *.ts"
   },
   "devDependencies": {

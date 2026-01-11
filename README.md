@@ -9,6 +9,7 @@ A search engine for Warframe game data, allowing users to browse and search thro
 - **Backend**: PHP
 - **Frontend**: TypeScript, Bootstrap
 - **Build Tool**: php-ts-dev (combines PHP development server with TypeScript watch mode)
+- **Testing**: Vitest, @testing-library/dom, jsdom
 - **Dependencies**:
   - Bootstrap (CSS framework)
   - Showdown (Markdown parser)
@@ -65,6 +66,17 @@ Before running this application locally, ensure you have the following installed
 - The server runs on a fixed port (60969) to preserve localStorage data across restarts
 - localStorage is used to store user inventory, notification preferences, and language settings
 
+### Testing
+
+Automated tests for the `/live` page use **Vitest** with jsdom for DOM testing.
+
+```bash
+npm test          # Run once
+npm run test:ui   # Visual interface
+```
+
+See [test/README.md](test/README.md) for detailed testing documentation.
+
 ## Project Structure
 
 - `*.php` - PHP page templates
@@ -77,6 +89,9 @@ Before running this application locally, ensure you have the following installed
 
 - `npm run dev` - Start development server with TypeScript watch mode
 - `npm run lint` - Run ESLint on TypeScript files
+- `npm test` - Run automated tests
+- `npm run test:ui` - Run tests with visual interface
+- `npm run test:coverage` - Run tests with coverage report
 
 ## Notes
 

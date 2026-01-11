@@ -7,3 +7,10 @@ typestripped/
 EE
 Lotus
 warframe-public-export-plus
+
+# Test coverage
+coverage/
+.vitest/
+
+# PHP fixtures (auto-generated)
+test/__fixtures__/

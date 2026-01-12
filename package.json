@@ -7,7 +7,8 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "render-fixtures": "node test/helpers/render-php.js",
-    "render-fixtures:watch": "node test/helpers/render-php.js --watch"
+    "render-fixtures:watch": "node test/helpers/render-php.js --watch",
+    "build": "node build-gh-pages.js"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.0",

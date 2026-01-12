@@ -8,10 +8,9 @@
  *   node test/helpers/render-php.js navbar             # Render specific fixture
  */
 
-const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const http = require('http');
+const { startPhpServer, stopPhpServer, fetchHtml } = require('../../helpers/php-server');
 
 const FIXTURES_DIR = path.join(__dirname, '../__fixtures__');
 const PHP_SERVER_PORT = process.env.PHP_TEST_PORT || 60970; // Different from dev server
@@ -30,48 +29,6 @@ const FIXTURES = {
   },
 };
 
-/**
- * Start PHP built-in server for rendering
- */
-function startPhpServer() {
-  console.log(`Starting PHP server on port ${PHP_SERVER_PORT}...`);
-  const serverProcess = execSync(`php -S localhost:${PHP_SERVER_PORT} -t . > /dev/null 2>&1 &`, {
-    cwd: path.join(__dirname, '../..'),
-  });
-
-  // Wait for server to start
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      console.log('✓ PHP server started');
-      resolve();
-    }, 1000);
-  });
-}
-
-/**
- * Stop PHP server
- */
-function stopPhpServer() {
-  try {
-    execSync(`lsof -ti:${PHP_SERVER_PORT} | xargs kill -9`);
-    console.log('✓ PHP server stopped');
-  } catch (e) {
-    // Server wasn't running
-  }
-}
-
-/**
- * Fetch HTML from PHP server
- */
-function fetchHtml(url) {
-  return new Promise((resolve, reject) => {
-    http.get(`http://localhost:${PHP_SERVER_PORT}${url}`, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => resolve(data));
-    }).on('error', reject);
-  });
-}
 
 /**
  * Render a single fixture
@@ -80,7 +37,7 @@ async function renderFixture(name, config) {
   console.log(`Rendering ${name}...`);
 
   try {
-    const html = await fetchHtml(config.url);
+    const html = await fetchHtml(config.url, PHP_SERVER_PORT);
     const outputPath = path.join(FIXTURES_DIR, config.output);
 
     // Ensure fixtures directory exists
@@ -110,7 +67,12 @@ ${html}`;
  * Render all fixtures
  */
 async function renderAll(specificFixture) {
-  await startPhpServer();
+  console.log(`Starting PHP server on port ${PHP_SERVER_PORT}...`);
+  await startPhpServer({
+    port: PHP_SERVER_PORT,
+    cwd: path.join(__dirname, '../..'),
+  });
+  console.log('✓ PHP server started');
 
   try {
     if (specificFixture && FIXTURES[specificFixture]) {
@@ -122,7 +84,8 @@ async function renderAll(specificFixture) {
     }
     console.log('\n✓ All fixtures rendered successfully');
   } finally {
-    stopPhpServer();
+    stopPhpServer(PHP_SERVER_PORT);
+    console.log('✓ PHP server stopped');
   }
 }
 

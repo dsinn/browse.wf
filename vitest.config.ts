@@ -8,6 +8,5 @@ export default defineConfig({
     globalSetup: ['./test/global-setup.ts'],
     include: ['test/**/*.{test,spec}.{ts,tsx}'],
     exclude: ['**/node_modules/**', '**/typestripped/**', '**/dist/**'],
-    watchExclude: ['**/node_modules/**', '**/typestripped/**'],
   },
 });

@@ -92,6 +92,36 @@ See [test/README.md](test/README.md) for detailed testing documentation.
 - `npm test` - Run automated tests
 - `npm run test:ui` - Run tests with visual interface
 - `npm run test:coverage` - Run tests with coverage report
+- `npm run build` - Build static site for GitHub Pages deployment
+
+## Deployment
+
+This fork can be deployed to GitHub Pages using the included workflow.
+
+### Manual Deployment
+
+1. Build the static site locally:
+   ```bash
+   npm run build
+   ```
+   This compiles TypeScript, renders all PHP files to HTML, and prepares assets in the `dist/` directory.
+
+2. The build script automatically:
+   - Compiles TypeScript to JavaScript (`typestripped/`)
+   - Renders all PHP files to static HTML
+   - Rewrites paths for the `/browse.wf/` base path
+   - Copies all necessary assets (JS, data files, etc.)
+
+### GitHub Actions Deployment
+
+Deploy to GitHub Pages via GitHub Actions:
+
+1. Go to your repository's **Actions** tab
+2. Select **Deploy to GitHub Pages** workflow
+3. Click **Run workflow**
+4. Site will be available at: `https://<username>.github.io/browse.wf/`
+
+The workflow is manually triggered only. It builds the site and pushes to the `gh-pages` branch.
 
 ## Notes
 

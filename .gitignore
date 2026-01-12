@@ -14,3 +14,6 @@ coverage/
 
 # PHP fixtures (auto-generated)
 test/__fixtures__/
+
+# Build output (auto-generated)
+dist/

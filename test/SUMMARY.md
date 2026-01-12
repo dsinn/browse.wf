@@ -49,6 +49,7 @@ test/
 
 ### `helpers/render-php.js`
 - Renders PHP to HTML fixtures (runs automatically before tests)
+- Uses shared `/helpers/php-server.js` module (also used by build script)
 
 ### `helpers/time-helpers.ts`
 - `freezeTime(timestamp)` - Freeze time for tests

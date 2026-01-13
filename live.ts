@@ -1519,7 +1519,12 @@ async function updateFissures()
 			Modifier: fissure.ActiveMissionTier,
 		});
 	}
-	fissures.sort((a, b) => a.Modifier.charCodeAt(5) - b.Modifier.charCodeAt(5));
+	// Sort by tier first, then by expiry within each tier
+	fissures.sort((a, b) => {
+		const tierDiff = a.Modifier.charCodeAt(5) - b.Modifier.charCodeAt(5);
+		if (tierDiff !== 0) return tierDiff;
+		return parseInt(a.Expiry.$date.$numberLong) - parseInt(b.Expiry.$date.$numberLong);
+	});
 
 	window.num_fissures = 0;
 	const tbody = {
@@ -1537,37 +1542,51 @@ async function updateFissures()
 		else if (Date.now() < fissure.Expiry.$date.$numberLong)
 		{
 			const tr = document.createElement("tr");
-			const th = document.createElement("th");
-			if (fissure.Modifier != last_tier[fissure.Hard])
-			{
-				th.textContent = fissureTiers[fissure.Modifier] ?? fissure.Modifier;
-				last_tier[fissure.Hard] = fissure.Modifier;
-			}
-			tr.appendChild(th);
-			const td = document.createElement("td");
 			const node = ExportRegions[fissure.Node];
+			const baselvl = fissure.Hard ? 100 : 0;
+
+			// Tier column
 			{
-				const b = document.createElement("b");
-				b.textContent = toTitleCase(dict[node.missionName]);
-				td.appendChild(b);
+				const th = document.createElement("th");
+				if (fissure.Modifier != last_tier[fissure.Hard])
+				{
+					th.textContent = fissureTiers[fissure.Modifier] ?? fissure.Modifier;
+					last_tier[fissure.Hard] = fissure.Modifier;
+				}
+				tr.appendChild(th);
 			}
+
+			// Expiry column
 			{
-				const span = document.createElement("span");
-				const baselvl = fissure.Hard ? 100 : 0;
-				span.textContent = " (" + (node.minEnemyLevel + baselvl) + "-" + (node.maxEnemyLevel + baselvl) + ")";
+				const td = document.createElement("td");
+				td.appendChild(createExpiryBadge(fissure.Expiry.$date.$numberLong));
+				tr.appendChild(td);
+			}
+
+			// Mission type + Level range column (combined for consistency with Warframe UI)
+			{
+				const td = document.createElement("td");
+				td.textContent = toTitleCase(dict[node.missionName]) + " (" + (node.minEnemyLevel + baselvl) + "-" + (node.maxEnemyLevel + baselvl) + ")";
+				tr.appendChild(td);
+			}
+
+			// Faction column (only show when systemIndex != 21)
+			{
+				const td = document.createElement("td");
 				if (node.systemIndex != 21)
 				{
-					span.textContent += " - " + dict[ExportFactions[node.faction].name];
+					td.textContent = dict[ExportFactions[node.faction].name];
 				}
-				if (fissure.Category != "rj-fissures")
-				{
-					span.textContent += " @ " + dict[node.name] + ", " + dict[node.systemName];
-				}
-				span.textContent += " ";
-				td.appendChild(span);
+				tr.appendChild(td);
 			}
-			td.appendChild(createExpiryBadge(fissure.Expiry.$date.$numberLong));
-			tr.appendChild(td);
+
+			// Location column
+			{
+				const td = document.createElement("td");
+				td.textContent = dict[node.name] + ", " + dict[node.systemName];
+				tr.appendChild(td);
+			}
+
 			tbody[fissure.Category].appendChild(tr);
 			setFissuresExpiry(fissure.Expiry.$date.$numberLong);
 			++window.num_fissures;

@@ -299,72 +299,60 @@
 						</table>
 					</div>
 				</div>
-				<div class="row g-3">
-					<div class="col-md-6">
-						<div class="card mb-3">
-							<h5 class="card-header"><span data-collapse-toggle="fissures"></span> Void Fissures (Normal)</h5>
-							<div class="card-body overflow-auto">
-								<table class="table table-sm table-hover table-borderless mb-0" id="fissures-table"><tr><th>Loading...</th></tr></table>
-							</div>
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="card mb-3">
-							<h5 class="card-header"><span data-collapse-toggle="sp-fissures"></span> Void Fissures (Steel Path)</h5>
-							<div class="card-body overflow-auto">
-								<table class="table table-sm table-hover table-borderless mb-0" id="sp-fissures-table"><tr><th>Loading...</th></tr></table>
-							</div>
-						</div>
+				<div class="card mb-3">
+					<h5 class="card-header"><span data-collapse-toggle="fissures"></span> Void Fissures (Normal)</h5>
+					<div class="card-body overflow-auto">
+						<table class="table table-sm table-hover table-borderless mb-0" id="fissures-table"><tr><th>Loading...</th></tr></table>
 					</div>
 				</div>
-				<div class="row g-3 mb-3">
-					<div class="col-xxl-8">
-						<div class="card mb-3">
-							<h5 class="card-header"><span data-collapse-toggle="invasions"></span> <span id="invasions-header">Invasions</h5>
-							<div class="card-body overflow-auto">
-								<table class="table table-sm table-hover table-borderless mb-0" id="invasions-table"><tr><td>Loading...</td></tr></table>
-							</div>
-						</div>
-						<div class="card mb-3">
-							<div class="card-header d-flex">
-								<h5 class="mb-0"><span data-collapse-toggle="labconquest"></span> <span id="labConquest-header">Deep Archimedea</h5>
-								<a class="m-auto me-0" data-notif-toggle="labconquest"></a>
-							</div>
-							<div class="card-body overflow-auto">
-								<table class="table table-sm table-borderless table-hover mb-2" id="labConquest-missions">
-									<tr><th>Fetching data...</th></tr>
-									<tr><td>&nbsp;</td></tr>
-									<tr><td>&nbsp;</td></tr>
-								</table>
-								<table class="table table-sm table-borderless mb-0">
-									<tr id="labConquest-fv"><td>&nbsp;</td></tr>
-								</table>
-							</div>
-						</div>
-						<div class="card">
-							<div class="card-header d-flex">
-								<h5 class="mb-0"><span data-collapse-toggle="hexconquest"></span> <span id="hexConquest-header">Temporal Archimedea</h5>
-								<a class="m-auto me-0" data-notif-toggle="hexconquest"></a>
-							</div>
-							<div class="card-body overflow-auto">
-								<table class="table table-sm table-borderless table-hover mb-2" id="hexConquest-missions">
-									<tr><th>Fetching data...</th></tr>
-									<tr><td>&nbsp;</td></tr>
-									<tr><td>&nbsp;</td></tr>
-								</table>
-								<table class="table table-sm table-borderless mb-0">
-									<tr id="hexConquest-fv"><td>&nbsp;</td></tr>
-								</table>
-							</div>
-						</div>
+				<div class="card mb-3">
+					<h5 class="card-header"><span data-collapse-toggle="sp-fissures"></span> Void Fissures (Steel Path)</h5>
+					<div class="card-body overflow-auto">
+						<table class="table table-sm table-hover table-borderless mb-0" id="sp-fissures-table"><tr><th>Loading...</th></tr></table>
 					</div>
-					<div class="col-xxl-4">
-						<div class="card mb-3">
-							<h5 class="card-header"><span data-collapse-toggle="rj-fissures"></span> Void Storms (Railjack)</h5>
-							<div class="card-body overflow-auto">
-								<table class="table table-sm table-hover table-borderless mb-0" id="rj-fissures-table"><tr><th>Loading...</th></tr></table>
-							</div>
-						</div>
+				</div>
+				<div class="card mb-3">
+					<h5 class="card-header"><span data-collapse-toggle="rj-fissures"></span> Void Storms (Railjack)</h5>
+					<div class="card-body overflow-auto">
+						<table class="table table-sm table-hover table-borderless mb-0" id="rj-fissures-table"><tr><th>Loading...</th></tr></table>
+					</div>
+				</div>
+				<div class="card mb-3">
+					<h5 class="card-header"><span data-collapse-toggle="invasions"></span> <span id="invasions-header">Invasions</h5>
+					<div class="card-body overflow-auto">
+						<table class="table table-sm table-hover table-borderless mb-0" id="invasions-table"><tr><td>Loading...</td></tr></table>
+					</div>
+				</div>
+				<div class="card mb-3">
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="labconquest"></span> <span id="labConquest-header">Deep Archimedea</h5>
+						<a class="m-auto me-0" data-notif-toggle="labconquest"></a>
+					</div>
+					<div class="card-body overflow-auto">
+						<table class="table table-sm table-borderless table-hover mb-2" id="labConquest-missions">
+							<tr><th>Fetching data...</th></tr>
+							<tr><td>&nbsp;</td></tr>
+							<tr><td>&nbsp;</td></tr>
+						</table>
+						<table class="table table-sm table-borderless mb-0">
+							<tr id="labConquest-fv"><td>&nbsp;</td></tr>
+						</table>
+					</div>
+				</div>
+				<div class="card">
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="hexconquest"></span> <span id="hexConquest-header">Temporal Archimedea</h5>
+						<a class="m-auto me-0" data-notif-toggle="hexconquest"></a>
+					</div>
+					<div class="card-body overflow-auto">
+						<table class="table table-sm table-borderless table-hover mb-2" id="hexConquest-missions">
+							<tr><th>Fetching data...</th></tr>
+							<tr><td>&nbsp;</td></tr>
+							<tr><td>&nbsp;</td></tr>
+						</table>
+						<table class="table table-sm table-borderless mb-0">
+							<tr id="hexConquest-fv"><td>&nbsp;</td></tr>
+						</table>
 					</div>
 				</div>
 				

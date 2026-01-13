@@ -2,7 +2,19 @@
 
 A search engine for Warframe game data, allowing users to browse and search through space ninja information.
 
-**Note:** This is a fork of [calamity-inc/browse.wf](https://github.com/calamity-inc/browse.wf).
+This is a fork of [calamity-inc/browse.wf](https://github.com/calamity-inc/browse.wf) with the following key features and changes:
+
+**For Warframe players:**
+
+- **Cloud sync**: Discord authentication with a database backend for backing up preferences and syncing across devices
+- **Improved void fissures UI**: Enhanced layout and organization for void fissure information
+- **Navbar customization**: Optional setting to unfix the navbar
+- **Cross-platform UI**: System-independent checkbox styling
+
+**For developers:**
+
+- **GitHub Pages deployment**: Automated workflow for deploying static builds to GitHub Pages
+- **Automated testing**: Vitest-based test infrastructure (mainly for the `/live` page so far)
 
 ## Tech Stack
 

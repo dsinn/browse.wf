@@ -77,6 +77,39 @@ npm run test:ui   # Visual interface
 
 See [test/README.md](test/README.md) for detailed testing documentation.
 
+### Cloud Sync (Optional)
+
+This app stores all preferences locally in your browser by default. Cloud sync uses Discord for authentication, and the instructions below are tailored for Supabase as the storage backend.
+
+If you want to enable cloud sync to backup preferences and sync across devices:
+
+1. **Create a database project** at https://supabase.com
+   - Get your Project URL and anon key from Project Settings → API
+   - Expose the "public" schema in Settings → API → "Extra exposed schemas" (add `public` to the list)
+   - Run `cloud-sync-schema.sql` in the SQL Editor to create the database schema
+   - Enable Realtime for the `user_data` table in Database → Replication (for instant cross-device sync)
+   - Configure redirect URLs in Authentication → URL Configuration:
+     - Set **Site URL** to your production URL (e.g., `https://dsinn.github.io`)
+     - Add **Redirect URLs**: `https://dsinn.github.io/browse.wf/**` for production, `http://127.0.0.1:60969/**` for local dev
+   - Optional: Disable the email provider in Authentication → Providers (security best practice since we only use Discord)
+   - Optional: Lower JWT expiry in Authentication → Settings to reduce the risk window during OAuth sign-in (tokens briefly appear in the browser's URL bar before automatic cleanup; shorter expiry limits how long captured tokens remain valid without affecting session length)
+
+2. **Set up Discord OAuth** at https://discord.com/developers/applications
+   - Create a new application
+   - Add your Supabase callback URL to OAuth2 redirects
+   - Connect Discord to Supabase in Authentication → Providers
+
+3. **Configure environment variables**:
+   - Copy `.env.example` to `.env`
+   - Add your Supabase credentials
+   - For deployment, add them to GitHub Secrets
+
+For detailed setup instructions, see:
+- [Supabase Auth with Discord](https://supabase.com/docs/guides/auth/social-login/auth-discord)
+- [Discord OAuth2 Documentation](https://discord.com/developers/docs/topics/oauth2)
+
+**Privacy:** Only your Discord User ID (a public identifier) and app preferences are stored. No email addresses or personal information.
+
 ## Project Structure
 
 - `*.php` - PHP page templates

@@ -21,6 +21,7 @@
 		<input id="query" class="form-control" autofocus />
 		<div id="results" class="mt-3"></div>
 	</div>
+	<?php require "components/footer.php"; ?>
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://cdn.jsdelivr.net/npm/showdown@2.1.0/dist/showdown.min.js"></script>
 	<script src="typestripped/index.js"></script>

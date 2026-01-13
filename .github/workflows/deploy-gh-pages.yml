@@ -25,6 +25,9 @@ jobs:
         run: npm ci
 
       - name: Build for GitHub Pages
+        env:
+          VITE_DATABASE_URL: ${{ secrets.VITE_DATABASE_URL }}
+          VITE_DATABASE_ANON_KEY: ${{ secrets.VITE_DATABASE_ANON_KEY }}
         run: node build-gh-pages.js
 
       - name: Deploy to gh-pages

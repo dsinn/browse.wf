@@ -24,5 +24,8 @@
     "typescript": "^5.9.2",
     "vitest": "^2.1.8",
     "warframe-public-export-plus": "^0.5.86"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.90.1"
   }
 }

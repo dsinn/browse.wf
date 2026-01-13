@@ -26,6 +26,11 @@ function setLanguage(code)
 {
 	setLanguageIndicator(code);
 	localStorage.setItem("lang", code);
+	// Trigger cloud sync if available
+	if (window.triggerCloudSync)
+	{
+		window.triggerCloudSync();
+	}
 	const promises = [];
 	if (window.dict)
 	{

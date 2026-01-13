@@ -73,6 +73,9 @@ $ext = substr($_SERVER["SERVER_SOFTWARE"] ?? "", 0, 3) == "PHP" ? ".php" : "";
 				</ul>
 			</div>
 			<a id="navbar-pin-desktop" class="navbar-pin d-none d-lg-block ms-2" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
+			<div class="nav-item mb-2 mb-lg-0 ms-2" id="auth-button">
+				<!-- JavaScript will populate this with auth UI -->
+			</div>
 		</div>
 	</div>
 </nav>

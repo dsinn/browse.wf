@@ -17,3 +17,7 @@ test/__fixtures__/
 
 # Build output (auto-generated)
 dist/
+
+# Environment variables (cloud sync credentials)
+.env
+.env.local

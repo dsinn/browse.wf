@@ -1357,6 +1357,11 @@ function toggleOidCompletion(oid: string): void
 		arr.push(oid);
 	}
 	localStorage.setItem("oids_completed", JSON.stringify(arr));
+	// Trigger cloud sync if available
+	if ((window as any).triggerCloudSync)
+	{
+		(window as any).triggerCloudSync();
+	}
 }
 
 function createCompletionToggle(oid: string): HTMLAnchorElement
@@ -1369,6 +1374,7 @@ function createCompletionToggle(oid: string): HTMLAnchorElement
 
 	const a = document.createElement("a");
 	a.className = "completion-check";
+	a.setAttribute("data-oid", oid);
 	a.innerHTML = isOidMarkedAsCompleted(oid) ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
 	const tooltip = addTooltip(a, (isOidMarkedAsCompleted(oid) ? "Unmark as " : "Mark as ") + what);
 	a.onclick = function()
@@ -1691,6 +1697,9 @@ function refreshCollapseStatus(elm: HTMLElement): void
 	elm.appendChild(span);
 }
 
+// Expose globally for cloud sync service
+(window as any).refreshCollapseStatus = refreshCollapseStatus;
+
 document.querySelectorAll<HTMLSpanElement>("[data-collapse-toggle]").forEach(elm =>
 {
 	elm.classList.add("text-secondary");
@@ -1704,6 +1713,11 @@ document.querySelectorAll<HTMLSpanElement>("[data-collapse-toggle]").forEach(elm
 		else
 		{
 			localStorage.setItem("live.collapse." + elm.getAttribute("data-collapse-toggle"), "1");
+		}
+		// Trigger cloud sync if available
+		if ((window as any).triggerCloudSync)
+		{
+			(window as any).triggerCloudSync();
 		}
 		refreshCollapseStatus(elm);
 	};
@@ -1744,6 +1758,9 @@ function refreshNotifStatus(elm: HTMLElement): void
 	elm.appendChild(span);
 }
 
+// Expose globally for cloud sync service
+(window as any).refreshNotifStatus = refreshNotifStatus;
+
 document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm =>
 {
 	refreshNotifStatus(elm);
@@ -1764,8 +1781,37 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 				});
 			}
 		}
+		// Trigger cloud sync if available
+		if ((window as any).triggerCloudSync)
+		{
+			(window as any).triggerCloudSync();
+		}
 		refreshNotifStatus(elm);
 	};
 });
 
 document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm, "Voidplume Quills"));
+
+// Refresh all completion checkboxes based on current localStorage state
+function refreshAllCompletionToggles(): void
+{
+	document.querySelectorAll<HTMLAnchorElement>(".completion-check").forEach(elm => {
+		const oid = elm.getAttribute("data-oid");
+		if (oid) {
+			const isCompleted = isOidMarkedAsCompleted(oid);
+			elm.innerHTML = isCompleted ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
+			// Update tooltip if it exists
+			const tooltip = window.bootstrap?.Tooltip.getInstance(elm);
+			if (tooltip) {
+				let what = "completed";
+				if (oid.substring(0, 5) == "kahlb") {
+					what += " (Bonus Objective #" + oid.substring(5, 6) + ")";
+				}
+				tooltip.setContent({ ".tooltip-inner": (isCompleted ? "Unmark as " : "Mark as ") + what });
+			}
+		}
+	});
+}
+
+// Expose globally for cloud sync service
+(window as any).refreshAllCompletionToggles = refreshAllCompletionToggles;

@@ -8,10 +8,14 @@
  * 3. Prepares files for deployment to gh-pages branch
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const { startPhpServer, stopPhpServer, fetchHtml } = require('./helpers/php-server');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { startPhpServer, stopPhpServer, fetchHtml } from './helpers/php-server.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const BUILD_DIR = path.join(__dirname, 'dist');
 const PHP_SERVER_PORT = 60980; // Different port for build

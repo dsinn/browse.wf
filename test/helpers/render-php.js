@@ -8,9 +8,13 @@
  *   node test/helpers/render-php.js navbar             # Render specific fixture
  */
 
-const fs = require('fs');
-const path = require('path');
-const { startPhpServer, stopPhpServer, fetchHtml } = require('../../helpers/php-server');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { startPhpServer, stopPhpServer, fetchHtml } from '../../helpers/php-server.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const FIXTURES_DIR = path.join(__dirname, '../__fixtures__');
 const PHP_SERVER_PORT = process.env.PHP_TEST_PORT || 60970; // Different from dev server
@@ -92,12 +96,12 @@ async function renderAll(specificFixture) {
 /**
  * Watch mode - re-render when PHP files change
  */
-function watchMode() {
-  const chokidar = require('chokidar');
+async function watchMode() {
+  const chokidar = await import('chokidar');
 
   console.log('👀 Watching for PHP file changes...\n');
 
-  const watcher = chokidar.watch(['**/*.php'], {
+  const watcher = chokidar.default.watch(['**/*.php'], {
     ignored: [
       '**/node_modules/**',
       '**/vendor/**',
@@ -133,8 +137,8 @@ const specificFixture = args.find(arg => !arg.startsWith('-'));
 if (watchFlag) {
   // Check if chokidar is available
   try {
-    require.resolve('chokidar');
-    watchMode();
+    await import('chokidar');
+    await watchMode();
   } catch (e) {
     console.error('❌ Watch mode requires chokidar. Install with: npm install --save-dev chokidar');
     process.exit(1);

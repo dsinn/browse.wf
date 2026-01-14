@@ -3,8 +3,8 @@
  * Used by both test fixtures and GitHub Pages build
  */
 
-const { execSync } = require('child_process');
-const http = require('http');
+import { execSync } from 'child_process';
+import http from 'http';
 
 /**
  * Start PHP built-in server
@@ -55,7 +55,7 @@ function fetchHtml(url, port) {
   });
 }
 
-module.exports = {
+export {
   startPhpServer,
   stopPhpServer,
   fetchHtml,

@@ -11,6 +11,10 @@ This is a fork of [calamity-inc/browse.wf](https://github.com/calamity-inc/brows
 - **Navbar customization**: Optional setting to unfix the navbar
 - **Cross-platform UI**: System-independent checkbox styling
 
+**UI changes:**
+
+- **Notification icons**: Bells now use a colour/fill pattern (coloured when enabled, grayscale when disabled) instead of bell/bell-slash icons, matching more modern UX patterns.
+
 **For developers:**
 
 - **GitHub Pages deployment**: Automated workflow for deploying static builds to GitHub Pages

@@ -18,6 +18,12 @@
 			& .card-header { border-bottom: none }
 			& > :not(.card-header) { display: none !important }
 		}
+		.notif-bell-enabled {
+			filter: brightness(1.1) saturate(1.2);
+		}
+		.notif-bell-disabled {
+			filter: grayscale(100%);
+		}
 	</style>
 </head>
 <body data-bs-theme="dark">

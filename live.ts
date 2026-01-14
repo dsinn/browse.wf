@@ -1769,7 +1769,8 @@ function refreshNotifStatus(elm: HTMLElement): void
 {
 	const enabled = localStorage.getItem("live.notif." + elm.getAttribute("data-notif-toggle"));
 	const span = document.createElement("span");
-	span.textContent = enabled ? "🔕" : "🔔";
+	span.textContent = "🔔";
+	span.className = enabled ? "notif-bell-enabled" : "notif-bell-disabled";
 	const name = elm.getAttribute("data-notif-toggle") == "nightfall" ? "Notifications (30s before Plains of Eidolon nightfall)" : "Notifications";
 	addTooltip(span, (enabled ? "Disable " : "Enable ") + name);
 	elm.querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());

@@ -174,3 +174,41 @@ The workflow is manually triggered only. It builds the site and pushes to the `g
 - TypeScript compilation happens automatically in watch mode
 - Source maps are generated for easier debugging
 - Using a fixed port ensures localStorage data (inventory, preferences) persists across server restarts
+
+## Example Git Hooks
+
+These mirror the checks that run in CI.
+
+### `.git/hooks/pre-commit`
+
+```shell
+#!/bin/bash
+set -e
+
+echo "Running pre-commit checks..."
+
+echo "→ Linting TypeScript files..."
+npm run lint
+
+echo "→ Type checking..."
+npm exec tsc
+
+echo "✓ Pre-commit checks passed"
+```
+
+### `.git/hooks/pre-push`
+
+```shell
+#!/bin/bash
+set -e
+
+echo "Running pre-push checks..."
+
+echo "→ Running tests..."
+npm test -- --run --reporter=dot --silent
+
+echo "→ Testing build..."
+npm run build
+
+echo "✓ Pre-push checks passed"
+```

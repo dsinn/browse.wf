@@ -8,6 +8,7 @@ declare global {
     showdown?: any;
     onLanguageUpdate?: () => void;
     __ENV__?: {
+      VITE_ENV?: string;
       VITE_DATABASE_URL?: string;
       VITE_DATABASE_ANON_KEY?: string;
     };

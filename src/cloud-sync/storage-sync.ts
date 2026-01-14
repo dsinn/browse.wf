@@ -8,6 +8,7 @@
 import { db } from './database.js'
 import { AuthService } from './auth.js'
 import type { UserData } from './types.js'
+import { logger } from '../logger.js'
 
 export class StorageSyncService {
   private static instance: StorageSyncService
@@ -15,6 +16,7 @@ export class StorageSyncService {
   private pushTimer: number | null = null
   private realtimeChannel: any = null
   private justPushed = false  // Track when we just pushed to avoid pulling our own update
+  private hasSubscribedBefore = false  // Track initial subscription
 
   // localStorage key prefixes
   private static readonly NOTIF_PREFIX = 'live.notif.'
@@ -284,7 +286,30 @@ export class StorageSyncService {
           }
         }
       })
-      .subscribe()
+      .subscribe(async (status) => {
+        logger.debug('📡 WebSocket status:', status, '| hasSubscribedBefore:', this.hasSubscribedBefore)
+
+        // When WebSocket reconnects after sleep/network loss, pull fresh data
+        if (status === 'SUBSCRIBED') {
+          if (this.hasSubscribedBefore) {
+            logger.debug('🔄 Reconnection detected - pulling fresh data')
+            // This is a reconnection - pull to catch up on missed updates
+            if (!this.syncing) {
+              try {
+                this.syncing = true
+                await this.pullFromDatabase(discordUserId)
+                console.log('Synced data from cloud (reconnected)')
+              } finally {
+                this.syncing = false
+              }
+            }
+          } else {
+            logger.debug('✅ First subscription established')
+            // First subscription - no pull needed (already handled in handleFirstLogin)
+            this.hasSubscribedBefore = true
+          }
+        }
+      })
   }
 
   /**

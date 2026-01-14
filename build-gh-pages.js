@@ -139,6 +139,7 @@ async function build() {
     // Generate env-config.js for GitHub Pages
     console.log('🔧 Generating env-config.js...');
     const envConfig = {
+      VITE_ENV: 'production',  // Always 'production' for GitHub Pages build
       VITE_DATABASE_URL: process.env.VITE_DATABASE_URL || '',
       VITE_DATABASE_ANON_KEY: process.env.VITE_DATABASE_ANON_KEY || ''
     };

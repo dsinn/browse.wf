@@ -21,6 +21,7 @@ export class StorageSyncService {
   // localStorage key prefixes
   private static readonly NOTIF_PREFIX = 'live.notif.'
   private static readonly COLLAPSE_PREFIX = 'live.collapse.'
+  private static readonly FILTER_PREFIX = 'live.filter.'
   private static readonly LAST_MODIFIED_KEY = '_last_modified'
   private static readonly DEBOUNCE_MS = 5000  // 5 seconds - aggressive batching for long-lived tabs
 
@@ -91,7 +92,7 @@ export class StorageSyncService {
       completions: []
     }
 
-    // Dynamically collect all notification settings and UI collapse states
+    // Dynamically collect all notification settings, UI collapse states, and filter preferences
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
       if (key?.startsWith(StorageSyncService.NOTIF_PREFIX)) {
@@ -100,6 +101,10 @@ export class StorageSyncService {
       } else if (key?.startsWith(StorageSyncService.COLLAPSE_PREFIX)) {
         const stateKey = key.replace(StorageSyncService.COLLAPSE_PREFIX, '')
         data.ui_state[stateKey] = true
+      } else if (key?.startsWith(StorageSyncService.FILTER_PREFIX)) {
+        const filterKey = key.replace(StorageSyncService.FILTER_PREFIX, '')
+        const value = localStorage.getItem(key)
+        data.ui_state[`filter.${filterKey}`] = value === '1'
       }
     }
 
@@ -132,12 +137,19 @@ export class StorageSyncService {
       }
     }
 
-    // Set UI states
-    for (const [key, collapsed] of Object.entries(data.ui_state)) {
-      if (collapsed) {
-        localStorage.setItem(`${StorageSyncService.COLLAPSE_PREFIX}${key}`, 'true')
+    // Set UI states (collapse states and filters)
+    for (const [key, value] of Object.entries(data.ui_state)) {
+      if (key.startsWith('filter.')) {
+        // Handle filter preferences (store as "1" or "0")
+        const filterKey = key.replace('filter.', '')
+        localStorage.setItem(`${StorageSyncService.FILTER_PREFIX}${filterKey}`, value ? '1' : '0')
       } else {
-        localStorage.removeItem(`${StorageSyncService.COLLAPSE_PREFIX}${key}`)
+        // Handle collapse states (store truthy or remove)
+        if (value) {
+          localStorage.setItem(`${StorageSyncService.COLLAPSE_PREFIX}${key}`, 'true')
+        } else {
+          localStorage.removeItem(`${StorageSyncService.COLLAPSE_PREFIX}${key}`)
+        }
       }
     }
 
@@ -333,6 +345,32 @@ export class StorageSyncService {
       document.querySelectorAll<HTMLElement>("[data-notif-toggle]").forEach(elm => {
         (window as any).refreshNotifStatus(elm)
       })
+    }
+
+    // Refresh filter states using existing function
+    if ((window as any).refreshFilterStatus) {
+      document.querySelectorAll<HTMLElement>("[data-filter-toggle]").forEach(elm => {
+        (window as any).refreshFilterStatus(elm)
+      })
+    }
+
+    // Refresh filter checkboxes
+    document.querySelectorAll<HTMLInputElement>("[data-filter-type]").forEach(checkbox => {
+      const filterType = checkbox.getAttribute("data-filter-type")
+      if (filterType) {
+        // Extract card name from checkbox ID (e.g., "filter-news-danger" -> "news")
+        const cardName = checkbox.id.split('-')[1]
+        const storageKey = `live.filter.${cardName}.${filterType}`
+        const savedState = localStorage.getItem(storageKey)
+        if (savedState !== null) {
+          checkbox.checked = savedState === "1"
+        }
+      }
+    })
+
+    // Refresh news ticker if filters changed
+    if ((window as any).updateNewsTicker) {
+      (window as any).updateNewsTicker()
     }
   }
 

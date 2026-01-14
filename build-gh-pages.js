@@ -195,6 +195,14 @@ async function build() {
       console.log('  ✓ Copied supplemental-data/');
     }
 
+    // Copy src directory (for CSS and other assets)
+    const srcDataSrc = path.join(__dirname, 'src');
+    const srcDataDest = path.join(BUILD_DIR, 'src');
+    if (fs.existsSync(srcDataSrc)) {
+      copyDirectory(srcDataSrc, srcDataDest);
+      console.log('  ✓ Copied src/');
+    }
+
     // Copy static text files
     const staticFiles = ['arbys.txt', 'sp-incursions.txt', 'arbys-old.txt'];
     for (const file of staticFiles) {

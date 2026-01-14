@@ -37,28 +37,27 @@ test/
 │   ├── min.json
 │   ├── bounty-cycle.json
 │   ├── weekly.json
-│   ├── worldState.json
-│   ├── invasions.json
-│   └── arbys.txt
+│   └── ...
 │
 ├── helpers/                # Shared test utilities
 │   ├── api-mocks.ts       # Mock fetch setup & data loading
 │   ├── dom-helpers.ts     # DOM setup & query helpers
-│   └── time-helpers.ts    # Time-freezing utilities
+│   ├── time-helpers.ts    # Time-freezing utilities
+│   └── ...
 │
 ├── live/                   # Live page test suite
-│   ├── cards/             # Smoke tests for each card
-│   │   ├── darvo.test.ts
+│   ├── card-filters-factory.ts   # Test factory for card filter integration
+│   │
+│   ├── cards/             # Card-specific tests
 │   │   ├── arbitration.test.ts
-│   │   ├── sortie.test.ts
-│   │   ├── archon-hunt.test.ts
 │   │   ├── bounties.test.ts
 │   │   ├── invasions.test.ts
-│   │   └── archimedea.test.ts
+│   │   └── ...
 │   │
 │   └── integration/       # API validation, time-freezing, and user interactions
 │       ├── api-integration.test.ts
-│       └── time-freezing.test.ts
+│       ├── time-freezing.test.ts
+│       └── ...
 │
 ├── setup.ts               # Global test setup
 ├── README.md              # This file
@@ -69,7 +68,13 @@ test/
 
 ## Test Categories
 
+- **Test Factories** (`live/`) - Reusable test generators
+  - `card-filters-factory.ts` - Factory function that tests generic filter functionality for any card
+  - Loads real compiled code from `typestripped/src/card-filters.js` (no test drift)
+  - Cards with filters import and call `testCardFilters(cardName)` to verify correct integration
 - **Card Tests** (`live/cards/`) - Verify each card renders correctly with mock data
+  - `news.test.ts` - Calls `testCardFilters('news')` for filter integration
+  - Other card tests - Smoke tests for specific game features (Arbitration, Bounties, Invasions, etc.)
 - **Integration Tests** (`live/integration/`) - API validation, time-freezing, and user interactions
 
 ## Writing New Tests
@@ -110,6 +115,14 @@ describe('Card Collapse', () => {
   });
 });
 ```
+
+## Testing Fork-Specific JavaScript
+
+**Principle:** Test the real compiled code from `typestripped/`, not mocked duplicates. This prevents test drift where tests pass but production is broken.
+
+**For fork code** (`src/` modules): Load the compiled version using `loadScript()` helper. See `test/live/card-filters-factory.ts` for example.
+
+**For upstream code** (`live.ts`, `index.ts`): Don't test behavior in unit tests - test integration points only. Use E2E tests for full behavior verification.
 
 ## Updating Mock Data
 

@@ -699,11 +699,20 @@ function updateNewsTicker()
 	}
 	items.sort((a, b) => b.time - a.time);
 
+	// Handle case where API returned no items
+	if (items.length === 0)
+	{
+		document.getElementById("news-body").innerHTML = "No news items available.";
+		return;
+	}
+
 	if (window.news_notify_after && localStorage.getItem("live.notif.news"))
 	{
 		for (let i = items.length; i-- != 0; )
 		{
-			if (items[i].time > window.news_notify_after)
+			// Only notify for items that pass the filter
+			if (items[i].time > window.news_notify_after &&
+			    ((window as any).isFilterEnabled?.("news", items[i].type) ?? true))
 			{
 				sendNotification(items[i].data);
 			}
@@ -713,6 +722,22 @@ function updateNewsTicker()
 	{
 		window.refresh_news_sources_at = Date.now() + 60_000;
 		window.news_notify_after = highest_time;
+	}
+
+	// Filter items based on user preferences (mutate in place to minimize upstream changes)
+	for (let i = items.length; i-- > 0; )
+	{
+		if (!((window as any).isFilterEnabled?.("news", items[i].type) ?? true))
+		{
+			items.splice(i, 1);
+		}
+	}
+
+	// Handle case where all items were filtered out
+	if (items.length === 0)
+	{
+		document.getElementById("news-body").innerHTML = "No news items to display based on the current filters.";
+		return;
 	}
 
 	document.getElementById("news-body").innerHTML = "";
@@ -750,6 +775,9 @@ function updateNewsTicker()
 	}
 	document.querySelector("#news-body > :last-child").classList.remove("mb-1");
 }
+
+// Expose globally for cloud sync service
+(window as any).updateNewsTicker = updateNewsTicker;
 
 async function updateNewsSources()
 {
@@ -1809,6 +1837,12 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 		refreshNotifStatus(elm);
 	};
 });
+
+// Initialize card filter functionality (from global scope)
+if ((window as any).initializeCardFilters_all)
+{
+	(window as any).initializeCardFilters_all();
+}
 
 document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm, "Voidplume Quills"));
 

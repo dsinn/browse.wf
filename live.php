@@ -7,6 +7,7 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
+	<link rel="stylesheet" href="src/card-filters.css">
 	<style>
 		abbr { text-decoration: underline dotted; text-decoration-skip-ink: none; }
 		[data-bs-toggle=tooltip] { cursor: help; }
@@ -68,7 +69,30 @@
 						<div class="card mb-3">
 							<div class="card-header d-flex">
 								<h5 class="mb-0"><span data-collapse-toggle="news"></span> News</h5>
-								<a class="m-auto me-0" data-notif-toggle="news"></a>
+								<a class="ms-auto me-2" data-filter-toggle="news"></a>
+								<a data-notif-toggle="news"></a>
+							</div>
+							<div class="card-filter-panel" id="news-filters" style="display:none">
+								<div class="card-body py-2">
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="filter-news-danger" data-filter-type="danger" checked>
+										<label class="form-check-label text-danger" for="filter-news-danger">
+											Red text
+										</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="filter-news-primary" data-filter-type="primary" checked>
+										<label class="form-check-label text-primary" for="filter-news-primary">
+											Regular events
+										</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="filter-news-success" data-filter-type="success" checked>
+										<label class="form-check-label text-success" for="filter-news-success">
+											Community events
+										</label>
+									</div>
+								</div>
 							</div>
 							<div class="card-body overflow-auto" id="news-body" style="height:167px">
 								Loading...
@@ -369,6 +393,7 @@
 	<?php require "components/footer.php"; ?>
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+	<script src="typestripped/src/card-filters.js"></script>
 	<script src="typestripped/live.js?lv0"></script>
 </body>
 </html>

@@ -1,0 +1,36 @@
+/**
+ * Card filter styling for browse.wf
+ *
+ * Provides visual styling for accordion-based filter controls in card widgets.
+ */
+
+/* Filter gear icon - make clickable */
+[data-filter-toggle], [data-filter-toggle] > span {
+	text-decoration: none;
+	cursor: pointer;
+	color: inherit;
+}
+
+/* Active state - blue like navbar pin icon */
+.filter-gear-enabled {
+	filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(0.9);
+}
+
+/* Inactive state - grayscale */
+.filter-gear-disabled {
+	filter: grayscale(100%);
+}
+
+/* Accordion panel animation */
+.card-filter-panel {
+	overflow: hidden;
+	transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+	max-height: 0;
+	opacity: 0;
+	border-bottom: 1px dashed var(--bs-border-color);
+}
+
+.card-filter-panel.show {
+	max-height: 500px;
+	opacity: 1;
+}

@@ -54,3 +54,26 @@ export function mockBootstrapTooltip() {
     }
   };
 }
+
+/**
+ * Load a compiled JavaScript file into the test environment
+ * Executes the script in the global (window) context
+ *
+ * @param relativePath - Path relative to project root (e.g., 'typestripped/src/card-filters.js')
+ */
+export function loadScript(relativePath: string) {
+  const fs = require('fs');
+  const path = require('path');
+
+  const scriptPath = path.join(process.cwd(), relativePath);
+
+  if (!fs.existsSync(scriptPath)) {
+    throw new Error(`Script not found: ${scriptPath}`);
+  }
+
+  const scriptContent = fs.readFileSync(scriptPath, 'utf-8');
+
+  // Execute script in global context using eval
+  // This makes all global assignments (window.foo = ...) work correctly
+  eval(scriptContent);
+}

@@ -318,7 +318,7 @@
 			document.getElementById("choices").innerHTML = "";
 			for (const output of node.Outputs)
 			{
-				presentChoice("$ " + output.Expression, function()
+				presentChoice("$ " + output.Expression.split(", ").join(" & "), function()
 				{
 					processChoices(output.Outgoing);
 				});

@@ -17,6 +17,9 @@ export class StorageSyncService {
   private realtimeChannel: any = null
   private justPushed = false  // Track when we just pushed to avoid pulling our own update
   private hasSubscribedBefore = false  // Track initial subscription
+  private reconnectAttempts = 0  // Track reconnection attempts for exponential backoff
+  private reconnectTimer: number | null = null  // Timer for reconnection attempts
+  private currentDiscordUserId: string | null = null  // Track current user for reconnection
 
   // localStorage key prefixes
   private static readonly NOTIF_PREFIX = 'live.notif.'
@@ -264,10 +267,60 @@ export class StorageSyncService {
   }
 
   /**
+   * Attempt to reconnect to realtime updates with exponential backoff
+   * Called when websocket enters a failed state (CLOSED, TIMED_OUT, CHANNEL_ERROR)
+   */
+  private attemptReconnect() {
+    // Clear any existing reconnect timer
+    if (this.reconnectTimer !== null) {
+      clearTimeout(this.reconnectTimer)
+      this.reconnectTimer = null
+    }
+
+    const maxAttempts = 10
+    if (this.reconnectAttempts >= maxAttempts) {
+      logger.error('❌ Max reconnection attempts reached. Please refresh the page.')
+      return
+    }
+
+    // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 32s, 64s, 128s, 256s, 512s
+    const delayMs = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 512000)
+    this.reconnectAttempts++
+
+    logger.warn(`🔄 WebSocket disconnected. Reconnecting in ${delayMs / 1000}s (attempt ${this.reconnectAttempts}/${maxAttempts})`)
+
+    this.reconnectTimer = window.setTimeout(async () => {
+      this.reconnectTimer = null
+      if (this.currentDiscordUserId) {
+        logger.debug('🔌 Attempting to reestablish WebSocket connection...')
+
+        // Ensure we have a fresh session token before reconnecting
+        // This handles the case where JWT expired during long sleep
+        try {
+          const { data: { session }, error } = await db.auth.refreshSession()
+          if (error) {
+            logger.warn('⚠️ Session refresh failed:', error.message)
+            // Don't give up - attempt reconnection anyway in case it's a transient error
+          } else if (session) {
+            logger.debug('✅ Session refreshed successfully')
+          }
+        } catch (error) {
+          logger.warn('⚠️ Session refresh exception:', error)
+          // Continue with reconnection attempt
+        }
+
+        this.subscribeToRealtimeUpdates(this.currentDiscordUserId)
+      }
+    }, delayMs)
+  }
+
+  /**
    * Subscribe to real-time updates from database
    * Uses WebSockets (not polling) - efficient for free tier
    */
   subscribeToRealtimeUpdates(discordUserId: string) {
+    // Save current user for reconnection attempts
+    this.currentDiscordUserId = discordUserId
     // Unsubscribe from previous channel if exists
     if (this.realtimeChannel) {
       this.realtimeChannel.unsubscribe()
@@ -299,10 +352,20 @@ export class StorageSyncService {
         }
       })
       .subscribe(async (status) => {
-        logger.debug('📡 WebSocket status:', status, '| hasSubscribedBefore:', this.hasSubscribedBefore)
+        logger.debug('📡 WebSocket status:', status, '| hasSubscribedBefore:', this.hasSubscribedBefore, '| reconnectAttempts:', this.reconnectAttempts)
 
         // When WebSocket reconnects after sleep/network loss, pull fresh data
         if (status === 'SUBSCRIBED') {
+          // Reset reconnection counter on successful connection
+          if (this.reconnectAttempts > 0) {
+            logger.log('✅ WebSocket reconnected successfully after', this.reconnectAttempts, 'attempts')
+          }
+          this.reconnectAttempts = 0
+          if (this.reconnectTimer !== null) {
+            clearTimeout(this.reconnectTimer)
+            this.reconnectTimer = null
+          }
+
           if (this.hasSubscribedBefore) {
             logger.debug('🔄 Reconnection detected - pulling fresh data')
             // This is a reconnection - pull to catch up on missed updates
@@ -320,6 +383,10 @@ export class StorageSyncService {
             // First subscription - no pull needed (already handled in handleFirstLogin)
             this.hasSubscribedBefore = true
           }
+        } else if (status === 'CLOSED' || status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
+          // WebSocket entered a failed state - attempt to reconnect
+          logger.warn('⚠️ WebSocket entered failed state:', status)
+          this.attemptReconnect()
         }
       })
   }
@@ -378,6 +445,16 @@ export class StorageSyncService {
    * Unsubscribe from real-time updates
    */
   unsubscribeFromRealtimeUpdates(discordUserId: string) {
+    // Clear reconnection timer
+    if (this.reconnectTimer !== null) {
+      clearTimeout(this.reconnectTimer)
+      this.reconnectTimer = null
+    }
+
+    // Reset reconnection state
+    this.reconnectAttempts = 0
+    this.currentDiscordUserId = null
+
     if (this.realtimeChannel) {
       this.realtimeChannel.unsubscribe()
       this.realtimeChannel = null

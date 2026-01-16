@@ -33,7 +33,7 @@
 	</div>
 	<?php require "components/commonjs.html"; ?>
 	<script>
-		fetch("https://browse.wf/warframe-public-export-plus/ExportTextIcons.json").then(res => res.json()).then(ExportTextIcons =>
+		fetch("warframe-public-export-plus/ExportTextIcons.json").then(res => res.json()).then(ExportTextIcons =>
 		{
 			window.ExportTextIcons = ExportTextIcons;
 

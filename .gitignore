@@ -3,10 +3,9 @@ node_modules/
 # Compiled TypeScript output
 typestripped/
 
-# Symlinks
+# Symlinks to create later
 EE
 Lotus
-warframe-public-export-plus
 
 # Test coverage
 coverage/

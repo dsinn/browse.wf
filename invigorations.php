@@ -59,7 +59,7 @@
 	<script>
 		Promise.all([
 			getDictPromise(),
-			fetch("https://browse.wf/warframe-public-export-plus/ExportWarframes.json").then(res => res.json())
+			fetch("warframe-public-export-plus/ExportWarframes.json").then(res => res.json())
 		]).then(([_dict, ExportWarframes]) =>
 		{
 			window.dict = _dict;

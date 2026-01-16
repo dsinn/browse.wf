@@ -203,6 +203,20 @@ async function build() {
       console.log('  ✓ Copied src/');
     }
 
+    // Copy warframe-public-export-plus data
+    // This package contains game data files that the app fetches at runtime.
+    // Requires npm ci to have been run first to populate node_modules/.
+    const wfExportSrc = path.join(__dirname, 'node_modules/warframe-public-export-plus');
+    const wfExportDest = path.join(BUILD_DIR, 'warframe-public-export-plus');
+    if (!fs.existsSync(wfExportSrc)) {
+      throw new Error(
+        'warframe-public-export-plus not found in node_modules/. ' +
+        'Run "npm ci" before building.'
+      );
+    }
+    copyDirectory(wfExportSrc, wfExportDest);
+    console.log('  ✓ Copied warframe-public-export-plus/');
+
     // Copy static text files
     const staticFiles = ['arbys.txt', 'sp-incursions.txt', 'arbys-old.txt'];
     for (const file of staticFiles) {

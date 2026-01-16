@@ -207,10 +207,10 @@ declare global {
 const dict_promise = getDictPromise();
 const osdict_promise = getOSDictPromise();
 const dicts_promise = Promise.all([ dict_promise, osdict_promise ]);
-const ExportRegions_promise = fetch("https://browse.wf/warframe-public-export-plus/ExportRegions.json").then(res => res.json());
-const ExportChallenges_promise = fetch("https://browse.wf/warframe-public-export-plus/ExportChallenges.json").then(res => res.json());
-const ExportMissionTypes_promise = fetch("https://browse.wf/warframe-public-export-plus/ExportMissionTypes.json").then(res => res.json());
-const ExportFactions_promise = fetch("https://browse.wf/warframe-public-export-plus/ExportFactions.json").then(res => res.json());
+const ExportRegions_promise = fetch("warframe-public-export-plus/ExportRegions.json").then(res => res.json());
+const ExportChallenges_promise = fetch("warframe-public-export-plus/ExportChallenges.json").then(res => res.json());
+const ExportMissionTypes_promise = fetch("warframe-public-export-plus/ExportMissionTypes.json").then(res => res.json());
+const ExportFactions_promise = fetch("warframe-public-export-plus/ExportFactions.json").then(res => res.json());
 
 dict_promise.then(dict => { (window as any).dict = dict; });
 osdict_promise.then(osdict => { (window as any).osdict = osdict; });

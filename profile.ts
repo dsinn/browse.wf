@@ -126,17 +126,17 @@ const params = new URLSearchParams(location.hash.replace("#", ""));
 
 Promise.all([
 	getDictPromise(),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportAchievements.json").then(res => res.json()),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportCustoms.json").then(res => res.json()),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportEnemies.json").then(res => res.json()),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportFactions.json").then(res => res.json()),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportFlavour.json").then(res => res.json()),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportNightwave.json").then(res => res.json()),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportRegions.json").then(res => res.json()),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportSentinels.json").then(res => res.json()),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportSyndicates.json").then(res => res.json()),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportWarframes.json").then(res => res.json()),
-	fetch("https://browse.wf/warframe-public-export-plus/ExportWeapons.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportAchievements.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportCustoms.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportEnemies.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportFactions.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportFlavour.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportNightwave.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportRegions.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportSentinels.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportSyndicates.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportWarframes.json").then(res => res.json()),
+	fetch("warframe-public-export-plus/ExportWeapons.json").then(res => res.json()),
 	fetch("supplemental-data/profile-[DE]Rebecca.json").then(res => res.json())
 	]).then(([
 		dict,

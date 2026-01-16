@@ -17,6 +17,11 @@ declare global {
 }
 
 beforeEach(() => {
+  // Skip setup for API validation tests (they need real fetch)
+  if (process.env.API_VALIDATION) {
+    return;
+  }
+
   // Setup DOM structure from actual live.php
   document.body.innerHTML = loadFixture('live');
 

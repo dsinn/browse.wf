@@ -97,7 +97,7 @@ Promise.all([
 	getDictPromise(),
 	fetch("https://browse.wf/warframe-public-export-plus/ExportFactions.json").then(res => res.json()),
 	fetch("https://browse.wf/warframe-public-export-plus/ExportRegions.json").then(res => res.json()),
-	fetch("https://browse.wf/arbys.txt").then(res => res.text())
+	fetch("arbys.txt").then(res => res.text())
 ]).then(([ dict, ExportFactions, ExportRegions, arbys ]) => {
 	(window as any).dict = dict;
 	(window as any).ExportFactions = ExportFactions;

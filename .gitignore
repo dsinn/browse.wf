@@ -15,6 +15,10 @@ coverage/
 # PHP fixtures (auto-generated)
 test/__fixtures__/
 
+# Playwright artifacts (auto-generated)
+test-results/
+playwright-report/
+
 # Build output (auto-generated)
 dist/
 

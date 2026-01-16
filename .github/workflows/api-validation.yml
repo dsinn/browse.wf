@@ -1,0 +1,31 @@
+name: API Validation
+
+on:
+  schedule:
+    - cron: '30 21 * * 5' # Every Friday at 21:30 UTC
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  api-validation:
+    runs-on: ubuntu-latest
+    # Only run scheduled tests on the dsinn fork, but allow manual runs anywhere
+    if: github.repository == 'dsinn/browse.wf' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Validate API structure matches mocks
+        run: npm run test:api-validation
+
+      - name: Comment on failure
+        if: failure()
+        run: |
+          echo "::warning::API structure validation failed! The upstream API structure may have changed."
+          echo "::warning::Review the test results and update mocks if needed: ./test/update-mocks.sh"

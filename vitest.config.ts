@@ -7,6 +7,6 @@ export default defineConfig({
     setupFiles: ['./test/setup.ts'],
     globalSetup: ['./test/global-setup.ts'],
     include: ['test/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['**/node_modules/**', '**/typestripped/**', '**/dist/**'],
+    exclude: ['**/node_modules/**', '**/typestripped/**', '**/dist/**', '**/e2e/**'],
   },
 });

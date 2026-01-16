@@ -1665,7 +1665,7 @@ dicts_promise.then(([dict, osdict]) =>
 	};
 
 	Promise.all([
-		fetch("https://browse.wf/arbys.txt").then(res => res.text()),
+		fetch("arbys.txt").then(res => res.text()),
 		loadScriptPromise("supplemental-data/arbyTiers.js"),
 		ExportRegions_promise
 	]).then(([arbys]) =>
@@ -1674,7 +1674,7 @@ dicts_promise.then(([dict, osdict]) =>
 		updateArby();
 	});
 
-	fetch("https://browse.wf/sp-incursions.txt").then(res => res.text()).then(async (incursions) => {
+	fetch("sp-incursions.txt").then(res => res.text()).then(async (incursions) => {
 		await ExportRegions_promise;
 		window.incursions = incursions.split("\n").map(line => line.split(";")).filter(arr => arr.length == 2).map(arr => [ parseInt(arr[0]), arr[1] ]);
 		updateIncursions();

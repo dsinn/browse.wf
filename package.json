@@ -7,11 +7,16 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:api-validation": "API_VALIDATION=1 vitest run test/api-validation.test.ts",
     "render-fixtures": "node test/helpers/render-php.js",
     "render-fixtures:watch": "node test/helpers/render-php.js --watch",
     "build": "node build-gh-pages.js"
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@testing-library/dom": "^10.4.0",
     "@types/bootstrap": "^5.2.10",
     "@types/showdown": "^2.0.6",

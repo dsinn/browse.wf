@@ -7,6 +7,7 @@ This is a fork of [calamity-inc/browse.wf](https://github.com/calamity-inc/brows
 **For Warframe players:**
 
 - **Cloud sync**: Discord authentication with a database backend for backing up preferences and syncing across devices
+- **Card filters**: Gear icon toggles per-card with accordion filter panels for customizing visible content (e.g., hide red text emergency announcements)
 - **Improved void fissures UI**: Enhanced layout and organization for void fissure information
 - **Navbar customization**: Optional setting to unfix the navbar
 - **Cross-platform UI**: System-independent checkbox styling
@@ -25,7 +26,7 @@ This is a fork of [calamity-inc/browse.wf](https://github.com/calamity-inc/brows
 - **Backend**: PHP
 - **Frontend**: TypeScript, Bootstrap
 - **Build Tool**: php-ts-dev (combines PHP development server with TypeScript watch mode)
-- **Testing**: Vitest, @testing-library/dom, jsdom
+- **Testing**: Vitest + jsdom (unit), Playwright (E2E)
 - **Dependencies**:
   - Bootstrap (CSS framework)
   - Showdown (Markdown parser)
@@ -84,14 +85,14 @@ Before running this application locally, ensure you have the following installed
 
 ### Testing
 
-Automated tests for the `/live` page use **Vitest** with jsdom for DOM testing.
+The project uses two types of automated tests:
 
 ```bash
-npm test          # Run once
-npm run test:ui   # Visual interface
+npm test              # Run unit tests (Vitest)
+npm run test:e2e      # Run E2E tests (Playwright)
 ```
 
-See [test/README.md](test/README.md) for detailed testing documentation.
+For more commands, debugging options, and testing strategies, see [test/README.md](test/README.md).
 
 ### Cloud Sync (Optional)
 
@@ -138,10 +139,11 @@ For detailed setup instructions, see:
 
 - `npm run dev` - Start development server with TypeScript watch mode
 - `npm run lint` - Run ESLint on TypeScript files
-- `npm test` - Run automated tests
-- `npm run test:ui` - Run tests with visual interface
-- `npm run test:coverage` - Run tests with coverage report
+- `npm test` - Run unit tests (Vitest)
+- `npm run test:e2e` - Run E2E tests (Playwright)
 - `npm run build` - Build static site for GitHub Pages deployment
+
+See [test/README.md](test/README.md) for additional test commands.
 
 ## Deployment
 

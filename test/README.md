@@ -1,6 +1,14 @@
-# Live Page Tests
+# Testing Documentation
 
-Automated tests for the `/live` page using Vitest and Testing Library.
+This project uses two complementary testing approaches:
+
+1. **Unit Tests** (Vitest + jsdom) - Fast, structural tests for the `/live` page
+2. **E2E Tests** (Playwright) - Real browser tests for behavioral validation
+
+**Quick Links:**
+- [Playwright Documentation](https://playwright.dev/docs/intro) - E2E testing reference
+- [Quick Start Guide](QUICK_START.md) - Vitest quick reference
+- [Test Coverage Summary](SUMMARY.md) - Detailed coverage information
 
 ## Setup
 
@@ -9,10 +17,17 @@ Install dependencies:
 npm install
 ```
 
+For E2E tests, Playwright browsers are installed automatically when running tests for the first time. To install manually:
+```bash
+npx playwright install chromium
+```
+
 ## Running Tests
 
+### Unit Tests (Vitest)
+
 ```bash
-# Run all tests
+# Run all unit tests
 npm test
 
 # Run tests in watch mode (auto-rerun on changes)
@@ -27,6 +42,30 @@ npm run test:coverage
 # Run specific test suites
 npm test -- test/live/cards          # Only card tests
 npm test -- test/live/integration    # Only integration tests
+npm test -- test/arbys               # Arbys page structural tests
+```
+
+### E2E Tests (Playwright)
+
+```bash
+# Run all E2E tests
+npm run test:e2e
+
+# Open Playwright UI (recommended for development)
+npm run test:e2e:ui
+
+# Debug tests with Playwright Inspector
+npm run test:e2e:debug
+
+# Run specific test file
+npx playwright test e2e/arbys.spec.ts
+```
+
+### API Validation Tests (Vitest)
+
+```bash
+# Validate API structure (weekly/manual - hits real APIs)
+npm run test:api-validation
 ```
 
 ## Test Structure
@@ -37,6 +76,7 @@ test/
 │   ├── min.json
 │   ├── bounty-cycle.json
 │   ├── weekly.json
+│   ├── arbys.txt
 │   └── ...
 │
 ├── helpers/                # Shared test utilities
@@ -45,7 +85,7 @@ test/
 │   ├── time-helpers.ts    # Time-freezing utilities
 │   └── ...
 │
-├── live/                   # Live page test suite
+├── live/                   # Live page unit tests (Vitest)
 │   ├── card-filters-factory.ts   # Test factory for card filter integration
 │   │
 │   ├── cards/             # Card-specific tests
@@ -59,11 +99,22 @@ test/
 │       ├── time-freezing.test.ts
 │       └── ...
 │
-├── setup.ts               # Global test setup
+├── arbys/                  # Arbys page unit tests (Vitest)
+│   └── arbys.test.ts      # Structural tests (HTML, data files)
+│
+├── setup.ts               # Global unit test setup
+├── global-setup.ts        # Global test environment setup
+├── api-validation.test.ts # API structure validation (run weekly)
 ├── README.md              # This file
 ├── SUMMARY.md             # Test coverage details
 ├── QUICK_START.md         # Quick reference
 └── update-mocks.sh        # Refresh mock data script
+
+e2e/                        # E2E tests (Playwright)
+├── helpers/               # E2E test utilities
+│   └── api-mocks.ts       # Playwright route interception for API mocking
+├── arbys.spec.ts          # Arbys page behavioral tests
+└── live.spec.ts           # Live page behavioral tests
 ```
 
 ## Test Categories
@@ -76,45 +127,15 @@ test/
   - `news.test.ts` - Calls `testCardFilters('news')` for filter integration
   - Other card tests - Smoke tests for specific game features (Arbitration, Bounties, Invasions, etc.)
 - **Integration Tests** (`live/integration/`) - API validation, time-freezing, and user interactions
-
-## Writing New Tests
-
-### Card Test Example
-```typescript
-// test/live/cards/my-card.test.ts
-import { describe, test, expect } from 'vitest';
-import { loadMock } from '../../helpers/api-mocks';
-import { getById } from '../../helpers/dom-helpers';
-
-describe('My Card', () => {
-  test('renders data correctly', () => {
-    const data = loadMock('worldState.json');
-    const element = getById('my-element');
-
-    element.textContent = data.someValue;
-
-    expect(element.textContent).toBe('Expected Value');
-  });
-});
-```
-
-### Integration Test Example
-```typescript
-// test/live/integration/collapse.test.ts
-import { describe, test, expect } from 'vitest';
-import { getById } from '../../helpers/dom-helpers';
-
-describe('Card Collapse', () => {
-  test('clicking collapse button hides card', () => {
-    const button = getById('collapse-button');
-    const card = getById('card-body');
-
-    button.click();
-
-    expect(card.classList.contains('d-none')).toBe(true);
-  });
-});
-```
+- **Structural Tests** (`arbys/`) - HTML structure and data file validation
+- **E2E Tests** (`e2e/`) - Real browser behavioral tests with Playwright
+  - Use mocked APIs for fast, deterministic testing
+  - Verify user interactions, UI state, and localStorage persistence
+- **API Validation Tests** (`test/api-validation.test.ts`) - Weekly structure validation (Vitest)
+  - Hit real oracle.browse.wf APIs (not mocked)
+  - Verify API response structure matches mock files
+  - Detect "mock drift" when upstream APIs change
+  - Run via `npm run test:api-validation` (not part of regular test suite)
 
 ## Testing Fork-Specific JavaScript
 
@@ -143,27 +164,29 @@ curl -s "https://browse.wf/arbys.txt" > test/__mocks__/arbys.txt
 
 ## CI/CD Integration
 
-Tests can be run in CI with:
-
+### Unit Tests
 ```yaml
 - run: npm ci
 - run: npm test -- --run
 ```
 
-PHP fixtures are auto-generated before tests run (via `global-setup.ts`), so no separate fixture generation step is needed. The `--run` flag ensures tests run once and exit (no watch mode).
+### E2E Tests
+```yaml
+- run: npm ci
+- run: npx playwright install --with-deps chromium
+- run: npm run test:e2e
+```
 
-## Test Coverage
+### API Validation (Weekly)
+```yaml
+# Runs weekly via .github/workflows/api-validation.yml
+- run: npm ci
+- run: npm run test:api-validation
+```
 
-Tests verify:
-- ✅ API responses have correct structure
-- ✅ Data is parsed correctly from API responses
-- ✅ DOM elements are populated with expected values
-- ✅ Card-specific logic works (rotations, tiers, rewards, etc.)
-- ✅ Time-dependent calculations use frozen timestamps
-
-## Benefits of This Structure
-
-- **Easy to navigate** - Tests organized by feature/card
-- **Selective testing** - Run specific test suites
-- **Reusable helpers** - Shared utilities for common tasks
-- **Clear responsibility** - Each file has a single focus
+**Notes:**
+- PHP fixtures are auto-generated before unit tests run (via `global-setup.ts`), so no separate fixture generation step is needed
+- The `--run` flag ensures tests run once and exit (no watch mode)
+- E2E tests use mocks for fast, deterministic testing
+- API validation tests hit real APIs to detect mock drift - run weekly, not on every commit
+- Playwright automatically starts a PHP development server on port 61969 before running tests and stops it when done (configured in `playwright.config.ts`)

@@ -1,0 +1,78 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - kouhai
+      - senpai
+
+jobs:
+  lint-and-typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Lint TypeScript files
+        run: npm run lint
+      - name: Type check
+        run: npm exec tsc
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - run: npm ci
+      - name: Compile TypeScript
+        run: npm exec tsc
+      - name: Run unit tests
+        run: npm test -- --run
+        timeout-minutes: 1
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+      - run: npm ci
+      - name: Compile TypeScript
+        run: npm exec tsc
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
+      - name: Run E2E tests
+        run: npm run test:e2e
+        timeout-minutes: 2
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7

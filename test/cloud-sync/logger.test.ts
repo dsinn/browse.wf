@@ -34,7 +34,11 @@ describe('Logger', () => {
 
       logger.debug('test message', 123);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('test message', 123);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]$/),
+        'test message',
+        123
+      );
     });
 
     test('should log when VITE_ENV is development', async () => {
@@ -44,7 +48,10 @@ describe('Logger', () => {
 
       logger.debug('dev message');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('dev message');
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]$/),
+        'dev message'
+      );
     });
 
     test('should suppress in production', async () => {
@@ -62,7 +69,12 @@ describe('Logger', () => {
 
       logger.debug('message', { foo: 'bar' }, [1, 2, 3]);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('message', { foo: 'bar' }, [1, 2, 3]);
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]$/),
+        'message',
+        { foo: 'bar' },
+        [1, 2, 3]
+      );
     });
   });
 
@@ -74,7 +86,10 @@ describe('Logger', () => {
 
       logger.log('info message');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('info message');
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]$/),
+        'info message'
+      );
     });
 
     test('should log in development', async () => {
@@ -84,7 +99,10 @@ describe('Logger', () => {
 
       logger.log('dev info');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('dev info');
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]$/),
+        'dev info'
+      );
     });
   });
 
@@ -96,7 +114,10 @@ describe('Logger', () => {
 
       logger.info('info message');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('info message');
+      expect(consoleLogSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]$/),
+        'info message'
+      );
     });
   });
 
@@ -108,7 +129,10 @@ describe('Logger', () => {
 
       logger.warn('warning message');
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith('warning message');
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]$/),
+        'warning message'
+      );
     });
 
     test('should always warn in development', async () => {
@@ -116,7 +140,10 @@ describe('Logger', () => {
 
       logger.warn('dev warning');
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith('dev warning');
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]$/),
+        'dev warning'
+      );
     });
   });
 
@@ -128,7 +155,10 @@ describe('Logger', () => {
 
       logger.error('error message');
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('error message');
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]$/),
+        'error message'
+      );
     });
 
     test('should always error in development', async () => {
@@ -136,7 +166,10 @@ describe('Logger', () => {
 
       logger.error('dev error');
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('dev error');
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.stringMatching(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\]$/),
+        'dev error'
+      );
     });
   });
 });

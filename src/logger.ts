@@ -14,13 +14,20 @@ const isProduction = () => {
   return (window as any).__ENV__?.VITE_ENV === 'production'
 }
 
+/**
+ * Returns a formatted timestamp as [YYYY-MM-DDTHH:mm:ss.sssZ]
+ */
+const formattedTimestamp = (): string => {
+  return `[${new Date().toISOString()}]`
+}
+
 export const logger = {
   /**
    * Debug messages (suppressed in production builds)
    */
   debug: (...args: any[]) => {
     if (!isProduction()) {
-      console.log(...args)
+      console.log(formattedTimestamp(), ...args)
     }
   },
 
@@ -28,27 +35,27 @@ export const logger = {
    * Informational messages (always shown)
    */
   log: (...args: any[]) => {
-    console.log(...args)
+    console.log(formattedTimestamp(), ...args)
   },
 
   /**
    * Informational messages (alias for log)
    */
   info: (...args: any[]) => {
-    console.log(...args)
+    console.log(formattedTimestamp(), ...args)
   },
 
   /**
    * Warnings (always shown)
    */
   warn: (...args: any[]) => {
-    console.warn(...args)
+    console.warn(formattedTimestamp(), ...args)
   },
 
   /**
    * Errors (always shown)
    */
   error: (...args: any[]) => {
-    console.error(...args)
+    console.error(formattedTimestamp(), ...args)
   }
 }

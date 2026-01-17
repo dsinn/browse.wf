@@ -152,8 +152,45 @@
 							<div class="card-body" id="litesortie-body">Fetching data...</div>
 						</div>
 						<div class="card mb-3">
-							<h5 class="card-header"><span data-collapse-toggle="incursions"></span> <span id="incursions-header">Steel Path Incursions</h5>
+							<div class="card-header d-flex">
+								<h5 class="mb-0"><span data-collapse-toggle="incursions"></span> <span id="incursions-header">Steel Path Incursions</h5>
+								<a class="ms-auto" data-filter-toggle="incursions"></a>
+							</div>
+							<div class="card-filter-panel" id="incursions-filters" style="display:none">
+								<div class="card-body py-2">
+									<?php
+									$incursionMissionTypes = [
+										'MT_ALCHEMY' => 'Alchemy',
+										'MT_ASSASSINATION' => 'Assassination',
+										'MT_CAPTURE' => 'Capture',
+										'MT_EVACUATION' => 'Defection',
+										'MT_DEFENSE' => 'Defense',
+										'MT_ARTIFACT' => 'Disruption',
+										'MT_EXCAVATE' => 'Excavation',
+										'MT_EXTERMINATION' => 'Exterminate',
+										'MT_PURIFY' => 'Infested Salvage',
+										'MT_TERRITORY' => 'Interception',
+										'MT_MOBILE_DEFENSE' => 'Mobile Defense',
+										'MT_RESCUE' => 'Rescue',
+										'MT_SABOTAGE' => 'Sabotage',
+										'MT_SPY' => 'Spy',
+										'MT_SURVIVAL' => 'Survival',
+										'MT_ARMAGEDDON' => 'Void Armageddon',
+										'MT_VOID_CASCADE' => 'Void Cascade',
+										'MT_CORRUPTION' => 'Void Flood',
+									];
+									foreach ($incursionMissionTypes as $type => $label): ?>
+										<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-<?= $type ?>" data-filter-type="<?= $type ?>" checked>
+											<label class="form-check-label" for="filter-incursions-<?= $type ?>">
+												<?= $label ?>
+											</label>
+										</div>
+									<?php endforeach; ?>
+								</div>
+							</div>
 							<div class="card-body overflow-auto" id="incursions-body">
+								<div id="incursions-empty-message" class="d-none">No incursions to display based on the current filters.</div>
 								<span class="d-block mb-1"><b>Fetching data...</b></span>
 								<span class="d-block mb-1">&nbsp;</span>
 								<span class="d-block mb-1">&nbsp;</span>

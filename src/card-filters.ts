@@ -166,6 +166,13 @@ function initializeCardFilters_all(): void
 		}
 	});
 
+	// Initialize Steel Path Incursions card filters
+	initializeCardFilters("incursions", () => {
+		if ((window as any).updateIncursionsLocalised) {
+			(window as any).updateIncursionsLocalised();
+		}
+	});
+
 	// Future cards can be initialized here:
 	// initializeCardFilters("alerts", () => { updateAlerts(); });
 }

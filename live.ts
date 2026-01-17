@@ -453,19 +453,48 @@ async function updateIncursionsLocalised()
 	await ExportFactions_promise;
 
 	setDatum("incursions-header", toTitleCase(osdict["/Lotus/Language/Labels/SteelPathDailies"]), window.incursions_expiry);
+
 	const elms = document.querySelectorAll("#incursions-body span.d-block");
+	let visibleCount = 0;
 	for (let i = 0; i != elms.length; ++i)
 	{
 		const node = ExportRegions[window.incursions_today[i]];
-		elms[i].innerHTML = "";
-		const b = document.createElement("b");
-		b.textContent = toTitleCase(dict[node.missionName]);
-		if (node.systemIndex != 21)
+
+		// Check if this mission type should be displayed (filter check)
+		const isVisible = (window as any).isFilterEnabled?.("incursions", node.missionType) ?? true;
+
+		if (isVisible)
 		{
-			b.textContent += " - " + toTitleCase(dict[ExportFactions[node.faction].name]);
+			(elms[i] as HTMLElement).classList.remove('d-none');
+			elms[i].innerHTML = "";
+			const b = document.createElement("b");
+			b.textContent = toTitleCase(dict[node.missionName]);
+			if (node.systemIndex != 21)
+			{
+				b.textContent += " - " + toTitleCase(dict[ExportFactions[node.faction].name]);
+			}
+			elms[i].appendChild(b);
+			elms[i].innerHTML += " (" + (100 + node.minEnemyLevel) + "-" + (100 + node.maxEnemyLevel) + ")" + " @ " + dict[node.name] + ", " + dict[node.systemName];
+			visibleCount++;
 		}
-		elms[i].appendChild(b);
-		elms[i].innerHTML += " (" + (100 + node.minEnemyLevel) + "-" + (100 + node.maxEnemyLevel) + ")" + " @ " + dict[node.name] + ", " + dict[node.systemName];
+		else
+		{
+			(elms[i] as HTMLElement).classList.add('d-none');
+		}
+	}
+
+	// Show/hide empty message based on whether any items are visible
+	const emptyMessage = document.getElementById("incursions-empty-message");
+	if (emptyMessage)
+	{
+		if (visibleCount === 0)
+		{
+			emptyMessage.classList.remove('d-none');
+		}
+		else
+		{
+			emptyMessage.classList.add('d-none');
+		}
 	}
 }
 
@@ -478,6 +507,9 @@ function updateIncursions()
 	updateIncursionsLocalised();
 	setTimeout(updateIncursions, window.incursions_expiry - Date.now());
 }
+
+// Expose globally for card filter system
+(window as any).updateIncursionsLocalised = updateIncursionsLocalised;
 
 function addTooltip(elm: HTMLElement, title: string): any
 {

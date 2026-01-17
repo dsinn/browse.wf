@@ -1442,6 +1442,11 @@ async function updateInvasionsLocalised()
 		}
 
 		const tr = document.createElement("tr");
+
+		if (last_id === invasion.id) {
+			tr.classList.add("invasion-defender-reward");
+		}
+
 		{
 			const th = document.createElement("th");
 			if (last_id != invasion.id)

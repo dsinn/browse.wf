@@ -3,6 +3,10 @@
 	position: relative;
 }
 
+.invasion-defender-reward td {
+	padding-top: 0;
+}
+
 .invasion-progress-container {
 	position: relative;
 	height: 4px;

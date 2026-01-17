@@ -1,0 +1,45 @@
+/* Invasion card styling */
+.invasion-row {
+	position: relative;
+}
+
+.invasion-progress-container {
+	position: relative;
+	height: 4px;
+	background-color: rgba(255, 255, 255, 0.1);
+	margin-top: 2px;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.invasion-progress-bar {
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+	height: 100%;
+	transition: width 0.3s ease;
+}
+
+.invasion-percentage {
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+/* Visual distinction for duplicate nodes */
+.invasion-duplicate {
+	opacity: 0.7;
+	border-left: 2px solid rgba(255, 255, 255, 0.3);
+	padding-left: 0.5rem;
+}
+
+/* Faction colors matching Bootstrap theme */
+.invasion-grineer {
+	background-color: var(--bs-danger);
+}
+
+.invasion-corpus {
+	background-color: var(--bs-info);
+}
+
+.invasion-infestation {
+	background-color: var(--bs-success);
+}

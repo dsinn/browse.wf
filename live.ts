@@ -117,6 +117,7 @@ declare global {
 			Events: any[];
 			Goals: any[];
 			Alerts: any[];
+			Invasions: any[];
 			Sorties: {
 				_id: { $oid: string };
 				Activation: IMongoDate;
@@ -1416,11 +1417,30 @@ function createCompletionToggle(oid: string): HTMLAnchorElement
 
 async function updateInvasionsLocalised()
 {
+	const startTime = Date.now();
+	while (!window.worldState?.Invasions) {
+		if (Date.now() - startTime > 5000) {
+			console.warn('Timeout waiting for worldState.Invasions');
+			return;
+		}
+		await new Promise(resolve => setTimeout(resolve, 500));
+	}
+
+	const extraDataMap = (window as any).buildInvasionExtraDataMap(window.worldState.Invasions, window.invasions);
+	(window as any).sortInvasionsInPlace(window.invasions, extraDataMap);
+
 	const tbody = document.createElement("tbody");
 	let last_id = "";
 	window.num_invasions = 0;
+
 	for (const invasion of window.invasions)
 	{
+		const extraData = extraDataMap[invasion.id];
+		if (!extraData) {
+			console.warn(`Unable to find extra invasion data for invasion with oid ${invasion.id}`);
+			continue;
+		}
+
 		const tr = document.createElement("tr");
 		{
 			const th = document.createElement("th");
@@ -1429,9 +1449,13 @@ async function updateInvasionsLocalised()
 				++window.num_invasions;
 				const node = ExportRegions[invasion.node];
 				th.textContent = dict[node.name] + ", " + dict[node.systemName];
+
+				const progressBar = (window as any).createInvasionProgressBar(extraData);
+				th.appendChild(progressBar);
 			}
 			tr.appendChild(th);
 		}
+
 		/*{
 			const td = document.createElement("td");
 			const span = document.createElement("span");
@@ -1440,6 +1464,9 @@ async function updateInvasionsLocalised()
 			td.appendChild(span);
 			tr.appendChild(td);
 		}*/
+
+		tr.appendChild((window as any).renderInvasionProgressPercentage(last_id, extraData));
+
 		{
 			const td = document.createElement("td");
 			const span = document.createElement("span");

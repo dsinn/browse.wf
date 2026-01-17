@@ -60,7 +60,7 @@ export class StorageSyncService {
       if (error || !remoteData) {
         // First time login - upload localStorage to database
         await this.pushToDatabase(discordUserId)
-        console.log('Your data has been backed up to the cloud')
+        logger.log('💻➡️☁️ Your data has been backed up to the cloud')
       } else {
         // Compare timestamps: remote vs local
         const localLastModified = localStorage.getItem(StorageSyncService.LAST_MODIFIED_KEY)
@@ -69,11 +69,11 @@ export class StorageSyncService {
         if (!localLastModified || new Date(remoteLastModified) > new Date(localLastModified)) {
           // Remote is newer - pull from database
           await this.pullFromDatabase(discordUserId)
-          console.log('Synced data from cloud')
+          logger.log('☁️➡️💻 Synced data from cloud')
         } else {
           // Local is newer or tie - push to database
           await this.pushToDatabase(discordUserId)
-          console.log('Synced data to cloud')
+          logger.log('💻➡️☁️ Synced data to cloud')
         }
       }
 
@@ -195,7 +195,7 @@ export class StorageSyncService {
       .single()
 
     if (error) {
-      console.error('Error pulling from database:', error)
+      logger.error('Error pulling from database:', error)
       throw error
     }
     if (!row) return
@@ -237,11 +237,11 @@ export class StorageSyncService {
       try {
         this.justPushed = true
         await this.pushToDatabase(discordUserId)
-        console.log('Synced data to cloud')
+        logger.log('💻➡️☁️ Synced data to cloud')
         // Clear flag after 1 second to ignore our own real-time update
         setTimeout(() => { this.justPushed = false }, 1000)
       } catch (error) {
-        console.warn('Failed to sync to database, data saved locally:', error)
+        logger.warn('Failed to sync to database, data saved locally:', error)
         this.justPushed = false
       }
     }, StorageSyncService.DEBOUNCE_MS)
@@ -260,7 +260,7 @@ export class StorageSyncService {
         try {
           await this.pushToDatabase(discordUserId)
         } catch (error) {
-          console.warn('Failed to flush pending changes:', error)
+          logger.warn('Failed to flush pending changes:', error)
         }
       }
     }
@@ -287,7 +287,7 @@ export class StorageSyncService {
     const delayMs = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 512000)
     this.reconnectAttempts++
 
-    logger.warn(`🔄 WebSocket disconnected. Reconnecting in ${delayMs / 1000}s (attempt ${this.reconnectAttempts}/${maxAttempts})`)
+    logger.debug(`🔄 WebSocket disconnected. Reconnecting in ${delayMs / 1000}s (attempt ${this.reconnectAttempts}/${maxAttempts})`)
 
     this.reconnectTimer = window.setTimeout(async () => {
       this.reconnectTimer = null
@@ -345,7 +345,7 @@ export class StorageSyncService {
           try {
             this.syncing = true
             await this.pullFromDatabase(discordUserId)
-            console.log('Synced data from cloud')
+            logger.log('☁️➡️💻 Synced data from cloud')
           } finally {
             this.syncing = false
           }
@@ -358,7 +358,7 @@ export class StorageSyncService {
         if (status === 'SUBSCRIBED') {
           // Reset reconnection counter on successful connection
           if (this.reconnectAttempts > 0) {
-            logger.log('✅ WebSocket reconnected successfully after', this.reconnectAttempts, 'attempts')
+            logger.debug('✅ WebSocket reconnected successfully after', this.reconnectAttempts, 'attempts')
           }
           this.reconnectAttempts = 0
           if (this.reconnectTimer !== null) {
@@ -373,7 +373,7 @@ export class StorageSyncService {
               try {
                 this.syncing = true
                 await this.pullFromDatabase(discordUserId)
-                console.log('Synced data from cloud (reconnected)')
+                logger.log('☁️➡️💻 Synced data from cloud (reconnected)')
               } finally {
                 this.syncing = false
               }

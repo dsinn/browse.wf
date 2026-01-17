@@ -3,6 +3,23 @@
  */
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 
+// Mock logger before other imports
+const mockLoggerInfo = vi.fn();
+const mockLoggerDebug = vi.fn();
+const mockLoggerWarn = vi.fn();
+const mockLoggerError = vi.fn();
+const mockLoggerLog = vi.fn();
+
+vi.mock('../../src/logger', () => ({
+  logger: {
+    info: mockLoggerInfo,
+    debug: mockLoggerDebug,
+    warn: mockLoggerWarn,
+    error: mockLoggerError,
+    log: mockLoggerLog,
+  }
+}));
+
 // Mock Supabase client creation to avoid requiring valid URLs
 vi.mock('@supabase/supabase-js', () => ({
   createClient: vi.fn(() => ({
@@ -22,8 +39,12 @@ describe('Database Client', () => {
     // Clear any existing window.__ENV__
     delete (window as any).__ENV__;
 
-    // Clear console.info spy if present
-    vi.clearAllMocks();
+    // Clear mock calls
+    mockLoggerInfo.mockClear();
+    mockLoggerDebug.mockClear();
+    mockLoggerWarn.mockClear();
+    mockLoggerError.mockClear();
+    mockLoggerLog.mockClear();
   });
 
   afterEach(() => {
@@ -87,8 +108,6 @@ describe('Database Client', () => {
   });
 
   test('should log info message when database not configured', async () => {
-    const consoleInfoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
-
     (window as any).__ENV__ = {
       VITE_DATABASE_URL: '',
       VITE_DATABASE_ANON_KEY: '',
@@ -96,10 +115,8 @@ describe('Database Client', () => {
 
     await import('../../src/cloud-sync/database');
 
-    expect(consoleInfoSpy).toHaveBeenCalledWith(
+    expect(mockLoggerInfo).toHaveBeenCalledWith(
       expect.stringContaining('Database not configured')
     );
-
-    consoleInfoSpy.mockRestore();
   });
 });

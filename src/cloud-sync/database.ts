@@ -6,6 +6,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { logger } from '../logger.js'
 
 // Environment variables - support both local dev and production
 // Local dev (PHP server): env-config.php reads from .env file
@@ -15,8 +16,8 @@ const databaseUrl = (window as any).__ENV__?.VITE_DATABASE_URL
 const databaseKey = (window as any).__ENV__?.VITE_DATABASE_ANON_KEY
 
 if (!databaseUrl || !databaseKey) {
-  console.info('Database not configured - running in local-only mode. All data will be stored in localStorage only.')
-  console.info('To enable cloud sync, see the README: https://github.com/dsinn/browse.wf')
+  logger.info('Database not configured - running in local-only mode. All data will be stored in localStorage only.')
+  logger.info('To enable cloud sync, see the README: https://github.com/dsinn/browse.wf')
 }
 
 export const db = createClient(databaseUrl || '', databaseKey || '', {

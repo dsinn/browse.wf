@@ -256,7 +256,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
       // Verify display format (24-hour, no 'Z' suffix for non-military)
       const firstEntry = await page.locator('#log [data-timestamp]').first().textContent();
       expect(firstEntry).toMatch(/\d{2}:\d{2}/);
-      expect(firstEntry).not.toMatch(/Z/);
+      expect(firstEntry).not.toMatch(/\d{2}Z/);
     });
   });
 

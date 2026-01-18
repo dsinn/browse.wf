@@ -7,6 +7,6 @@
 export interface UserData {
   language: string
   notifications: Record<string, boolean>
-  ui_state: Record<string, boolean>
+  ui_state: Record<string, boolean | string>
   completions: string[]
 }

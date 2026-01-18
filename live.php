@@ -244,7 +244,53 @@
 				<div class="card mb-3">
 					<div class="card-header d-flex">
 						<h5 class="mb-0"><span data-collapse-toggle="bounties"></span> <span id="bounties-header">Bounties</h5>
-						<a class="m-auto me-0" data-notif-toggle="bounties"></a>
+						<a class="ms-auto me-2" data-filter-toggle="bounties"></a>
+						<a data-notif-toggle="bounties"></a>
+					</div>
+					<div class="card-filter-panel" id="bounties-filters" style="display: none">
+						<div class="card-body">
+							<table>
+								<tr>
+									<td class="pe-2">The Holdfasts:</td>
+									<td>
+										<select class="form-select form-select-sm" id="bounty-filter-ZarimanSyndicate">
+											<option value="1">Show all tiers</option>
+											<?php foreach (range(2, 4) as $tier): ?>
+												<option value="<?= $tier ?>">Show Tier <?= $tier ?> and up</option>
+											<?php endforeach ?>
+											<option value="5">Show Tier 5 only</option>
+											<option value="-1">Hide all tiers</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td class="pe-2">Cavia:</td>
+									<td>
+										<select class="form-select form-select-sm" id="bounty-filter-EntratiLabSyndicate">
+											<option value="1">Show all tiers</option>
+											<?php foreach (range(2, 4) as $tier): ?>
+												<option value="<?= $tier ?>">Show Tier <?= $tier ?> and up</option>
+											<?php endforeach ?>
+											<option value="5">Show Tier 5 only</option>
+											<option value="-1">Hide all tiers</option>
+										</select>
+									</td>
+								</tr>
+								<tr>
+									<td class="pe-2">The Hex:</td>
+									<td>
+										<select class="form-select form-select-sm" id="bounty-filter-HexSyndicate">
+											<option value="1">Show all tiers</option>
+											<?php foreach (range(2, 6) as $tier): ?>
+												<option value="<?= $tier ?>">Show Tier <?= $tier ?> and up</option>
+											<?php endforeach ?>
+											<option value="7">Show Tier 7 only</option>
+											<option value="-1">Hide all tiers</option>
+										</select>
+									</td>
+								</tr>
+							</table>
+						</div>
 					</div>
 					<div class="card-body overflow-auto" id="bounties-body">
 						<p>Rotation <b id="bounty-rot">?</b> (<span id="bounty-rot-rewards">Loading</span>) &middot; Vault Rotation <b id="vault-rot">?</b> (<span id="vault-rot-rewards">Loading</span>)</p>
@@ -424,7 +470,7 @@
 						</table>
 					</div>
 				</div>
-				
+
 			</div>
 		</div>
 		<div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
@@ -433,6 +479,7 @@
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<script src="typestripped/src/card-filters.js"></script>
+	<script src="typestripped/src/bounty-filters.js"></script>
 	<script src="typestripped/src/invasions.js"></script>
 	<script src="typestripped/live.js?lv0"></script>
 </body>

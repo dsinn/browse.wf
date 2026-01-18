@@ -107,7 +107,8 @@ export class StorageSyncService {
       } else if (key?.startsWith(StorageSyncService.FILTER_PREFIX)) {
         const filterKey = key.replace(StorageSyncService.FILTER_PREFIX, '')
         const value = localStorage.getItem(key)
-        data.ui_state[`filter.${filterKey}`] = value === '1'
+        // Store actual string value to support both checkbox filters ("0"/"1") and dropdown filters ("0"-"7")
+        data.ui_state[`filter.${filterKey}`] = value || '1'
       }
     }
 
@@ -143,9 +144,15 @@ export class StorageSyncService {
     // Set UI states (collapse states and filters)
     for (const [key, value] of Object.entries(data.ui_state)) {
       if (key.startsWith('filter.')) {
-        // Handle filter preferences (store as "1" or "0")
+        // Handle filter preferences - store actual string value for both checkboxes and dropdowns
         const filterKey = key.replace('filter.', '')
-        localStorage.setItem(`${StorageSyncService.FILTER_PREFIX}${filterKey}`, value ? '1' : '0')
+        if (typeof value === 'string') {
+          // Dropdown filter (string value like "0"-"7")
+          localStorage.setItem(`${StorageSyncService.FILTER_PREFIX}${filterKey}`, value)
+        } else {
+          // Checkbox filter (boolean value)
+          localStorage.setItem(`${StorageSyncService.FILTER_PREFIX}${filterKey}`, value ? '1' : '0')
+        }
       } else {
         // Handle collapse states (store truthy or remove)
         if (value) {

@@ -380,6 +380,46 @@ function updateBountyCycleLocalised()
 			rows[i].querySelector(".challenge").innerHTML = "";
 			rows[i].querySelector(".challenge").appendChild(span);
 		}
+
+		// Apply tier filters (mutate in place to minimize upstream changes)
+		if ((window as any).getMinimumTier)
+		{
+			const minTier = (window as any).getMinimumTier(syndicateTag);
+			const heading = document.getElementById(syndicateTag + "-name");
+
+			// If minTier is -1, hide the entire syndicate (heading + table)
+			if (minTier < 1)
+			{
+				if (heading)
+				{
+					(heading as HTMLElement).style.display = "none";
+				}
+				for (let i = 0; i < rows.length; ++i)
+				{
+					(rows[i] as HTMLElement).style.display = "none";
+				}
+			}
+			else
+			{
+				// Show heading and filter rows by tier
+				if (heading)
+				{
+					(heading as HTMLElement).style.display = "";
+				}
+				for (let i = 0; i < rows.length; ++i)
+				{
+					const tier = i + 1; // Tier 1 is index 0, Tier 2 is index 1, etc.
+					if (tier < minTier)
+					{
+						(rows[i] as HTMLElement).style.display = "none";
+					}
+					else
+					{
+						(rows[i] as HTMLElement).style.display = "";
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -1906,6 +1946,12 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 if ((window as any).initializeCardFilters_all)
 {
 	(window as any).initializeCardFilters_all();
+}
+
+// Initialize bounty filter functionality (from global scope)
+if ((window as any).initializeBountyFilters_all)
+{
+	(window as any).initializeBountyFilters_all();
 }
 
 document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm, "Voidplume Quills"));

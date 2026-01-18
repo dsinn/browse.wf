@@ -425,4 +425,67 @@ describe('StorageSyncService', () => {
       expect(mockFromChain.upsert).not.toHaveBeenCalled();
     });
   });
+
+  describe('Dropdown Filter Syncing', () => {
+    test('should sync dropdown filter values (numeric strings) via saveWithFallback', async () => {
+      mockFromChain.upsert.mockResolvedValue({ error: null });
+
+      // Use saveWithFallback to properly trigger sync
+      await service.saveWithFallback('live.filter.bounties.ZarimanSyndicate', '3');
+      await service.saveWithFallback('live.filter.bounties.EntratiLabSyndicate', '5');
+      await service.saveWithFallback('live.filter.bounties.HexSyndicate', '-1');
+
+      // Flush to trigger immediate sync
+      await service.flushPendingChanges();
+
+      // Check the data property was called with correct ui_state
+      const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
+      expect(call.data.ui_state['filter.bounties.ZarimanSyndicate']).toBe('3');
+      expect(call.data.ui_state['filter.bounties.EntratiLabSyndicate']).toBe('5');
+      expect(call.data.ui_state['filter.bounties.HexSyndicate']).toBe('-1');
+    });
+
+    test('should restore dropdown filter values from cloud', async () => {
+      const mockData: UserData = {
+        language: 'en',
+        notifications: {},
+        ui_state: {
+          'filter.bounties.ZarimanSyndicate': '4',
+          'filter.bounties.EntratiLabSyndicate': '2',
+          'filter.bounties.HexSyndicate': '7',
+        },
+        completions: []
+      };
+
+      mockFromChain.single.mockResolvedValue({
+        data: { data: mockData },
+        error: null
+      });
+
+      // Call pullFromDatabase directly
+      await (service as any).pullFromDatabase('test-user-id');
+
+      // Verify dropdown values restored correctly
+      expect(localStorage.getItem('live.filter.bounties.ZarimanSyndicate')).toBe('4');
+      expect(localStorage.getItem('live.filter.bounties.EntratiLabSyndicate')).toBe('2');
+      expect(localStorage.getItem('live.filter.bounties.HexSyndicate')).toBe('7');
+    });
+
+    test('should handle both checkbox and dropdown filters in same sync', async () => {
+      mockFromChain.upsert.mockResolvedValue({ error: null });
+
+      // Set both checkbox filters (boolean "0"/"1") and dropdown filters (string "0"-"7")
+      await service.saveWithFallback('live.filter.news.danger', '1');
+      await service.saveWithFallback('live.filter.news.primary', '0');
+      await service.saveWithFallback('live.filter.bounties.ZarimanSyndicate', '3');
+
+      await service.flushPendingChanges();
+
+      // Check the data property has both filter types
+      const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
+      expect(call.data.ui_state['filter.news.danger']).toBe('1');
+      expect(call.data.ui_state['filter.news.primary']).toBe('0');
+      expect(call.data.ui_state['filter.bounties.ZarimanSyndicate']).toBe('3');
+    });
+  });
 });

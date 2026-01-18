@@ -713,6 +713,24 @@ function updateWeekly()
 		}
 		window.weekly = weekly;
 		window.refresh_weekly_at = weekly.expiry * 1000;
+
+		// @TODO: Oracle's /weekly endpoint returns next week's expiry (>7d ahead)
+		// specifically for the fork?? Investigate and replace this.
+		if (window.refresh_weekly_at - Date.now() > 604800000) {
+			// Expires more than 7 days from now
+			// Fall back to the updateTeshin() calculations for consistency
+			const EPOCH = 1736121600 * 1000;
+			const week = Math.trunc((Date.now() - EPOCH) / 604800000);
+			const weekStart = EPOCH + week * 604800000;
+			const weekEnd = weekStart + 604800000;
+
+			console.warn(
+				`/weekly's expiry returned a value too far in the future (${window.refresh_weekly_at}); ` +
+				`falling back to manually calculated expiry (${weekEnd})`
+			);
+			window.refresh_weekly_at = weekEnd;
+		}
+
 		updateWeeklyLocalised();
 	}).catch(e =>
 	{

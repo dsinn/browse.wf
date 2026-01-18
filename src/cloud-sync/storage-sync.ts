@@ -442,6 +442,11 @@ export class StorageSyncService {
       }
     })
 
+    // Refresh bounty filter dropdowns
+    if ((window as any).initializeBountyFilters_all) {
+      (window as any).initializeBountyFilters_all()
+    }
+
     // Refresh news ticker if filters changed
     if ((window as any).updateNewsTicker) {
       (window as any).updateNewsTicker()

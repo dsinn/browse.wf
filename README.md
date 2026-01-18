@@ -2,24 +2,31 @@
 
 A search engine for Warframe game data, allowing users to browse and search through space ninja information.
 
-This is a fork of [calamity-inc/browse.wf](https://github.com/calamity-inc/browse.wf) with the following key features and changes:
+This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/calamity-inc/browse.wf).
 
-**For Warframe players:**
+## Fork features and changes
+
+### For Warframe players
 
 - **Cloud sync**: Discord authentication with a database backend for backing up preferences and syncing across devices
-- **Card filters**: Gear icon toggles per-card with accordion filter panels for customizing visible content (e.g., hide red text emergency announcements)
-- **Improved void fissures UI**: Enhanced layout and organization for void fissure information
+- **Custom Arby's timers**: Set custom countdown timers on the arbitration schedule page
 - **Navbar customization**: Optional setting to unfix the navbar
+
+#### Live page
+
+- **Widget filters**: Configurable filter panels to selectively display content; for example:
+  - News: Filters for red text, community events, and regular events
+  - Bounties: Filter by tier for each syndicate
+  - Steel Path incursions: Filter by mission type
+- **Improved void fissures UI**: Enhanced layout, sorted by expiry for each relic tier/era
+- **Enhanced invasion info**: Populated with and sorted by progress data
+- **Notification icons**: Bells now use a colour/fill pattern (coloured when enabled, grayscale when disabled) instead of bell/bell-slash icons, matching more modern UX patterns.
 - **Cross-platform UI**: System-independent checkbox styling
 
-**UI changes:**
-
-- **Notification icons**: Bells now use a colour/fill pattern (coloured when enabled, grayscale when disabled) instead of bell/bell-slash icons, matching more modern UX patterns.
-
-**For developers:**
+### For developers
 
 - **GitHub Pages deployment**: Automated workflow for deploying static builds to GitHub Pages
-- **Automated testing**: Vitest-based test infrastructure (mainly for the `/live` page so far)
+- **Automated testing**: Vitest and Playwright test infrastructure (mainly for the `/live` page so far)
 
 ## Tech Stack
 

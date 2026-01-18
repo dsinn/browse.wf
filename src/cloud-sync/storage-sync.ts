@@ -468,9 +468,15 @@ export class StorageSyncService {
       (window as any).initializeBountyFilters_all()
     }
 
-    // Refresh news ticker if filters changed
+    // Refresh card content to apply filters
     if ((window as any).updateNewsTicker) {
       (window as any).updateNewsTicker()
+    }
+    if ((window as any).updateBountyCycleLocalised) {
+      (window as any).updateBountyCycleLocalised()
+    }
+    if ((window as any).updateIncursionsLocalised) {
+      (window as any).updateIncursionsLocalised()
     }
   }
 

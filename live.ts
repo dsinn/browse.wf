@@ -548,9 +548,6 @@ function updateIncursions()
 	setTimeout(updateIncursions, window.incursions_expiry - Date.now());
 }
 
-// Expose globally for card filter system
-(window as any).updateIncursionsLocalised = updateIncursionsLocalised;
-
 function addTooltip(elm: HTMLElement, title: string): any
 {
 	elm.setAttribute("data-bs-toggle", "tooltip");
@@ -866,9 +863,6 @@ function updateNewsTicker()
 	}
 	document.querySelector("#news-body > :last-child").classList.remove("mb-1");
 }
-
-// Expose globally for cloud sync service
-(window as any).updateNewsTicker = updateNewsTicker;
 
 async function updateNewsSources()
 {
@@ -1866,9 +1860,6 @@ function refreshCollapseStatus(elm: HTMLElement): void
 	elm.appendChild(span);
 }
 
-// Expose globally for cloud sync service
-(window as any).refreshCollapseStatus = refreshCollapseStatus;
-
 document.querySelectorAll<HTMLSpanElement>("[data-collapse-toggle]").forEach(elm =>
 {
 	elm.classList.add("text-secondary");
@@ -1927,9 +1918,6 @@ function refreshNotifStatus(elm: HTMLElement): void
 	elm.innerHTML = "";
 	elm.appendChild(span);
 }
-
-// Expose globally for cloud sync service
-(window as any).refreshNotifStatus = refreshNotifStatus;
 
 document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm =>
 {
@@ -1995,5 +1983,11 @@ function refreshAllCompletionToggles(): void
 	});
 }
 
-// Expose globally for cloud sync service
+// Expose globally for fork code to call
+(window as any).addTooltip = addTooltip;
 (window as any).refreshAllCompletionToggles = refreshAllCompletionToggles;
+(window as any).refreshCollapseStatus = refreshCollapseStatus;
+(window as any).refreshNotifStatus = refreshNotifStatus;
+(window as any).updateBountyCycleLocalised = updateBountyCycleLocalised;
+(window as any).updateNewsTicker = updateNewsTicker;
+(window as any).updateIncursionsLocalised = updateIncursionsLocalised;

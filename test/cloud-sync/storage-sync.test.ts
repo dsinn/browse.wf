@@ -63,6 +63,7 @@ describe('StorageSyncService', () => {
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
       single: vi.fn(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null }), // Default: no existing data
       upsert: vi.fn(),
     };
 

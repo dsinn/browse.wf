@@ -107,8 +107,11 @@ export class StorageSyncService {
       } else if (key?.startsWith(StorageSyncService.FILTER_PREFIX)) {
         const filterKey = key.replace(StorageSyncService.FILTER_PREFIX, '')
         const value = localStorage.getItem(key)
-        // Store actual string value to support both checkbox filters ("0"/"1") and dropdown filters ("0"-"7")
-        data.ui_state[`filter.${filterKey}`] = value || '1'
+        // Store actual string value to support both checkbox filters ("0"/"1") and dropdown filters ("-1"-"7")
+        // Only store if value exists - don't create defaults for untouched filters
+        if (value !== null) {
+          data.ui_state[`filter.${filterKey}`] = value
+        }
       }
     }
 
@@ -176,15 +179,33 @@ export class StorageSyncService {
 
   /**
    * Upload localStorage data to database (single query)
+   * Merges with existing data to avoid losing settings from other devices
    */
   async pushToDatabase(discordUserId: string) {
-    const data = this.localStorageToData()
+    const localData = this.localStorageToData()
+
+    // Try to fetch existing data from database to merge with
+    const { data: existingRow } = await db
+      .from('user_data')
+      .select('data')
+      .eq('discord_user_id', discordUserId)
+      .maybeSingle() // Returns null if no row exists, doesn't error
+
+    // Merge local data with existing database data (if any)
+    const mergedData: UserData = existingRow?.data
+      ? {
+          language: localData.language, // Local language always wins
+          notifications: { ...existingRow.data.notifications, ...localData.notifications },
+          ui_state: { ...existingRow.data.ui_state, ...localData.ui_state },
+          completions: localData.completions // Local completions always win (they're append-only)
+        }
+      : localData // No existing data - just use local
 
     const { error } = await db
       .from('user_data')
       .upsert({
         discord_user_id: discordUserId,
-        data
+        data: mergedData
       })
 
     if (error) throw error

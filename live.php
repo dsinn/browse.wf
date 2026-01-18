@@ -434,7 +434,7 @@
 				<div class="card mb-3">
 					<h5 class="card-header"><span data-collapse-toggle="invasions"></span> <span id="invasions-header">Invasions</h5>
 					<div class="card-body overflow-auto">
-						<p>⚠️ Mission types are often incorrect.</p>
+						<p>⚠️ Mission types are often incorrect, except for Assassination.</p>
 						<table class="table table-sm table-hover table-borderless mb-0" id="invasions-table"><tr><td>Loading...</td></tr></table>
 					</div>
 				</div>

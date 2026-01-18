@@ -8,6 +8,10 @@ declare function toTitleCase(str: string): string;
 // arbyTiers.js
 declare const arbyTiers: Record<string, string>;
 
+// arbys-timer.js
+declare function createArbyCountdownBadge(timestamp: number): HTMLSpanElement;
+declare function initializeArbyTimer(): void;
+
 // fetch
 declare let dict: Record<string, string>;
 declare let ExportFactions: Record<TFaction, IFaction>;
@@ -109,6 +113,8 @@ Promise.all([
 		updateFilterNamesForLocale();
 	};
 	onLanguageUpdate();
+	// Initialize timer for countdown badges (minimal change to upstream)
+	initializeArbyTimer();
 });
 
 function updateFilterNamesForLocale(): void
@@ -194,6 +200,8 @@ function updateLog(): void
 		}
 		span.textContent += ")";
 		document.getElementById("log").appendChild(span);
+
+		span.prepend(createArbyCountdownBadge(arr[0]));
 	}
 	if (document.getElementById("log").children.length == 0)
 	{

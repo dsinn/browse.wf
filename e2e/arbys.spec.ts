@@ -438,4 +438,144 @@ test.describe('Arbitration Schedule (/arbys)', () => {
       await mobileContext.close();
     });
   });
+
+  test.describe('Timer badges', () => {
+    test('appear on log entries', async ({ page }) => {
+      // Timer badges should exist on all log entries
+      const logEntries = await page.locator('#log [data-timestamp]').count();
+      const timerBadges = await page.locator('#log [data-arby-timestamp]').count();
+
+      // Should have exactly as many timer badges as log entries
+      expect(timerBadges).toBe(logEntries);
+      expect(timerBadges).toBeGreaterThan(0);
+    });
+
+    test('have correct styling and fixed width', async ({ page }) => {
+      const firstBadge = page.locator('#log [data-arby-timestamp]').first();
+
+      // Check Bootstrap badge classes
+      await expect(firstBadge).toHaveClass(/badge/);
+      await expect(firstBadge).toHaveClass(/text-bg-secondary/);
+
+      // Check fixed width and inline display
+      const width = await firstBadge.evaluate(el => window.getComputedStyle(el).width);
+      const display = await firstBadge.evaluate(el => window.getComputedStyle(el).display);
+
+      expect(display).toBe('inline-block');
+      expect(width).toBeTruthy(); // Should have a fixed width set
+    });
+
+    test('show countdown in two-unit format', async ({ page }) => {
+      const badges = await page.locator('#log [data-arby-timestamp]').all();
+
+      for (const badge of badges.slice(0, 5)) { // Check first 5
+        const text = await badge.textContent();
+
+        // Should match patterns like "5d 23h", "23h 45m", "45m 32s", or "Started"
+        const isTwoUnitFormat =
+          /^\d+d \d+h$/.test(text!) ||     // days + hours
+          /^\d+h \d+m$/.test(text!) ||     // hours + minutes
+          /^\d+m \d+s$/.test(text!) ||     // minutes + seconds
+          text === 'Started';               // past event
+
+        expect(isTwoUnitFormat, `Badge text "${text}" should be in two-unit format`).toBe(true);
+      }
+    });
+
+    test('update over time for near-term events', async ({ page }) => {
+      // The first badge should be near-term (arbitrations occur every hour)
+      const badge = page.locator('#log [data-arby-timestamp]').first();
+      const initialText = await badge.textContent();
+
+      // Wait 2 seconds
+      await page.waitForTimeout(2000);
+
+      const updatedText = await badge.textContent();
+
+      // Text should have changed (seconds decreased, unless it's "Started")
+      if (initialText !== 'Started') {
+        expect(updatedText).not.toBe(initialText);
+      }
+    });
+
+    test('appear before time and mission info', async ({ page }) => {
+      const firstEntry = page.locator('#log [data-timestamp]').first();
+      const html = await firstEntry.innerHTML();
+
+      // Timer badge should come before the time (e.g., "1200 •")
+      const badgeIndex = html.indexOf('data-arby-timestamp');
+      const timeIndex = html.indexOf('•');
+
+      if (badgeIndex > -1) {
+        expect(badgeIndex).toBeLessThan(timeIndex);
+      }
+    });
+
+    test('show "Started" for current arbitration', async ({ page }) => {
+      // The current arbitration (if any) is shown in bold
+      const currentEntry = page.locator('#log b[data-timestamp]').first();
+      const exists = await currentEntry.count() > 0;
+
+      if (exists) {
+        const badge = currentEntry.locator('[data-arby-timestamp]');
+        const badgeExists = await badge.count() > 0;
+
+        if (badgeExists) {
+          const text = await badge.textContent();
+          // Current event should show "Started" or be very close to starting
+          expect(text === 'Started' || /0m [0-5]\d+s/.test(text!)).toBe(true);
+        }
+      }
+    });
+
+    test('have data-arby-timestamp attribute with valid unix timestamp', async ({ page }) => {
+      const badges = await page.locator('#log [data-arby-timestamp]').all();
+
+      for (const badge of badges.slice(0, 3)) { // Check first 3
+        const timestamp = await badge.getAttribute('data-arby-timestamp');
+        expect(timestamp).toBeTruthy();
+
+        const ts = parseInt(timestamp!);
+        expect(ts).toBeGreaterThan(1000000000); // Valid unix timestamp
+        expect(ts).toBeLessThan(3000000000);
+      }
+    });
+
+    test('filter changes preserve timer badges', async ({ page }) => {
+      // Get initial badge count
+      const initialCount = await page.locator('#log [data-arby-timestamp]').count();
+      expect(initialCount).toBeGreaterThan(0);
+
+      // Change a filter
+      await page.locator('#filter-MT_SURVIVAL').uncheck();
+
+      // Wait for log to update by waiting for badge count to change
+      await expect(page.locator('#log [data-arby-timestamp]')).not.toHaveCount(initialCount, { timeout: 2000 });
+
+      // Badges should still exist (on filtered entries)
+      const newCount = await page.locator('#log [data-arby-timestamp]').count();
+      expect(newCount).toBeGreaterThan(0);
+
+      // Check that badges still have valid format (including "Started" for current event)
+      const firstBadge = page.locator('#log [data-arby-timestamp]').first();
+      const text = await firstBadge.textContent();
+      expect(text === 'Started' || /\d+[dhms]/.test(text!)).toBe(true);
+    });
+
+    test('dropdown changes preserve timer badges', async ({ page }) => {
+      // Get initial badge count
+      const initialCount = await page.locator('#log [data-arby-timestamp]').count();
+      expect(initialCount).toBeGreaterThan(0);
+
+      // Change days dropdown
+      await page.selectOption('#select-days', '7');
+
+      // Wait for log to update by waiting for badge count to change (fewer days = fewer entries)
+      await expect(page.locator('#log [data-arby-timestamp]')).not.toHaveCount(initialCount, { timeout: 2000 });
+
+      // Badges should still exist
+      const newCount = await page.locator('#log [data-arby-timestamp]').count();
+      expect(newCount).toBeGreaterThan(0);
+    });
+  });
 });

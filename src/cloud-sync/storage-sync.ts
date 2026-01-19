@@ -327,13 +327,13 @@ export class StorageSyncService {
         try {
           const { data: { session }, error } = await db.auth.refreshSession()
           if (error) {
-            logger.warn('⚠️ Session refresh failed:', error.message)
+            logger.debug('⚠️ Session refresh failed:', error.message)
             // Don't give up - attempt reconnection anyway in case it's a transient error
           } else if (session) {
             logger.debug('✅ Session refreshed successfully')
           }
         } catch (error) {
-          logger.warn('⚠️ Session refresh exception:', error)
+          logger.debug('⚠️ Session refresh exception:', error)
           // Continue with reconnection attempt
         }
 
@@ -345,6 +345,10 @@ export class StorageSyncService {
   /**
    * Subscribe to real-time updates from database
    * Uses WebSockets (not polling) - efficient for free tier
+   *
+   * Note: You may see browser warnings about Cloudflare "__cf_bm" cookie being rejected.
+   * This is harmless - it's the browser enforcing cookie security policies when Supabase
+   * handles Cloudflare's bot management cookies. We cannot catch these browser warnings.
    */
   subscribeToRealtimeUpdates(userId: string) {
     // Save current user UUID for reconnection attempts
@@ -412,8 +416,8 @@ export class StorageSyncService {
             this.hasSubscribedBefore = true
           }
         } else if (status === 'CLOSED' || status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
-          // WebSocket entered a failed state - attempt to reconnect
-          logger.warn('⚠️ WebSocket entered failed state:', status)
+          // WebSocket entered a failed state (expected when JWT expires) - attempt to reconnect
+          logger.debug('⚠️ WebSocket entered failed state:', status)
           this.attemptReconnect()
         }
       })

@@ -19,20 +19,7 @@ interface WorldStateInvasionData {
 
 function calculatePercentage(wsInvasion: WorldStateInvasionData): number
 {
-	let progress: number; // Range: 0 to 1
-
-	if (wsInvasion.Faction === "FC_INFESTATION") {
-		progress = 1 - Math.abs(wsInvasion.Count / wsInvasion.Goal);
-	} else {
-		// Corpus vs. Grineer, no Infested
-		progress = (wsInvasion.Count + wsInvasion.Goal) / (2 * wsInvasion.Goal);
-
-		if (wsInvasion.Count > 0) {
-			// Attacker is winning
-			progress = 1 - progress;
-		}
-	}
-
+	let progress: number = 1 - Math.abs(wsInvasion.Count / wsInvasion.Goal);
 	progress = Math.max(0, progress);
 	progress = Math.min(1, progress);
 	return progress * 100;

@@ -15,17 +15,20 @@ import { logger } from '../logger.js'
 const databaseUrl = (window as any).__ENV__?.VITE_DATABASE_URL
 const databaseKey = (window as any).__ENV__?.VITE_DATABASE_ANON_KEY
 
-if (!databaseUrl || !databaseKey) {
-  logger.info('Database not configured - running in local-only mode. All data will be stored in localStorage only.')
-  logger.info('To enable cloud sync, see the README: https://github.com/dsinn/browse.wf')
-}
-
-export const db = createClient(databaseUrl || '', databaseKey || '', {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  }
-})
+// Only create Supabase client if credentials are configured
+// When missing, all usage sites check isDatabaseConfigured() before accessing db
+export const db = (databaseUrl && databaseKey)
+  ? createClient(databaseUrl, databaseKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      }
+    })
+  : (() => {
+      logger.info('Database not configured - running in local-only mode. All data will be stored in localStorage only.')
+      logger.info('To enable cloud sync, see the README: https://github.com/dsinn/browse.wf')
+      return null as any // Stub client - never accessed since usage sites check isDatabaseConfigured()
+    })()
 
 /**
  * Check if database is configured

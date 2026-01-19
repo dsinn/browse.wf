@@ -1,6 +1,9 @@
 import { Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
+import { MOCK_TIMESTAMP } from '../../test/helpers/test-constants';
+
+export { MOCK_TIMESTAMP };
 
 /**
  * Sets up mock routes for all oracle.browse.wf API endpoints used by E2E tests.
@@ -11,6 +14,10 @@ import * as path from 'path';
  * @param page - The Playwright page instance to set up routes on
  */
 export async function setupMockRoutes(page: Page): Promise<void> {
+  // Freeze time for deterministic tests
+  // Use install() to mock setTimeout/setInterval as well (needed for incursions expiry logic)
+  await page.clock.install({ time: new Date(MOCK_TIMESTAMP) });
+  await page.clock.pauseAt(new Date(MOCK_TIMESTAMP));
   const mocksDir = path.join(process.cwd(), 'test', '__mocks__');
 
   // Load mock data

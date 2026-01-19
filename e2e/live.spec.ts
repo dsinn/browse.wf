@@ -340,6 +340,11 @@ test.describe('Live Page (/live)', () => {
   });
 
   test.describe('Steel Path Incursions card', () => {
+    test.beforeEach(async ({ page }) => {
+      // Resume normal time flow for these tests (sp-incursions.txt is static and has data for many years)
+      await page.clock.resume();
+    });
+
     test('renders incursion data', async ({ page }) => {
       // Wait for incursions to load
       await page.waitForSelector('#incursions-body span.d-block:not(:has-text("Fetching"))', { timeout: 10000 });
@@ -430,6 +435,9 @@ test.describe('Live Page (/live)', () => {
         }
       }
 
+      // Wait for all incursions to be hidden first (indicates filtering has processed)
+      await expect(page.locator('#incursions-body span.d-block:not(.d-none)')).toHaveCount(0);
+
       // Wait for empty message to become visible (indicates filtering applied)
       await expect(emptyMessage).toBeVisible();
       const emptyText = await emptyMessage.textContent();
@@ -452,6 +460,9 @@ test.describe('Live Page (/live)', () => {
           await checkbox.click();
         }
       }
+
+      // Wait for all incursions to be hidden first (indicates filtering has processed)
+      await expect(page.locator('#incursions-body span.d-block:not(.d-none)')).toHaveCount(0);
 
       // Wait for empty message to appear
       const emptyMessage = page.locator('#incursions-empty-message');

@@ -161,13 +161,13 @@ function showToast(message: string): void {
  * This is exposed globally so non-module code can trigger syncs
  */
 function triggerCloudSync() {
-	const discordUserId = AuthService.getInstance().getDiscordUserId()
-	if (discordUserId) {
+	const userId = AuthService.getInstance().getUserId()
+	if (userId) {
 		// Update local timestamp
 		localStorage.setItem('_last_modified', new Date().toISOString())
 		// Trigger debounced push
 		const syncService = StorageSyncService.getInstance()
-		;(syncService as any).debouncedPush(discordUserId)
+		;(syncService as any).debouncedPush(userId)
 	}
 }
 

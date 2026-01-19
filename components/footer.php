@@ -2,8 +2,8 @@
 	<div class="row">
 		<div class="col text-center text-muted">
 			<small>
-				Cloud sync uses Discord login. We only store your Discord User ID
-				and app preferences. No emails or personal info collected.
+				Cloud sync uses Discord login. We only store your app preferences.
+				No emails, names, or personal info collected.
 			</small>
 		</div>
 	</div>

@@ -18,7 +18,7 @@
 -- Note: If you get "Invalid schema: public" errors, your database may be configured
 -- to use the "api" schema instead. Change "public" to "api" throughout this file.
 CREATE TABLE user_data (
-  discord_user_id VARCHAR(20) PRIMARY KEY,  -- Discord's user.id (snowflake)
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   data JSONB NOT NULL DEFAULT '{}'::jsonb,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
@@ -35,23 +35,23 @@ CREATE INDEX idx_user_data_language ON user_data ((data->>'language'));
 -- ============================================
 ALTER TABLE user_data ENABLE ROW LEVEL SECURITY;
 
--- Users can only access their own Discord ID
+-- Users can only access their own data using secure Supabase UUID
 CREATE POLICY "Users can view own data"
   ON user_data FOR SELECT
-  USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+  USING (user_id = auth.uid());
 
 CREATE POLICY "Users can insert own data"
   ON user_data FOR INSERT
-  WITH CHECK (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+  WITH CHECK (user_id = auth.uid());
 
 CREATE POLICY "Users can update own data"
   ON user_data FOR UPDATE
-  USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+  USING (user_id = auth.uid());
 
 -- Optional: DELETE policy (no UI implemented, but allows manual deletion if needed)
 CREATE POLICY "Users can delete own data"
   ON user_data FOR DELETE
-  USING (discord_user_id = (auth.jwt() -> 'user_metadata' ->> 'provider_id'));
+  USING (user_id = auth.uid());
 
 -- ============================================
 -- Automatic timestamp update trigger

@@ -22,6 +22,7 @@ vi.mock('../../src/cloud-sync/database', () => ({
 vi.mock('../../src/cloud-sync/auth', () => ({
   AuthService: {
     getInstance: vi.fn(() => ({
+      getUserId: vi.fn(() => 'mock-user-uuid'),
       getDiscordUserId: vi.fn(() => 'mock-discord-id'),
     })),
   },
@@ -101,11 +102,11 @@ describe('StorageSyncService', () => {
       // Since it's private, we test it indirectly through pushToDatabase
       mockFromChain.upsert.mockResolvedValue({ error: null });
 
-      const discordUserId = 'test-user';
-      return (service as any).pushToDatabase(discordUserId).then(() => {
+      const userId = 'test-user-uuid';
+      return (service as any).pushToDatabase(userId).then(() => {
         expect(db.from).toHaveBeenCalledWith('user_data');
         expect(mockFromChain.upsert).toHaveBeenCalledWith({
-          discord_user_id: discordUserId,
+          user_id: userId,
           data: {
             language: 'fr',
             notifications: {
@@ -126,7 +127,7 @@ describe('StorageSyncService', () => {
 
       mockFromChain.upsert.mockResolvedValue({ error: null });
 
-      return (service as any).pushToDatabase('test-user').then(() => {
+      return (service as any).pushToDatabase('test-user-uuid').then(() => {
         const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
         expect(call.data.completions).toEqual([]);
       });
@@ -138,7 +139,7 @@ describe('StorageSyncService', () => {
 
       mockFromChain.upsert.mockResolvedValue({ error: null });
 
-      return (service as any).pushToDatabase('test-user').then(() => {
+      return (service as any).pushToDatabase('test-user-uuid').then(() => {
         const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
         expect(call.data.completions).toEqual([]);
       });
@@ -351,16 +352,16 @@ describe('StorageSyncService', () => {
 
   describe('subscribeToRealtimeUpdates', () => {
     test('should subscribe to user_data updates', () => {
-      service.subscribeToRealtimeUpdates('test-user-id');
+      service.subscribeToRealtimeUpdates('test-user-uuid');
 
-      expect(db.channel).toHaveBeenCalledWith('user_data:test-user-id');
+      expect(db.channel).toHaveBeenCalledWith('user_data:test-user-uuid');
       expect(mockChannel.on).toHaveBeenCalledWith(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
           table: 'user_data',
-          filter: 'discord_user_id=eq.test-user-id',
+          filter: 'user_id=eq.test-user-uuid',
         },
         expect.any(Function)
       );
@@ -380,7 +381,7 @@ describe('StorageSyncService', () => {
         error: null,
       });
 
-      service.subscribeToRealtimeUpdates('test-user-id');
+      service.subscribeToRealtimeUpdates('test-user-uuid');
 
       // Get the callback passed to .on()
       const updateCallback = vi.mocked(mockChannel.on).mock.calls[0][2];

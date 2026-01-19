@@ -19,7 +19,7 @@ export class StorageSyncService {
   private hasSubscribedBefore = false  // Track initial subscription
   private reconnectAttempts = 0  // Track reconnection attempts for exponential backoff
   private reconnectTimer: number | null = null  // Timer for reconnection attempts
-  private currentDiscordUserId: string | null = null  // Track current user for reconnection
+  private currentUserId: string | null = null  // Track current user UUID for reconnection
 
   // localStorage key prefixes
   private static readonly NOTIF_PREFIX = 'live.notif.'
@@ -45,21 +45,21 @@ export class StorageSyncService {
 
     try {
       this.syncing = true
-      const discordUserId = AuthService.getInstance().getDiscordUserId()
-      if (!discordUserId) {
-        throw new Error('No Discord User ID available')
+      const userId = AuthService.getInstance().getUserId()
+      if (!userId) {
+        throw new Error('No user ID available')
       }
 
       // Fetch remote data with timestamp
       const { data: remoteData, error } = await db
         .from('user_data')
         .select('data, updated_at')
-        .eq('discord_user_id', discordUserId)
+        .eq('user_id', userId)
         .single()
 
       if (error || !remoteData) {
         // First time login - upload localStorage to database
-        await this.pushToDatabase(discordUserId)
+        await this.pushToDatabase(userId)
         logger.log('💻➡️☁️ Your data has been backed up to the cloud')
       } else {
         // Compare timestamps: remote vs local
@@ -68,17 +68,17 @@ export class StorageSyncService {
 
         if (!localLastModified || new Date(remoteLastModified) > new Date(localLastModified)) {
           // Remote is newer - pull from database
-          await this.pullFromDatabase(discordUserId)
+          await this.pullFromDatabase(userId)
           logger.log('☁️➡️💻 Synced data from cloud')
         } else {
           // Local is newer or tie - push to database
-          await this.pushToDatabase(discordUserId)
+          await this.pushToDatabase(userId)
           logger.log('💻➡️☁️ Synced data to cloud')
         }
       }
 
       // Enable real-time sync for cross-device/cross-tab updates
-      this.subscribeToRealtimeUpdates(discordUserId)
+      this.subscribeToRealtimeUpdates(userId)
     } finally {
       this.syncing = false
     }
@@ -181,14 +181,14 @@ export class StorageSyncService {
    * Upload localStorage data to database (single query)
    * Merges with existing data to avoid losing settings from other devices
    */
-  async pushToDatabase(discordUserId: string) {
+  async pushToDatabase(userId: string) {
     const localData = this.localStorageToData()
 
     // Try to fetch existing data from database to merge with
     const { data: existingRow } = await db
       .from('user_data')
       .select('data')
-      .eq('discord_user_id', discordUserId)
+      .eq('user_id', userId)
       .maybeSingle() // Returns null if no row exists, doesn't error
 
     // Merge local data with existing database data (if any)
@@ -204,7 +204,7 @@ export class StorageSyncService {
     const { error } = await db
       .from('user_data')
       .upsert({
-        discord_user_id: discordUserId,
+        user_id: userId,
         data: mergedData
       })
 
@@ -215,11 +215,11 @@ export class StorageSyncService {
    * Download database data to localStorage (single query)
    * Automatically refreshes UI after updating localStorage
    */
-  async pullFromDatabase(discordUserId: string) {
+  async pullFromDatabase(userId: string) {
     const { data: row, error } = await db
       .from('user_data')
       .select('data')
-      .eq('discord_user_id', discordUserId)
+      .eq('user_id', userId)
       .single()
 
     if (error) {
@@ -244,16 +244,16 @@ export class StorageSyncService {
     localStorage.setItem(StorageSyncService.LAST_MODIFIED_KEY, new Date().toISOString())
 
     // Debounce database push to batch rapid changes
-    const discordUserId = AuthService.getInstance().getDiscordUserId()
-    if (discordUserId) {
-      this.debouncedPush(discordUserId)
+    const userId = AuthService.getInstance().getUserId()
+    if (userId) {
+      this.debouncedPush(userId)
     }
   }
 
   /**
    * Debounced push - batches multiple rapid changes into single database write
    */
-  private debouncedPush(discordUserId: string) {
+  private debouncedPush(userId: string) {
     // Clear existing timer if user makes another change
     if (this.pushTimer !== null) {
       clearTimeout(this.pushTimer)
@@ -264,7 +264,7 @@ export class StorageSyncService {
       this.pushTimer = null
       try {
         this.justPushed = true
-        await this.pushToDatabase(discordUserId)
+        await this.pushToDatabase(userId)
         logger.log('💻➡️☁️ Synced data to cloud')
         // Clear flag after 1 second to ignore our own real-time update
         setTimeout(() => { this.justPushed = false }, 1000)
@@ -283,10 +283,10 @@ export class StorageSyncService {
       clearTimeout(this.pushTimer)
       this.pushTimer = null
 
-      const discordUserId = AuthService.getInstance().getDiscordUserId()
-      if (discordUserId) {
+      const userId = AuthService.getInstance().getUserId()
+      if (userId) {
         try {
-          await this.pushToDatabase(discordUserId)
+          await this.pushToDatabase(userId)
         } catch (error) {
           logger.warn('Failed to flush pending changes:', error)
         }
@@ -319,7 +319,7 @@ export class StorageSyncService {
 
     this.reconnectTimer = window.setTimeout(async () => {
       this.reconnectTimer = null
-      if (this.currentDiscordUserId) {
+      if (this.currentUserId) {
         logger.debug('🔌 Attempting to reestablish WebSocket connection...')
 
         // Ensure we have a fresh session token before reconnecting
@@ -337,7 +337,7 @@ export class StorageSyncService {
           // Continue with reconnection attempt
         }
 
-        this.subscribeToRealtimeUpdates(this.currentDiscordUserId)
+        this.subscribeToRealtimeUpdates(this.currentUserId)
       }
     }, delayMs)
   }
@@ -346,21 +346,21 @@ export class StorageSyncService {
    * Subscribe to real-time updates from database
    * Uses WebSockets (not polling) - efficient for free tier
    */
-  subscribeToRealtimeUpdates(discordUserId: string) {
-    // Save current user for reconnection attempts
-    this.currentDiscordUserId = discordUserId
+  subscribeToRealtimeUpdates(userId: string) {
+    // Save current user UUID for reconnection attempts
+    this.currentUserId = userId
     // Unsubscribe from previous channel if exists
     if (this.realtimeChannel) {
       this.realtimeChannel.unsubscribe()
     }
 
     // Subscribe to changes on this user's row
-    this.realtimeChannel = db.channel(`user_data:${discordUserId}`)
+    this.realtimeChannel = db.channel(`user_data:${userId}`)
       .on('postgres_changes', {
         event: 'UPDATE',
         schema: 'public',
         table: 'user_data',
-        filter: `discord_user_id=eq.${discordUserId}`
+        filter: `user_id=eq.${userId}`
       }, async (payload) => {
         // Skip if this update was triggered by our own push
         if (this.justPushed) {
@@ -372,7 +372,7 @@ export class StorageSyncService {
         if (!this.syncing) {
           try {
             this.syncing = true
-            await this.pullFromDatabase(discordUserId)
+            await this.pullFromDatabase(userId)
             logger.log('☁️➡️💻 Synced data from cloud')
           } finally {
             this.syncing = false
@@ -400,7 +400,7 @@ export class StorageSyncService {
             if (!this.syncing) {
               try {
                 this.syncing = true
-                await this.pullFromDatabase(discordUserId)
+                await this.pullFromDatabase(userId)
                 logger.log('☁️➡️💻 Synced data from cloud (reconnected)')
               } finally {
                 this.syncing = false
@@ -483,7 +483,7 @@ export class StorageSyncService {
   /**
    * Unsubscribe from real-time updates
    */
-  unsubscribeFromRealtimeUpdates(discordUserId: string) {
+  unsubscribeFromRealtimeUpdates() {
     // Clear reconnection timer
     if (this.reconnectTimer !== null) {
       clearTimeout(this.reconnectTimer)
@@ -492,7 +492,7 @@ export class StorageSyncService {
 
     // Reset reconnection state
     this.reconnectAttempts = 0
-    this.currentDiscordUserId = null
+    this.currentUserId = null
 
     if (this.realtimeChannel) {
       this.realtimeChannel.unsubscribe()

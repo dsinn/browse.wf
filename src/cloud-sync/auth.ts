@@ -75,9 +75,15 @@ export class AuthService {
     return this.currentUser !== null
   }
 
+  getUserId(): string | null {
+    if (!this.currentUser) return null
+    // Return Supabase UUID (secure, immutable)
+    return this.currentUser.id
+  }
+
   getDiscordUserId(): string | null {
     if (!this.currentUser) return null
-    // Discord User ID is in user_metadata.provider_id
+    // Discord User ID is in user_metadata.provider_id (for display only, not security)
     return this.currentUser.user_metadata?.provider_id || null
   }
 
@@ -91,13 +97,12 @@ export class AuthService {
       }
     } else if (event === 'SIGNED_OUT') {
       this.initialSyncComplete = false
-      const discordUserId = this.currentUser?.user_metadata?.provider_id
-      if (discordUserId) {
+      if (this.currentUser) {
         const syncService = (await import('./storage-sync.js')).StorageSyncService.getInstance()
         // Flush any pending changes before logout
         await syncService.flushPendingChanges()
         // Unsubscribe from real-time updates
-        syncService.unsubscribeFromRealtimeUpdates(discordUserId)
+        syncService.unsubscribeFromRealtimeUpdates()
       }
       // Dispatch event to update UI
       window.dispatchEvent(new CustomEvent('auth-state-changed'))

@@ -132,7 +132,7 @@ For detailed setup instructions, see:
 - [Supabase Auth with Discord](https://supabase.com/docs/guides/auth/social-login/auth-discord)
 - [Discord OAuth2 Documentation](https://discord.com/developers/docs/topics/oauth2)
 
-**Privacy:** Only your Discord User ID (a public identifier) and app preferences are stored. No email addresses or personal information.
+**Privacy:** Only your app preferences are stored. No email addresses, names, or personal information.
 
 ## Project Structure
 

@@ -138,8 +138,8 @@ function initializeCardFilters(cardName: string, onFilterChange?: () => void): v
 
 /**
  * Check if a specific filter type is enabled for a card
- * @param cardName - The name of the card (e.g., "news")
- * @param filterType - The filter type (e.g., "danger", "primary", "success")
+ * @param cardName - The name of the card (e.g., "news", "incursions")
+ * @param filterType - The filter type value from the checkbox's data-filter-type attribute
  * @returns true if the filter is enabled (should show items), false if disabled (should hide items)
  */
 function isFilterEnabled(cardName: string, filterType: string): boolean

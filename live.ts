@@ -500,8 +500,15 @@ async function updateIncursionsLocalised()
 	{
 		const node = ExportRegions[window.incursions_today[i]];
 
+		// Normalize mission type for filtering (MT_INTEL and MT_SPY both represent "Spy" to players)
+		let canonicalMissionType = node.missionType;
+		if (canonicalMissionType === "MT_INTEL")
+		{
+			canonicalMissionType = "MT_SPY" as TMissionType;
+		}
+
 		// Check if this mission type should be displayed (filter check)
-		const isVisible = (window as any).isFilterEnabled?.("incursions", node.missionType) ?? true;
+		const isVisible = (window as any).isFilterEnabled?.("incursions", canonicalMissionType) ?? true;
 
 		if (isVisible)
 		{

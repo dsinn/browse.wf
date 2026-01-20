@@ -37,7 +37,11 @@ function createInvasionProgressBar(extraData: InvasionExtraData): HTMLDivElement
 
 	const bar = document.createElement("div");
 	bar.className = `invasion-progress-bar ${attackerFactionClass}`;
-	bar.style.width = `${extraData.worldStateData.Count <= 0 ? extraData.percentage : (100 - extraData.percentage)}%`;
+
+	let barPercentage = extraData.worldStateData.Faction === "FC_INFESTATION"
+		? extraData.percentage
+		: 100 * (extraData.worldStateData.Count + extraData.worldStateData.Goal) / (2 * extraData.worldStateData.Goal);
+	bar.style.width = `${barPercentage}%`;
 	container.appendChild(bar);
 
 	return container;

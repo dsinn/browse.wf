@@ -535,6 +535,8 @@ test.describe('Live Page (/live)', () => {
     });
   });
 
+  // TODO: Split card-specific tests into separate files under e2e/live/
+
   test.describe('Responsive behavior', () => {
     test('page is mobile responsive', async ({ page }) => {
       // Set mobile viewport

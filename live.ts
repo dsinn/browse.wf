@@ -1509,12 +1509,13 @@ function createCompletionToggle(oid: string): HTMLAnchorElement
 async function updateInvasionsLocalised()
 {
 	const startTime = Date.now();
-	while (!window.worldState?.Invasions) {
-		if (Date.now() - startTime > 5000) {
+	while (!window.worldState?.Invasions ||
+			(window.refresh_world_state_at && window.refresh_world_state_at <= Date.now())) {
+		if (Date.now() - startTime > 10000) {
 			console.warn('Timeout waiting for worldState.Invasions');
 			return;
 		}
-		await new Promise(resolve => setTimeout(resolve, 500));
+		await new Promise(resolve => setTimeout(resolve, 1000));
 	}
 
 	const extraDataMap = (window as any).buildInvasionExtraDataMap(window.worldState.Invasions, window.invasions);
@@ -1528,8 +1529,7 @@ async function updateInvasionsLocalised()
 	{
 		const extraData = extraDataMap[invasion.id];
 		if (!extraData) {
-			console.warn(`Unable to find extra invasion data for invasion with oid ${invasion.id}`);
-			continue;
+			console.log(`Unable to find extra invasion data for invasion with oid ${invasion.id}; worldState update may be needed`);
 		}
 
 		const tr = document.createElement("tr");
@@ -1546,8 +1546,10 @@ async function updateInvasionsLocalised()
 				const node = ExportRegions[invasion.node];
 				th.textContent = dict[node.name] + ", " + dict[node.systemName];
 
-				const progressBar = (window as any).createInvasionProgressBar(extraData);
-				th.appendChild(progressBar);
+				if (extraData) {
+					const progressBar = (window as any).createInvasionProgressBar(extraData);
+					th.appendChild(progressBar);
+				}
 			}
 			tr.appendChild(th);
 		}
@@ -1561,7 +1563,13 @@ async function updateInvasionsLocalised()
 			tr.appendChild(td);
 		}*/
 
-		tr.appendChild((window as any).renderInvasionProgressPercentage(last_id, extraData));
+		if (extraData) {
+			tr.appendChild((window as any).renderInvasionProgressPercentage(last_id, extraData));
+		} else {
+			// Render empty cell when extraData unavailable
+			const td = document.createElement("td");
+			tr.appendChild(td);
+		}
 
 		{
 			const td = document.createElement("td");

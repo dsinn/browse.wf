@@ -4,9 +4,8 @@
  * This module defines the data structure for user preferences stored in the cloud.
  */
 
-export interface UserData {
-  language: string
-  notifications: Record<string, boolean>
-  ui_state: Record<string, boolean | string>
-  completions: string[]
-}
+/**
+ * Flexible storage structure - nested objects mirror localStorage dot-separated keys
+ * e.g., live.collapse.news → {live: {collapse: {news: "1"}}}
+ */
+export type UserData = Record<string, any>

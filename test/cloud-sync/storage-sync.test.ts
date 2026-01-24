@@ -98,6 +98,9 @@ describe('StorageSyncService', () => {
       localStorage.setItem('live.collapse.section1', 'true');
       localStorage.setItem('oids_completed', '["obj1", "obj2"]');
 
+      // Mock DOM elements with data-oid attributes (so pruneStaleOids doesn't remove them)
+      document.body.innerHTML = '<div data-oid="obj1"></div><div data-oid="obj2"></div>';
+
       // Call private method via handleFirstLogin flow (which uses it internally)
       // Since it's private, we test it indirectly through pushToDatabase
       mockFromChain.upsert.mockResolvedValue({ error: null });
@@ -108,15 +111,17 @@ describe('StorageSyncService', () => {
         expect(mockFromChain.upsert).toHaveBeenCalledWith({
           user_id: userId,
           data: {
-            language: 'fr',
-            notifications: {
-              alert1: true,
-              alert2: true,
+            lang: 'fr',
+            live: {
+              notif: {
+                alert1: 'true',
+                alert2: 'true',
+              },
+              collapse: {
+                section1: 'true',
+              },
             },
-            ui_state: {
-              section1: true,
-            },
-            completions: ['obj1', 'obj2'],
+            oids_completed: '["obj1","obj2"]',
           },
         });
       });
@@ -129,7 +134,7 @@ describe('StorageSyncService', () => {
 
       return (service as any).pushToDatabase('test-user-uuid').then(() => {
         const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
-        expect(call.data.completions).toEqual([]);
+        expect(call.data.oids_completed).toBeUndefined();
       });
     });
 
@@ -141,7 +146,32 @@ describe('StorageSyncService', () => {
 
       return (service as any).pushToDatabase('test-user-uuid').then(() => {
         const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
-        expect(call.data.completions).toEqual([]);
+        // pruneStaleOids() removes invalid JSON from localStorage
+        expect(call.data.oids_completed).toBeUndefined();
+      });
+    });
+
+    test('should exclude auth token from cloud sync (security)', () => {
+      // Setup localStorage with auth token and regular data
+      localStorage.setItem('lang', 'en');
+      localStorage.setItem('sb-test-project-auth-token', 'sensitive-auth-token-value');
+      localStorage.setItem('live.collapse.news', '1');
+
+      mockFromChain.upsert.mockResolvedValue({ error: null });
+
+      return (service as any).pushToDatabase('test-user-uuid').then(() => {
+        const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
+
+        // Regular data should be present
+        expect(call.data.lang).toBe('en');
+        expect(call.data.live.collapse.news).toBe('1');
+
+        // Auth token should NOT be in the uploaded data
+        expect(call.data.sb).toBeUndefined();
+        expect(call.data['sb-test-project-auth-token']).toBeUndefined();
+
+        // Verify auth token is still in localStorage (not removed)
+        expect(localStorage.getItem('sb-test-project-auth-token')).toBe('sensitive-auth-token-value');
       });
     });
   });
@@ -149,15 +179,16 @@ describe('StorageSyncService', () => {
   describe('dataToLocalStorage', () => {
     test('should convert UserData to localStorage', async () => {
       const userData: UserData = {
-        language: 'fr',
-        notifications: {
-          alert1: true,
-          alert2: false,
+        lang: 'fr',
+        live: {
+          notif: {
+            alert1: 'true',
+          },
+          collapse: {
+            section1: 'true',
+          },
         },
-        ui_state: {
-          section1: true,
-        },
-        completions: ['obj1', 'obj2'],
+        oids_completed: '["obj1","obj2"]',
       };
 
       mockFromChain.single.mockResolvedValue({
@@ -169,22 +200,15 @@ describe('StorageSyncService', () => {
 
       expect(localStorage.getItem('lang')).toBe('fr');
       expect(localStorage.getItem('live.notif.alert1')).toBe('true');
-      expect(localStorage.getItem('live.notif.alert2')).toBeNull();
       expect(localStorage.getItem('live.collapse.section1')).toBe('true');
       expect(localStorage.getItem('oids_completed')).toBe('["obj1","obj2"]');
-      expect(localStorage.getItem('_last_modified')).toBeTruthy();
     });
 
-    test('should remove disabled notifications from localStorage', async () => {
+    test('should clear localStorage keys not in cloud data', async () => {
       localStorage.setItem('live.notif.alert1', 'true');
 
       const userData: UserData = {
-        language: 'en',
-        notifications: {
-          alert1: false, // Explicitly disabled
-        },
-        ui_state: {},
-        completions: [],
+        lang: 'en',
       };
 
       mockFromChain.single.mockResolvedValue({
@@ -194,15 +218,37 @@ describe('StorageSyncService', () => {
 
       await (service as any).pullFromDatabase('test-user');
 
+      // Keys not in cloud data are removed (except auth token)
       expect(localStorage.getItem('live.notif.alert1')).toBeNull();
+    });
+
+    test('should preserve auth token when pulling from cloud (security)', async () => {
+      // Setup auth token and some other data
+      localStorage.setItem('sb-test-project-auth-token', 'sensitive-auth-token-value');
+      localStorage.setItem('live.notif.alert1', 'true');
+
+      const userData: UserData = {
+        lang: 'en',
+      };
+
+      mockFromChain.single.mockResolvedValue({
+        data: { data: userData },
+        error: null,
+      });
+
+      await (service as any).pullFromDatabase('test-user');
+
+      // Regular data should be replaced
+      expect(localStorage.getItem('lang')).toBe('en');
+      expect(localStorage.getItem('live.notif.alert1')).toBeNull();
+
+      // Auth token should be preserved (not cleared)
+      expect(localStorage.getItem('sb-test-project-auth-token')).toBe('sensitive-auth-token-value');
     });
 
     test('should refresh UI after pulling data', async () => {
       const userData: UserData = {
-        language: 'en',
-        notifications: {},
-        ui_state: {},
-        completions: [],
+        lang: 'en',
       };
 
       mockFromChain.single.mockResolvedValue({
@@ -233,23 +279,14 @@ describe('StorageSyncService', () => {
       expect(db.channel).toHaveBeenCalled(); // Should subscribe to real-time
     });
 
-    test('should pull from database when remote is newer', async () => {
-      const oldDate = new Date('2024-01-01').toISOString();
-      const newDate = new Date('2024-01-02').toISOString();
-
-      localStorage.setItem('_last_modified', oldDate);
-
+    test('should pull from database when remote data exists (cloud is source of truth)', async () => {
       const remoteData: UserData = {
-        language: 'fr',
-        notifications: {},
-        ui_state: {},
-        completions: [],
+        lang: 'fr',
       };
 
       mockFromChain.single.mockResolvedValue({
         data: {
           data: remoteData,
-          updated_at: newDate,
         },
         error: null,
       });
@@ -260,29 +297,6 @@ describe('StorageSyncService', () => {
       expect((window as any).refreshAllCompletionToggles).toHaveBeenCalled();
     });
 
-    test('should push to database when local is newer', async () => {
-      const oldDate = new Date('2024-01-01').toISOString();
-      const newDate = new Date('2024-01-02').toISOString();
-
-      localStorage.setItem('_last_modified', newDate);
-      localStorage.setItem('lang', 'en');
-
-      mockFromChain.single.mockResolvedValue({
-        data: {
-          data: { language: 'fr', notifications: {}, ui_state: {}, completions: [] },
-          updated_at: oldDate,
-        },
-        error: null,
-      });
-
-      mockFromChain.upsert.mockResolvedValue({ error: null });
-
-      await service.handleFirstLogin();
-
-      expect(mockFromChain.upsert).toHaveBeenCalled();
-      const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
-      expect(call.data.language).toBe('en');
-    });
   });
 
   describe('saveWithFallback', () => {
@@ -370,10 +384,7 @@ describe('StorageSyncService', () => {
 
     test('should pull data when remote update received', async () => {
       const userData: UserData = {
-        language: 'fr',
-        notifications: {},
-        ui_state: {},
-        completions: [],
+        lang: 'fr',
       };
 
       mockFromChain.single.mockResolvedValue({
@@ -440,23 +451,25 @@ describe('StorageSyncService', () => {
       // Flush to trigger immediate sync
       await service.flushPendingChanges();
 
-      // Check the data property was called with correct ui_state
+      // Check the data property was called with nested structure
       const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
-      expect(call.data.ui_state['filter.bounties.ZarimanSyndicate']).toBe('3');
-      expect(call.data.ui_state['filter.bounties.EntratiLabSyndicate']).toBe('5');
-      expect(call.data.ui_state['filter.bounties.HexSyndicate']).toBe('-1');
+      expect(call.data.live.filter.bounties.ZarimanSyndicate).toBe('3');
+      expect(call.data.live.filter.bounties.EntratiLabSyndicate).toBe('5');
+      expect(call.data.live.filter.bounties.HexSyndicate).toBe('-1');
     });
 
     test('should restore dropdown filter values from cloud', async () => {
       const mockData: UserData = {
-        language: 'en',
-        notifications: {},
-        ui_state: {
-          'filter.bounties.ZarimanSyndicate': '4',
-          'filter.bounties.EntratiLabSyndicate': '2',
-          'filter.bounties.HexSyndicate': '7',
+        lang: 'en',
+        live: {
+          filter: {
+            bounties: {
+              ZarimanSyndicate: '4',
+              EntratiLabSyndicate: '2',
+              HexSyndicate: '7',
+            },
+          },
         },
-        completions: []
       };
 
       mockFromChain.single.mockResolvedValue({
@@ -483,11 +496,134 @@ describe('StorageSyncService', () => {
 
       await service.flushPendingChanges();
 
-      // Check the data property has both filter types
+      // Check the data property has both filter types in nested structure
       const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
-      expect(call.data.ui_state['filter.news.danger']).toBe('1');
-      expect(call.data.ui_state['filter.news.primary']).toBe('0');
-      expect(call.data.ui_state['filter.bounties.ZarimanSyndicate']).toBe('3');
+      expect(call.data.live.filter.news.danger).toBe('1');
+      expect(call.data.live.filter.news.primary).toBe('0');
+      expect(call.data.live.filter.bounties.ZarimanSyndicate).toBe('3');
+    });
+  });
+
+  describe('Round Trip: Serialize/Deserialize', () => {
+    test('collapse state round-trips correctly', () => {
+      const service = StorageSyncService.getInstance();
+
+      // Set up: Collapse a card
+      localStorage.setItem('live.collapse.news', '1');
+
+      // Serialize
+      const serialized = (service as any).localStorageToData();
+      expect(serialized.live.collapse.news).toBe('1');
+
+      // Clear and deserialize
+      localStorage.clear();
+      (service as any).dataToLocalStorage(serialized);
+
+      // Verify: Card stays collapsed
+      expect(localStorage.getItem('live.collapse.news')).toBe('1');
+    });
+
+    test('expanding card (removing key) round-trips correctly', () => {
+      const service = StorageSyncService.getInstance();
+
+      // Set up: No collapse key (card is expanded)
+      localStorage.clear();
+
+      // Serialize
+      const serialized = (service as any).localStorageToData();
+      expect(serialized.live?.collapse?.news).toBeUndefined();
+
+      // Deserialize
+      localStorage.setItem('live.collapse.news', '1'); // Start with collapsed
+      (service as any).dataToLocalStorage(serialized);
+
+      // Verify: Card stays expanded (key not set)
+      expect(localStorage.getItem('live.collapse.news')).toBeNull();
+    });
+
+    test('filter states round-trip correctly', () => {
+      const service = StorageSyncService.getInstance();
+
+      // Set up: Set various filters
+      localStorage.setItem('live.filter.news.danger', '0');
+      localStorage.setItem('live.filter.bounties.ZarimanSyndicate', '3');
+      localStorage.setItem('live.filter.bounties.HexSyndicate', '-1');
+
+      // Serialize
+      const serialized = (service as any).localStorageToData();
+      expect(serialized.live.filter.news.danger).toBe('0');
+      expect(serialized.live.filter.bounties.ZarimanSyndicate).toBe('3');
+      expect(serialized.live.filter.bounties.HexSyndicate).toBe('-1');
+
+      // Clear and deserialize
+      localStorage.clear();
+      (service as any).dataToLocalStorage(serialized);
+
+      // Verify: Filters restored
+      expect(localStorage.getItem('live.filter.news.danger')).toBe('0');
+      expect(localStorage.getItem('live.filter.bounties.ZarimanSyndicate')).toBe('3');
+      expect(localStorage.getItem('live.filter.bounties.HexSyndicate')).toBe('-1');
+    });
+
+    test('mixed collapse and filter states round-trip correctly', () => {
+      const service = StorageSyncService.getInstance();
+
+      // Set up: Collapse card AND set filter
+      localStorage.setItem('live.collapse.news', '1');
+      localStorage.setItem('live.filter.news.danger', '0');
+
+      // Serialize
+      const serialized = (service as any).localStorageToData();
+      expect(serialized.live.collapse.news).toBe('1');
+      expect(serialized.live.filter.news.danger).toBe('0');
+
+      // Clear and deserialize
+      localStorage.clear();
+      (service as any).dataToLocalStorage(serialized);
+
+      // Verify: Both restored
+      expect(localStorage.getItem('live.collapse.news')).toBe('1');
+      expect(localStorage.getItem('live.filter.news.danger')).toBe('0');
+    });
+
+    test('notification states round-trip correctly', () => {
+      const service = StorageSyncService.getInstance();
+
+      // Set up: Enable some notifications
+      localStorage.setItem('live.notif.news', 'true');
+      localStorage.setItem('live.notif.bounties', 'true');
+
+      // Serialize
+      const serialized = (service as any).localStorageToData();
+      expect(serialized.live.notif.news).toBe('true');
+      expect(serialized.live.notif.bounties).toBe('true');
+
+      // Clear and deserialize
+      localStorage.clear();
+      (service as any).dataToLocalStorage(serialized);
+
+      // Verify: Notifications restored
+      expect(localStorage.getItem('live.notif.news')).toBe('true');
+      expect(localStorage.getItem('live.notif.bounties')).toBe('true');
+    });
+
+    test('completed objectives round-trip correctly', () => {
+      const service = StorageSyncService.getInstance();
+
+      // Set up: Mark some objectives as completed
+      const completions = ['archon1', 'kahlb1', 'kahlb2'];
+      localStorage.setItem('oids_completed', JSON.stringify(completions));
+
+      // Serialize
+      const serialized = (service as any).localStorageToData();
+      expect(serialized.oids_completed).toBe(JSON.stringify(completions));
+
+      // Clear and deserialize
+      localStorage.clear();
+      (service as any).dataToLocalStorage(serialized);
+
+      // Verify: Completions restored
+      expect(localStorage.getItem('oids_completed')).toBe(JSON.stringify(completions));
     });
   });
 });

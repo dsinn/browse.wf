@@ -10,6 +10,46 @@ import { AuthService } from './auth.js'
 import type { UserData } from './types.js'
 import { logger } from '../logger.js'
 
+/**
+ * Set a value in a nested object using dot-separated path
+ * e.g., setNestedValue({}, "live.filter.news.danger", "0")
+ *   → {live: {filter: {news: {danger: "0"}}}}
+ */
+function setNestedValue(obj: Record<string, any>, path: string, value: any): void {
+  const keys = path.split('.')
+  let current = obj
+
+  for (let i = 0; i < keys.length - 1; i++) {
+    const key = keys[i]
+    if (!(key in current)) {
+      current[key] = {}
+    }
+    current = current[key]
+  }
+
+  current[keys[keys.length - 1]] = value
+}
+
+/**
+ * Flatten nested object back to dot-separated keys
+ * e.g., {live: {collapse: {news: "1"}}} → {"live.collapse.news": "1"}
+ */
+function flattenObject(obj: Record<string, any>, prefix = ''): Record<string, any> {
+  const result: Record<string, any> = {}
+
+  for (const [key, value] of Object.entries(obj)) {
+    const newKey = prefix ? `${prefix}.${key}` : key
+
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      Object.assign(result, flattenObject(value, newKey))
+    } else {
+      result[newKey] = value
+    }
+  }
+
+  return result
+}
+
 export class StorageSyncService {
   private static instance: StorageSyncService
   private syncing = false
@@ -21,11 +61,9 @@ export class StorageSyncService {
   private reconnectTimer: number | null = null  // Timer for reconnection attempts
   private currentUserId: string | null = null  // Track current user UUID for reconnection
 
-  // localStorage key prefixes
-  private static readonly NOTIF_PREFIX = 'live.notif.'
-  private static readonly COLLAPSE_PREFIX = 'live.collapse.'
-  private static readonly FILTER_PREFIX = 'live.filter.'
-  private static readonly LAST_MODIFIED_KEY = '_last_modified'
+  // localStorage key patterns
+  private static readonly LOCAL_ONLY_KEY_REGEX = /^sb-.*-auth-token$/  // Supabase auth token - never sync to cloud
+  private static readonly OIDS_KEY = 'oids_completed'
   private static readonly DEBOUNCE_MS = 5000  // 5 seconds - aggressive batching for long-lived tabs
 
   private constructor() {}
@@ -39,6 +77,7 @@ export class StorageSyncService {
 
   /**
    * Called when user logs in
+   * Cloud is source of truth - always pull if remote data exists
    */
   async handleFirstLogin() {
     if (this.syncing) return
@@ -50,10 +89,10 @@ export class StorageSyncService {
         throw new Error('No user ID available')
       }
 
-      // Fetch remote data with timestamp
+      // Check if remote data exists
       const { data: remoteData, error } = await db
         .from('user_data')
-        .select('data, updated_at')
+        .select('data')
         .eq('user_id', userId)
         .single()
 
@@ -62,19 +101,9 @@ export class StorageSyncService {
         await this.pushToDatabase(userId)
         logger.log('💻➡️☁️ Your data has been backed up to the cloud')
       } else {
-        // Compare timestamps: remote vs local
-        const localLastModified = localStorage.getItem(StorageSyncService.LAST_MODIFIED_KEY)
-        const remoteLastModified = remoteData.updated_at
-
-        if (!localLastModified || new Date(remoteLastModified) > new Date(localLastModified)) {
-          // Remote is newer - pull from database
-          await this.pullFromDatabase(userId)
-          logger.log('☁️➡️💻 Synced data from cloud')
-        } else {
-          // Local is newer or tie - push to database
-          await this.pushToDatabase(userId)
-          logger.log('💻➡️☁️ Synced data to cloud')
-        }
+        // Remote data exists - pull from cloud (cloud is source of truth)
+        await this.pullFromDatabase(userId)
+        logger.log('☁️➡️💻 Synced data from cloud')
       }
 
       // Enable real-time sync for cross-device/cross-tab updates
@@ -85,127 +114,93 @@ export class StorageSyncService {
   }
 
   /**
-   * Convert localStorage to UserData object
+   * Clean up stale objective completions from localStorage
+   * Keeps only objectives that still exist in the DOM
    */
-  private localStorageToData(): UserData {
-    const data: UserData = {
-      language: localStorage.getItem('lang') || 'en',
-      notifications: {},
-      ui_state: {},
-      completions: []
-    }
+  private pruneStaleOids(): void {
+    const oidsValue = localStorage.getItem(StorageSyncService.OIDS_KEY)
+    if (!oidsValue) return
 
-    // Dynamically collect all notification settings, UI collapse states, and filter preferences
+    try {
+      const allOids = JSON.parse(oidsValue)
+      // Get all valid OIDs currently in the DOM
+      const validOids = new Set<string>()
+      document.querySelectorAll('[data-oid]').forEach(el => {
+        const oid = el.getAttribute('data-oid')
+        if (oid) validOids.add(oid)
+      })
+      // Keep only OIDs that still exist in the DOM
+      const cleanedOids = allOids.filter((oid: string) => validOids.has(oid))
+      // Update localStorage with cleaned array
+      if (cleanedOids.length > 0) {
+        localStorage.setItem(StorageSyncService.OIDS_KEY, JSON.stringify(cleanedOids))
+      } else {
+        localStorage.removeItem(StorageSyncService.OIDS_KEY)
+      }
+    } catch {
+      // Invalid JSON - remove it
+      localStorage.removeItem(StorageSyncService.OIDS_KEY)
+    }
+  }
+
+  /**
+   * Convert localStorage to nested object based on dot-separated keys
+   * Stores values exactly as they appear in localStorage (no transformations)
+   */
+  private localStorageToData(): Record<string, any> {
+    const data: Record<string, any> = {}
+
+    // Iterate through all localStorage keys and serialize
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
-      if (key?.startsWith(StorageSyncService.NOTIF_PREFIX)) {
-        const notifKey = key.replace(StorageSyncService.NOTIF_PREFIX, '')
-        data.notifications[notifKey] = true
-      } else if (key?.startsWith(StorageSyncService.COLLAPSE_PREFIX)) {
-        const stateKey = key.replace(StorageSyncService.COLLAPSE_PREFIX, '')
-        data.ui_state[stateKey] = true
-      } else if (key?.startsWith(StorageSyncService.FILTER_PREFIX)) {
-        const filterKey = key.replace(StorageSyncService.FILTER_PREFIX, '')
-        const value = localStorage.getItem(key)
-        // Store actual string value to support both checkbox filters ("0"/"1") and dropdown filters ("-1"-"7")
-        // Only store if value exists - don't create defaults for untouched filters
-        if (value !== null) {
-          data.ui_state[`filter.${filterKey}`] = value
-        }
-      }
-    }
+      if (!key || StorageSyncService.LOCAL_ONLY_KEY_REGEX.test(key)) continue
 
-    // Get completions
-    const completionsStr = localStorage.getItem('oids_completed')
-    if (completionsStr) {
-      try {
-        data.completions = JSON.parse(completionsStr)
-      } catch {
-        data.completions = []
-      }
+      const value = localStorage.getItem(key)
+      if (value === null) continue
+
+      // Create nested structure based on dots in the key
+      setNestedValue(data, key, value)
     }
 
     return data
   }
 
   /**
-   * Convert UserData object to localStorage
+   * Convert nested object to localStorage using dot-separated keys
+   * Stores values exactly as they are (no transformations)
    */
-  private dataToLocalStorage(data: UserData) {
-    // Set language
-    localStorage.setItem('lang', data.language)
-
-    // Set notifications
-    for (const [key, enabled] of Object.entries(data.notifications)) {
-      if (enabled) {
-        localStorage.setItem(`${StorageSyncService.NOTIF_PREFIX}${key}`, 'true')
-      } else {
-        localStorage.removeItem(`${StorageSyncService.NOTIF_PREFIX}${key}`)
+  private dataToLocalStorage(data: Record<string, any>) {
+    // Clear all localStorage except local-only keys (e.g., auth token)
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i)
+      if (key && !StorageSyncService.LOCAL_ONLY_KEY_REGEX.test(key)) {
+        localStorage.removeItem(key)
       }
     }
 
-    // Set UI states (collapse states and filters)
-    for (const [key, value] of Object.entries(data.ui_state)) {
-      if (key.startsWith('filter.')) {
-        // Handle filter preferences - store actual string value for both checkboxes and dropdowns
-        const filterKey = key.replace('filter.', '')
-        if (typeof value === 'string') {
-          // Dropdown filter (string value like "0"-"7")
-          localStorage.setItem(`${StorageSyncService.FILTER_PREFIX}${filterKey}`, value)
-        } else {
-          // Checkbox filter (boolean value)
-          localStorage.setItem(`${StorageSyncService.FILTER_PREFIX}${filterKey}`, value ? '1' : '0')
-        }
-      } else {
-        // Handle collapse states (store truthy or remove)
-        if (value) {
-          localStorage.setItem(`${StorageSyncService.COLLAPSE_PREFIX}${key}`, 'true')
-        } else {
-          localStorage.removeItem(`${StorageSyncService.COLLAPSE_PREFIX}${key}`)
-        }
-      }
-    }
+    // Flatten nested structure back to localStorage keys
+    const flattened = flattenObject(data)
 
-    // Set completions
-    if (data.completions.length > 0) {
-      localStorage.setItem('oids_completed', JSON.stringify(data.completions))
-    } else {
-      localStorage.removeItem('oids_completed')
+    // Store all values exactly as they are
+    for (const [key, value] of Object.entries(flattened)) {
+      localStorage.setItem(key, String(value))
     }
-
-    // Update local timestamp to match remote
-    localStorage.setItem(StorageSyncService.LAST_MODIFIED_KEY, new Date().toISOString())
   }
 
   /**
-   * Upload localStorage data to database (single query)
-   * Merges with existing data to avoid losing settings from other devices
+   * Upload localStorage data to database (last write wins)
    */
   async pushToDatabase(userId: string) {
-    const localData = this.localStorageToData()
+    // Clean up stale objectives before serializing
+    this.pruneStaleOids()
 
-    // Try to fetch existing data from database to merge with
-    const { data: existingRow } = await db
-      .from('user_data')
-      .select('data')
-      .eq('user_id', userId)
-      .maybeSingle() // Returns null if no row exists, doesn't error
-
-    // Merge local data with existing database data (if any)
-    const mergedData: UserData = existingRow?.data
-      ? {
-          language: localData.language, // Local language always wins
-          notifications: { ...existingRow.data.notifications, ...localData.notifications },
-          ui_state: { ...existingRow.data.ui_state, ...localData.ui_state },
-          completions: localData.completions // Local completions always win (they're append-only)
-        }
-      : localData // No existing data - just use local
+    const data = this.localStorageToData()
 
     const { error } = await db
       .from('user_data')
       .upsert({
         user_id: userId,
-        data: mergedData
+        data
       })
 
     if (error) throw error
@@ -239,9 +234,6 @@ export class StorageSyncService {
   async saveWithFallback(key: string, value: any) {
     // Always save to localStorage first (instant UI feedback)
     localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value))
-
-    // Update local timestamp
-    localStorage.setItem(StorageSyncService.LAST_MODIFIED_KEY, new Date().toISOString())
 
     // Debounce database push to batch rapid changes
     const userId = AuthService.getInstance().getUserId()

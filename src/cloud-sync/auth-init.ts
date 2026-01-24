@@ -163,8 +163,6 @@ function showToast(message: string): void {
 function triggerCloudSync() {
 	const userId = AuthService.getInstance().getUserId()
 	if (userId) {
-		// Update local timestamp
-		localStorage.setItem('_last_modified', new Date().toISOString())
 		// Trigger debounced push
 		const syncService = StorageSyncService.getInstance()
 		;(syncService as any).debouncedPush(userId)

@@ -163,7 +163,7 @@
 		window.choice_history = [];
 	}
 
-	function addToHistory(author, text, chemistry)
+	function addToHistory(author, text, chemistry, transmission)
 	{
 		const div = document.createElement("div");
 		div.className = "chat-message";
@@ -198,6 +198,19 @@
 			const span = document.createElement("span");
 			span.textContent += " (+" + chemistry + " Chemistry)";
 			div.appendChild(span);
+		}
+		if (transmission)
+		{
+			const audio = document.createElement("audio");
+			audio.setAttribute("controls", "controls");
+			{
+				const source = document.createElement("source");
+				source.setAttribute("src", `https://kim.browse.wf/kimulacrum_resources/RoatheMemoryLogs/${transmission.split("/").pop()}_en.ogg`);
+				source.setAttribute("type", "audio/ogg");
+				audio.appendChild(source);
+			}
+			audio.style.display = "block";
+			div.appendChild(audio);
 		}
 		document.getElementById("history").appendChild(div);
 	}
@@ -261,7 +274,7 @@
 					sender_name = kim_dict[sender_name];
 				}
 			}
-			addToHistory(sender_name, getNodeText(node), chemistry);
+			addToHistory(sender_name, getNodeText(node), chemistry, node.Transmission);
 			chemistry = undefined;
 		}
 		else if (node.type == "/EE/Types/Engine/PlayerChoiceDialogueNode")

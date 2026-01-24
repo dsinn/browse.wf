@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { setupMockRoutes } from '../helpers/api-mocks';
+import * as fs from 'fs';
+import * as path from 'path';
 
 test.describe('Live Page - Invasions Card', () => {
   test.beforeEach(async ({ page }) => {
@@ -74,5 +76,38 @@ test.describe('Live Page - Invasions Card', () => {
     // Should have progress percentages (extraData available)
     const percentages = await page.locator('.invasion-percentage').count();
     expect(percentages).toBeGreaterThan(0);
+  });
+
+  test('hardcodes Gradivus, Mars invasion to display Sabotage mission type', async ({ page }) => {
+    // Override invasions endpoint with Gradivus mock
+    const mocksDir = path.join(process.cwd(), 'test', '__mocks__');
+    const invasionsGradivusData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'invasions-gradivus.json'), 'utf8'));
+
+    await page.route('**/oracle.browse.wf/invasions', route => {
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(invasionsGradivusData),
+      });
+    });
+
+    // Reload to apply the mock
+    await page.reload();
+    await page.waitForSelector('#arby-what:not(:has-text("Loading..."))', { timeout: 10000 });
+    await page.waitForSelector('#invasions-table tbody tr', { timeout: 10000 });
+
+    // Find the Gradivus invasion row (last invasion in mock, node SolNode65)
+    // Look for the row containing "Gradivus, Mars"
+    const gradivusRow = page.locator('#invasions-table tbody tr').filter({ hasText: 'Gradivus, Mars' }).first();
+    await expect(gradivusRow).toBeVisible();
+
+    // Verify the mission type displays "Sabotage" (not "Defense" from API)
+    const missionCell = gradivusRow.locator('td').nth(1); // Mission type is the 2nd td (after progress percentage)
+    await expect(missionCell).toContainText('Sabotage');
+
+    // Verify the tooltip shows "Next: Sabotage" (not "Next: Exterminate" from API)
+    const missionTooltipSpan = missionCell.locator('span[data-bs-toggle="tooltip"]');
+    const tooltipTitle = await missionTooltipSpan.getAttribute('data-bs-title');
+    expect(tooltipTitle).toBe('Next: Sabotage');
   });
 });

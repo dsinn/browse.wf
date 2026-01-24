@@ -1574,8 +1574,21 @@ async function updateInvasionsLocalised()
 		{
 			const td = document.createElement("td");
 			const span = document.createElement("span");
-			span.textContent = toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + invasion.missions[0]]);
-			addTooltip(span, "Next: " + toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + invasion.missions[1]]));
+
+			let missionType, nextMissionType;
+			if (invasion.node === "SolNode65")
+			{
+				// Hardcode Gradivus, Mars to always show Sabotage (API response is irrelevant)
+				missionType = "Sabotage";
+				nextMissionType = "Sabotage";
+			}
+			else
+			{
+				missionType = invasion.missions[0];
+				nextMissionType = invasion.missions[1];
+			}
+			span.textContent = toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + missionType]);
+			addTooltip(span, "Next: " + toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + nextMissionType]));
 			td.appendChild(span);
 			tr.appendChild(td);
 		}

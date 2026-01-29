@@ -1538,6 +1538,11 @@ async function updateInvasionsLocalised()
 			tr.classList.add("invasion-defender-reward");
 		}
 
+		// Add styling for duplicate invasions (not yet active)
+		if (extraData?.isDuplicate) {
+			tr.classList.add("opacity-50");
+		}
+
 		{
 			const th = document.createElement("th");
 			if (last_id != invasion.id)
@@ -1609,7 +1614,18 @@ async function updateInvasionsLocalised()
 			const td = document.createElement("td");
 			if (last_id != invasion.id)
 			{
-				td.appendChild(createCompletionToggle(invasion.id));
+				if (extraData?.isDuplicate)
+				{
+					const span = document.createElement("span");
+					span.textContent = "⏳";
+					const node = ExportRegions[invasion.node];
+					addTooltip(span, `Will unlock after the first ${dict[node.name] + ", " + dict[node.systemName]} invasion is completed.`);
+					td.appendChild(span);
+				}
+				else
+				{
+					td.appendChild(createCompletionToggle(invasion.id));
+				}
 			}
 			tr.appendChild(td);
 		}

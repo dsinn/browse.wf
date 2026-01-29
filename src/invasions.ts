@@ -1,8 +1,7 @@
 // Invasion helper functions for calculating progress, sorting, and creating UI elements
 
 interface InvasionExtraData {
-	hasInfested: boolean;
-	isDuplicate: boolean; // @TODO Use this for sorting and styles later
+	isDuplicate: boolean;
 	percentage: number;
 	worldStateData: WorldStateInvasionData;
 }
@@ -50,6 +49,7 @@ function createInvasionProgressBar(extraData: InvasionExtraData): HTMLDivElement
 function buildInvasionExtraDataMap(wsInvasions: WorldStateInvasionData[], oracleInvasions: any[]): Record<string, InvasionExtraData>
 {
 	const extraDataMap: Record<string, InvasionExtraData> = {};
+	const seenNodes = new Set<string>();
 
 	for (const wsInvasion of wsInvasions) {
 		if (wsInvasion.Completed) continue;
@@ -58,11 +58,11 @@ function buildInvasionExtraDataMap(wsInvasions: WorldStateInvasionData[], oracle
 		if (!oracleInvasion) continue;
 
 		extraDataMap[oracleInvasion.id] = {
-			hasInfested: wsInvasion.Faction === "FC_INFESTATION",
-			isDuplicate: false,
+			isDuplicate: seenNodes.has(wsInvasion.Node),
 			percentage: calculatePercentage(wsInvasion),
 			worldStateData: wsInvasion
 		};
+		seenNodes.add(wsInvasion.Node);
 	}
 
 	return extraDataMap;

@@ -105,7 +105,7 @@ export function testCardFilters(cardName: string) {
         // Click to open
         gearIcon.click();
 
-        expect(panel?.style.display).toBe('block');
+        expect(panel?.style.display).toBe('grid');
         expect(panel?.classList.contains('show')).toBe(true);
       });
 

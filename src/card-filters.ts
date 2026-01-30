@@ -62,7 +62,7 @@ function initializeFilterToggles(): void
 				else
 				{
 					// Open panel
-					panel.style.display = "block";
+					panel.style.display = "grid";
 					// Trigger reflow to ensure display change is processed before adding class
 					panel.offsetHeight;
 					panel.classList.add("show");

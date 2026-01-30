@@ -23,14 +23,17 @@
 
 /* Accordion panel animation */
 .card-filter-panel {
+	display: grid;
+	grid-template-rows: 0fr;
 	overflow: hidden;
-	transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
-	max-height: 0;
-	opacity: 0;
+	transition: grid-template-rows 0.3s ease-out;
 	border-bottom: 1px dashed var(--bs-border-color);
 }
 
 .card-filter-panel.show {
-	max-height: 500px;
-	opacity: 1;
+	grid-template-rows: 1fr;
+}
+
+.card-filter-panel > * {
+	overflow: hidden;
 }

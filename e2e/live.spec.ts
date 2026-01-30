@@ -533,6 +533,31 @@ test.describe('Live Page (/live)', () => {
       const checkboxAfterReload = page.locator(`#${checkboxId}`);
       await expect(checkboxAfterReload).not.toBeChecked();
     });
+
+    test('all checkboxes are accessible when filter panel is expanded', async ({ page }) => {
+      // Wait for incursions to load
+      await page.waitForSelector('#incursions-body span.d-block:not(:has-text("Fetching"))', { timeout: 10000 });
+
+      // Open filter panel
+      const filterToggle = page.locator('[data-filter-toggle="incursions"]');
+      await filterToggle.click();
+      await expect(page.locator('#incursions-filters')).toBeVisible();
+
+      // Get the first and last checkboxes in the filter panel
+      const firstCheckbox = page.locator('#incursions-filters input[type="checkbox"]').first();
+      const lastCheckbox = page.locator('#incursions-filters input[type="checkbox"]').last();
+
+      // Verify the first checkbox is in the viewport (should be visible initially)
+      await expect(firstCheckbox).toBeInViewport();
+
+      // Verify the last checkbox is accessible by attempting to interact with it
+      // This will automatically scroll it into view if needed
+      await expect(lastCheckbox).toBeEnabled();
+      await lastCheckbox.click();
+
+      // Verify it changed state (was checked, now unchecked)
+      await expect(lastCheckbox).not.toBeChecked();
+    });
   });
 
   // TODO: Split card-specific tests into separate files under e2e/live/

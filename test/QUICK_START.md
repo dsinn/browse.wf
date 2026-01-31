@@ -43,7 +43,6 @@ test/
 ├── __mocks__/              # Real API responses (captured 2026-01-10)
 │   ├── min.json
 │   ├── bounty-cycle.json
-│   ├── weekly.json
 │   ├── worldState.json
 │   ├── invasions.json
 │   └── arbys.txt

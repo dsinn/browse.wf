@@ -1,0 +1,169 @@
+{
+  "WorldSeed": "test-missing-risk",
+  "Version": 10,
+  "MobileVersion": "5.3.0.0",
+  "BuildLabel": "2026.01.08.11.06/NTZ6vFwMk1Ch3Dq00lmcvw",
+  "Time": 1768135699,
+  "Events": [],
+  "Goals": [],
+  "Alerts": [],
+  "Sorties": [],
+  "LiteSorties": [],
+  "SyndicateMissions": [],
+  "ActiveMissions": [],
+  "GlobalUpgrades": [],
+  "FlashSales": [],
+  "SkuSales": [],
+  "InGameMarket": {},
+  "Invasions": [],
+  "HubEvents": [],
+  "NodeOverrides": [],
+  "VoidTraders": [],
+  "PrimeVaultTraders": [],
+  "VoidStorms": [],
+  "PrimeAccessAvailability": {},
+  "PrimeVaultAvailabilities": [],
+  "PrimeTokenAvailability": true,
+  "DailyDeals": [],
+  "LibraryInfo": {},
+  "PVPChallengeInstances": [],
+  "PersistentEnemies": [],
+  "PVPAlternativeModes": [],
+  "PVPActiveTournaments": [],
+  "ProjectPct": [],
+  "ConstructionProjects": [],
+  "TwitchPromos": [],
+  "ExperimentRecommended": [],
+  "EndlessXpChoices": [],
+  "ForceLogoutVersion": 0,
+  "FeaturedGuilds": [],
+  "SeasonInfo": {},
+  "KnownCalendarSeasons": [],
+  "Conquests": [
+    {
+      "Activation": {
+        "$date": {
+          "$numberLong": "1767571200000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1768176000000"
+        }
+      },
+      "Type": "CT_LAB",
+      "Missions": [
+        {
+          "faction": "FC_MITW",
+          "missionType": "MT_ARTIFACT",
+          "difficulties": [
+            {
+              "type": "CD_HARD",
+              "deviation": "FragileNodes",
+              "risks": [
+                "UnknownRiskFromFuture",
+                "ExplosiveCrawlers"
+              ]
+            }
+          ]
+        },
+        {
+          "faction": "FC_MITW",
+          "missionType": "MT_SURVIVAL",
+          "difficulties": [
+            {
+              "type": "CD_HARD",
+              "deviation": "UnpoweredCapsules",
+              "risks": [
+                "Voidburst",
+                "Deflectors"
+              ]
+            }
+          ]
+        },
+        {
+          "faction": "FC_MITW",
+          "missionType": "MT_EXTERMINATION",
+          "difficulties": [
+            {
+              "type": "CD_HARD",
+              "deviation": "HostileSecurity",
+              "risks": [
+                "ShieldedFoes",
+                "DrainingResiduals"
+              ]
+            }
+          ]
+        }
+      ],
+      "Variables": [
+        "ShieldDelay",
+        "EnergyStarved"
+      ],
+      "RandomSeed": 11310
+    },
+    {
+      "Activation": {
+        "$date": {
+          "$numberLong": "1767571200000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1768176000000"
+        }
+      },
+      "Type": "CT_HEX",
+      "Missions": [
+        {
+          "faction": "FC_TECHROT",
+          "missionType": "MT_EXTERMINATION",
+          "difficulties": [
+            {
+              "type": "CD_HARD",
+              "deviation": "FortifiedFoes",
+              "risks": [
+                "BalloonFest",
+                "RegeneratingEnemies"
+              ]
+            }
+          ]
+        },
+        {
+          "faction": "FC_TECHROT",
+          "missionType": "MT_ENDLESS_CAPTURE",
+          "difficulties": [
+            {
+              "type": "CD_HARD",
+              "deviation": "MutatedEnemies",
+              "risks": [
+                "FallFog",
+                "MiasmiteHive"
+              ]
+            }
+          ]
+        },
+        {
+          "faction": "FC_SCALDRA",
+          "missionType": "MT_DEFENSE",
+          "difficulties": [
+            {
+              "type": "CD_HARD",
+              "deviation": "ChemicalNoise",
+              "risks": [
+                "VoidAberration",
+                "PointBlank"
+              ]
+            }
+          ]
+        }
+      ],
+      "Variables": [
+        "VoidEnergyOverload"
+      ],
+      "RandomSeed": 167373
+    }
+  ],
+  "Descents": [],
+  "Tmp": "{}"
+}

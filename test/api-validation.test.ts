@@ -59,22 +59,6 @@ describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', 
     expect(typeof realData.bounties).toBe('object');
   });
 
-  test('oracle.browse.wf/weekly matches mock structure', async () => {
-    const response = await fetch('https://oracle.browse.wf/weekly');
-    expect(response.ok).toBe(true);
-
-    const realData = await response.json();
-    const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'weekly.json'), 'utf8'));
-
-    // Validate top-level keys match
-    expect(Object.keys(realData).sort()).toEqual(Object.keys(mockData).sort());
-
-    // Validate critical fields
-    expect(typeof realData.expiry).toBe('number');
-    expect(Array.isArray(realData.hexConquestMissions)).toBe(true);
-    expect(Array.isArray(realData.labConquestMissions)).toBe(true);
-  });
-
   test('oracle.browse.wf/worldState.json matches mock structure', async () => {
     const response = await fetch('https://oracle.browse.wf/worldState.json');
     expect(response.ok).toBe(true);

@@ -75,7 +75,7 @@ test/
 ├── __mocks__/              # Real API responses (captured 2026-01-10)
 │   ├── min.json
 │   ├── bounty-cycle.json
-│   ├── weekly.json
+│   ├── invasions.json
 │   ├── arbys.txt
 │   └── ...
 │
@@ -156,7 +156,6 @@ Or manually:
 ```bash
 curl -s "https://oracle.browse.wf/min" > test/__mocks__/min.json
 curl -s "https://oracle.browse.wf/bounty-cycle" > test/__mocks__/bounty-cycle.json
-curl -s "https://oracle.browse.wf/weekly" > test/__mocks__/weekly.json
 curl -s "https://oracle.browse.wf/worldState.json" > test/__mocks__/worldState.json
 curl -s "https://oracle.browse.wf/invasions" > test/__mocks__/invasions.json
 curl -s "https://browse.wf/arbys.txt" > test/__mocks__/arbys.txt

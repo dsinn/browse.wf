@@ -64,7 +64,6 @@ Captured on **2026-01-10 ~12:00 UTC**:
 |------|-------------|
 | `min.json` | Game state metadata |
 | `bounty-cycle.json` | Current bounty rotations |
-| `weekly.json` | Archimedea missions |
 | `worldState.json` | Complete world state |
 | `invasions.json` | Invasion conflicts |
 | `arbys.txt` | Arbitration schedule |

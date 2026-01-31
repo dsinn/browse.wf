@@ -14,9 +14,6 @@ echo "✓ Updated min.json"
 curl -s "https://oracle.browse.wf/bounty-cycle" > "$MOCKS_DIR/bounty-cycle.json"
 echo "✓ Updated bounty-cycle.json"
 
-curl -s "https://oracle.browse.wf/weekly" > "$MOCKS_DIR/weekly.json"
-echo "✓ Updated weekly.json"
-
 curl -s "https://oracle.browse.wf/worldState.json" > "$MOCKS_DIR/worldState.json"
 echo "✓ Updated worldState.json"
 

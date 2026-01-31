@@ -118,6 +118,20 @@ declare global {
 			Goals: any[];
 			Alerts: any[];
 			Invasions: any[];
+			Conquests: {
+				Type: string; // CT_LAB (Deep Archimedea), CT_HEX (Temporal Archimedea)
+				Expiry: IMongoDate;
+				Missions: {
+					faction: string;
+					missionType: string;
+					difficulties: {
+						type: string; // CD_NORMAL, CD_HARD
+						deviation: string;
+						risks: string[];
+					}[];
+				}[];
+				Variables: string[];
+			}[];
 			Sorties: {
 				_id: { $oid: string };
 				Activation: IMongoDate;
@@ -564,6 +578,45 @@ function addTooltip(elm: HTMLElement, title: string): any
 
 function updateWeeklyLocalised()
 {
+	// Helper to create tooltip element with graceful degradation for osdict lookups
+	function createArchimedeaTooltip(
+		keyPrefix: string,
+		rawValue: string,
+		descTransform?: (desc: string, rawValue: string) => string
+	): HTMLElement | Text {
+		const key = keyPrefix + rawValue;
+		const text = osdict[key];
+		const desc = osdict[key + "_Desc"];
+		if (text && desc) {
+			const abbr = document.createElement("abbr");
+			abbr.textContent = text;
+			const finalDesc = descTransform ? descTransform(desc, rawValue) : desc;
+			addTooltip(abbr, finalDesc);
+			return abbr;
+		} else if (text) {
+			// Have text but no description - use text without tooltip
+			if (!desc) {
+				console.warn("Missing osdict key:", key + "_Desc");
+			}
+			return document.createTextNode(text);
+		} else {
+			// No localization available - use raw value
+			console.warn("Missing osdict key:", key);
+			return document.createTextNode(rawValue);
+		}
+	}
+
+	// Transform function for frame variable descriptions
+	function transformFrameVariable(desc: string, rawValue: string): string {
+		desc = desc.replaceAll(/<[^>]+>/g, "");
+		if (rawValue === "ShieldDelay") {
+			return desc.split("|val|").join("500");
+		} else if (rawValue === "TimeDilation") {
+			return desc.split("|val|").join("50");
+		}
+		return desc;
+	}
+
 	{
 		setDatum("labConquest-header", osdict["/Lotus/Language/Conquest/SolarMapLabConquestNode"], window.refresh_weekly_at);
 		document.getElementById("labConquest-header").innerHTML += " ";
@@ -579,19 +632,13 @@ function updateWeeklyLocalised()
 			}
 			{
 				const td = document.createElement("td");
-				const abbr = document.createElement("abbr");
-				abbr.textContent = osdict["/Lotus/Language/Conquest/MissionVariant_LabConquest_" + mission.variant];
-				addTooltip(abbr, osdict["/Lotus/Language/Conquest/MissionVariant_LabConquest_" + mission.variant + "_Desc"]);
-				td.appendChild(abbr);
+				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/MissionVariant_LabConquest_", mission.variant));
 				tr.appendChild(td);
 			}
 			for (let i = 0; i != 2; ++i)
 			{
 				const td = document.createElement("td");
-				const abbr = document.createElement("abbr");
-				abbr.textContent = osdict["/Lotus/Language/Conquest/Condition_" + mission.conditions[i]];
-				addTooltip(abbr, osdict["/Lotus/Language/Conquest/Condition_" + mission.conditions[i] + "_Desc"]);
-				td.appendChild(abbr);
+				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/Condition_", mission.conditions[i]));
 				tr.appendChild(td);
 			}
 			tbody.appendChild(tr);
@@ -604,19 +651,7 @@ function updateWeeklyLocalised()
 		for (const fv of window.weekly.labConquestFrameVariables)
 		{
 			const td = document.createElement("td");
-			const abbr = document.createElement("abbr");
-			abbr.textContent = osdict["/Lotus/Language/Conquest/PersonalMod_" + fv];
-			let desc = osdict["/Lotus/Language/Conquest/PersonalMod_" + fv + "_Desc"].replaceAll(/<[^>]+>/g, "");
-			if (fv == "ShieldDelay")
-			{
-				desc = desc.split("|val|").join("500");
-			}
-			else if (fv == "TimeDilation")
-			{
-				desc = desc.split("|val|").join("50");
-			}
-			addTooltip(abbr, desc);
-			td.appendChild(abbr);
+			td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/PersonalMod_", fv, transformFrameVariable));
 			document.getElementById("labConquest-fv").appendChild(td);
 		}
 	}
@@ -636,19 +671,13 @@ function updateWeeklyLocalised()
 			}
 			{
 				const td = document.createElement("td");
-				const abbr = document.createElement("abbr");
-				abbr.textContent = osdict["/Lotus/Language/Conquest/MissionVariant_HexConquest_" + mission.variant];
-				addTooltip(abbr, osdict["/Lotus/Language/Conquest/MissionVariant_HexConquest_" + mission.variant + "_Desc"]);
-				td.appendChild(abbr);
+				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/MissionVariant_HexConquest_", mission.variant));
 				tr.appendChild(td);
 			}
 			for (let i = 0; i != 2; ++i)
 			{
 				const td = document.createElement("td");
-				const abbr = document.createElement("abbr");
-				abbr.textContent = osdict["/Lotus/Language/Conquest/Condition_" + mission.conditions[i]];
-				addTooltip(abbr, osdict["/Lotus/Language/Conquest/Condition_" + mission.conditions[i] + "_Desc"]);
-				td.appendChild(abbr);
+				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/Condition_", mission.conditions[i]));
 				tr.appendChild(td);
 			}
 			tbody.appendChild(tr);
@@ -661,19 +690,7 @@ function updateWeeklyLocalised()
 		for (const fv of window.weekly.hexConquestFrameVariables)
 		{
 			const td = document.createElement("td");
-			const abbr = document.createElement("abbr");
-			abbr.textContent = osdict["/Lotus/Language/Conquest/PersonalMod_" + fv];
-			let desc = osdict["/Lotus/Language/Conquest/PersonalMod_" + fv + "_Desc"].replaceAll(/<[^>]+>/g, "");
-			if (fv == "ShieldDelay")
-			{
-				desc = desc.split("|val|").join("500");
-			}
-			else if (fv == "TimeDilation")
-			{
-				desc = desc.split("|val|").join("50");
-			}
-			addTooltip(abbr, desc);
-			td.appendChild(abbr);
+			td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/PersonalMod_", fv, transformFrameVariable));
 			document.getElementById("hexConquest-fv").appendChild(td);
 		}
 	}
@@ -681,11 +698,14 @@ function updateWeeklyLocalised()
 
 function updateWeekly()
 {
+	// worldState must be available before calling this
+	if (!window.worldState?.Conquests) {
+		console.error("worldState.Conquests not available for updateWeekly");
+		return;
+	}
+
 	window.refresh_weekly_at = undefined;
-	Promise.all([
-		fetch("https://oracle.browse.wf/weekly").then(res => res.json()),
-		dicts_promise
-	]).then(([weekly]) =>
+	Promise.all([dicts_promise, ExportMissionTypes_promise]).then(() =>
 	{
 		if (window.weekly)
 		{
@@ -715,24 +735,59 @@ function updateWeekly()
 				sendNotification("It's a new week. " + weekly_notifications_subscribed_to.join(", ") + " refreshed.");
 			}
 		}
-		window.weekly = weekly;
-		window.refresh_weekly_at = weekly.expiry * 1000;
 
-		// @TODO: Oracle's /weekly endpoint returns next week's expiry (>7d ahead)
-		// specifically for the fork?? Investigate and replace this.
-		if (window.refresh_weekly_at - Date.now() > 604800000) {
-			// Expires more than 7 days from now
-			// Fall back to the updateTeshin() calculations for consistency
+		// Transform worldState.Conquests to IWeekly format (inline, matching updateFissures pattern)
+		const labConquest = window.worldState.Conquests.find(c => c.Type === "CT_LAB");
+		const hexConquest = window.worldState.Conquests.find(c => c.Type === "CT_HEX");
+
+		// Helper to transform missions (reused for both conquest types)
+		const transformMissions = (conquest: any, conquestType: string): IConquestMission[] => {
+			const missions: IConquestMission[] = [];
+			for (const mission of conquest.Missions) {
+				// Extract hard difficulty (fall back to difficulty with most risks, then last element)
+				const hardDiff = mission.difficulties.find(d => d.type === "CD_HARD")
+					|| mission.difficulties.reduce((a, b) => a.risks.length > b.risks.length ? a : b);
+
+				// Extract type from ExportMissionTypes: "/Lotus/Language/Missions/MissionName_Defense" → "Defense"
+				let type = ExportMissionTypes[mission.missionType].name.split("MissionName_")[1];
+
+				// Special case: CT_LAB uses DualDefense instead of Defense
+				if (conquestType === "CT_LAB" && type === "Defense") {
+					type = "DualDefense";
+				}
+
+				missions.push({
+					type: type,
+					variant: hardDiff.deviation,
+					conditions: hardDiff.risks
+				});
+			}
+			return missions;
+		};
+
+		// Allow graceful degradation if one conquest type is missing
+		window.weekly = {
+			expiry: labConquest ? Math.floor(parseInt(labConquest.Expiry.$date.$numberLong) / 1000)
+				  : hexConquest ? Math.floor(parseInt(hexConquest.Expiry.$date.$numberLong) / 1000)
+				  : 0,
+			labConquestMissions: labConquest ? transformMissions(labConquest, "CT_LAB") : [],
+			labConquestFrameVariables: labConquest?.Variables || [],
+			hexConquestMissions: hexConquest ? transformMissions(hexConquest, "CT_HEX") : [],
+			hexConquestFrameVariables: hexConquest?.Variables || []
+		};
+
+		// Used for expiry badge display AND completion toggle OID (must be unique per week)
+		// Prefer labConquest expiry, fall back to hexConquest, then calculate from EPOCH
+		if (labConquest) {
+			window.refresh_weekly_at = parseInt(labConquest.Expiry.$date.$numberLong);
+		} else if (hexConquest) {
+			window.refresh_weekly_at = parseInt(hexConquest.Expiry.$date.$numberLong);
+		} else {
+			// Last resort: calculate weekEnd using same logic as updateTeshin()
 			const EPOCH = 1736121600 * 1000;
 			const week = Math.trunc((Date.now() - EPOCH) / 604800000);
 			const weekStart = EPOCH + week * 604800000;
-			const weekEnd = weekStart + 604800000;
-
-			console.warn(
-				`/weekly's expiry returned a value too far in the future (${window.refresh_weekly_at}); ` +
-				`falling back to manually calculated expiry (${weekEnd})`
-			);
-			window.refresh_weekly_at = weekEnd;
+			window.refresh_weekly_at = weekStart + 604800000;
 		}
 
 		updateWeeklyLocalised();
@@ -978,6 +1033,7 @@ function updateWorldState()
 		}
 
 		updateWorldStateLocalised();
+		updateWeekly();
 	});
 }
 
@@ -1841,8 +1897,7 @@ dicts_promise.then(([dict, osdict]) =>
 	});
 });
 
-updateWeekly();
-updateNewsSources(); // does updateWorldState
+updateNewsSources(); // does updateWorldState (which calls updateWeekly)
 updateInvasions();
 
 setInterval(function()
@@ -1878,10 +1933,6 @@ setInterval(function()
 	if (window.refresh_invasions_at && Date.now() >= window.refresh_invasions_at)
 	{
 		updateInvasions();
-	}
-	if (window.refresh_weekly_at && Date.now() >= window.refresh_weekly_at)
-	{
-		updateWeekly();
 	}
 }, 500);
 

@@ -12,8 +12,10 @@ export { MOCK_TIMESTAMP };
  * instead of hitting real APIs, making tests faster, deterministic, and offline-capable.
  *
  * @param page - The Playwright page instance to set up routes on
+ * @param options - Optional configuration
+ * @param options.worldStateFile - Custom worldState mock file name (default: 'worldState.json')
  */
-export async function setupMockRoutes(page: Page): Promise<void> {
+export async function setupMockRoutes(page: Page, options?: { worldStateFile?: string }): Promise<void> {
   // Freeze time for deterministic tests
   // Use install() to mock setTimeout/setInterval as well (needed for incursions expiry logic)
   await page.clock.install({ time: new Date(MOCK_TIMESTAMP) });
@@ -23,8 +25,8 @@ export async function setupMockRoutes(page: Page): Promise<void> {
   // Load mock data
   const minData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'min.json'), 'utf8'));
   const bountyCycleData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'bounty-cycle.json'), 'utf8'));
-  const weeklyData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'weekly.json'), 'utf8'));
-  const worldStateData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'worldState.json'), 'utf8'));
+  const worldStateFile = options?.worldStateFile || 'worldState.json';
+  const worldStateData = JSON.parse(fs.readFileSync(path.join(mocksDir, worldStateFile), 'utf8'));
   const invasionsData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'invasions.json'), 'utf8'));
   const redtextData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'redtext-empty.json'), 'utf8'));
 
@@ -46,13 +48,10 @@ export async function setupMockRoutes(page: Page): Promise<void> {
     });
   });
 
-  // Mock oracle.browse.wf/weekly (used in live.ts:609)
+  // Mock oracle.browse.wf/weekly - no longer used (removed in favor of worldState.Conquests)
+  // Route left in place to catch any unexpected calls
   await page.route('**/oracle.browse.wf/weekly', route => {
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(weeklyData),
-    });
+    route.abort('failed');
   });
 
   // Mock oracle.browse.wf/worldState.json (used in live.ts:868)

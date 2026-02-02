@@ -14,6 +14,7 @@ interface WorldStateInvasionData {
 	Faction: string;
 	DefenderFaction: string;
 	Completed: boolean;
+	Activation: { $date: { $numberLong: string } };
 }
 
 function calculatePercentage(wsInvasion: WorldStateInvasionData): number
@@ -49,20 +50,38 @@ function createInvasionProgressBar(extraData: InvasionExtraData): HTMLDivElement
 function buildInvasionExtraDataMap(wsInvasions: WorldStateInvasionData[], oracleInvasions: any[]): Record<string, InvasionExtraData>
 {
 	const extraDataMap: Record<string, InvasionExtraData> = {};
-	const seenNodes = new Set<string>();
 
+	// Track the earliest activation time for each node
+	const nodeFirstActivation = new Map<string, number>();
+
+	// First pass: determine the earliest activation for each node
+	for (const wsInvasion of wsInvasions) {
+		if (wsInvasion.Completed) continue;
+
+		const activationTime = parseInt(wsInvasion.Activation.$date.$numberLong);
+		const currentEarliest = nodeFirstActivation.get(wsInvasion.Node);
+
+		if (currentEarliest === undefined || activationTime < currentEarliest) {
+			nodeFirstActivation.set(wsInvasion.Node, activationTime);
+		}
+	}
+
+	// Second pass: mark invasions as duplicate if they're not the earliest on their node
 	for (const wsInvasion of wsInvasions) {
 		if (wsInvasion.Completed) continue;
 
 		const oracleInvasion = oracleInvasions.find(inv => inv.id === wsInvasion._id.$oid);
 		if (!oracleInvasion) continue;
 
+		const activationTime = parseInt(wsInvasion.Activation.$date.$numberLong);
+		const firstActivationTime = nodeFirstActivation.get(wsInvasion.Node);
+		const isDuplicate = activationTime > firstActivationTime;
+
 		extraDataMap[oracleInvasion.id] = {
-			isDuplicate: seenNodes.has(wsInvasion.Node),
+			isDuplicate: isDuplicate,
 			percentage: calculatePercentage(wsInvasion),
 			worldStateData: wsInvasion
 		};
-		seenNodes.add(wsInvasion.Node);
 	}
 
 	return extraDataMap;

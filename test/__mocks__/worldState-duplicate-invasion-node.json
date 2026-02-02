@@ -1,10 +1,765 @@
 {
   "WorldSeed": "test",
   "Version": 10,
-  "Time": 1769617058,
+  "Time": 1770003569,
   "Events": [],
   "DailyDeals": [],
   "Sorties": [],
   "LiteSorties": [],
-  "Invasions": [{"_id":{"$oid":"6977fed63f7468da70ce5f49"},"Faction":"FC_GRINEER","DefenderFaction":"FC_CORPUS","Node":"SolNode216","Count":18761,"Goal":41000,"LocTag":"/Lotus/Language/Menu/GrineerInvasionGeneric","Completed":false,"ChainID":{"$oid":"6976311f39b0d3bdcdce5f48"},"AttackerReward":{"countedItems":[{"ItemType":"/Lotus/Types/Recipes/Weapons/WeaponParts/GrineerCombatKnifeHeatsink","ItemCount":1}]},"AttackerMissionInfo":{"seed":6331,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint","ItemCount":1}]},"DefenderMissionInfo":{"seed":100111,"faction":"FC_GRINEER"},"Activation":{"$date":{"$numberLong":"1769472566420"}}},{"_id":{"$oid":"6976f02259fc8eab0fce5f48"},"Faction":"FC_CORPUS","DefenderFaction":"FC_GRINEER","Node":"SolNode149","Count":37930,"Goal":43000,"LocTag":"/Lotus/Language/Menu/CorpusInvasionGeneric","Completed":false,"ChainID":{"$oid":"6976f02259fc8eab0fce5f48"},"AttackerReward":{"countedItems":[{"ItemType":"/Lotus/Types/Recipes/Weapons/WeaponParts/SnipetronVandalReceiver","ItemCount":1}]},"AttackerMissionInfo":{"seed":726148,"faction":"FC_GRINEER"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Recipes/Weapons/GrineerCombatKnifeSortieBlueprint","ItemCount":1}]},"DefenderMissionInfo":{"seed":121626,"faction":"FC_CORPUS"},"Activation":{"$date":{"$numberLong":"1769448502690"}}},{"_id":{"$oid":"6977fed63f7468da70ce5f4a"},"Faction":"FC_GRINEER","DefenderFaction":"FC_CORPUS","Node":"SolNode126","Count":40157,"Goal":40000,"LocTag":"/Lotus/Language/Menu/GrineerInvasionGeneric","Completed":true,"ChainID":{"$oid":"6977fed63f7468da70ce5f4a"},"AttackerReward":{"countedItems":[{"ItemType":"/Lotus/Types/Recipes/Weapons/WeaponParts/LatronWraithReceiver","ItemCount":1}]},"AttackerMissionInfo":{"seed":808624,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Recipes/Weapons/WeaponParts/DeraVandalBarrel","ItemCount":1}]},"DefenderMissionInfo":{"seed":230851,"faction":"FC_GRINEER"},"Activation":{"$date":{"$numberLong":"1769533454127"}}},{"_id":{"$oid":"697a259f093b08e66ace5f4a"},"Faction":"FC_GRINEER","DefenderFaction":"FC_CORPUS","Node":"SolNode100","Count":-258,"Goal":32000,"LocTag":"/Lotus/Language/Menu/GrineerInvasionGeneric","Completed":false,"ChainID":{"$oid":"6977fed63f7468da70ce5f4a"},"AttackerReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/Research/ChemComponent","ItemCount":3}]},"AttackerMissionInfo":{"seed":230958,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/Research/EnergyComponent","ItemCount":3}]},"DefenderMissionInfo":{"seed":356374,"faction":"FC_GRINEER"},"Activation":{"$date":{"$numberLong":"1769613503298"}}},{"_id":{"$oid":"697a259f093b08e66ace5f49"},"Faction":"FC_GRINEER","DefenderFaction":"FC_CORPUS","Node":"SolNode100","Count":0,"Goal":41000,"LocTag":"/Lotus/Language/Menu/GrineerInvasionGeneric","Completed":false,"ChainID":{"$oid":"6977fed63f7468da70ce5f4a"},"AttackerReward":{"countedItems":[{"ItemType":"/Lotus/Types/Recipes/Weapons/KarakWraithBlueprint","ItemCount":1}]},"AttackerMissionInfo":{"seed":988494,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Recipes/Weapons/WeaponParts/SnipetronVandalStock","ItemCount":1}]},"DefenderMissionInfo":{"seed":198786,"faction":"FC_GRINEER"},"Activation":{"$date":{"$numberLong":"1769613566502"}}},{"_id":{"$oid":"69793c6a6ca3722d98ce5f48"},"Faction":"FC_INFESTATION","DefenderFaction":"FC_CORPUS","Node":"SolNode57","Count":-36181,"Goal":36000,"LocTag":"/Lotus/Language/Menu/InfestedInvasionGeneric","Completed":true,"ChainID":{"$oid":"69791a6fc47fa4164fce5f48"},"AttackerReward":[],"AttackerMissionInfo":{"seed":918016,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/MiscItems/InfestedAladCoordinate","ItemCount":1}]},"DefenderMissionInfo":{"seed":687208,"faction":"FC_INFESTATION"},"Activation":{"$date":{"$numberLong":"1769553002261"}}},{"_id":{"$oid":"69793c6a6ca3722d98ce5f49"},"Faction":"FC_INFESTATION","DefenderFaction":"FC_CORPUS","Node":"SolNode127","Count":-16511,"Goal":30000,"LocTag":"/Lotus/Language/Menu/InfestedInvasionBoss","Completed":false,"ChainID":{"$oid":"69791a6fc47fa4164fce5f48"},"AttackerReward":[],"AttackerMissionInfo":{"seed":948191,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/MiscItems/InfestedAladCoordinate","ItemCount":1}]},"DefenderMissionInfo":{"seed":335952,"faction":"FC_INFESTATION","missionReward":[]},"Activation":{"$date":{"$numberLong":"1769553002261"}}},{"_id":{"$oid":"697961ea60449b6195ce5f48"},"Faction":"FC_INFESTATION","DefenderFaction":"FC_CORPUS","Node":"SolNode84","Count":-31607,"Goal":31000,"LocTag":"/Lotus/Language/Menu/InfestedInvasionGeneric","Completed":true,"ChainID":{"$oid":"69791a6fc47fa4164fce5f48"},"AttackerReward":[],"AttackerMissionInfo":{"seed":288035,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/Research/EnergyComponent","ItemCount":3}]},"DefenderMissionInfo":{"seed":232638,"faction":"FC_INFESTATION"},"Activation":{"$date":{"$numberLong":"1769562601892"}}},{"_id":{"$oid":"697989c2797792aed5ce5f48"},"Faction":"FC_INFESTATION","DefenderFaction":"FC_CORPUS","Node":"SolNode62","Count":-34284,"Goal":34000,"LocTag":"/Lotus/Language/Menu/InfestedInvasionGeneric","Completed":true,"ChainID":{"$oid":"69791a6fc47fa4164fce5f48"},"AttackerReward":[],"AttackerMissionInfo":{"seed":28112,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/Research/EnergyComponent","ItemCount":3}]},"DefenderMissionInfo":{"seed":682334,"faction":"FC_INFESTATION"},"Activation":{"$date":{"$numberLong":"1769572802197"}}},{"_id":{"$oid":"6979b06e997a989410ce5f48"},"Faction":"FC_INFESTATION","DefenderFaction":"FC_CORPUS","Node":"SolNode78","Count":-39709,"Goal":39000,"LocTag":"/Lotus/Language/Menu/InfestedInvasionGeneric","Completed":true,"ChainID":{"$oid":"69791a6fc47fa4164fce5f48"},"AttackerReward":[],"AttackerMissionInfo":{"seed":467682,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/Research/BioComponent","ItemCount":2}]},"DefenderMissionInfo":{"seed":127306,"faction":"FC_INFESTATION"},"Activation":{"$date":{"$numberLong":"1769582701978"}}},{"_id":{"$oid":"6979c32fb2f918cd9dce5f48"},"Faction":"FC_INFESTATION","DefenderFaction":"FC_CORPUS","Node":"SolNode1","Count":-49551,"Goal":49000,"LocTag":"/Lotus/Language/Menu/InfestedInvasionGeneric","Completed":true,"ChainID":{"$oid":"69791a6fc47fa4164fce5f48"},"AttackerReward":[],"AttackerMissionInfo":{"seed":545288,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/Research/EnergyComponent","ItemCount":3}]},"DefenderMissionInfo":{"seed":943595,"faction":"FC_INFESTATION"},"Activation":{"$date":{"$numberLong":"1769587502464"}}},{"_id":{"$oid":"6979c32fb2f918cd9dce5f49"},"Faction":"FC_INFESTATION","DefenderFaction":"FC_CORPUS","Node":"SolNode49","Count":-39515,"Goal":39000,"LocTag":"/Lotus/Language/Menu/InfestedInvasionGeneric","Completed":true,"ChainID":{"$oid":"69791a6fc47fa4164fce5f48"},"AttackerReward":[],"AttackerMissionInfo":{"seed":73246,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/Research/EnergyComponent","ItemCount":3}]},"DefenderMissionInfo":{"seed":479269,"faction":"FC_INFESTATION"},"Activation":{"$date":{"$numberLong":"1769587502464"}}},{"_id":{"$oid":"6979ed5ec0b101ecfece5f48"},"Faction":"FC_INFESTATION","DefenderFaction":"FC_CORPUS","Node":"SolNode6","Count":-31971,"Goal":45000,"LocTag":"/Lotus/Language/Menu/InfestedInvasionGeneric","Completed":false,"ChainID":{"$oid":"69791a6fc47fa4164fce5f48"},"AttackerReward":[],"AttackerMissionInfo":{"seed":589266,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/Research/BioComponent","ItemCount":2}]},"DefenderMissionInfo":{"seed":975484,"faction":"FC_INFESTATION"},"Activation":{"$date":{"$numberLong":"1769598301813"}}},{"_id":{"$oid":"6979368fe8a41cd098ce5f48"},"Faction":"FC_INFESTATION","DefenderFaction":"FC_CORPUS","Node":"SolNode66","Count":-32671,"Goal":32000,"LocTag":"/Lotus/Language/Menu/InfestedInvasionGeneric","Completed":true,"ChainID":{"$oid":"6979368fe8a41cd098ce5f48"},"AttackerReward":[],"AttackerMissionInfo":{"seed":503515,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/Research/EnergyComponent","ItemCount":3}]},"DefenderMissionInfo":{"seed":405165,"faction":"FC_INFESTATION"},"Activation":{"$date":{"$numberLong":"1769557834566"}}},{"_id":{"$oid":"69796da21ee3048c1ace5f48"},"Faction":"FC_INFESTATION","DefenderFaction":"FC_CORPUS","Node":"SolNode104","Count":-24383,"Goal":30000,"LocTag":"/Lotus/Language/Menu/InfestedInvasionBoss","Completed":false,"ChainID":{"$oid":"6979368fe8a41cd098ce5f48"},"AttackerReward":[],"AttackerMissionInfo":{"seed":193115,"faction":"FC_CORPUS"},"DefenderReward":{"countedItems":[{"ItemType":"/Lotus/Types/Items/Research/EnergyComponent","ItemCount":3}]},"DefenderMissionInfo":{"seed":379230,"faction":"FC_INFESTATION","missionReward":[]},"Activation":{"$date":{"$numberLong":"1769565602177"}}}]
+  "Invasions": [
+    {
+      "_id": {
+        "$oid": "6977fed63f7468da70ce5f49"
+      },
+      "Faction": "FC_GRINEER",
+      "DefenderFaction": "FC_CORPUS",
+      "Node": "SolNode216",
+      "Count": -10793,
+      "Goal": 41000,
+      "LocTag": "/Lotus/Language/Menu/GrineerInvasionGeneric",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "6976311f39b0d3bdcdce5f48"
+      },
+      "AttackerReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/GrineerCombatKnifeHeatsink",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "AttackerMissionInfo": {
+        "seed": 6331,
+        "faction": "FC_CORPUS"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 100111,
+        "faction": "FC_GRINEER"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769472566420"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697c6c0bca5aa6e86cce5f4a"
+      },
+      "Faction": "FC_CORPUS",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode131",
+      "Count": -36149,
+      "Goal": 36000,
+      "LocTag": "/Lotus/Language/Menu/CorpusInvasionGeneric",
+      "Completed": true,
+      "ChainID": {
+        "$oid": "6976f02259fc8eab0fce5f48"
+      },
+      "AttackerReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/DeraVandalStock",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "AttackerMissionInfo": {
+        "seed": 454646,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/TwinVipersWraithBlueprint",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 880988,
+        "faction": "FC_CORPUS"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769762690921"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697e7dba4a0cee83d1ce5f49"
+      },
+      "Faction": "FC_CORPUS",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode137",
+      "Count": 27099,
+      "Goal": 47000,
+      "LocTag": "/Lotus/Language/Menu/CorpusInvasionGeneric",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "6976f02259fc8eab0fce5f48"
+      },
+      "AttackerReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/EnergyComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "AttackerMissionInfo": {
+        "seed": 473868,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/ChemComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 660498,
+        "faction": "FC_CORPUS"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769898409596"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697f0f0ad7e8eb3cc7ce5f49"
+      },
+      "Faction": "FC_GRINEER",
+      "DefenderFaction": "FC_CORPUS",
+      "Node": "SolNode74",
+      "Count": 32998,
+      "Goal": 33000,
+      "LocTag": "/Lotus/Language/Menu/GrineerInvasionGeneric",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "6977fed63f7468da70ce5f4a"
+      },
+      "AttackerReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/TwinVipersWraithBarrel",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "AttackerMissionInfo": {
+        "seed": 776757,
+        "faction": "FC_CORPUS"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/DeraVandalBlueprint",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 833243,
+        "faction": "FC_GRINEER"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769935414651"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697f79ae49c53663ccce5f4a"
+      },
+      "Faction": "FC_CORPUS",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode189",
+      "Count": 0,
+      "Goal": 41000,
+      "LocTag": "/Lotus/Language/Menu/CorpusInvasionGeneric",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "697a767ba376c8b716ce5f4a"
+      },
+      "AttackerReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/SnipetronVandalReceiver",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "AttackerMissionInfo": {
+        "seed": 8946,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/StrunWraithBarrel",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 421141,
+        "faction": "FC_CORPUS"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769962909679"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697f79ae49c53663ccce5f49"
+      },
+      "Faction": "FC_CORPUS",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode189",
+      "Count": -12981,
+      "Goal": 41000,
+      "LocTag": "/Lotus/Language/Menu/CorpusInvasionGeneric",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "697a767ba376c8b716ce5f4a"
+      },
+      "AttackerReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/SnipetronVandalBarrel",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "AttackerMissionInfo": {
+        "seed": 221729,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/LatronWraithBarrel",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 515097,
+        "faction": "FC_CORPUS"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769962873994"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697d8d7e08b8345016ce5f49"
+      },
+      "Faction": "FC_CORPUS",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode184",
+      "Count": 33031,
+      "Goal": 33000,
+      "LocTag": "/Lotus/Language/Menu/CorpusInvasionGeneric",
+      "Completed": true,
+      "ChainID": {
+        "$oid": "697a767ba376c8b716ce5f4a"
+      },
+      "AttackerReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/EnergyComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "AttackerMissionInfo": {
+        "seed": 330812,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/ChemComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 100775,
+        "faction": "FC_CORPUS"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769836686719"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697f3dea1d706ad131ce5f48"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_CORPUS",
+      "Node": "SolNode21",
+      "Count": -35133,
+      "Goal": 35000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
+      "Completed": true,
+      "ChainID": {
+        "$oid": "697edb7b20a6822d06ce5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 625210,
+        "faction": "FC_CORPUS"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/BioComponent",
+            "ItemCount": 2
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 289977,
+        "faction": "FC_INFESTATION"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769946602298"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697f0b861759850072ce5f48"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_CORPUS",
+      "Node": "SolNode51",
+      "Count": -17717,
+      "Goal": 30000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionBoss",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "697edb7b20a6822d06ce5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 18145,
+        "faction": "FC_CORPUS"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/MiscItems/InfestedAladCoordinate",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 983324,
+        "faction": "FC_INFESTATION",
+        "missionReward": []
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769933702110"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode16",
+      "Count": -32618,
+      "Goal": 32000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
+      "Completed": true,
+      "ChainID": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 421982,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/ChemComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 67459,
+        "faction": "FC_INFESTATION"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769959667003"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697f95cf4a0e5717ffce5f48"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode41",
+      "Count": -44880,
+      "Goal": 44000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
+      "Completed": true,
+      "ChainID": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 20053,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/BioComponent",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 725715,
+        "faction": "FC_INFESTATION"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769969102549"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697f95cf4a0e5717ffce5f49"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode99",
+      "Count": -10205,
+      "Goal": 30000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionBoss",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 68072,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/ChemComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 355525,
+        "faction": "FC_INFESTATION",
+        "missionReward": []
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769969102549"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697f95cf4a0e5717ffce5f4a"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode113",
+      "Count": -37455,
+      "Goal": 37000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
+      "Completed": true,
+      "ChainID": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 255851,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/ChemComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 884610,
+        "faction": "FC_INFESTATION"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769969102549"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697fb69e579cc49f0fce5f48"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode46",
+      "Count": -50817,
+      "Goal": 50000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
+      "Completed": true,
+      "ChainID": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 276598,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/ChemComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 858033,
+        "faction": "FC_INFESTATION"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769977502328"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697fb69e579cc49f0fce5f49"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode58",
+      "Count": -41232,
+      "Goal": 41000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
+      "Completed": true,
+      "ChainID": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 940359,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/ChemComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 492472,
+        "faction": "FC_INFESTATION"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769977502328"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697fc832d6d8aa661dce5f48"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode30",
+      "Count": -26820,
+      "Goal": 33000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 315526,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/ChemComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 922423,
+        "faction": "FC_INFESTATION"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769982001914"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697fc832d6d8aa661dce5f49"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_CORPUS",
+      "Node": "SolNode65",
+      "Count": -36078,
+      "Goal": 39000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 548731,
+        "faction": "FC_CORPUS"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/EnergyComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 959640,
+        "faction": "FC_INFESTATION"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769982001914"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697fcbb640f57e5ebdce5f48"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode45",
+      "Count": -34301,
+      "Goal": 39000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 199952,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/ChemComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 972745,
+        "faction": "FC_INFESTATION"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769982902355"
+        }
+      }
+    },
+    {
+      "_id": {
+        "$oid": "697fea2f5410950165ce5f48"
+      },
+      "Faction": "FC_INFESTATION",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode106",
+      "Count": -14010,
+      "Goal": 30000,
+      "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "697f5fe64c944da8bace5f48"
+      },
+      "AttackerReward": [],
+      "AttackerMissionInfo": {
+        "seed": 874455,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Items/Research/ChemComponent",
+            "ItemCount": 3
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 522762,
+        "faction": "FC_INFESTATION"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1769990702394"
+        }
+      }
+    }
+  ]
 }

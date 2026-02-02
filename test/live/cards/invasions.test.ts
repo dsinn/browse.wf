@@ -50,9 +50,9 @@ describe('Invasions - Duplicate Node Detection', () => {
 
   const invasionsData = loadMock('invasions-duplicate-node.json');
   const worldStateData = loadMock('worldState-duplicate-invasion-node.json');
-  const duplicateNode = 'SolNode100'; // Node with duplicate invasions in the mock data
+  const duplicateNode = 'SolNode189'; // Node with duplicate invasions in the mock data
 
-  test('detects duplicate invasions on the same node', () => {
+  test('detects duplicate invasions on the same node based on Activation', () => {
     // Call the real buildInvasionExtraDataMap function
     const extraDataMap = (window as any).buildInvasionExtraDataMap(
       worldStateData.Invasions,
@@ -70,17 +70,17 @@ describe('Invasions - Duplicate Node Detection', () => {
     const uniqueInvasionIds = Array.from(new Set(duplicateNodeInvasions.map((inv: any) => inv.id)));
     expect(uniqueInvasionIds.length).toBeGreaterThanOrEqual(2);
 
-    // The first unique invasion ID on duplicateNode should NOT be marked as duplicate
+    // The first invasion on duplicateNode should be marked as duplicate in our mock data
     const firstInvasionId = uniqueInvasionIds[0];
     const firstExtraData = extraDataMap[firstInvasionId];
     expect(firstExtraData).toBeDefined();
-    expect(firstExtraData.isDuplicate).toBe(false);
+    expect(firstExtraData.isDuplicate).toBe(true);
 
-    // The second unique invasion ID on duplicateNode SHOULD be marked as duplicate
+    // The second invasion on duplicateNode should NOT be marked as duplicate in our mock data
     const secondInvasionId = uniqueInvasionIds[1];
     const secondExtraData = extraDataMap[secondInvasionId];
     expect(secondExtraData).toBeDefined();
-    expect(secondExtraData.isDuplicate).toBe(true);
+    expect(secondExtraData.isDuplicate).toBe(false);
   });
 
   test('non-duplicate invasions are not marked as duplicate', () => {

@@ -132,7 +132,7 @@ For detailed setup instructions, see:
 - [Supabase Auth with Discord](https://supabase.com/docs/guides/auth/social-login/auth-discord)
 - [Discord OAuth2 Documentation](https://discord.com/developers/docs/topics/oauth2)
 
-**Privacy:** Discord OAuth authentication stores your Discord username, email address, and app preferences in Supabase. This data is only accessible to you and the site owner, protected by Supabase's authentication system.
+**Privacy:** Discord OAuth authentication stores your Discord username, email address, app preferences, and form data in Supabase. This data is only accessible to you and the site owner, protected by Supabase's authentication system.
 
 ## Project Structure
 

@@ -1817,8 +1817,15 @@ async function updateFissures()
 				? node.missionName.replace("/Lotus/Language/Missions/MissionName_", "")
 				: node.missionType;
 
+			// Normalize mission type for filtering (MT_INTEL and MT_SPY both represent "Spy" to players)
+			let canonicalMissionType = missionType;
+			if (canonicalMissionType === "MT_INTEL")
+			{
+				canonicalMissionType = "MT_SPY" as TMissionType;
+			}
+
 			const tierVisible = (window as any).isFilterEnabled?.(cardName, tier) ?? true;
-			const missionVisible = (window as any).isFilterEnabled?.(cardName, missionType) ?? true;
+			const missionVisible = (window as any).isFilterEnabled?.(cardName, canonicalMissionType) ?? true;
 			if (!tierVisible || !missionVisible) {
 				continue;
 			}

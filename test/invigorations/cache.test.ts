@@ -42,7 +42,7 @@ describe('Invigoration Cache Helpers', () => {
                 hour: '2-digit',
                 minute: '2-digit'
               };
-              return date.toLocaleString(undefined, options);
+              return date.toLocaleString('en-US', options);
             }
           </script>
         </head>
@@ -149,17 +149,17 @@ describe('Invigoration Cache Helpers', () => {
     test.each([
       {
         timestamp: Date.UTC(2026, 0, 15, 14, 30, 0),
-        expected: 'Thursday, Jan 15, 2026, 02:30 p.m.',
+        expected: 'Thursday, Jan 15, 2026, 02:30 PM',
         description: 'formats January date correctly'
       },
       {
         timestamp: Date.UTC(2026, 5, 20, 9, 15, 0),
-        expected: 'Saturday, Jun 20, 2026, 09:15 a.m.',
+        expected: 'Saturday, Jun 20, 2026, 09:15 AM',
         description: 'formats June date correctly'
       },
       {
         timestamp: Date.UTC(2025, 11, 31, 23, 59, 0),
-        expected: 'Wednesday, Dec 31, 2025, 11:59 p.m.',
+        expected: 'Wednesday, Dec 31, 2025, 11:59 PM',
         description: 'formats end of year date correctly'
       }
     ])('$description', ({ timestamp, expected }) => {

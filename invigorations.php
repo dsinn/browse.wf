@@ -241,7 +241,7 @@
 				hour: '2-digit',
 				minute: '2-digit'
 			};
-			return date.toLocaleString(undefined, options);
+			return date.toLocaleString('en-US', options);
 		}
 
 		// Helper function to show cache alert

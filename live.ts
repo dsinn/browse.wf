@@ -1791,7 +1791,6 @@ async function updateFissures()
 		else if (Date.now() < fissure.Expiry.$date.$numberLong)
 		{
 			const node = ExportRegions[fissure.Node];
-			const baselvl = fissure.Hard ? 100 : 0;
 
 			// Check filters early - skip rendering if filtered out
 			const tier = fissure.Modifier; // VoidT1 = Lith, VoidT2 = Meso, etc.
@@ -1827,10 +1826,21 @@ async function updateFissures()
 				tr.appendChild(td);
 			}
 
-			// Mission type + Level range column (combined for consistency with Warframe UI)
+			// Mission type + Level range column
 			{
 				const td = document.createElement("td");
-				td.textContent = toTitleCase(dict[node.missionName]) + " (" + (node.minEnemyLevel + baselvl) + "-" + (node.maxEnemyLevel + baselvl) + ")";
+				td.textContent = toTitleCase(dict[node.missionName]);
+				if (cardName === "rj-fissures")
+				{
+					// Void Storms: show level range with +10 adjustment
+					const adjustedMin = node.minEnemyLevel + 10;
+					const adjustedMax = node.maxEnemyLevel + 10;
+					td.textContent += ` (${adjustedMin}-${adjustedMax})`;
+				}
+				else
+				{
+					// Normal and Steel Path fissures: omit level range (inconsistent/incorrect data)
+				}
 				tr.appendChild(td);
 			}
 

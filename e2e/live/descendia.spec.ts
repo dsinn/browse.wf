@@ -14,13 +14,21 @@ test.describe('Live Page - Descendia Card', () => {
   });
 
   test.describe('Card Structure', () => {
-    test('renders card header with title and completion toggles', async ({ page }) => {
+    test('renders card header with title, expiry badge, and completion toggles', async ({ page }) => {
       const header = page.locator('.card-header:has-text("Descendia")');
       await expect(header).toBeVisible();
 
       // Should have collapse toggle span
       const collapseToggle = header.locator('[data-collapse-toggle="descendia"]');
       await expect(collapseToggle).toBeVisible();
+
+      // Should have expiry badge
+      const expiryBadge = header.locator('.badge[data-expiry]');
+      await expect(expiryBadge).toBeVisible();
+
+      // Badge should have countdown with numbers (like "3d 12h 45m 23s")
+      const badgeText = await expiryBadge.textContent();
+      expect(badgeText).toMatch(/\d/);
 
       // Should have completion toggles container
       const completionToggles = header.locator('#descent-checks');

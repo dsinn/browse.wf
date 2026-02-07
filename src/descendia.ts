@@ -8,6 +8,7 @@
 
 // Declare global functions available from live.ts
 declare function getDictPromise(): Promise<Record<string, string>>;
+declare function createExpiryBadge(expiry: number): HTMLSpanElement;
 
 interface IMongoDate {
 	$date: {
@@ -51,6 +52,26 @@ function updateDescendia(): void
 	{
 		return;
 	}
+
+	// Update header with expiry timer
+	const expiry = parseInt(activeDescent.Expiry.$date.$numberLong);
+	const header = document.querySelector('.card-header:has(#descent-checks) h5');
+	if (header)
+	{
+		// Preserve collapse toggle, set title + badge, then append checks
+		const collapseToggle = header.querySelector('[data-collapse-toggle="descendia"]');
+		const checksSpan = header.querySelector('#descent-checks');
+
+		header.textContent = "";
+		if (collapseToggle) header.appendChild(collapseToggle);
+		header.appendChild(document.createTextNode("Descendia "));
+		header.appendChild(createExpiryBadge(expiry));
+		header.appendChild(document.createTextNode(" "));
+		if (checksSpan) header.appendChild(checksSpan);
+	}
+
+	// Refresh when this Descent expires
+	setTimeout(updateDescendia, expiry - Date.now());
 
 	const dict_promise = getDictPromise();
 

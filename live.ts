@@ -182,6 +182,19 @@ declare global {
 				ActiveMissionTier: string;
 			}[];
 			DailyDeals: IDailyDeal[];
+			Descents: {
+				Activation: IMongoDate;
+				Expiry: IMongoDate;
+				RandSeed: number;
+				Challenges: {
+					Index: number;
+					Type: string;
+					Challenge: string;
+					Level: string;
+					Specs: string[];
+					Auras: string[];
+				}[];
+			}[];
 			Tmp: string;
 		}
 		redtext: { data: string; time: number }[];
@@ -1034,6 +1047,10 @@ function updateWorldState()
 
 		updateWorldStateLocalised();
 		updateWeekly();
+		if ((window as any).updateDescendia)
+		{
+			(window as any).updateDescendia();
+		}
 	});
 }
 

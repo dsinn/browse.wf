@@ -1,5 +1,10 @@
 import { describe, test, expect } from 'vitest';
 import { loadMock } from '../../helpers/api-mocks';
+import { testCardFilters } from '../card-filters-factory';
+
+// Test generic card filter integration for Fissures card
+// This verifies: gear icon, accordion, checkboxes, localStorage persistence, auto-expand
+testCardFilters('fissures');
 
 describe('Void Fissures Card', () => {
   test('renders fissure data from worldState', () => {

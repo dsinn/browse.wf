@@ -1776,7 +1776,12 @@ async function updateFissures()
 		"sp-fissures": document.createElement("tbody"),
 		"rj-fissures": document.createElement("tbody"),
 	}
-	let last_tier = {};
+	// Track which tier headings have been rendered for each category
+	const renderedTierHeadings = {
+		"fissures": new Set<string>(),
+		"sp-fissures": new Set<string>(),
+		"rj-fissures": new Set<string>(),
+	}
 	for (const fissure of fissures)
 	{
 		if (Date.now() < fissure.Activation.$date.$numberLong)
@@ -1785,17 +1790,32 @@ async function updateFissures()
 		}
 		else if (Date.now() < fissure.Expiry.$date.$numberLong)
 		{
-			const tr = document.createElement("tr");
 			const node = ExportRegions[fissure.Node];
 			const baselvl = fissure.Hard ? 100 : 0;
+
+			// Check filters early - skip rendering if filtered out
+			const tier = fissure.Modifier; // VoidT1 = Lith, VoidT2 = Meso, etc.
+			const cardName = fissure.Category; // "fissures", "sp-fissures", or "rj-fissures"
+			// Railjack missions use node.missionName (strip prefix for cleaner localStorage keys)
+			const missionType = cardName === "rj-fissures"
+				? node.missionName.replace("/Lotus/Language/Missions/MissionName_", "")
+				: node.missionType;
+
+			const tierVisible = (window as any).isFilterEnabled?.(cardName, tier) ?? true;
+			const missionVisible = (window as any).isFilterEnabled?.(cardName, missionType) ?? true;
+			if (!tierVisible || !missionVisible) {
+				continue;
+			}
+
+			const tr = document.createElement("tr");
 
 			// Tier column
 			{
 				const th = document.createElement("th");
-				if (fissure.Modifier != last_tier[fissure.Hard])
+				if (!renderedTierHeadings[cardName].has(tier))
 				{
-					th.textContent = fissureTiers[fissure.Modifier] ?? fissure.Modifier;
-					last_tier[fissure.Hard] = fissure.Modifier;
+					th.textContent = fissureTiers[tier] ?? tier;
+					renderedTierHeadings[cardName].add(tier);
 				}
 				tr.appendChild(th);
 			}
@@ -1836,6 +1856,20 @@ async function updateFissures()
 			++window.num_fissures;
 		}
 	}
+
+	// Show empty state message if no missions rendered for a category
+	for (const category of Object.keys(tbody))
+	{
+		if (renderedTierHeadings[category].size === 0)
+		{
+			const tr = document.createElement("tr");
+			const td = document.createElement("td");
+			td.textContent = "No missions to display based on the current filters.";
+			tr.appendChild(td);
+			tbody[category].appendChild(tr);
+		}
+	}
+
 	document.getElementById("fissures-table").innerHTML = "";
 	document.getElementById("fissures-table").appendChild(tbody["fissures"]);
 	document.getElementById("sp-fissures-table").innerHTML = "";

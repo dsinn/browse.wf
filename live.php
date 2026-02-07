@@ -29,7 +29,11 @@
 	</style>
 </head>
 <body data-bs-theme="dark">
-	<?php require "components/navbar.php"; ?>
+	<?php
+	require "components/navbar.php";
+	require_once 'live-fissure-filters-partial.php';
+	require_once 'live-voidstorm-filters-partial.php';
+	?>
 	<div class="container-fluid pt-3">
 		<script>window.LIVE_VERSION=0;</script>
 		<div id="update-prompt" class="alert alert-warning d-none" role="alert">We've made some changes to reduce server load. Please refresh the page.</div>
@@ -421,19 +425,31 @@
 					</div>
 				</div>
 				<div class="card mb-3">
-					<h5 class="card-header"><span data-collapse-toggle="fissures"></span> Void Fissures (Normal)</h5>
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="fissures"></span> Void Fissures (Normal)</h5>
+						<a class="ms-auto" data-filter-toggle="fissures"></a>
+					</div>
+					<?php renderFissureFilters('fissures'); ?>
 					<div class="card-body overflow-auto">
 						<table class="table table-sm table-hover table-borderless mb-0" id="fissures-table"><tr><th>Loading...</th></tr></table>
 					</div>
 				</div>
 				<div class="card mb-3">
-					<h5 class="card-header"><span data-collapse-toggle="sp-fissures"></span> Void Fissures (Steel Path)</h5>
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="sp-fissures"></span> Void Fissures (Steel Path)</h5>
+						<a class="ms-auto" data-filter-toggle="sp-fissures"></a>
+					</div>
+					<?php renderFissureFilters('sp-fissures'); ?>
 					<div class="card-body overflow-auto">
 						<table class="table table-sm table-hover table-borderless mb-0" id="sp-fissures-table"><tr><th>Loading...</th></tr></table>
 					</div>
 				</div>
 				<div class="card mb-3">
-					<h5 class="card-header"><span data-collapse-toggle="rj-fissures"></span> Void Storms (Railjack)</h5>
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="rj-fissures"></span> Void Storms (Railjack)</h5>
+						<a class="ms-auto" data-filter-toggle="rj-fissures"></a>
+					</div>
+					<?php renderVoidStormFilters('rj-fissures'); ?>
 					<div class="card-body overflow-auto">
 						<table class="table table-sm table-hover table-borderless mb-0" id="rj-fissures-table"><tr><th>Loading...</th></tr></table>
 					</div>

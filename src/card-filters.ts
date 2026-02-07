@@ -173,6 +173,27 @@ function initializeCardFilters_all(): void
 		}
 	});
 
+	// Initialize Void Fissures card filters
+	initializeCardFilters("fissures", () => {
+		if ((window as any).updateFissures) {
+			(window as any).updateFissures();
+		}
+	});
+
+	// Initialize Steel Path Fissures card filters
+	initializeCardFilters("sp-fissures", () => {
+		if ((window as any).updateFissures) {
+			(window as any).updateFissures();
+		}
+	});
+
+	// Initialize Void Storms (Railjack) card filters
+	initializeCardFilters("rj-fissures", () => {
+		if ((window as any).updateFissures) {
+			(window as any).updateFissures();
+		}
+	});
+
 	// Future cards can be initialized here:
 	// initializeCardFilters("alerts", () => { updateAlerts(); });
 }

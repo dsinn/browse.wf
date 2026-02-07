@@ -129,6 +129,11 @@ export class StorageSyncService {
         const oid = el.getAttribute('data-oid')
         if (oid) validOids.add(oid)
       })
+
+      // Guard: Skip pruning if page has no [data-oid] elements
+      // Cannot make informed decision about what's stale from pages like invigorations
+      if (validOids.size === 0) return
+
       // Keep only OIDs that still exist in the DOM
       const cleanedOids = allOids.filter((oid: string) => validOids.has(oid))
       // Update localStorage with cleaned array

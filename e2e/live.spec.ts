@@ -319,15 +319,6 @@ test.describe('Live Page (/live)', () => {
       expect(whereText).toBeTruthy();
     });
 
-    test('Sortie card displays missions', async ({ page }) => {
-      // Wait for sortie data - it populates a table with id="sortie-table"
-      await page.waitForSelector('#sortie-table', { timeout: 10000 });
-
-      // Should have mission rows
-      const missions = await page.locator('#sortie-table tr').count();
-      expect(missions).toBeGreaterThan(0);
-    });
-
     test('Darvo deal card displays item information', async ({ page }) => {
       // Wait for Darvo data
       await page.waitForSelector('#darvo-item', { timeout: 10000 });

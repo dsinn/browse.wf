@@ -140,6 +140,7 @@ declare global {
 					missionType: TMissionType;
 					modifierType: string;
 					node: string;
+					tileset: string;
 				}[];
 			}[];
 			LiteSorties: {
@@ -1104,6 +1105,7 @@ async function updateSorties()
 {
 	await dicts_promise;
 	await ExportMissionTypes_promise;
+	await ExportRegions_promise;
 
 	const sortie = window.worldState.Sorties.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
 	setWorldStateExpiry(parseInt(sortie.Expiry.$date.$numberLong));
@@ -1119,6 +1121,18 @@ async function updateSorties()
 		tr.appendChild(th);
 		const td = document.createElement("td");
 		td.textContent = sortieModifiers[variant.modifierType];
+
+		// Location and tileset
+		td.appendChild(document.createElement("br"));
+		const node = ExportRegions[variant.node];
+		const locationElem = document.createElement("span");
+		locationElem.textContent = `${dict[node.name]}, ${dict[node.systemName]}`;
+		const formattedTileset = variant.tileset
+			.replace('Tileset', '') // Remove redundant word
+			.replace(/(?<=[a-z])(?=[A-Z])/g, ' '); // Convert PascalCase to Title Case
+		addTooltip(locationElem, formattedTileset);
+		td.appendChild(locationElem);
+
 		tr.appendChild(td);
 		tbody.appendChild(tr);
 	}

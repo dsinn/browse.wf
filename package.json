@@ -22,13 +22,13 @@
     "@types/showdown": "^2.0.6",
     "@typescript-eslint/eslint-plugin": "^8.43.0",
     "@typescript-eslint/parser": "^8.43.0",
-    "@vitest/ui": "^2.1.8",
+    "@vitest/ui": "^4.0.18",
     "chokidar": "^4.0.3",
     "eslint": "^8",
     "jsdom": "^25.0.1",
     "php-ts-dev": "^0.1.1",
     "typescript": "^5.9.2",
-    "vitest": "^2.1.8",
+    "vitest": "^4.0.18",
     "warframe-public-export-plus": "^0.5.86"
   },
   "dependencies": {

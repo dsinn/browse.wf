@@ -24,7 +24,7 @@
     "@typescript-eslint/parser": "^8.43.0",
     "@vitest/ui": "^4.0.18",
     "chokidar": "^4.0.3",
-    "eslint": "^8",
+    "eslint": "^9.39.2",
     "jsdom": "^25.0.1",
     "php-ts-dev": "^0.1.1",
     "typescript": "^5.9.2",

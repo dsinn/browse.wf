@@ -1444,6 +1444,28 @@ function updateCircuitLocalised()
 	const week = Math.trunc((Date.now() - EPOCH) / 604800000);
 	document.getElementById("circuit-frames").textContent = [...frameChoices[week % frameChoices.length]].map(x => dict[x]).join(" · ") + " ";
 	document.getElementById("circuit-weapons").textContent = [...weaponChoices[week % weaponChoices.length]].map(x => dict[x]).join(" · ") + " ";
+
+	// Apply weekly missions filters (hide/show entries based on checkbox state)
+	const weeklyMissionsCard = document.querySelector('[data-collapse-toggle="weekly-missions"]')?.closest('.card');
+	if (weeklyMissionsCard) {
+		const entries = weeklyMissionsCard.querySelectorAll('[data-mission]');
+		let visibleCount = 0;
+
+		for (const entry of entries) {
+			const mission = (entry as HTMLElement).getAttribute('data-mission');
+			const isVisible = (window as any).isFilterEnabled?.('weekly-missions', mission) ?? true;
+			(entry as HTMLElement).style.display = isVisible ? '' : 'none';
+			if (isVisible) {
+				visibleCount++;
+			}
+		}
+
+		// Toggle empty state message (show when no missions visible)
+		const emptyMessage = document.getElementById('weekly-missions-empty-state');
+		if (emptyMessage) {
+			emptyMessage.classList.toggle('d-none', visibleCount > 0);
+		}
+	}
 }
 
 function updateCircuit()
@@ -2168,3 +2190,6 @@ function refreshAllCompletionToggles(): void
 (window as any).updateBountyCycleLocalised = updateBountyCycleLocalised;
 (window as any).updateNewsTicker = updateNewsTicker;
 (window as any).updateIncursionsLocalised = updateIncursionsLocalised;
+(window as any).updateWeeklyLocalised = updateWeeklyLocalised;
+(window as any).updateFissures = updateFissures;
+(window as any).updateCircuitLocalised = updateCircuitLocalised;

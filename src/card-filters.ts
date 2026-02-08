@@ -194,6 +194,13 @@ function initializeCardFilters_all(): void
 		}
 	});
 
+	// Initialize Weekly Missions card filters
+	initializeCardFilters("weekly-missions", () => {
+		if ((window as any).updateCircuitLocalised) {
+			(window as any).updateCircuitLocalised();
+		}
+	});
+
 	// Future cards can be initialized here:
 	// initializeCardFilters("alerts", () => { updateAlerts(); });
 }

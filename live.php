@@ -33,6 +33,7 @@
 	require "components/navbar.php";
 	require_once 'live-fissure-filters-partial.php';
 	require_once 'live-voidstorm-filters-partial.php';
+	require_once 'components/live/weekly-missions-filters.php';
 	?>
 	<div class="container-fluid pt-3">
 		<script>window.LIVE_VERSION=0;</script>
@@ -223,15 +224,18 @@
 						<div class="card mb-3">
 							<div class="card-header d-flex">
 								<h5 class="mb-0"><span data-collapse-toggle="weekly-missions"></span> <span id="circuit-header">Weekly Missions</h5>
-								<a class="m-auto me-0" data-notif-toggle="circuit"></a>
+								<a class="ms-auto me-2" data-filter-toggle="weekly-missions"></a>
+								<a data-notif-toggle="circuit"></a>
 							</div>
+							<?php renderWeeklyMissionsFilters(); ?>
 							<div class="card-body">
-								<p class="mb-1">Help Clem <span id="clem-check"></span></p>
-								<p class="mb-1">Ayatan Treasure Hunt <span id="maroo-check"></span></p>
-								<p class="mb-1">The Circuit (Normal): <b id="circuit-frames">Loading...</b> <span id="circuit-frames-check"></span></p>
-								<p class="mb-1">The Circuit (Steel Path): <b id="circuit-weapons"></b> <span id="circuit-weapons-check"></span></p>
-								<p class="mb-1">Netracells <span id="netracell-checks"></span></p>
-								<p class="mb-0">Break Narmer <span id="kahl-checks"></span></p>
+								<p class="mb-1" data-mission="clem">Help Clem <span id="clem-check"></span></p>
+								<p class="mb-1" data-mission="maroo">Ayatan Treasure Hunt <span id="maroo-check"></span></p>
+								<p class="mb-1" data-mission="circuit-normal">The Circuit (Normal): <b id="circuit-frames">Loading...</b> <span id="circuit-frames-check"></span></p>
+								<p class="mb-1" data-mission="circuit-sp">The Circuit (Steel Path): <b id="circuit-weapons"></b> <span id="circuit-weapons-check"></span></p>
+								<p class="mb-1" data-mission="netracells">Netracells <span id="netracell-checks"></span></p>
+								<p class="mb-0" data-mission="kahl">Break Narmer <span id="kahl-checks"></span></p>
+								<p class="mb-0 text-muted d-none" id="weekly-missions-empty-state">No missions to display based on the current filters.</p>
 							</div>
 						</div>
 						<div class="card mb-3">

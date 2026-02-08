@@ -60,11 +60,13 @@ export class StorageSyncService {
   private reconnectAttempts = 0  // Track reconnection attempts for exponential backoff
   private reconnectTimer: number | null = null  // Timer for reconnection attempts
   private currentUserId: string | null = null  // Track current user UUID for reconnection
+  private disconnectTimestamp: number | null = null  // Track when WebSocket disconnected
 
   // localStorage key patterns
   private static readonly LOCAL_ONLY_KEY_REGEX = /^sb-.*-auth-token$/  // Supabase auth token - never sync to cloud
   private static readonly OIDS_KEY = 'oids_completed'
   private static readonly DEBOUNCE_MS = 5000  // 5 seconds - aggressive batching for long-lived tabs
+  private static readonly QUICK_RECONNECT_THRESHOLD_MS = 5000  // Skip pull if reconnect within 5 seconds
 
   private constructor() {}
 
@@ -396,17 +398,29 @@ export class StorageSyncService {
           }
 
           if (this.hasSubscribedBefore) {
-            logger.debug('🔄 Reconnection detected - pulling fresh data')
-            // This is a reconnection - pull to catch up on missed updates
-            if (!this.syncing) {
-              try {
-                this.syncing = true
-                await this.pullFromDatabase(userId)
-                logger.log('☁️➡️💻 Synced data from cloud (reconnected)')
-              } finally {
-                this.syncing = false
+            // Calculate how long we were disconnected
+            const disconnectDurationMs = this.disconnectTimestamp
+              ? Date.now() - this.disconnectTimestamp
+              : Infinity
+
+            if (disconnectDurationMs <= StorageSyncService.QUICK_RECONNECT_THRESHOLD_MS) {
+              logger.debug(`⚡ Quick reconnection detected (within ${StorageSyncService.QUICK_RECONNECT_THRESHOLD_MS}ms) - skipping pull`)
+              // Brief disconnection (e.g., JWT expiry) - accept risk of missed updates
+              // Trade-off: low probability of missing update vs frequent unnecessary pulls
+            } else {
+              logger.debug(`🔄 Reconnection after ${(disconnectDurationMs / 1000).toFixed(1)}s - pulling fresh data`)
+              // Long disconnection - pull to catch up on missed updates
+              if (!this.syncing) {
+                try {
+                  this.syncing = true
+                  await this.pullFromDatabase(userId)
+                  logger.log('☁️➡️💻 Synced data from cloud (reconnected)')
+                } finally {
+                  this.syncing = false
+                }
               }
             }
+            this.disconnectTimestamp = null
           } else {
             logger.debug('✅ First subscription established')
             // First subscription - no pull needed (already handled in handleFirstLogin)
@@ -415,6 +429,7 @@ export class StorageSyncService {
         } else if (status === 'CLOSED' || status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
           // WebSocket entered a failed state (expected when JWT expires) - attempt to reconnect
           logger.debug('⚠️ WebSocket entered failed state:', status)
+          this.disconnectTimestamp = Date.now()
           this.attemptReconnect()
         }
       })
@@ -494,6 +509,7 @@ export class StorageSyncService {
     // Reset reconnection state
     this.reconnectAttempts = 0
     this.currentUserId = null
+    this.disconnectTimestamp = null
 
     if (this.realtimeChannel) {
       this.realtimeChannel.unsubscribe()

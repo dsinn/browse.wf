@@ -5,7 +5,7 @@
  * Implements 5-second debouncing for efficient batching of rapid changes.
  */
 
-import { db } from './database.js'
+import { db, isDatabaseConfigured } from './database.js'
 import { AuthService } from './auth.js'
 import type { UserData } from './types.js'
 import { logger } from '../logger.js'
@@ -60,15 +60,20 @@ export class StorageSyncService {
   private reconnectAttempts = 0  // Track reconnection attempts for exponential backoff
   private reconnectTimer: number | null = null  // Timer for reconnection attempts
   private currentUserId: string | null = null  // Track current user UUID for reconnection
-  private disconnectTimestamp: number | null = null  // Track when WebSocket disconnected
+  private lastKnownFreshDataTimestamp: number | null = null  // Track when connection was last healthy (heartbeat)
 
   // localStorage key patterns
   private static readonly LOCAL_ONLY_KEY_REGEX = /^sb-.*-auth-token$/  // Supabase auth token - never sync to cloud
   private static readonly OIDS_KEY = 'oids_completed'
   private static readonly DEBOUNCE_MS = 5000  // 5 seconds - aggressive batching for long-lived tabs
-  private static readonly QUICK_RECONNECT_THRESHOLD_MS = 5000  // Skip pull if reconnect within 5 seconds
+  private static readonly HEARTBEAT_INTERVAL_MS = 5000
+  private static readonly QUICK_RECONNECT_THRESHOLD_MS = 10000  // Must be greater than HEARTBEAT_INTERVAL_MS
 
-  private constructor() {}
+  private constructor() {
+    if (isDatabaseConfigured()) {
+      this.startHeartbeat()
+    }
+  }
 
   static getInstance(): StorageSyncService {
     if (!StorageSyncService.instance) {
@@ -294,6 +299,19 @@ export class StorageSyncService {
   }
 
   /**
+   * Start periodic heartbeat to track connection health
+   * Runs continuously - only updates timestamp when channel is in 'joined' state
+   */
+  private startHeartbeat() {
+    window.setInterval(() => {
+      if (this.realtimeChannel?.state === 'joined') {
+        this.lastKnownFreshDataTimestamp = Date.now()
+        logger.debug('💓 Heartbeat: Connection healthy')
+      }
+    }, StorageSyncService.HEARTBEAT_INTERVAL_MS)
+  }
+
+  /**
    * Attempt to reconnect to realtime updates with exponential backoff
    * Called when websocket enters a failed state (CLOSED, TIMED_OUT, CHANNEL_ERROR)
    */
@@ -398,18 +416,19 @@ export class StorageSyncService {
           }
 
           if (this.hasSubscribedBefore) {
-            // Calculate how long we were disconnected
-            const disconnectDurationMs = this.disconnectTimestamp
-              ? Date.now() - this.disconnectTimestamp
+            // Calculate time since last known fresh data (heartbeat check)
+            const timeSinceLastFreshMs = this.lastKnownFreshDataTimestamp
+              ? Date.now() - this.lastKnownFreshDataTimestamp
               : Infinity
 
-            if (disconnectDurationMs <= StorageSyncService.QUICK_RECONNECT_THRESHOLD_MS) {
-              logger.debug(`⚡ Quick reconnection detected (within ${StorageSyncService.QUICK_RECONNECT_THRESHOLD_MS}ms) - skipping pull`)
-              // Brief disconnection (e.g., JWT expiry) - accept risk of missed updates
-              // Trade-off: low probability of missing update vs frequent unnecessary pulls
+            if (timeSinceLastFreshMs <= StorageSyncService.QUICK_RECONNECT_THRESHOLD_MS) {
+              logger.debug(`⚡ Reconnected with recent heartbeat (${(timeSinceLastFreshMs / 1000).toFixed(1)}s ago) - skipping pull`)
+              // Recent heartbeat means connection was healthy - no need to pull
+              // This handles quick reconnects like JWT expiry (hourly)
             } else {
-              logger.debug(`🔄 Reconnection after ${(disconnectDurationMs / 1000).toFixed(1)}s - pulling fresh data`)
-              // Long disconnection - pull to catch up on missed updates
+              logger.debug(`🔄 Reconnected${this.lastKnownFreshDataTimestamp ? ` with stale heartbeat (${(timeSinceLastFreshMs / 1000).toFixed(1)}s ago)` : ''} - pulling fresh data`)
+              // Stale heartbeat - pull to catch up on missed updates
+              // This handles device sleep, long network outages, etc.
               if (!this.syncing) {
                 try {
                   this.syncing = true
@@ -420,7 +439,6 @@ export class StorageSyncService {
                 }
               }
             }
-            this.disconnectTimestamp = null
           } else {
             logger.debug('✅ First subscription established')
             // First subscription - no pull needed (already handled in handleFirstLogin)
@@ -429,7 +447,6 @@ export class StorageSyncService {
         } else if (status === 'CLOSED' || status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
           // WebSocket entered a failed state (expected when JWT expires) - attempt to reconnect
           logger.debug('⚠️ WebSocket entered failed state:', status)
-          this.disconnectTimestamp = Date.now()
           this.attemptReconnect()
         }
       })
@@ -509,7 +526,7 @@ export class StorageSyncService {
     // Reset reconnection state
     this.reconnectAttempts = 0
     this.currentUserId = null
-    this.disconnectTimestamp = null
+    this.lastKnownFreshDataTimestamp = null
 
     if (this.realtimeChannel) {
       this.realtimeChannel.unsubscribe()

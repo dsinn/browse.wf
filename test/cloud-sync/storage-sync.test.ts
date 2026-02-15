@@ -415,6 +415,78 @@ describe('StorageSyncService', () => {
 
       expect(mockChannel.unsubscribe).toHaveBeenCalled();
     });
+
+    test('should ignore own update after push (justPushed flag)', async () => {
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+
+      // Get the WebSocket update callback
+      const updateCallback = vi.mocked(mockChannel.on).mock.calls[0][2];
+
+      // Perform a push
+      mockFromChain.upsert.mockResolvedValue({ error: null });
+      await (service as any).pushToDatabase('test-user-uuid');
+
+      // Trigger WebSocket update immediately after push
+      const pullsBefore = vi.mocked(mockFromChain.select).mock.calls.length;
+      await updateCallback({ new: { lang: 'fr' } });
+
+      // Should NOT trigger pull (justPushed flag is set)
+      expect(mockFromChain.select).toHaveBeenCalledTimes(pullsBefore);
+    });
+
+    test('should pull update after justPushed flag clears (5 seconds)', async () => {
+      vi.useFakeTimers();
+
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+      const updateCallback = vi.mocked(mockChannel.on).mock.calls[0][2];
+
+      // Perform a push
+      mockFromChain.upsert.mockResolvedValue({ error: null });
+      await (service as any).pushToDatabase('test-user-uuid');
+
+      // Fast-forward 5 seconds (flag should clear)
+      vi.advanceTimersByTime(5000);
+      await vi.runAllTimersAsync();
+
+      // Now trigger WebSocket update
+      mockFromChain.single.mockResolvedValue({
+        data: { data: { lang: 'fr' } },
+        error: null,
+      });
+
+      const pullsBefore = vi.mocked(mockFromChain.select).mock.calls.length;
+      await updateCallback({ new: { lang: 'fr' } });
+
+      // Should trigger pull (flag has cleared)
+      expect(mockFromChain.select).toHaveBeenCalledTimes(pullsBefore + 1);
+
+      vi.useRealTimers();
+    });
+
+    test('should set justPushed flag in handleFirstLogin', async () => {
+      vi.useFakeTimers();
+
+      // First login - no remote data
+      mockFromChain.single.mockResolvedValue({
+        data: null,
+        error: { code: 'PGRST116' },
+      });
+      mockFromChain.upsert.mockResolvedValue({ error: null });
+
+      await service.handleFirstLogin();
+
+      // Get WebSocket callback
+      const updateCallback = vi.mocked(mockChannel.on).mock.calls[0][2];
+
+      // Trigger update immediately after first login push
+      const pullsBefore = vi.mocked(mockFromChain.select).mock.calls.length;
+      await updateCallback({ new: { lang: 'fr' } });
+
+      // Should NOT trigger pull (justPushed flag is set)
+      expect(mockFromChain.select).toHaveBeenCalledTimes(pullsBefore);
+
+      vi.useRealTimers();
+    });
   });
 
   describe('WebSocket Reconnection', () => {

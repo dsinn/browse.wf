@@ -56,6 +56,7 @@ export class StorageSyncService {
   private pushTimer: number | null = null
   private realtimeChannel: any = null
   private justPushed = false  // Track when we just pushed to avoid pulling our own update
+  private justPushedTimeout: number | null = null  // Timeout for clearing justPushed flag
   private hasSubscribedBefore = false  // Track initial subscription
   private reconnectAttempts = 0  // Track reconnection attempts for exponential backoff
   private reconnectTimer: number | null = null  // Timer for reconnection attempts
@@ -208,14 +209,36 @@ export class StorageSyncService {
 
     const data = this.localStorageToData()
 
-    const { error } = await db
-      .from('user_data')
-      .upsert({
-        user_id: userId,
-        data
-      })
+    this.justPushed = true
 
-    if (error) throw error
+    // Clear any existing timeout to prevent race condition with multiple pushes
+    if (this.justPushedTimeout !== null) {
+      clearTimeout(this.justPushedTimeout)
+    }
+
+    try {
+      const { error } = await db
+        .from('user_data')
+        .upsert({
+          user_id: userId,
+          data
+        })
+
+      if (error) throw error
+
+      // Clear flag after push completes + 5 second buffer to ignore our own real-time update
+      this.justPushedTimeout = window.setTimeout(() => {
+        this.justPushed = false
+        this.justPushedTimeout = null
+      }, 5000)
+    } catch (error) {
+      this.justPushed = false
+      if (this.justPushedTimeout !== null) {
+        clearTimeout(this.justPushedTimeout)
+        this.justPushedTimeout = null
+      }
+      throw error
+    }
   }
 
   /**
@@ -267,14 +290,10 @@ export class StorageSyncService {
     this.pushTimer = window.setTimeout(async () => {
       this.pushTimer = null
       try {
-        this.justPushed = true
         await this.pushToDatabase(userId)
         logger.log('💻➡️☁️ Synced data to cloud')
-        // Clear flag after 1 second to ignore our own real-time update
-        setTimeout(() => { this.justPushed = false }, 1000)
       } catch (error) {
         logger.warn('Failed to sync to database, data saved locally:', error)
-        this.justPushed = false
       }
     }, StorageSyncService.DEBOUNCE_MS)
   }

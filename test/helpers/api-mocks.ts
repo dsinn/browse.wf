@@ -5,6 +5,7 @@
 import { vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { validateTestRequest, isImageRequest, isBlockedDomain } from './domain-blocker';
 
 // Use project root to avoid issues with typestripped compiled output
 const projectRoot = process.cwd();
@@ -34,6 +35,8 @@ export function setupMockFetch() {
 
   global.fetch = vi.fn((url: string) => {
     const urlStr = url.toString();
+
+    // First, check if we have a mock for this URL
     const mockData = mocks[urlStr as keyof typeof mocks];
 
     if (mockData !== undefined) {
@@ -45,6 +48,27 @@ export function setupMockFetch() {
       } as Response);
     }
 
+    // SAFEGUARD: If not mocked, validate that tests never hit production domains
+    // Images are silently allowed, other requests throw errors
+    if (isBlockedDomain(urlStr)) {
+      if (isImageRequest(urlStr)) {
+        // Silently return empty response for image requests
+        return Promise.resolve({
+          ok: true,
+          status: 200,
+          blob: () => Promise.resolve(new Blob()),
+          arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+        } as Response);
+      }
+      // Non-image request to production domain without a mock - this is an error
+      try {
+        validateTestRequest(urlStr); // Will throw
+      } catch (error) {
+        return Promise.reject(error); // Convert thrown error to rejected promise
+      }
+    }
+
+    // Not mocked and not a blocked domain
     return Promise.reject(new Error(`No mock for ${urlStr}`));
   });
 }

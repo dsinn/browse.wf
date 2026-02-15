@@ -77,10 +77,13 @@ test/
 │   ├── bounty-cycle.json
 │   ├── invasions.json
 │   ├── arbys.txt
+│   ├── dicts/
+│   │   └── en.json        # Game text translations
 │   └── ...
 │
 ├── helpers/                # Shared test utilities
 │   ├── api-mocks.ts       # Mock fetch setup & data loading
+│   ├── domain-blocker.ts  # Production domain safeguards
 │   ├── dom-helpers.ts     # DOM setup & query helpers
 │   ├── time-helpers.ts    # Time-freezing utilities
 │   └── ...
@@ -105,6 +108,7 @@ test/
 ├── setup.ts               # Global unit test setup
 ├── global-setup.ts        # Global test environment setup
 ├── api-validation.test.ts # API structure validation (run weekly)
+├── safeguards.test.ts     # Production domain blocking tests
 ├── README.md              # This file
 ├── SUMMARY.md             # Test coverage details
 ├── QUICK_START.md         # Quick reference
@@ -137,6 +141,57 @@ e2e/                        # E2E tests (Playwright)
   - Detect "mock drift" when upstream APIs change
   - Run via `npm run test:api-validation` (not part of regular test suite)
 
+## Production Domain Safeguards
+
+Tests have built-in safeguards to prevent accidentally hitting production `browse.wf` domains:
+
+**Protected domains:**
+- `oracle.browse.wf` - Production API
+- `browse.wf` - Main production domain
+- `www.browse.wf` - WWW subdomain
+
+**How it works:**
+1. ✅ **Mocked endpoints** - Explicitly mocked URLs return mock data (defined in `test/helpers/api-mocks.ts` and `e2e/helpers/api-mocks.ts`)
+2. ✅ **Image files** - Requests to `.png`, `.jpg`, `.webp`, etc. silently return empty responses (don't break tests)
+3. ❌ **Other requests** - Non-image requests to production domains throw clear errors:
+   ```
+   TEST SAFEGUARD: Attempted to fetch from production domain: https://oracle.browse.wf/unknown
+   Tests must never hit browse.wf domains. Use mocked data instead.
+   ```
+
+**Why this matters:**
+- Prevents accidental production API calls
+- Catches typos in URLs early
+- Ensures tests work offline
+- Makes tests fast and deterministic
+- Prevents side effects on production
+
+**Adding new mocked endpoints:**
+
+For Vitest, edit `test/helpers/api-mocks.ts`:
+```typescript
+const mocks = {
+  'https://oracle.browse.wf/new-endpoint': loadMock('new-mock.json'),
+  // ... other mocks
+};
+```
+
+For Playwright E2E, edit `e2e/helpers/api-mocks.ts`:
+```typescript
+// Load mock data
+const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'new-mock.json'), 'utf8'));
+
+// Register route
+await page.route('**/oracle.browse.wf/new-endpoint', route => {
+  route.fulfill({ status: 200, body: JSON.stringify(mockData) });
+});
+```
+
+**Implementation:**
+- `test/helpers/domain-blocker.ts` - Core validation logic
+- `test/helpers/domain-blocker.test.ts` - Unit tests (17 tests)
+- `test/safeguards.test.ts` - Integration tests (20 tests)
+
 ## Testing Fork-Specific JavaScript
 
 **Principle:** Test the real compiled code from `typestripped/`, not mocked duplicates. This prevents test drift where tests pass but production is broken.
@@ -152,14 +207,7 @@ To refresh mock data with current game state:
 ./test/update-mocks.sh
 ```
 
-Or manually:
-```bash
-curl -s "https://oracle.browse.wf/min" > test/__mocks__/min.json
-curl -s "https://oracle.browse.wf/bounty-cycle" > test/__mocks__/bounty-cycle.json
-curl -s "https://oracle.browse.wf/worldState.json" > test/__mocks__/worldState.json
-curl -s "https://oracle.browse.wf/invasions" > test/__mocks__/invasions.json
-curl -s "https://browse.wf/arbys.txt" > test/__mocks__/arbys.txt
-```
+This updates all mock files including the dictionary file (`dicts/en.json`), which contains game text translations used by E2E tests to properly display item names, mission types, and other localized content.
 
 ## CI/CD Integration
 

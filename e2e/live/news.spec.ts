@@ -2,15 +2,18 @@ import { test, expect } from '@playwright/test';
 import { setupMockRoutes } from '../helpers/api-mocks';
 
 test.describe('News Card (/live)', () => {
-  test.beforeEach(async ({ page }) => {
-    // Clear localStorage for test isolation
-    await page.goto('/live.php');
-    await page.evaluate(() => localStorage.clear());
+  test.beforeEach(async ({ page, context }) => {
+    // Clear all cookies and storage for test isolation
+    await context.clearCookies();
 
     // Mock API responses for deterministic, fast, offline-capable tests
     await setupMockRoutes(page);
 
     await page.goto('/live.php');
+
+    // Clear localStorage after page loads but before tests run
+    await page.evaluate(() => localStorage.clear());
+
     // Wait for initial data to load
     await page.waitForSelector('#arby-what:not(:has-text("Loading..."))', { timeout: 10000 });
   });

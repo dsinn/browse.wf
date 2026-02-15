@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setupMockRoutes } from './helpers/api-mocks';
 
 /**
  * E2E tests for Invigorations Page (/invigorations.php)
@@ -9,8 +10,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Invigorations Page (/invigorations.php)', () => {
   test.beforeEach(async ({ page }) => {
-    // Clear localStorage before each test
+    // Mock API responses for deterministic, fast, offline-capable tests
+    // Don't freeze time - invigoration tests use Date.now() for cache timestamp validation
+    await setupMockRoutes(page, { freezeTime: false });
+
     await page.goto('/invigorations.php');
+
+    // Clear localStorage after page loads
     await page.evaluate(() => {
       localStorage.clear();
     });

@@ -67,6 +67,7 @@ Captured on **2026-01-10 ~12:00 UTC**:
 | `worldState.json` | Complete world state |
 | `invasions.json` | Invasion conflicts |
 | `arbys.txt` | Arbitration schedule |
+| `dicts/en.json` | Game text translations (used by E2E tests) |
 
 
 ## Adding New Tests

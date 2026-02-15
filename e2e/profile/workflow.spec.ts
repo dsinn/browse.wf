@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import { setupMockRoutes } from '../helpers/api-mocks';
 
 // ES module __dirname polyfill
 const __filename = fileURLToPath(import.meta.url);
@@ -27,6 +28,9 @@ test.describe('Profile Workflow - Happy Path', () => {
 
     // Store errors on page context for tests to access
     await page.exposeFunction('getErrors', () => errors);
+
+    // Mock API responses for deterministic, fast, offline-capable tests
+    await setupMockRoutes(page);
   });
 
   test('completes full workflow with EE.log upload', async ({ page }) => {

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { setupMockRoutes } from '../helpers/api-mocks';
 
 /**
  * Smoke tests for Profile Viewer (/profile.php)
@@ -24,6 +25,9 @@ test.describe('Profile Page (/profile.php)', () => {
 
     // Store errors on page context for tests to access
     await page.exposeFunction('getErrors', () => errors);
+
+    // Mock API responses for deterministic, fast, offline-capable tests
+    await setupMockRoutes(page);
   });
 
   test('loads without JavaScript errors', async ({ page }) => {

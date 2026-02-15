@@ -13,6 +13,7 @@ vi.mock('../../src/cloud-sync/database', () => ({
     auth: {
       getUser: vi.fn(),
       onAuthStateChange: vi.fn(),
+      refreshSession: vi.fn(),
     }
   },
   isDatabaseConfigured: vi.fn(() => true),
@@ -41,6 +42,10 @@ vi.mock('../../src/cloud-sync/logger', () => ({
 
 import { StorageSyncService } from '../../src/cloud-sync/storage-sync';
 import { db } from '../../src/cloud-sync/database';
+import * as loggerModule from '../../src/logger';
+
+// Get mocked logger
+const logger = vi.mocked(loggerModule.logger);
 
 describe('StorageSyncService', () => {
   let service: StorageSyncService;
@@ -405,10 +410,274 @@ describe('StorageSyncService', () => {
     });
 
     test('should unsubscribe when called', () => {
-      service.subscribeToRealtimeUpdates('test-user-id');
-      service.unsubscribeFromRealtimeUpdates('test-user-id');
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+      service.unsubscribeFromRealtimeUpdates();
 
       expect(mockChannel.unsubscribe).toHaveBeenCalled();
+    });
+  });
+
+  describe('WebSocket Reconnection', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    test('should trigger reconnect on CLOSED status', async () => {
+      // Setup: Mock auth refresh
+      vi.mocked(db.auth.refreshSession).mockResolvedValue({
+        data: { session: { access_token: 'mock-token' } },
+        error: null,
+      } as any);
+
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+
+      // Get the subscribe callback
+      const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+      const initialChannelCalls = vi.mocked(db.channel).mock.calls.length;
+
+      // Trigger CLOSED status
+      await subscribeCallback('CLOSED');
+
+      // Fast-forward 1.875 seconds
+      vi.advanceTimersByTime(1875);
+      await vi.runAllTimersAsync();
+
+      // Should attempt to reconnect (db.channel called again)
+      expect(db.channel).toHaveBeenCalledTimes(initialChannelCalls + 1);
+      expect(db.channel).toHaveBeenCalledWith('user_data:test-user-uuid');
+    });
+
+    test('should use exponential backoff: 1.875s, 3.75s, 7.5s, 15s', async () => {
+      vi.mocked(db.auth.refreshSession).mockResolvedValue({
+        data: { session: { access_token: 'mock-token' } },
+        error: null,
+      } as any);
+
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+      const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+      const initialCalls = vi.mocked(db.channel).mock.calls.length;
+
+      // Attempt 1: 1.875 second delay
+      await subscribeCallback('CLOSED');
+      vi.advanceTimersByTime(1874); // Just before 1.875 seconds
+      expect(db.channel).toHaveBeenCalledTimes(initialCalls); // No reconnect yet
+
+      vi.advanceTimersByTime(1); // Hit 1.875 seconds
+      await vi.runAllTimersAsync();
+      expect(db.channel).toHaveBeenCalledTimes(initialCalls + 1); // Reconnected!
+
+      // Attempt 2: 3.75 second delay
+      await subscribeCallback('TIMED_OUT');
+      vi.advanceTimersByTime(3749); // Just before 3.75 seconds
+      expect(db.channel).toHaveBeenCalledTimes(initialCalls + 1); // No reconnect yet
+
+      vi.advanceTimersByTime(1); // Hit 3.75 seconds
+      await vi.runAllTimersAsync();
+      expect(db.channel).toHaveBeenCalledTimes(initialCalls + 2); // Reconnected!
+
+      // Attempt 3: 7.5 second delay
+      await subscribeCallback('CHANNEL_ERROR');
+      vi.advanceTimersByTime(7499); // Just before 7.5 seconds
+      expect(db.channel).toHaveBeenCalledTimes(initialCalls + 2); // No reconnect yet
+
+      vi.advanceTimersByTime(1); // Hit 7.5 seconds
+      await vi.runAllTimersAsync();
+      expect(db.channel).toHaveBeenCalledTimes(initialCalls + 3); // Reconnected!
+    });
+
+    test('should cap backoff at 5 minutes (300 seconds)', async () => {
+      vi.mocked(db.auth.refreshSession).mockResolvedValue({
+        data: { session: { access_token: 'mock-token' } },
+        error: null,
+      } as any);
+
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+      const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+      const initialCalls = vi.mocked(db.channel).mock.calls.length;
+
+      // Trigger many failures to reach the cap
+      // 1.875s * 2^0 = 1.875s
+      // 1.875s * 2^1 = 3.75s
+      // 1.875s * 2^2 = 7.5s
+      // 1.875s * 2^3 = 15s
+      // 1.875s * 2^4 = 30s
+      // 1.875s * 2^5 = 60s
+      // 1.875s * 2^6 = 120s
+      // 1.875s * 2^7 = 240s
+      // 1.875s * 2^8 = 480s (exceeds 300s cap)
+      for (let i = 0; i < 9; i++) {
+        await subscribeCallback('CLOSED');
+        vi.advanceTimersByTime(Math.min(1875 * Math.pow(2, i), 300000));
+        await vi.runAllTimersAsync();
+      }
+
+      // Next attempt should use 5 minutes (capped) - test by ensuring it doesn't reconnect before 5 minutes
+      await subscribeCallback('CLOSED');
+      const callsBeforeWait = vi.mocked(db.channel).mock.calls.length;
+
+      vi.advanceTimersByTime(299999); // Just before 5 minutes
+      expect(db.channel).toHaveBeenCalledTimes(callsBeforeWait); // No reconnect yet
+
+      vi.advanceTimersByTime(1); // Hit 5 minutes
+      await vi.runAllTimersAsync();
+      expect(db.channel).toHaveBeenCalledTimes(callsBeforeWait + 1); // Reconnected!
+    });
+
+    test('should escalate to longer delays for extended outages', async () => {
+      vi.mocked(db.auth.refreshSession).mockResolvedValue({
+        data: { session: { access_token: 'mock-token' } },
+        error: null,
+      } as any);
+
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+      const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+      const initialCalls = vi.mocked(db.channel).mock.calls.length;
+
+      // Simulate extended outage with exponentially increasing delays
+      // 1.875s, 3.75s, 7.5s, 15s, 30s, 60s
+      const delays = [1875, 3750, 7500, 15000, 30000, 60000];
+
+      for (let i = 0; i < delays.length; i++) {
+        await subscribeCallback('CLOSED');
+
+        // Verify it doesn't reconnect before the delay
+        vi.advanceTimersByTime(delays[i] - 1);
+        expect(db.channel).toHaveBeenCalledTimes(initialCalls + i);
+
+        // Hit the delay threshold and reconnect
+        vi.advanceTimersByTime(1);
+        await vi.runAllTimersAsync();
+        expect(db.channel).toHaveBeenCalledTimes(initialCalls + i + 1);
+      }
+    });
+
+    test('should track last connection timestamp', async () => {
+      vi.mocked(db.auth.refreshSession).mockResolvedValue({
+        data: { session: { access_token: 'mock-token' } },
+        error: null,
+      } as any);
+
+      // Set last known fresh data timestamp
+      const testTimestamp = Date.now();
+      (service as any).lastKnownFreshDataTimestamp = testTimestamp;
+
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+      const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+      // Trigger a failure
+      await subscribeCallback('CLOSED');
+
+      // Verify timestamp is still set (implementation maintains it during reconnection)
+      expect((service as any).lastKnownFreshDataTimestamp).toBe(testTimestamp);
+    });
+
+    test('should track when connection has never succeeded', async () => {
+      vi.mocked(db.auth.refreshSession).mockResolvedValue({
+        data: { session: { access_token: 'mock-token' } },
+        error: null,
+      } as any);
+
+      // Ensure lastKnownFreshDataTimestamp is null (never connected)
+      (service as any).lastKnownFreshDataTimestamp = null;
+
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+      const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+      // Trigger a failure
+      await subscribeCallback('CLOSED');
+
+      // Verify timestamp is still null (no successful connection)
+      expect((service as any).lastKnownFreshDataTimestamp).toBeNull();
+    });
+
+    test('should continue retrying indefinitely (no max attempts)', async () => {
+      vi.mocked(db.auth.refreshSession).mockResolvedValue({
+        data: { session: { access_token: 'mock-token' } },
+        error: null,
+      } as any);
+
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+      const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+      const initialCalls = vi.mocked(db.channel).mock.calls.length;
+
+      // Simulate 20 consecutive failures (well beyond old 10-attempt limit)
+      for (let i = 0; i < 20; i++) {
+        await subscribeCallback('CLOSED');
+        vi.advanceTimersByTime(300000); // Use max backoff (5 minutes)
+        await vi.runAllTimersAsync();
+      }
+
+      // Should still be able to reconnect (attempt 21)
+      await subscribeCallback('CLOSED');
+      vi.advanceTimersByTime(300000);
+      await vi.runAllTimersAsync();
+
+      // Verify we reconnected 21 times (never gave up)
+      expect(db.channel).toHaveBeenCalledTimes(initialCalls + 21);
+    });
+
+    test('should reset reconnect counter on successful connection', async () => {
+      vi.mocked(db.auth.refreshSession).mockResolvedValue({
+        data: { session: { access_token: 'mock-token' } },
+        error: null,
+      } as any);
+
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+      const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+      // Fail 3 times
+      for (let i = 0; i < 3; i++) {
+        await subscribeCallback('CLOSED');
+        vi.advanceTimersByTime(1875 * Math.pow(2, i));
+        await vi.runAllTimersAsync();
+      }
+
+      // Succeed
+      await subscribeCallback('SUBSCRIBED');
+
+      const callsAfterSuccess = vi.mocked(db.channel).mock.calls.length;
+
+      // Next failure should restart from attempt 1 (1.875 second delay)
+      await subscribeCallback('CLOSED');
+      vi.advanceTimersByTime(1874); // Just before 1.875 seconds
+      expect(db.channel).toHaveBeenCalledTimes(callsAfterSuccess); // No reconnect yet
+
+      vi.advanceTimersByTime(1); // Hit 1.875 seconds
+      await vi.runAllTimersAsync();
+      expect(db.channel).toHaveBeenCalledTimes(callsAfterSuccess + 1); // Reconnected with 1.875s delay!
+    });
+
+    test('should clear reconnect timer on unsubscribe', async () => {
+      vi.mocked(db.auth.refreshSession).mockResolvedValue({
+        data: { session: { access_token: 'mock-token' } },
+        error: null,
+      } as any);
+
+      service.subscribeToRealtimeUpdates('test-user-uuid');
+      const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+      // Trigger reconnection
+      await subscribeCallback('CLOSED');
+
+      // Unsubscribe before timer fires
+      service.unsubscribeFromRealtimeUpdates();
+
+      // Fast-forward past timer
+      vi.advanceTimersByTime(10000);
+      await vi.runAllTimersAsync();
+
+      // Should not attempt to reconnect
+      const channelCallCount = vi.mocked(db.channel).mock.calls.length;
+      expect(channelCallCount).toBe(1); // Only initial subscription
     });
   });
 

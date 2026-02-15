@@ -322,17 +322,28 @@ export class StorageSyncService {
       this.reconnectTimer = null
     }
 
-    const maxAttempts = 10
-    if (this.reconnectAttempts >= maxAttempts) {
-      logger.error('❌ Max reconnection attempts reached. Please refresh the page.')
-      return
-    }
-
-    // Exponential backoff: 1s, 2s, 4s, 8s, 16s, 32s, 64s, 128s, 256s, 512s
-    const delayMs = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 512000)
+    // Exponential backoff: 1.875s, 3.75s, 7.5s, 15s, 30s, 60s, 120s, 240s, then cap at 5 minutes
+    // No max attempts - retry indefinitely during extended outages
+    const INITIAL_BACKOFF_MS = 1875  // Start at 1.875 seconds
+    const MAX_BACKOFF_MS = 5 * 60 * 1000  // 5 minutes
+    const delayMs = Math.min(INITIAL_BACKOFF_MS * Math.pow(2, this.reconnectAttempts), MAX_BACKOFF_MS)
     this.reconnectAttempts++
 
-    logger.debug(`🔄 WebSocket disconnected. Reconnecting in ${delayMs / 1000}s (attempt ${this.reconnectAttempts}/${maxAttempts})`)
+    // Format error message with attempt count and last connection timestamp
+    const lastConnectedMsg = this.lastKnownFreshDataTimestamp
+      ? `Last connected: ${new Date(this.lastKnownFreshDataTimestamp).toLocaleTimeString()}`
+      : 'Never successfully connected'
+
+    // Use logger.error when delay is >= 1 minute to make long outages more visible
+    const ERROR_THRESHOLD_MS = 60 * 1000  // 1 minute
+    if (delayMs >= ERROR_THRESHOLD_MS) {
+      const delayDisplay = delayMs >= 60000
+        ? `${delayMs / 60000} minute${delayMs / 60000 > 1 ? 's' : ''}`
+        : `${delayMs / 1000}s`
+      logger.error(`❌ WebSocket disconnected. Retrying in ${delayDisplay} (attempt ${this.reconnectAttempts}). ${lastConnectedMsg}`)
+    } else {
+      logger.debug(`🔄 WebSocket disconnected. Reconnecting in ${delayMs / 1000}s (attempt ${this.reconnectAttempts}). ${lastConnectedMsg}`)
+    }
 
     this.reconnectTimer = window.setTimeout(async () => {
       this.reconnectTimer = null

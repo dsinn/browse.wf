@@ -9,6 +9,7 @@
 	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
 	<link rel="stylesheet" href="src/card-filters.css">
 	<link rel="stylesheet" href="src/invasions.css">
+	<link rel="stylesheet" href="src/news-card.css">
 	<style>
 		abbr { text-decoration: underline dotted; text-decoration-skip-ink: none; }
 		[data-bs-toggle=tooltip] { cursor: help; }
@@ -73,9 +74,12 @@
 							</div>
 						</div>
 						<div class="card mb-3">
-							<div class="card-header d-flex">
+							<div class="card-header d-flex align-items-center">
 								<h5 class="mb-0"><span data-collapse-toggle="news"></span> News</h5>
-								<a class="ms-auto me-2" data-filter-toggle="news"></a>
+								<button class="btn btn-sm btn-secondary ms-auto me-2" id="news-mark-all-read" title="Mark all as read">
+									Mark read
+								</button>
+								<a class="me-2" data-filter-toggle="news"></a>
 								<a data-notif-toggle="news"></a>
 							</div>
 							<div class="card-filter-panel" id="news-filters" style="display:none">
@@ -510,6 +514,7 @@
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<script src="typestripped/src/card-filters.js"></script>
+	<script src="typestripped/src/news-mark-read.js"></script>
 	<script src="typestripped/src/descendia.js"></script>
 	<link rel="stylesheet" href="src/descendia.css" media="print" onload="this.media='all'">
 	<script src="typestripped/src/bounty-filters.js"></script>

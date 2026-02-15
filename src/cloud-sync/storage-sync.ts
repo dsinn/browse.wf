@@ -207,6 +207,11 @@ export class StorageSyncService {
     // Clean up stale objectives before serializing
     this.pruneStaleOids()
 
+    // Prune stale news read items if news card is present
+    if ((window as any).pruneStaleNewsRead) {
+      (window as any).pruneStaleNewsRead()
+    }
+
     const data = this.localStorageToData()
 
     this.justPushed = true

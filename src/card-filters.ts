@@ -127,6 +127,24 @@ function initializeCardFilters(cardName: string, onFilterChange?: () => void): v
 				(window as any).triggerCloudSync();
 			}
 
+			// Special case: if enabling danger filter and redtext not loaded, fetch it
+			if (cardName === "news" && filterType === "danger" && checkbox.checked)
+			{
+				if (!(window as any).redtext)
+				{
+					fetch("https://oracle.browse.wf/redtext.json")
+						.then(res => res.json())
+						.then(redtext =>
+						{
+							(window as any).redtext = redtext;
+							if ((window as any).updateNewsTicker)
+							{
+								(window as any).updateNewsTicker();
+							}
+						});
+				}
+			}
+
 			// Call the update callback if provided
 			if (onFilterChange)
 			{

@@ -27,6 +27,7 @@ export function setupMockFetch() {
     'https://oracle.browse.wf/min': loadMock('min.json'),
     'https://oracle.browse.wf/bounty-cycle': loadMock('bounty-cycle.json'),
     'https://oracle.browse.wf/worldState.json': loadMock('worldState.json'),
+    'https://oracle.browse.wf/redtext.json': [], // Empty array for redtext (no red text in tests)
     'https://oracle.browse.wf/invasions': loadMock('invasions.json'),
     'https://browse.wf/arbys.txt': loadMock('arbys.txt'),
   };

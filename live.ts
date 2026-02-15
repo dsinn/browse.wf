@@ -911,8 +911,10 @@ function updateNewsTicker()
 	document.getElementById("news-body").innerHTML = "";
 	for (let i = 0; i != items.length; ++i)
 	{
+		const isRedText = items[i].type === "danger";
+
 		const p = document.createElement("p");
-		p.className = "card-text mb-1";
+		p.className = `card-text mb-1 news-item news-${items[i].type}`;
 		{
 			const span = document.createElement("span");
 			span.className = "badge text-bg-secondary";
@@ -922,12 +924,18 @@ function updateNewsTicker()
 		}
 		{
 			const span = document.createElement("span");
-			span.className = "text-" + items[i].type;
+			if (isRedText)
+			{
+				span.className = "text-danger";
+			}
 			span.textContent = " ";
 			if (items[i].link)
 			{
 				const a = document.createElement("a");
-				a.className = "text-" + items[i].type;
+				if (isRedText)
+				{
+					a.className = "text-danger";
+				}
 				a.textContent = items[i].data;
 				a.href = items[i].link;
 				a.target = "_blank";
@@ -939,6 +947,26 @@ function updateNewsTicker()
 			}
 			p.appendChild(span);
 		}
+
+		// Only add mark-as-read functionality to primary/success items (exclude danger)
+		if (!isRedText) {
+			const newsKey = (window as any).generateNewsItemKey?.(items[i]) ?? "";
+			p.setAttribute("data-news-key", newsKey);
+
+			// Add read state class if already marked as read
+			if ((window as any).isNewsItemRead?.(newsKey)) {
+				p.classList.add("news-read");
+			}
+
+			// Add click handler to mark as read
+			p.style.cursor = "pointer";
+			p.addEventListener("click", () => {
+				if ((window as any).markNewsItemAsRead) {
+					(window as any).markNewsItemAsRead(newsKey, p);
+				}
+			});
+		}
+
 		document.getElementById("news-body").appendChild(p);
 	}
 	document.querySelector("#news-body > :last-child").classList.remove("mb-1");
@@ -948,9 +976,12 @@ async function updateNewsSources()
 {
 	window.refresh_news_sources_at = undefined;
 
+	// Note: Redtext API only called if danger filter is enabled
+	// This saves bandwidth when users have red text filtered out
+	// Notifications for redtext won't fire if filter is disabled
 	const sourcesToUpdate = {
 		events: !window.worldState,
-		redtext: !window.redtext,
+		redtext: !window.redtext && ((window as any).isFilterEnabled?.("news", "danger") ?? true),
 	};
 	if (window.worldState || window.redtext)
 	{
@@ -2201,6 +2232,12 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 if ((window as any).initializeCardFilters_all)
 {
 	(window as any).initializeCardFilters_all();
+}
+
+// Initialize news mark-as-read functionality (from global scope)
+if ((window as any).initializeMarkAsRead)
+{
+	(window as any).initializeMarkAsRead();
 }
 
 // Initialize bounty filter functionality (from global scope)

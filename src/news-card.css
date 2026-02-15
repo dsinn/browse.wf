@@ -1,0 +1,72 @@
+/* News Card Styling - Fork-specific visual enhancements */
+
+/* Only apply border and padding to primary and success items (exclude danger/red text) */
+#news-body .news-item.news-primary,
+#news-body .news-item.news-success {
+  border-left: 4px solid;
+  padding-left: 12px;
+}
+
+#news-body .news-item.news-primary {
+  border-color: var(--bs-primary);
+}
+
+#news-body .news-item.news-success {
+  border-color: var(--bs-success);
+}
+
+/* Override default link color to inherit from parent (allows animations to work) */
+#news-body .news-item a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Fade animations for unread items */
+@keyframes fade-primary {
+  0%, 100% {
+    color: var(--bs-primary);
+  }
+  50% {
+    color: white;
+  }
+}
+
+@keyframes fade-success {
+  0%, 100% {
+    color: var(--bs-success);
+  }
+  50% {
+    color: white;
+  }
+}
+
+/* Apply animation to unread items (items WITHOUT news-read class) - animate links only */
+#news-body .news-item.news-primary:not(.news-read) a {
+  animation: fade-primary 5s infinite;
+}
+
+#news-body .news-item.news-success:not(.news-read) a {
+  animation: fade-success 5s infinite;
+}
+
+/* Hover state: show category color without animation */
+#news-body .news-item.news-primary a:hover {
+  animation: none;
+  color: var(--bs-primary);
+}
+
+#news-body .news-item.news-success a:hover {
+  animation: none;
+  color: var(--bs-success);
+}
+
+#news-body .news-item.news-read a {
+  color: white;
+}
+
+/* Mark all as read button - hover state turns blue */
+#news-mark-all-read:hover {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: white;
+}

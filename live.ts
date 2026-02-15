@@ -652,7 +652,8 @@ function updateWeeklyLocalised()
 			for (let i = 0; i != 2; ++i)
 			{
 				const td = document.createElement("td");
-				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/Condition_", mission.conditions[i]));
+				const canonicalCondition = conquestRiskTagToLoc(mission.conditions[i]);
+				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/Condition_", canonicalCondition));
 				tr.appendChild(td);
 			}
 			tbody.appendChild(tr);
@@ -665,7 +666,8 @@ function updateWeeklyLocalised()
 		for (const fv of window.weekly.labConquestFrameVariables)
 		{
 			const td = document.createElement("td");
-			td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/PersonalMod_", fv, transformFrameVariable));
+			const canonicalPersonalMod = conquestVariableTagToLoc(fv);
+			td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/PersonalMod_", canonicalPersonalMod, transformFrameVariable));
 			document.getElementById("labConquest-fv").appendChild(td);
 		}
 	}
@@ -691,7 +693,8 @@ function updateWeeklyLocalised()
 			for (let i = 0; i != 2; ++i)
 			{
 				const td = document.createElement("td");
-				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/Condition_", mission.conditions[i]));
+				const canonicalCondition = conquestRiskTagToLoc(mission.conditions[i]);
+				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/Condition_", canonicalCondition));
 				tr.appendChild(td);
 			}
 			tbody.appendChild(tr);
@@ -704,7 +707,8 @@ function updateWeeklyLocalised()
 		for (const fv of window.weekly.hexConquestFrameVariables)
 		{
 			const td = document.createElement("td");
-			td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/PersonalMod_", fv, transformFrameVariable));
+			const canonicalPersonalMod = conquestVariableTagToLoc(fv);
+			td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/PersonalMod_", canonicalPersonalMod, transformFrameVariable));
 			document.getElementById("hexConquest-fv").appendChild(td);
 		}
 	}
@@ -1946,6 +1950,28 @@ async function updateFissures()
 	document.getElementById("sp-fissures-table").appendChild(tbody["sp-fissures"]);
 	document.getElementById("rj-fissures-table").innerHTML = "";
 	document.getElementById("rj-fissures-table").appendChild(tbody["rj-fissures"]);
+}
+
+function conquestRiskTagToLoc(tag)
+{
+	if (tag == "EMPBlackHole")
+	{
+		return "MagneticHounds";
+	}
+	return tag;
+}
+
+function conquestVariableTagToLoc(tag)
+{
+	if (tag == "DullBlades")
+	{
+		return "ComboCountChance";
+	}
+	if (tag == "Undersupplied")
+	{
+		return "MaxAmmo";
+	}
+	return tag;
 }
 
 updateBountyCycle();

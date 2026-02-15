@@ -201,6 +201,13 @@ function initializeCardFilters_all(): void
 		}
 	});
 
+	// Initialize Invasions card filters
+	initializeCardFilters("invasions", () => {
+		if ((window as any).updateInvasionsLocalised) {
+			(window as any).updateInvasionsLocalised();
+		}
+	});
+
 	// Future cards can be initialized here:
 	// initializeCardFilters("alerts", () => { updateAlerts(); });
 }

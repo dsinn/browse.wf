@@ -458,9 +458,13 @@
 					</div>
 				</div>
 				<div class="card mb-3">
-					<h5 class="card-header"><span data-collapse-toggle="invasions"></span> <span id="invasions-header">Invasions</h5>
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="invasions"></span> <span id="invasions-header">Invasions</h5>
+						<a class="ms-auto" data-filter-toggle="invasions"></a>
+					</div>
+					<?php require 'live-invasion-filters-partial.php'; ?>
 					<div class="card-body overflow-auto">
-						<p>⚠️ Mission types are often incorrect, except for Assassination.</p>
+						<p id="invasions-warning">⚠️ Randomized mission types are often incorrect.</p>
 						<table class="table table-sm table-hover table-borderless mb-0" id="invasions-table"><tr><td>Loading...</td></tr></table>
 					</div>
 				</div>

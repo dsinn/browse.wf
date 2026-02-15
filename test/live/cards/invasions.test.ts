@@ -1,6 +1,10 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { loadMock } from '../../helpers/api-mocks';
 import { loadScript } from '../../helpers/dom-helpers';
+import { testCardFilters } from '../card-filters-factory';
+
+// Test card filter integration
+testCardFilters('invasions');
 
 describe('Invasions Card', () => {
   const invasionsData = loadMock('invasions.json');

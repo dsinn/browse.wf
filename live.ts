@@ -1691,23 +1691,38 @@ async function updateInvasionsLocalised()
 
 		{
 			const td = document.createElement("td");
-			const span = document.createElement("span");
 
-			let missionType, nextMissionType;
-			if (invasion.node === "SolNode65")
+			// Check if randomized missions should be shown
+			const showRandomizedMissions = (window as any).isFilterEnabled?.("invasions", "randomized-missions") ?? true;
+			const isAssassination = invasion.missions[0] === "Assassination";
+			const isGradivus = invasion.node === "SolNode65";
+
+			// Show mission type if: filter enabled OR Assassination OR Gradivus
+			if (showRandomizedMissions || isAssassination || isGradivus)
 			{
-				// Hardcode Gradivus, Mars to always show Sabotage (API response is irrelevant)
-				missionType = "Sabotage";
-				nextMissionType = "Sabotage";
+				const span = document.createElement("span");
+
+				let missionType, nextMissionType;
+				if (invasion.node === "SolNode65")
+				{
+					// Hardcode Gradivus, Mars to always show Sabotage (API response is irrelevant)
+					missionType = "Sabotage";
+					nextMissionType = "Sabotage";
+				}
+				else
+				{
+					missionType = invasion.missions[0];
+					nextMissionType = invasion.missions[1];
+				}
+				span.textContent = toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + missionType]);
+
+				// Only add tooltip if randomized missions are shown
+				if (showRandomizedMissions)
+				{
+					addTooltip(span, "Next: " + toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + nextMissionType]));
+				}
+				td.appendChild(span);
 			}
-			else
-			{
-				missionType = invasion.missions[0];
-				nextMissionType = invasion.missions[1];
-			}
-			span.textContent = toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + missionType]);
-			addTooltip(span, "Next: " + toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + nextMissionType]));
-			td.appendChild(span);
 			tr.appendChild(td);
 		}
 		{
@@ -1746,6 +1761,15 @@ async function updateInvasionsLocalised()
 		last_id = invasion.id;
 	}
 	setDatum("invasions-header", toTitleCase(osdict["/Lotus/Language/Menu/WorldStatePanel_Invasions"]), window.refresh_invasions_at);
+
+	// Show/hide warning message based on filter
+	const showRandomizedMissions = (window as any).isFilterEnabled?.("invasions", "randomized-missions") ?? true;
+	const warningElement = document.getElementById("invasions-warning");
+	if (warningElement)
+	{
+		warningElement.classList.toggle("d-none", !showRandomizedMissions);
+	}
+
 	document.getElementById("invasions-table").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 	document.getElementById("invasions-table").innerHTML = "";
 	document.getElementById("invasions-table").appendChild(tbody);

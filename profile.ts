@@ -220,6 +220,14 @@ Promise.all([
 
 	updateFormFromLocalStorage();
 	refreshAllStepIndicators();
+
+	// Trigger validation/updates in case browser autofilled or localStorage restored values
+	if (platformSelect.value) {
+		onPlatformChange();
+	}
+	if (accountIdInput.value) {
+		onAccountIdManualInput();
+	}
 });
 
 function isXplatName(name: string): boolean

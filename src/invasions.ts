@@ -103,11 +103,8 @@ function renderInvasionProgressPercentage(last_id: string, extraData: InvasionEx
 function sortInvasionsInPlace(invasions: any[], extraDataMap: Record<string, InvasionExtraData>): void
 {
 	invasions.sort((a, b) => {
-		const [extraDataA, extraDataB] = [a, b].map(x => extraDataMap[x.id]);
-
-		if (!extraDataA || !extraDataB) return 0;
-
-		return extraDataA.percentage - extraDataB.percentage;
+		const [percentage1, percentage2] = [a, b].map(x => extraDataMap[x.id]?.percentage || 101);
+		return percentage1 - percentage2;
 	});
 }
 

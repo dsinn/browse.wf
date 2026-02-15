@@ -25,7 +25,7 @@ export default defineConfig({
 
   // Run local dev server before tests
   webServer: {
-    command: 'php -S localhost:61969',
+    command: 'php -S localhost:61969 2>&1 | grep -v "^\\[.*\\] \\[200\\]: GET " | grep -v "^\\[.*\\] Accepted$" | grep -v "^\\[.*\\] Closing$"',
     url: 'http://localhost:61969',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,

@@ -124,6 +124,32 @@ function makeSyndicateLogoElement(syndicate: ISyndicate): HTMLDivElement
 
 const params = new URLSearchParams(location.hash.replace("#", ""));
 
+const platformSelect: HTMLSelectElement = document.getElementById("platform-select") as HTMLSelectElement;
+const accountIdInput: HTMLInputElement = document.getElementById("account-id") as HTMLInputElement;
+const downloadLink: HTMLAnchorElement = document.getElementById("download-link") as HTMLAnchorElement;
+const platformStorageKey = "profile.platform";
+const accountIdStorageKey = "profile.accountId";
+const profileDataStorageKey = "profile.data";
+const profileTimestampStorageKey = "profile.dataFetchedAt";
+
+// Wait for cloud sync to emit one of its events (or timeout)
+const cloudSyncEvent = new Promise<string>(resolve => {
+	window.addEventListener('cloud-sync-complete', () => resolve('complete'), { once: true });
+	window.addEventListener('cloud-sync-unavailable', () => resolve('unavailable'), { once: true });
+	window.addEventListener('cloud-sync-unauthenticated', () => resolve('unauthenticated'), { once: true });
+	window.addEventListener('cloud-sync-error', () => resolve('error'), { once: true });
+	setTimeout(() => resolve('timeout'), 3000);
+});
+
+// Get initial profile (from localStorage or fallback)
+const initialProfilePromise = cloudSyncEvent.then(() => {
+	const profileJson = localStorage.getItem(profileDataStorageKey);
+	if (profileJson) {
+		return JSON.parse(profileJson);
+	}
+	return fetch("supplemental-data/profile-[DE]Rebecca.json").then(res => res.json());
+});
+
 Promise.all([
 	getDictPromise(),
 	fetch("warframe-public-export-plus/ExportAchievements.json").then(res => res.json()),
@@ -137,7 +163,8 @@ Promise.all([
 	fetch("warframe-public-export-plus/ExportSyndicates.json").then(res => res.json()),
 	fetch("warframe-public-export-plus/ExportWarframes.json").then(res => res.json()),
 	fetch("warframe-public-export-plus/ExportWeapons.json").then(res => res.json()),
-	fetch("supplemental-data/profile-[DE]Rebecca.json").then(res => res.json())
+	cloudSyncEvent, // Wait for cloud sync event before proceeding
+	initialProfilePromise
 	]).then(([
 		dict,
 		ExportAchievements,
@@ -151,7 +178,8 @@ Promise.all([
 		ExportSyndicates,
 		ExportWarframes,
 		ExportWeapons,
-		profile
+		_cloudSyncEventType,
+		initialProfile
 	]) =>
 {
 	(window as any).dict = dict;
@@ -165,8 +193,7 @@ Promise.all([
 	(window as any).ExportSyndicates = ExportSyndicates;
 	(window as any).ExportWarframes = ExportWarframes;
 	(window as any).ExportWeapons = ExportWeapons;
-	(window as any).profile = profile;
-	//window.profile = { Results: [ { DisplayName: "asdasdasd", Created: { $date: { $numberLong: "1364064293561" } } } ] };
+	(window as any).profile = initialProfile;
 
 	for (let i = 0; i != syndicateTags.length; ++i)
 	{
@@ -180,6 +207,7 @@ Promise.all([
 	activateTab(params.has("tab") ? params.get("tab") : "fashion"); // default tab
 
 	renderProfile();
+	profileLoadedManually = false;
 	onLanguageUpdate = function()
 	{
 		renderProfile();
@@ -189,6 +217,9 @@ Promise.all([
 	{
 		loadProfile((document.getElementById("profile-file") as HTMLInputElement).files[0]);
 	}
+
+	updateFormFromLocalStorage();
+	refreshAllStepIndicators();
 });
 
 function isXplatName(name: string): boolean
@@ -231,6 +262,19 @@ function loadProfile(file?: File): void
 			{
 				location.hash = "tab=fashion";
 			}
+
+			profileLoadedManually = true;
+			updateStepStatus(4, true);
+			localStorage.setItem(platformStorageKey, platformSelect.value);
+			localStorage.setItem(accountIdStorageKey, accountIdInput.value);
+			localStorage.setItem(profileDataStorageKey, e.target.result as string);
+			localStorage.setItem(profileTimestampStorageKey, Date.now().toString());
+			updateProfileAge();
+
+			// Trigger cloud sync after localStorage updates
+			if ((window as any).triggerCloudSync) {
+				(window as any).triggerCloudSync();
+			}
 		}
 		catch (err)
 		{
@@ -240,6 +284,303 @@ function loadProfile(file?: File): void
 		document.querySelector("#status").classList.add("d-none");
 	};
 	reader.readAsText(file);
+}
+
+const PLATFORM_API_URLS: Record<string, string> = {
+	"pc": "http://content.warframe.com/dynamic/getProfileViewingData.php",
+	"ps4": "http://content-ps4.warframe.com/dynamic/getProfileViewingData.php",
+	"xb1": "http://content-xb1.warframe.com/dynamic/getProfileViewingData.php",
+	"swi": "http://content-swi.warframe.com/dynamic/getProfileViewingData.php",
+	"mob": "http://content-mob.warframe.com/dynamic/getProfileViewingData.php"
+};
+
+let profileLoadedManually = false;
+
+function updateStepStatus(stepNumber: number, completed: boolean): void
+{
+	const statusEl = document.getElementById(`step${stepNumber}-status`);
+	if (statusEl) {
+		statusEl.textContent = completed ? "✅" : "❌";
+	}
+}
+
+function refreshAllStepIndicators(): void
+{
+	const platformValid = !!platformSelect.value;
+	updateStepStatus(1, platformValid);
+
+	const accountIdValid = validateAccountId(accountIdInput.value)
+	updateStepStatus(2, accountIdValid);
+
+	if (accountIdInput.value) {
+		accountIdInput.classList.toggle('is-valid', accountIdValid);
+		accountIdInput.classList.toggle('is-invalid', !accountIdValid);
+	}
+
+	// Step 3: Show ❌ if steps 1 & 2 complete (unless already cleared by right-click)
+	if (platformValid && accountIdValid) {
+		const step3Status = document.getElementById("step3-status");
+		if (step3Status && step3Status.textContent === "") {
+			// Already cleared by right-click, keep it empty
+		} else {
+			updateStepStatus(3, false); // Show ❌
+		}
+	}
+
+	updateStepStatus(4, profileLoadedManually);
+}
+
+function copyWarframePath(event: Event): void
+{
+	const pathText = document.getElementById("warframe-path").textContent;
+	navigator.clipboard.writeText(pathText).then(() => {
+		const button = event.target as HTMLButtonElement;
+		const originalText = button.textContent;
+		button.textContent = "✅ Copied!";
+		setTimeout(() => { button.textContent = originalText; }, 5000);
+	}).catch(err => {
+		console.error("Failed to copy:", err);
+		alert("Failed to copy to clipboard");
+	});
+}
+
+function onDownloadLinkLeftClick(event: Event): void
+{
+	event.preventDefault();
+
+	// Show warning message (stays visible until right-click)
+	const warning = document.getElementById("download-warning");
+	warning.classList.remove("d-none");
+}
+
+function onDownloadLinkRightClick(event: MouseEvent): void
+{
+	// User right-clicked to download - remove the ❌ indicator and warning
+	const statusEl = document.getElementById("step3-status");
+	if (statusEl) {
+		statusEl.textContent = "";
+	}
+
+	const warning = document.getElementById("download-warning");
+	if (warning) {
+		warning.classList.add("d-none");
+	}
+}
+
+function onPlatformChange(): void
+{
+	profileLoadedManually = false;
+
+	const platform = platformSelect.value;
+
+	if (platform) {
+		updateStepStatus(1, true);
+		updateStep3Visibility();
+	} else {
+		updateStepStatus(1, false);
+	}
+}
+
+function validateAccountId(accountId: string): boolean
+{
+	// Account ID must be hexadecimal (lowercase letters a-f and digits 0-9)
+	return /^[0-9a-f]+$/.test(accountId);
+}
+
+function onAccountIdManualInput(): void
+{
+	const input = document.getElementById("account-id") as HTMLInputElement;
+	const accountId = input.value.trim();
+
+	// User is interacting with form - restore indicators
+	profileLoadedManually = false;
+
+	if (accountId.length > 0) {
+		if (validateAccountId(accountId)) {
+			// Valid account ID
+			input.classList.remove("is-invalid");
+			input.classList.add("is-valid");
+			updateStepStatus(2, true);
+			updateStep3Visibility();
+		} else {
+			// Invalid format (likely username or email)
+			input.classList.remove("is-valid");
+			input.classList.add("is-invalid");
+			updateStepStatus(2, false);
+		}
+	} else {
+		// Empty input
+		input.classList.remove("is-valid", "is-invalid");
+		updateStepStatus(2, false);
+	}
+}
+
+
+function updateStep3Visibility(): void
+{
+	const platform = platformSelect.value;
+	const accountId = accountIdInput.value;
+
+	if (platform && accountId) {
+		// Update download link
+		const downloadUrl = `${PLATFORM_API_URLS[platform]}?playerId=${accountId}`;
+		downloadLink.href = downloadUrl;
+
+		// Show ❌ indicator (user needs to download)
+		updateStepStatus(3, false);
+	}
+}
+
+function loadEELog(file?: File): void
+{
+	if (!file) {
+		return;
+	}
+
+	// User is interacting with form - restore indicators
+	profileLoadedManually = false;
+
+	document.querySelector("#status span").textContent = "Parsing EE.log...";
+	document.querySelector("#status").classList.remove("d-none");
+
+	const reader = new FileReader();
+	reader.onload = function(e)
+	{
+		try
+		{
+			const content = e.target.result as string;
+
+			// Extract account ID from EE.log
+			const logPattern = /Sys \[Info\]: Logged in .* \(([0-9a-f]+)\)/;
+			const match = content.match(logPattern);
+
+			if (match) {
+				const accountId = match[1];
+
+				// Validate extracted account ID
+				if (validateAccountId(accountId)) {
+					// Update manual input field
+					const input = document.getElementById("account-id") as HTMLInputElement;
+					input.value = accountId;
+					input.classList.remove("is-invalid");
+					input.classList.add("is-valid");
+
+					// Update step status and show step 3
+					updateStepStatus(2, true);
+					updateStep3Visibility();
+
+					document.querySelector("#status span").textContent = "Account ID extracted! Proceed to step 3.";
+				} else {
+					alert("Extracted account ID has invalid format. Please try again or enter manually.");
+				}
+			} else {
+				alert("Could not find account ID in EE.log. Make sure you've logged in and the file contains 'Logged in' entries.");
+			}
+		}
+		catch (err)
+		{
+			console.error(err);
+			alert("Failed to parse EE.log file: " + err.message);
+		}
+		finally
+		{
+			setTimeout(() => {
+				document.querySelector("#status").classList.add("d-none");
+			}, 3000);
+		}
+	};
+	reader.readAsText(file);
+}
+
+
+function updateFormFromLocalStorage(): void
+{
+	const savedPlatform = localStorage.getItem(platformStorageKey);
+	const savedAccountId = localStorage.getItem(accountIdStorageKey);
+
+	if (savedPlatform) {
+		platformSelect.value = savedPlatform;
+	}
+
+	if (savedAccountId) {
+		accountIdInput.value = savedAccountId;
+	}
+}
+
+
+// Expose functions globally for onclick handlers
+(window as any).copyWarframePath = copyWarframePath;
+(window as any).onPlatformChange = onPlatformChange;
+(window as any).onAccountIdManualInput = onAccountIdManualInput;
+(window as any).loadEELog = loadEELog;
+(window as any).onDownloadLinkLeftClick = onDownloadLinkLeftClick;
+(window as any).onDownloadLinkRightClick = onDownloadLinkRightClick;
+
+let profileAgeUpdateTimer: number | null = null;
+
+function updateProfileAge(): void
+{
+	const fetchedAt = localStorage.getItem(profileTimestampStorageKey);
+	if (!fetchedAt) {
+		return;
+	}
+
+	const fetchDate = new Date(parseInt(fetchedAt));
+	const now = new Date();
+	const diffMs = now.getTime() - fetchDate.getTime();
+	const diffMins = Math.floor(diffMs / 60000);
+	const diffHours = Math.floor(diffMs / 3600000);
+	const diffDays = Math.floor(diffMs / 86400000);
+
+	let timeAgo = "";
+	let nextUpdateMs = 0;
+
+	if (diffMins < 1) {
+		timeAgo = "just now";
+		// Update when we reach 1 minute
+		nextUpdateMs = 60000 - (diffMs % 60000);
+	} else if (diffMins < 60) {
+		timeAgo = `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
+		// Update at the top of the next minute
+		nextUpdateMs = 60000 - (diffMs % 60000);
+	} else if (diffHours < 24) {
+		timeAgo = `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
+		// Update at the top of the next hour
+		nextUpdateMs = 3600000 - (diffMs % 3600000);
+	} else {
+		timeAgo = `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+		// Update at the top of the next day
+		nextUpdateMs = 86400000 - (diffMs % 86400000);
+	}
+
+	// Format absolute timestamp for tooltip
+	const absoluteTime = fetchDate.toLocaleString(undefined, {
+		year: 'numeric',
+		month: 'short',
+		day: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit'
+	});
+
+	const timeSpan = document.querySelector("#profile-fetched span") as HTMLSpanElement;
+	if (timeSpan) {
+		timeSpan.textContent = timeAgo;
+		timeSpan.title = absoluteTime;
+		timeSpan.style.cursor = "help";
+		timeSpan.style.textDecoration = "underline dotted";
+	}
+	document.querySelector("#profile-fetched")?.classList.remove("d-none");
+
+	// Clear any existing timer
+	if (profileAgeUpdateTimer !== null) {
+		clearTimeout(profileAgeUpdateTimer);
+	}
+
+	// Schedule next update
+	profileAgeUpdateTimer = window.setTimeout(() => {
+		updateProfileAge();
+	}, nextUpdateMs);
 }
 
 function renderProfile(): void
@@ -707,6 +1048,8 @@ function renderProfile(): void
 			document.getElementById("enemy-stats").appendChild(tr);
 		});
 	}
+
+	updateProfileAge();
 }
 
 function displaySkin(category: string, i: number, value: string): void

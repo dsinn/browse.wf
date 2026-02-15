@@ -2,6 +2,30 @@
  * Authentication service for cloud sync
  *
  * Handles Discord OAuth authentication and manages user session state.
+ *
+ * ## Cloud Sync Events
+ *
+ * This module dispatches the following custom events to communicate cloud sync state:
+ *
+ * - **'cloud-sync-complete'**: Emitted when initial pull from database succeeds.
+ *   Dispatched by: auth.ts (handleAuthChange)
+ *   Listeners: profile.ts (waits for this before loading profile data)
+ *
+ * - **'cloud-sync-unavailable'**: Emitted when database is not configured (no Vite env vars).
+ *   Dispatched by: auth-init.ts (initializeAuth)
+ *   Listeners: profile.ts (falls back to default profile)
+ *
+ * - **'cloud-sync-unauthenticated'**: Emitted when user is not authenticated.
+ *   Dispatched by: auth-init.ts (initializeAuth)
+ *   Listeners: profile.ts (falls back to default profile)
+ *
+ * - **'cloud-sync-error'**: Emitted when initial pull from database fails.
+ *   Dispatched by: auth.ts (handleAuthChange)
+ *   Listeners: profile.ts (falls back to default profile)
+ *
+ * These events are used to coordinate profile loading with cloud sync initialization.
+ * profile.ts waits for one of these events (or 3s timeout) before proceeding with
+ * profile data initialization.
  */
 
 import { db, isDatabaseConfigured } from './database.js'
@@ -93,7 +117,13 @@ export class AuthService {
       if (!this.initialSyncComplete && session?.user) {
         this.initialSyncComplete = true
         const syncService = (await import('./storage-sync.js')).StorageSyncService.getInstance()
-        await syncService.handleFirstLogin()
+        try {
+          await syncService.handleFirstLogin()
+          window.dispatchEvent(new CustomEvent('cloud-sync-complete'))
+        } catch (err) {
+          console.error('Cloud sync error:', err)
+          window.dispatchEvent(new CustomEvent('cloud-sync-error', { detail: err }))
+        }
       }
     } else if (event === 'SIGNED_OUT') {
       this.initialSyncComplete = false

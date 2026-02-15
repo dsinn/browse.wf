@@ -10,12 +10,21 @@ import { StorageSyncService } from './storage-sync.js'
 import { isDatabaseConfigured } from './database.js'
 
 // Initialize auth on page load
-document.addEventListener('DOMContentLoaded', async () => {
+async function initializeAuth() {
+	if (!isDatabaseConfigured()) {
+		window.dispatchEvent(new CustomEvent('cloud-sync-unavailable'))
+		return
+	}
+
 	const authService = AuthService.getInstance()
 	await authService.initialize()
 
 	// Update UI based on auth state
 	updateAuthUI(authService.isAuthenticated(), authService.getCurrentUser())
+
+	if (!authService.isAuthenticated()) {
+		window.dispatchEvent(new CustomEvent('cloud-sync-unauthenticated'))
+	}
 
 	// Clean up OAuth-related hashes from URL after redirect
 	const hash = window.location.hash
@@ -28,7 +37,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 		const cleanUrl = window.location.pathname + window.location.search + (savedHash || '')
 		history.replaceState(null, '', cleanUrl)
 	}
-})
+}
+
+// Call immediately or wait for DOMContentLoaded (module scripts are deferred, so DOM is usually already loaded)
+if (document.readyState === 'loading') {
+	document.addEventListener('DOMContentLoaded', initializeAuth)
+} else {
+	initializeAuth()
+}
 
 // Listen for auth state changes (e.g., after sign out)
 window.addEventListener('auth-state-changed', () => {

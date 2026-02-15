@@ -322,15 +322,15 @@
 			<div class="row mt-3">
 				<div class="col-lg-6">
 					<h4>Equipment</h4>
-					<table class="table table-hover">
+					<table class="table table-hover table-sort">
 						<thead>
 							<tr>
 								<th>Item</th>
-								<th>Hours</th>
-								<th>Kills</th>
-								<th><abbr title="Headshots">H.S.</abbr></th>
-								<th>Assists</th>
-								<th>Affinity</th>
+								<th class="numeric-sort order-by-desc">Hours</th>
+								<th class="numeric-sort order-by-desc">Kills</th>
+								<th class="numeric-sort order-by-desc"><abbr title="Headshots">H.S.</abbr></th>
+								<th class="numeric-sort order-by-desc">Assists</th>
+								<th class="numeric-sort order-by-desc">Affinity</th>
 							</tr>
 						</thead>
 						<tbody id="equipment-stats"></tbody>
@@ -338,16 +338,16 @@
 				</div>
 				<div class="col-lg-6">
 					<h4>Enemies</h4>
-					<table class="table table-hover">
+					<table class="table table-hover table-sort">
 						<thead>
 							<tr>
 								<th>Enemy</th>
-								<th>Kills</th>
-								<th>Assists</th>
-								<th><abbr title="Headshots">H.S.</abbr></th>
-								<th><abbr title="Finishers">Fin.</abbr></th>
-								<th>Deaths</th>
-								<th>Scans</th>
+								<th class="numeric-sort order-by-desc">Kills</th>
+								<th class="numeric-sort order-by-desc">Assists</th>
+								<th class="numeric-sort order-by-desc"><abbr title="Headshots">H.S.</abbr></th>
+								<th class="numeric-sort order-by-desc"><abbr title="Finishers">Fin.</abbr></th>
+								<th class="numeric-sort order-by-desc">Deaths</th>
+								<th class="numeric-sort order-by-desc">Scans</th>
 							</tr>
 						</thead>
 						<tbody id="enemy-stats"></tbody>
@@ -361,5 +361,6 @@
 	<script src="https://pluto-lang.org/PlutoScript/plutoscript.js"></script>
 	<script src="typestripped/profile.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/table-sort-js/table-sort.js"></script>
 </body>
 </html>

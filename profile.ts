@@ -928,6 +928,10 @@ function renderProfile(): void
 		}
 	}*/
 
+	// Calculate total missions for percentage calculations
+	const missionStats = ["MissionsCompleted", "MissionsFailed", "MissionsQuit", "MissionsInterrupted", "MissionsDumped"];
+	const totalMissions = missionStats.reduce((sum, stat) => sum + (profile.Stats?.[stat] || 0), 0);
+
 	for (const stat of ["TimePlayedSec", "Income", "MissionsCompleted", "MissionsFailed", "MissionsQuit", "MissionsInterrupted", "MissionsDumped", "CiphersSolved", "CiphersFailed", "CipherTime", "ReviveCount", "HealCount", "Deaths"/*, "MeleeKills"*/])
 	{
 		const value = (profile.Stats && profile.Stats[stat]) ? profile.Stats[stat] : 0;
@@ -938,11 +942,18 @@ function renderProfile(): void
 		else
 		{
 			document.getElementById("stat-" + stat).textContent = value.toLocaleString();
+
+			// Add percentage for mission stats
+			if (missionStats.includes(stat) && totalMissions > 0)
+			{
+				const percentage = ((value / totalMissions) * 100).toFixed(2);
+				document.getElementById("stat-" + stat).textContent += ` (${percentage}%)`;
+			}
 		}
 	}
 	if (profile.Stats && profile.Stats.CipherTime && profile.Stats.CiphersSolved)
 	{
-		document.getElementById("stat-CipherTimeAvg").textContent = (profile.Stats.CipherTime / profile.Stats.CiphersSolved).toFixed(1) + "s";
+		document.getElementById("stat-CipherTimeAvg").textContent = (profile.Stats.CipherTime / profile.Stats.CiphersSolved).toFixed(3) + "s";
 	}
 	else
 	{

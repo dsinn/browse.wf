@@ -650,9 +650,6 @@
     "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageFeelLikeAPlayer": {
         "promo_code": "FeelLikeAPlayer"
     },
-    "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageFerreusDemon": {
-        "promo_code": "FerreusDemon"
-    },
     "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageFinlaena": {
         "promo_code": "Finlaena"
     },
@@ -2070,9 +2067,6 @@
     },
     "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageOttofyre": {
         "promo_code": "OTTOFYRE"
-    },
-    "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageJustHailey": {
-        "promo_code": "JUSTHAILEY"
     },
     "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageQuadlyStop": {
         "promo_code": "QUADLYSTOP"

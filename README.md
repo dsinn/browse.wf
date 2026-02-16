@@ -18,10 +18,25 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
   - News: Filters for red text, community events, and regular events
   - Bounties: Filter by tier for each syndicate
   - Steel Path incursions: Filter by mission type
+  - Void fissures: Filter by tier/era and mission type
+  - Weekly missions: Filter by Archon Hunt, Ayatan Hunt, Elite Archimedia, and Netracells
+  - Invasions: Option to hide randomized mission types
 - **Improved void fissures UI**: Enhanced layout, sorted by expiry for each relic tier/era
 - **Enhanced invasion info**: Populated with and sorted by progress data
+- **Sortie locations**: Mission locations now displayed in the Sortie card
+- **Descendia card**: Experimental Descendia rotation display
 - **Notification icons**: Bells now use a colour/fill pattern (coloured when enabled, grayscale when disabled) instead of bell/bell-slash icons, matching more modern UX patterns.
 - **Cross-platform UI**: System-independent checkbox styling
+
+#### Other pages
+
+- **Profile viewer**:
+  - Guided workflow with step-by-step instructions for retrieving profile data
+  - Account ID extraction from EE.log file
+  - Sortable tables on stats tab
+  - Mission completion percentages displayed alongside absolute counts
+  - Increased precision for cipher completion times
+- **Invigorations**: Response caching so that info is preserved on refresh and next week
 
 ### For developers
 

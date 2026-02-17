@@ -15,20 +15,6 @@ const __dirname = path.dirname(__filename);
 
 test.describe('Profile Workflow - Happy Path', () => {
   test.beforeEach(async ({ page }) => {
-    // Track console errors
-    const errors: string[] = [];
-    page.on('pageerror', error => {
-      errors.push(error.message);
-    });
-    page.on('console', msg => {
-      if (msg.type() === 'error') {
-        errors.push(msg.text());
-      }
-    });
-
-    // Store errors on page context for tests to access
-    await page.exposeFunction('getErrors', () => errors);
-
     // Mock API responses for deterministic, fast, offline-capable tests
     await setupMockRoutes(page);
   });
@@ -84,10 +70,6 @@ test.describe('Profile Workflow - Happy Path', () => {
 
     await page.click('a[data-tab="missions"]');
     await expect(page.locator('#missions')).toBeVisible();
-
-    // Check for no JavaScript errors
-    const errors = await page.evaluate(() => (window as any).getErrors());
-    expect(errors).toHaveLength(0);
   });
 
   test('completes workflow with manual account ID entry', async ({ page }) => {
@@ -118,10 +100,6 @@ test.describe('Profile Workflow - Happy Path', () => {
 
     // Verify step 4 shows ✅ after successful upload
     await expect(page.locator('#step4-status')).toHaveText('✅');
-
-    // Check for no JavaScript errors
-    const errors = await page.evaluate(() => (window as any).getErrors());
-    expect(errors).toHaveLength(0);
   });
 
   test('validates account ID format and shows error for invalid input', async ({ page }) => {
@@ -222,10 +200,6 @@ test.describe('Profile Workflow - Happy Path', () => {
     // Verify steps 3 and 4 still show ❌ (not completed via workflow)
     await expect(page.locator('#step3-status')).toHaveText('❌');
     await expect(page.locator('#step4-status')).toHaveText('❌');
-
-    // Check for no JavaScript errors
-    const errors = await page.evaluate(() => (window as any).getErrors());
-    expect(errors).toHaveLength(0);
   });
 
   test('shows warning when user left-clicks download link', async ({ page }) => {

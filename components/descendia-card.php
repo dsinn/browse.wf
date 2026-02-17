@@ -4,7 +4,7 @@
 					</div>
 					<div class="card-body">
 						<?php require "components/untranslated-notice.php"; ?>
-						<table class="table table-sm table-hover table-borderless mb-0" id="descendia-table">
+						<table class="table table-sm table-hover table-borderless mb-0 descendia-challenges" id="descendia-table">
 							<thead>
 								<tr>
 									<th>Level</th>

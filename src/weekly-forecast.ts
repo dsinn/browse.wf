@@ -184,7 +184,7 @@ function renderDescentTabs(
 			const tbody = renderDescentChallenges(descent, dict);
 
 			const table = document.createElement("table");
-			table.className = "table table-sm table-borderless table-hover";
+			table.className = "table table-sm table-borderless table-hover descendia-challenges";
 
 			// Header row
 			const thead = document.createElement("thead");

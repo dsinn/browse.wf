@@ -80,7 +80,7 @@
 			<li class="list-group-item" id="step4-container">
 				<span id="step4-status" class="me-2">❌</span>
 				<strong>Load the downloaded file:</strong>
-				<input id="profile-file" type="file" class="form-control form-control-sm mt-2" accept=".json,application/json,.html,.htm" onchange="loadProfile(this.files[0]);" />
+				<input id="profile-file" type="file" class="form-control form-control-sm mt-2" onchange="loadProfile(this.files[0]);" />
 			</li>
 		</ol>
 		<div id="status" class="alert alert-light"><div class="spinner-border spinner-border-sm me-2"></div><span>Loading</span></div>

@@ -26,7 +26,8 @@
 			The next <select id="select-days">
 				<option value="1">24 hours</option>
 				<option value="7">7 days</option>
-				<option value="30" selected>30 days</option>
+				<option value="14" selected>14 days</option>
+				<option value="30">30 days</option>
 				<option value="90">90 days</option>
 				<option value="365">12 months</option>
 				<option value="9999999999">eon</option>

@@ -83,16 +83,17 @@ describe('Arbitration Schedule (/arbys)', () => {
       const values = Array.from(select.options).map(opt => opt.value);
       expect(values).toContain('1');   // 24 hours
       expect(values).toContain('7');   // 7 days
-      expect(values).toContain('30');  // 30 days (default)
+      expect(values).toContain('14');  // 14 days (default)
+      expect(values).toContain('30');  // 30 days
       expect(values).toContain('90');  // 90 days
       expect(values).toContain('365'); // 12 months
       expect(values).toContain('9999999999'); // eon
     });
 
-    test('days selector defaults to 30 days', () => {
+    test('days selector defaults to 14 days', () => {
       const select = document.getElementById('select-days') as HTMLSelectElement;
       const defaultOption = Array.from(select.options).find(opt => opt.selected);
-      expect(defaultOption?.value).toBe('30');
+      expect(defaultOption?.value).toBe('14');
     });
 
     test('timezone selector has local and UTC options', () => {

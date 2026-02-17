@@ -73,92 +73,104 @@ function updateDescendia(): void
 	// Refresh when this Descent expires
 	setTimeout(updateDescendia, expiry - Date.now());
 
-	const dict_promise = getDictPromise();
-
-	dict_promise.then(dict =>
+	getDictPromise().then(dict =>
 	{
-		const tbody = document.createElement("tbody");
-
-		for (const challenge of activeDescent.Challenges)
-		{
-			const tr = document.createElement("tr");
-
-			// Column 1: Level (Index)
-			{
-				const td = document.createElement("td");
-				td.className = "text-center";
-				td.textContent = challenge.Index.toString();
-				tr.appendChild(td);
-			}
-
-			// Column 2: Mission Type
-			{
-				const td = document.createElement("td");
-				td.textContent = challenge.Type;
-				tr.appendChild(td);
-			}
-
-			// Column 3: Challenge
-			{
-				const td = document.createElement("td");
-				td.textContent = dict[challenge.Challenge] || challenge.Challenge;
-				tr.appendChild(td);
-			}
-
-			// Column 4: Arena (Level field with .level trimming and fallback to rightmost /)
-			{
-				const td = document.createElement("td");
-				let level = dict[challenge.Level] || challenge.Level.replace(/.*\//, "");
-				td.textContent = level.replace(/\.level$/i, "");
-				tr.appendChild(td);
-			}
-
-			// Column 5: Specs (array with fallback)
-			{
-				const td = document.createElement("td");
-				if (challenge.Specs && challenge.Specs.length > 0)
-				{
-					const specs = challenge.Specs.map(spec =>
-						dict[spec] || spec.replace(/.*\//, "")
-					);
-					td.textContent = specs.join(", ");
-				}
-				else
-				{
-					td.textContent = "-";
-				}
-				tr.appendChild(td);
-			}
-
-			// Column 6: Auras (array with fallback)
-			{
-				const td = document.createElement("td");
-				if (challenge.Auras && challenge.Auras.length > 0)
-				{
-					const auras = challenge.Auras.map(aura =>
-						dict[aura] || aura.replace(/.*\//, "")
-					);
-					td.textContent = auras.join(", ");
-				}
-				else
-				{
-					td.textContent = "-";
-				}
-				tr.appendChild(td);
-			}
-
-			tbody.appendChild(tr);
-		}
-
 		const table = document.getElementById("descendia-table");
 		const existingTbody = table.querySelector("tbody");
 		if (existingTbody)
 		{
 			table.removeChild(existingTbody);
 		}
-		table.appendChild(tbody);
+		table.appendChild(renderDescentChallenges(activeDescent, dict));
 	});
 }
 
-// Expose function globally for use by non-module scripts
+/**
+ * Renders the challenges of a given Descent into a <tbody> element.
+ * Extracted from updateDescendia() so weekly-forecast can render any descent, not just the active one.
+ *
+ * @param descent  An IDescent object from worldState.Descents[]
+ * @param dict     The main dictionary (key → localized string)
+ * @returns        A <tbody> element ready to be inserted into a table
+ */
+function renderDescentChallenges(descent: IDescent, dict: Record<string, string>): HTMLTableSectionElement
+{
+	const tbody = document.createElement("tbody");
+
+	for (const challenge of descent.Challenges)
+	{
+		const tr = document.createElement("tr");
+
+		// Column 1: Level (Index)
+		{
+			const td = document.createElement("td");
+			td.className = "text-center";
+			td.textContent = challenge.Index.toString();
+			tr.appendChild(td);
+		}
+
+		// Column 2: Mission Type
+		{
+			const td = document.createElement("td");
+			td.textContent = challenge.Type;
+			tr.appendChild(td);
+		}
+
+		// Column 3: Challenge
+		{
+			const td = document.createElement("td");
+			td.textContent = dict[challenge.Challenge] || challenge.Challenge;
+			tr.appendChild(td);
+		}
+
+		// Column 4: Arena (Level field with .level trimming and fallback to rightmost /)
+		{
+			const td = document.createElement("td");
+			let level = dict[challenge.Level] || challenge.Level.replace(/.*\//, "");
+			td.textContent = level.replace(/\.level$/i, "");
+			tr.appendChild(td);
+		}
+
+		// Column 5: Specs (array with fallback)
+		{
+			const td = document.createElement("td");
+			if (challenge.Specs && challenge.Specs.length > 0)
+			{
+				const specs = challenge.Specs.map(spec =>
+					dict[spec] || spec.replace(/.*\//, "")
+				);
+				td.textContent = specs.join(", ");
+			}
+			else
+			{
+				td.textContent = "-";
+			}
+			tr.appendChild(td);
+		}
+
+		// Column 6: Auras (array with fallback)
+		{
+			const td = document.createElement("td");
+			if (challenge.Auras && challenge.Auras.length > 0)
+			{
+				const auras = challenge.Auras.map(aura =>
+					dict[aura] || aura.replace(/.*\//, "")
+				);
+				td.textContent = auras.join(", ");
+			}
+			else
+			{
+				td.textContent = "-";
+			}
+			tr.appendChild(td);
+		}
+
+		tbody.appendChild(tr);
+	}
+
+	return tbody;
+}
+
+// Expose functions globally for use by non-module scripts
 (window as any).updateDescendia = updateDescendia;
+(window as any).renderDescentChallenges = renderDescentChallenges;

@@ -38,6 +38,7 @@ const PHP_FILES = [
   'profile.php',
   'rivencalc.php',
   'text-icons.php',
+  'weekly-forecast.php',
 ];
 
 

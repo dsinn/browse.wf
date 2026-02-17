@@ -3,8 +3,7 @@
 						<h5 class="mb-0"><span data-collapse-toggle="descendia"></span> Descendia <span id="descent-checks"></span></h5>
 					</div>
 					<div class="card-body">
-						<p>ℹ️ This is new information that has not yet been translated from its internal format.</p>
-
+						<?php require "components/untranslated-notice.php"; ?>
 						<table class="table table-sm table-hover table-borderless mb-0" id="descendia-table">
 							<thead>
 								<tr>

@@ -10,9 +10,8 @@
 	<link rel="stylesheet" href="src/card-filters.css">
 	<link rel="stylesheet" href="src/invasions.css">
 	<link rel="stylesheet" href="src/news-card.css">
+	<link rel="stylesheet" href="src/tooltip.css">
 	<style>
-		abbr { text-decoration: underline dotted; text-decoration-skip-ink: none; }
-		[data-bs-toggle=tooltip] { cursor: help; }
 		[data-notif-toggle], [data-notif-toggle] > span, .completion-check { text-decoration:none;cursor:pointer;color:inherit }
 		.completion-check { display: inline-block; width: 15px; font-size: 0.75rem }
 		.card-block:not(:last-child) { margin-bottom: .5rem; }

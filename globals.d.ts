@@ -2,6 +2,18 @@
  * Global type declarations for libraries that extend the window object
  */
 
+interface IMongoDate {
+  $date: {
+    $numberLong: string;
+  };
+}
+
+interface IConquestMission {
+  type:       string;
+  variant:    string;
+  conditions: string[];
+}
+
 declare global {
   interface Window {
     bootstrap?: any;

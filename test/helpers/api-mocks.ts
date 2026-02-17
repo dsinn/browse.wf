@@ -21,6 +21,13 @@ export function loadMock(filename: string): any {
 }
 
 /**
+ * Loads a JSON file from warframe-public-export-plus/
+ */
+export function loadExportJson(filename: string): any {
+  return JSON.parse(readFileSync(join(projectRoot, 'warframe-public-export-plus', filename), 'utf-8'));
+}
+
+/**
  * Sets up mock fetch responses for all oracle.browse.wf endpoints
  */
 export function setupMockFetch() {

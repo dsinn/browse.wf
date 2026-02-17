@@ -31,6 +31,11 @@ const FIXTURES = {
     output: 'live.html',
     description: 'Live page full HTML',
   },
+  'weekly-forecast': {
+    url: '/weekly-forecast.php',
+    output: 'weekly-forecast.html',
+    description: 'Weekly Forecast page full HTML',
+  },
 };
 
 

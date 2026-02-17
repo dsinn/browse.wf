@@ -13,7 +13,6 @@ describe('Invigoration Cache Helpers', () => {
   let window: Window & typeof globalThis;
   let originalTZ: string | undefined;
   let getWeekIndex: (timestamp: number) => number;
-  let formatTimestamp: (timestamp: number) => string;
 
   beforeEach(() => {
     // Set timezone to UTC for consistent timestamp formatting
@@ -30,20 +29,6 @@ describe('Invigoration Cache Helpers', () => {
             function getWeekIndex(timestamp) {
               return Math.trunc(((timestamp / 1000) - 1391990400) / 604800);
             }
-
-            // Helper function to format timestamp
-            function formatTimestamp(timestamp) {
-              const date = new Date(timestamp);
-              const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              };
-              return date.toLocaleString('en-US', options);
-            }
           </script>
         </head>
         <body></body>
@@ -56,9 +41,7 @@ describe('Invigoration Cache Helpers', () => {
     window = dom.window as unknown as Window & typeof globalThis;
     (global as any).window = window;
 
-    // Assign helper functions for use in tests
     getWeekIndex = (window as any).getWeekIndex;
-    formatTimestamp = (window as any).formatTimestamp;
   });
 
   afterEach(() => {
@@ -145,46 +128,7 @@ describe('Invigoration Cache Helpers', () => {
     });
   });
 
-  describe('formatTimestamp()', () => {
-    test.each([
-      {
-        timestamp: Date.UTC(2026, 0, 15, 14, 30, 0),
-        expected: 'Thursday, Jan 15, 2026, 02:30 PM',
-        description: 'formats January date correctly'
-      },
-      {
-        timestamp: Date.UTC(2026, 5, 20, 9, 15, 0),
-        expected: 'Saturday, Jun 20, 2026, 09:15 AM',
-        description: 'formats June date correctly'
-      },
-      {
-        timestamp: Date.UTC(2025, 11, 31, 23, 59, 0),
-        expected: 'Wednesday, Dec 31, 2025, 11:59 PM',
-        description: 'formats end of year date correctly'
-      }
-    ])('$description', ({ timestamp, expected }) => {
-      expect(formatTimestamp(timestamp)).toBe(expected);
-    });
-  });
-
   describe('Cache Structure and Week Calculation', () => {
-    test('cache timestamp can accurately reconstruct week index', () => {
-
-      // Simulate saving cache
-      const saveTimestamp = Date.now();
-      const savedWeekIndex = getWeekIndex(saveTimestamp);
-
-      // Simulate loading cache later
-      const loadTimestamp = Date.now();
-      const loadWeekIndex = getWeekIndex(loadTimestamp);
-
-      // Calculate week difference
-      const weekDiff = loadWeekIndex - savedWeekIndex;
-
-      // Should be 0 if same day
-      expect(weekDiff).toBe(0);
-    });
-
     test('simulates one week passing', () => {
 
       const baseTimestamp = Date.now();
@@ -207,55 +151,67 @@ describe('Invigoration Cache Helpers', () => {
       expect(currentWeek - cachedWeek).toBe(2);
     });
 
-    test('cache structure matches expected schema', () => {
-      // Test that cache objects follow the expected structure
+    test('new cache structure matches expected schema (multi-week)', () => {
+      // Test that cache objects follow the new keyed structure
+      const currentWeek = getWeekIndex(Date.now());
       const mockCache = {
-        request: {
-          n: 'TestUser',
-          s: ['/Lotus/Powersuits/Mag/MagBaseSuit'],
-          p: false
-        },
-        response: {
-          suits: ['/Lotus/Powersuits/Mag/MagBaseSuit'],
-          offensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerStrength'],
-          defensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationHealth']
-        },
-        timestamp: Date.now()
+        [currentWeek]: {
+          request: {
+            n: 'TestUser',
+            s: ['/Lotus/Powersuits/Mag/MagBaseSuit'],
+            p: false
+          },
+          response: {
+            suits: ['/Lotus/Powersuits/Mag/MagBaseSuit'],
+            offensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerStrength'],
+            defensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationHealth']
+          }
+        }
       };
 
-      // Verify required fields exist
-      expect(mockCache.request).toBeDefined();
-      expect(mockCache.response).toBeDefined();
-      expect(mockCache.timestamp).toBeDefined();
+      // Verify structure
+      expect(mockCache[currentWeek]).toBeDefined();
+      expect(mockCache[currentWeek].request).toBeDefined();
+      expect(mockCache[currentWeek].response).toBeDefined();
 
       // Verify request structure
-      expect(mockCache.request.n).toBe('TestUser');
-      expect(Array.isArray(mockCache.request.s)).toBe(true);
-      expect(typeof mockCache.request.p).toBe('boolean');
+      expect(mockCache[currentWeek].request.n).toBe('TestUser');
+      expect(Array.isArray(mockCache[currentWeek].request.s)).toBe(true);
+      expect(typeof mockCache[currentWeek].request.p).toBe('boolean');
 
       // Verify response structure
-      expect(Array.isArray(mockCache.response.suits)).toBe(true);
-      expect(Array.isArray(mockCache.response.offensiveUpgrades)).toBe(true);
-      expect(Array.isArray(mockCache.response.defensiveUpgrades)).toBe(true);
-
-      // Verify timestamp is a number
-      expect(typeof mockCache.timestamp).toBe('number');
-      expect(mockCache.timestamp).toBeGreaterThan(0);
+      expect(Array.isArray(mockCache[currentWeek].response.suits)).toBe(true);
+      expect(Array.isArray(mockCache[currentWeek].response.offensiveUpgrades)).toBe(true);
+      expect(Array.isArray(mockCache[currentWeek].response.defensiveUpgrades)).toBe(true);
     });
 
-    test('cache can be serialized and deserialized', () => {
+    test('cache with multiple weeks can be serialized and deserialized', () => {
+      const currentWeek = getWeekIndex(Date.now());
       const mockCache = {
-        request: {
-          n: 'SerializeTest',
-          s: ['/Lotus/Powersuits/Mag/MagBaseSuit'],
-          p: true
+        [currentWeek - 1]: {
+          request: {
+            n: 'SerializeTest',
+            s: ['/Lotus/Powersuits/Mag/MagBaseSuit'],
+            p: true
+          },
+          response: {
+            suits: ['/Lotus/Powersuits/Volt/VoltBaseSuit'],
+            offensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerRange'],
+            defensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationArmor']
+          }
         },
-        response: {
-          suits: ['/Lotus/Powersuits/Volt/VoltBaseSuit'],
-          offensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerRange'],
-          defensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationArmor']
-        },
-        timestamp: Date.now()
+        [currentWeek]: {
+          request: {
+            n: 'SerializeTest',
+            s: ['/Lotus/Powersuits/Rhino/RhinoBaseSuit'],
+            p: false
+          },
+          response: {
+            suits: ['/Lotus/Powersuits/Frost/FrostBaseSuit'],
+            offensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerStrength'],
+            defensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationHealth']
+          }
+        }
       };
 
       // Simulate localStorage round-trip
@@ -263,12 +219,13 @@ describe('Invigoration Cache Helpers', () => {
       const deserialized = JSON.parse(serialized);
 
       // Verify data integrity after round-trip
-      expect(deserialized.request.n).toBe(mockCache.request.n);
-      expect(deserialized.request.s).toEqual(mockCache.request.s);
-      expect(deserialized.request.p).toBe(mockCache.request.p);
-      expect(deserialized.response.suits).toEqual(mockCache.response.suits);
-      expect(deserialized.timestamp).toBe(mockCache.timestamp);
+      expect(deserialized[currentWeek].request.n).toBe(mockCache[currentWeek].request.n);
+      expect(deserialized[currentWeek].request.s).toEqual(mockCache[currentWeek].request.s);
+      expect(deserialized[currentWeek].request.p).toBe(mockCache[currentWeek].request.p);
+      expect(deserialized[currentWeek].response.suits).toEqual(mockCache[currentWeek].response.suits);
+      expect(deserialized[currentWeek - 1]).toBeDefined();
     });
+
   });
 
   describe('Edge Cases', () => {
@@ -291,21 +248,5 @@ describe('Invigoration Cache Helpers', () => {
       expect(weekIndex).toBe(-1);
     });
 
-    test('formatTimestamp handles various dates', () => {
-
-      // Test various dates
-      const dates = [
-        new Date(2026, 0, 1, 0, 0, 0).getTime(),     // New Year
-        new Date(2026, 5, 15, 12, 30, 0).getTime(),  // Mid-year
-        new Date(2026, 11, 31, 23, 59, 59).getTime() // End of year
-      ];
-
-      dates.forEach(timestamp => {
-        const formatted = formatTimestamp(timestamp);
-        expect(formatted).toBeTruthy();
-        expect(typeof formatted).toBe('string');
-        expect(formatted.length).toBeGreaterThan(0);
-      });
-    });
   });
 });

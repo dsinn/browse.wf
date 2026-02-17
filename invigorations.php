@@ -9,6 +9,7 @@
 <body data-bs-theme="dark">
 	<?php require "components/navbar.php"; ?>
 	<div class="container pt-3">
+		<div id="cache-alert" class="alert d-none mb-3" role="alert"></div>
 		<form onsubmit="doSubmit();return false;">
 			<input id="username" class="form-control mb-3" placeholder="Username (case-sensitive)" minlength="4" required />
 			<div class="form-check mb-3">
@@ -30,7 +31,6 @@
 			<p id="inventory-upsell">You can <a href="inventory#for=invigorations">sync your inventory with browse.wf</a> to fill in the offerings automatically.</p>
 			<p id="inventory-status" class="d-none">Offerings were automatically filled in from your inventory. <a href="inventory#for=invigorations">Need to update your inventory?</a></p>
 			<input type="submit" class="btn btn-primary mb-3" value="Calculate Offerings" />
-			<div id="cache-alert" class="alert d-none mb-3" role="alert"></div>
 			<div id="results" class="d-none">
 				<h4 class="mb-0">Current Offerings</h4>
 				<p id="explain-noprev" class="explainer text-secondary-emphasis">Due to incomplete input data, these results can only be considered 100% correct if you have never visited Helminth before and your username is <b></b>.</p>
@@ -55,6 +55,23 @@
 				</div>
 			</div>
 		</form>
+		<div id="history" class="d-none mt-4">
+			<h4>Invigoration History</h4>
+			<?php foreach (['this-week' => 'This Week', 'last-week' => 'Last Week'] as $prefix => $label): ?>
+			<div id="history-<?= $prefix ?>" class="d-none mb-3">
+				<h5 class="mb-2"><?= $label ?></h5>
+				<div class="row text-center">
+					<?php for ($i = 0; $i < 3; $i++): ?>
+					<div class="col-4">
+						<h6 id="<?= $prefix ?>-suit-<?= $i ?>"></h6>
+						<p id="<?= $prefix ?>-off-<?= $i ?>" class="m-0"></p>
+						<p id="<?= $prefix ?>-def-<?= $i ?>"></p>
+					</div>
+					<?php endfor; ?>
+				</div>
+			</div>
+			<?php endforeach; ?>
+		</div>
 	</div>
 	<?php require "components/commonjs.html"; ?>
 	<script>
@@ -129,68 +146,59 @@
 			}
 
 			// Load from cache on page load (only if inventory data wasn't used)
-			const cacheStr = localStorage.getItem("invigorations.cache");
-			if (cacheStr && !inventoryDataUsed)
+			if (!inventoryDataUsed)
 			{
-				try
+				const cache = loadCache();
+				const currentWeek = getWeekIndex(Date.now());
+				const lastWeekData = cache[currentWeek - 1];
+				const currentWeekData = cache[currentWeek];
+				const nextWeekData = cache[currentWeek + 1];
+
+				// Priority: next week > current week > last week (always use most recent data)
+				if (nextWeekData)
 				{
-					const cache = JSON.parse(cacheStr);
-					const currentWeek = getWeekIndex(Date.now());
-					const cachedWeek = getWeekIndex(cache.timestamp);
-					const weekDiff = currentWeek - cachedWeek;
+					// Next week data exists (most recent) - we have results, so peek=true
+					preFillForm(nextWeekData.request.n, true, nextWeekData.request.s);
 
-					if (weekDiff === 0)
-					{
-						// Scenario 1: Same week - fresh cache
-						// Pre-fill form
-						document.getElementById("username").value = cache.request.n;
-						document.getElementById("peek").checked = cache.request.p;
-						document.getElementById("peek").onchange();
-						const selects = document.querySelectorAll(".suit-select");
-						cache.request.s.forEach((suit, i) => selects[i].value = suit);
-
-						// Display results
-						showResults(cache.response, cache.request);
-
-						// Show success alert
-						showCacheAlert("success", `Loaded fresh data from this week's cache (${formatTimestamp(cache.timestamp)})`);
-					}
-					else if (weekDiff === 1)
-					{
-						// Scenario 2: One week later - pre-fill form
-						document.getElementById("username").value = cache.request.n;
-						document.getElementById("peek").checked = cache.request.p;
-						document.getElementById("peek").onchange();
-						const selects = document.querySelectorAll(".suit-select");
-						cache.response.suits.forEach((suit, i) => selects[i].value = suit);
-
-						// Show info alert with historical data if peek was enabled
-						if (cache.request.p)
-						{
-							// Peek was enabled - request suits were last week's actual offerings
-							const suitNames = cache.request.s.map(suit => dict[baseSuitTypes[suit].name]).join(", ");
-							const alertHtml = `<div>Pre-filled form with stale data from last week's cache (${formatTimestamp(cache.timestamp)})</div>` +
-								`<div class="mt-1">Last week's offerings: ${suitNames}</div>`;
-							showCacheAlert("info", null, alertHtml);
-						}
-						else
-						{
-							showCacheAlert("info", `Pre-filled form with stale data from last week's cache (${formatTimestamp(cache.timestamp)})`);
-						}
-					}
-					else if (weekDiff >= 2)
-					{
-						// Scenario 3: Too stale - only username
-						document.getElementById("username").value = cache.request.n;
-
-						// Show warning alert
-						showCacheAlert("warning", `Cached data too stale to pre-fill form (${formatTimestamp(cache.timestamp)})`);
-					}
+					showResults(nextWeekData.response, nextWeekData.request);
+					showCacheAlert("success", "Loaded fresh data from cache");
+					showHistory(currentWeek, cache);
 				}
-				catch (e)
+				else if (currentWeekData)
 				{
-					// Invalid cache, ignore it
-					console.error("Failed to load invigoration cache:", e);
+					// Current week data exists - we have results, so peek=true
+					preFillForm(currentWeekData.request.n, true, currentWeekData.request.s);
+
+					showResults(currentWeekData.response, currentWeekData.request);
+					showCacheAlert("info", "Pre-filled form with data for this week only from cache. For next week's invigorations, please verify and re-calculate.");
+					showHistory(currentWeek, cache);
+				}
+				else if (lastWeekData)
+				{
+					// Last week data only - pre-fill for convenience, but no results shown
+					preFillForm(lastWeekData.request.n, false, lastWeekData.response.suits);
+
+					showCacheAlert("info", `Pre-filled form with stale data from last week's cache`);
+					showHistory(currentWeek, cache);
+				}
+				else
+				{
+					// No recent data - check for older data
+					const newestWeek = Object.keys(cache).reduce((max, key) => {
+						const week = parseInt(key);
+						return !isNaN(week) && week > max ? week : max;
+					}, -Infinity);
+
+					if (newestWeek !== -Infinity && currentWeek - newestWeek >= 2)
+					{
+						const newestData = cache[newestWeek];
+						if (newestData)
+						{
+							const weeksOld = currentWeek - newestWeek;
+							preFillForm(newestData.request.n, false, []);
+							showCacheAlert("warning", `Cached data is ${weeksOld} weeks old - too stale to pre-fill form`);
+						}
+					}
 				}
 			}
 		});
@@ -229,42 +237,141 @@
 			return Math.trunc(((timestamp / 1000) - 1391990400) / 604800);
 		}
 
-		// Helper function to format timestamp
-		function formatTimestamp(timestamp)
-		{
-			const date = new Date(timestamp);
-			const options = {
-				weekday: 'long',
-				year: 'numeric',
-				month: 'short',
-				day: 'numeric',
-				hour: '2-digit',
-				minute: '2-digit'
-			};
-			return date.toLocaleString('en-US', options);
-		}
-
 		// Helper function to show cache alert
-		function showCacheAlert(type, message, htmlContent = null)
+		function showCacheAlert(type, message)
 		{
 			const alert = document.getElementById("cache-alert");
 			alert.className = `alert alert-${type} mb-3`;
-			if (htmlContent)
+			alert.textContent = message;
+			alert.classList.remove("d-none");
+		}
+
+		// Helper function to load cache
+		function loadCache()
+		{
+			const cacheStr = localStorage.getItem("invigorations.cache");
+			if (!cacheStr)
 			{
-				alert.innerHTML = htmlContent;
+				return {};
+			}
+
+			try
+			{
+				const parsed = JSON.parse(cacheStr);
+				// Must be an object (not array, null, etc.)
+				if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))
+				{
+					return {};
+				}
+				return parsed;
+			}
+			catch (e)
+			{
+				console.error("Failed to parse invigoration cache:", e);
+				return {};
+			}
+		}
+
+		// Helper function to show invigoration history
+		function showHistory(currentWeek, cache)
+		{
+			const currentData = cache[currentWeek];
+			const lastWeekData = cache[currentWeek - 1];
+
+			const historyDiv = document.getElementById("history");
+			const thisWeekDiv = document.getElementById("history-this-week");
+			const lastWeekDiv = document.getElementById("history-last-week");
+
+			if (!currentData && !lastWeekData)
+			{
+				historyDiv.classList.add("d-none");
+				return;
+			}
+
+			historyDiv.classList.remove("d-none");
+
+			if (currentData)
+			{
+				populateInvigorationGrid("this-week", currentData.response);
+				thisWeekDiv.classList.remove("d-none");
 			}
 			else
 			{
-				alert.textContent = message;
+				thisWeekDiv.classList.add("d-none");
 			}
-			alert.classList.remove("d-none");
+
+			if (lastWeekData)
+			{
+				populateInvigorationGrid("last-week", lastWeekData.response);
+				lastWeekDiv.classList.remove("d-none");
+			}
+			else
+			{
+				lastWeekDiv.classList.add("d-none");
+			}
+		}
+
+		// Helper function to save response to cache
+		function saveToCache(request, response)
+		{
+			const currentWeek = getWeekIndex(Date.now());
+			const targetWeek = request.p ? currentWeek + 1 : currentWeek;
+
+			const cache = loadCache();
+			cache[targetWeek] = {
+				request: request,
+				response: response
+			};
+
+			const prunedCache = [currentWeek - 1, currentWeek, currentWeek + 1].reduce((acc, week) =>
+			{
+				if (cache[week]) acc[week] = cache[week];
+				return acc;
+			}, {});
+
+			localStorage.setItem("invigorations.cache", JSON.stringify(prunedCache));
+			if (window.triggerCloudSync)
+			{
+				window.triggerCloudSync();
+			}
+		}
+
+		// Populates a pre-existing invigoration grid identified by element ID prefix
+		function populateInvigorationGrid(prefix, response)
+		{
+			for (let i = 0; i < response.suits.length; i++)
+			{
+				const suitData = baseSuitTypes[response.suits[i]];
+				// Fall back to untranslated response in case of new content
+				document.getElementById(prefix + "-suit-" + i).textContent = suitData ? dict[suitData.name] : response.suits[i];
+				document.getElementById(prefix + "-off-" + i).textContent = invigorationNames[response.offensiveUpgrades[i]] || response.offensiveUpgrades[i];
+				document.getElementById(prefix + "-def-" + i).textContent = invigorationNames[response.defensiveUpgrades[i]] || response.defensiveUpgrades[i];
+			}
+		}
+
+		// Helper function to pre-fill form from cache data
+		function preFillForm(username, peek, suits)
+		{
+			const usernameInput = document.getElementById("username");
+			const peekCheckbox = document.getElementById("peek");
+			const suitSelects = document.querySelectorAll(".suit-select");
+
+			usernameInput.value = username;
+			peekCheckbox.checked = peek;
+			peekCheckbox.onchange();
+			suits.forEach((suit, i) => suitSelects[i].value = suit);
 		}
 
 		// Helper function to display results
 		function showResults(response, request)
 		{
-			document.getElementById("results").classList.remove("d-none");
+			const resultsDiv = document.getElementById("results");
+			resultsDiv.classList.remove("d-none");
+
+			// Update heading
 			document.querySelector("#results h4").textContent = request.p ? "Next Week's Offerings" : "Current Offerings";
+
+			// Update explainer text
 			document.querySelectorAll(".explainer").forEach(x => { x.classList.add("d-none") });
 			if (request.s.length != response.suits.length)
 			{
@@ -279,15 +386,7 @@
 				document.querySelector("#explain-peek").classList.remove("d-none");
 			}
 			document.querySelectorAll("#results b").forEach(x => { x.textContent = request.n });
-			for (let i = 0; i != response.suits.length; ++i)
-			{
-				const suitData = baseSuitTypes[response.suits[i]];
-				// Fall back to untranslated response in case of new content
-				const suitName = suitData ? dict[suitData.name] : response.suits[i];
-				document.getElementById("out-suit-" + i).textContent = suitName;
-				document.getElementById("out-off-" + i).textContent = invigorationNames[response.offensiveUpgrades[i]] || response.offensiveUpgrades[i];
-				document.getElementById("out-def-" + i).textContent = invigorationNames[response.defensiveUpgrades[i]] || response.defensiveUpgrades[i];
-			}
+			populateInvigorationGrid("out", response);
 		}
 
 		function doSubmit()
@@ -313,16 +412,7 @@
 				showResults(res, request);
 
 				// Save to cache
-				const cache = {
-					request: request,
-					response: res,
-					timestamp: Date.now()
-				};
-				localStorage.setItem("invigorations.cache", JSON.stringify(cache));
-				if (window.triggerCloudSync)
-				{
-					window.triggerCloudSync();
-				}
+				saveToCache(request, res);
 			});
 		};
 	</script>

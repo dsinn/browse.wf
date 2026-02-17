@@ -15,14 +15,16 @@ export { MOCK_TIMESTAMP };
  * @param page - The Playwright page instance to set up routes on
  * @param options - Optional configuration
  * @param options.worldStateFile - Custom worldState mock file name (default: 'worldState.json')
- * @param options.freezeTime - Whether to freeze time at MOCK_TIMESTAMP (default: true)
+ * @param options.freezeTime - Whether to freeze time (default: true)
+ * @param options.frozenTime - Custom timestamp to freeze at (default: MOCK_TIMESTAMP)
  */
-export async function setupMockRoutes(page: Page, options?: { worldStateFile?: string; freezeTime?: boolean }): Promise<void> {
+export async function setupMockRoutes(page: Page, options?: { worldStateFile?: string; freezeTime?: boolean; frozenTime?: number }): Promise<void> {
   // Freeze time for deterministic tests (unless explicitly disabled)
   // Use install() to mock setTimeout/setInterval as well (needed for incursions expiry logic)
   if (options?.freezeTime !== false) {
-    await page.clock.install({ time: new Date(MOCK_TIMESTAMP) });
-    await page.clock.pauseAt(new Date(MOCK_TIMESTAMP));
+    const timeToFreeze = options?.frozenTime ?? MOCK_TIMESTAMP;
+    await page.clock.install({ time: new Date(timeToFreeze) });
+    await page.clock.pauseAt(new Date(timeToFreeze));
   }
   const mocksDir = path.join(process.cwd(), 'test', '__mocks__');
 

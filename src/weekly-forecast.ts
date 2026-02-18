@@ -34,6 +34,17 @@ declare function renderDescentChallenges(
 	dict: Record<string, string>
 ): HTMLTableSectionElement;
 
+declare function getSeasonLabel(season: string): string;
+
+declare function renderCalendarSeasonPane(
+	season: any,
+	dict: Record<string, string>,
+	ExportChallenges: Record<string, any>,
+	ExportImages: Record<string, any>,
+	itemIconMap: Record<string, string>,
+	itemNameMap: Record<string, string>
+): HTMLDivElement;
+
 function mongoMs(d: IMongoDate): number
 {
 	return parseInt(d.$date.$numberLong);
@@ -208,6 +219,45 @@ function renderDescentTabs(
 	}
 }
 
+function renderCalendarSeasonTabs(
+	tabsEl: HTMLElement,
+	contentEl: HTMLElement,
+	seasons: any[],
+	dict: Record<string, string>,
+	ExportChallenges: Record<string, any>,
+	ExportImages: Record<string, any>,
+	itemIconMap: Record<string, string>,
+	itemNameMap: Record<string, string>,
+	preserveActivation: string | null = null
+): void
+{
+	const now = Date.now();
+	tabsEl.innerHTML = "";
+	contentEl.innerHTML = "";
+
+	const activeIdx = seasons.findIndex(s =>
+		mongoMs(s.Activation) <= now && now < mongoMs(s.Expiry)
+	);
+
+	seasons.forEach((season, i) =>
+	{
+		const activationMs = mongoMs(season.Activation);
+		const isActive = i === activeIdx || (activeIdx === -1 && i === 0);
+		const label = getSeasonLabel(season.Season);
+		const id = "calendar-season-" + i;
+
+		buildTab(tabsEl, contentEl, id, label, activationMs, isActive, pane =>
+		{
+			pane.appendChild(renderCalendarSeasonPane(season, dict, ExportChallenges, ExportImages, itemIconMap, itemNameMap));
+		});
+	});
+
+	if (preserveActivation !== null)
+	{
+		restoreActiveTab(tabsEl, preserveActivation);
+	}
+}
+
 /**
  * Returns the milliseconds until 00:01 UTC tomorrow.
  */
@@ -219,21 +269,42 @@ function msUntilDailyRefresh(): number
 
 async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
 {
-	const labTabsEl    = document.getElementById("lab-conquest-tabs")!;
-	const hexTabsEl    = document.getElementById("hex-conquest-tabs")!;
-	const descentTabsEl = document.getElementById("descendia-tabs")!;
+	const labTabsEl           = document.getElementById("lab-conquest-tabs")!;
+	const hexTabsEl           = document.getElementById("hex-conquest-tabs")!;
+	const descentTabsEl       = document.getElementById("descendia-tabs")!;
+	const calendarSeasonTabsEl = document.getElementById("calendar-season-tabs");
 
 	// Capture which tab the user is on before re-rendering (only meaningful on refresh)
-	const labActivation     = isRefresh ? getActiveTabActivation(labTabsEl)     : null;
-	const hexActivation     = isRefresh ? getActiveTabActivation(hexTabsEl)     : null;
-	const descentActivation = isRefresh ? getActiveTabActivation(descentTabsEl) : null;
+	const labActivation            = isRefresh ? getActiveTabActivation(labTabsEl)     : null;
+	const hexActivation            = isRefresh ? getActiveTabActivation(hexTabsEl)     : null;
+	const descentActivation        = isRefresh ? getActiveTabActivation(descentTabsEl) : null;
+	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsEl) ? getActiveTabActivation(calendarSeasonTabsEl) : null;
 
-	const [worldState, dict, osdict, ExportMissionTypes] = await Promise.all([
+	const [worldState, dict, osdict, ExportMissionTypes, ExportChallenges, ExportImages, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters] = await Promise.all([
 		fetch("https://oracle.browse.wf/worldState.json").then(r => r.json()),
 		getDictPromise(),
 		getOSDictPromise(),
 		fetch("warframe-public-export-plus/ExportMissionTypes.json").then(r => r.json()),
+		fetch("warframe-public-export-plus/ExportChallenges.json").then(r => r.json()),
+		fetch("warframe-public-export-plus/ExportImages.json").then(r => r.json()),
+		fetch("warframe-public-export-plus/ExportResources.json").then(r => r.json()),
+		fetch("warframe-public-export-plus/ExportBundles.json").then(r => r.json()),
+		fetch("warframe-public-export-plus/ExportBoosterPacks.json").then(r => r.json()),
+		fetch("warframe-public-export-plus/ExportBoosters.json").then(r => r.json()),
 	]);
+
+	// Build combined item lookup maps from reward export files
+	const itemIconMap: Record<string, string> = {};
+	const itemNameMap: Record<string, string> = {};
+	for (const exportData of [ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters])
+	{
+		for (const [key, val] of Object.entries(exportData) as [string, any][])
+		{
+			const normalized = key.replace("/Lotus/StoreItems/", "/Lotus/");
+			if (val.icon) itemIconMap[normalized] = val.icon;
+			if (val.name) itemNameMap[normalized] = val.name;
+		}
+	}
 
 	// Deep Archimedea (CT_LAB)
 	const labConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === "CT_LAB");
@@ -279,6 +350,23 @@ async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
 			descents,
 			dict,
 			descentActivation
+		);
+	}
+
+	// Calendar Seasons
+	const calendarSeasons = worldState.KnownCalendarSeasons ?? [];
+	if (calendarSeasonTabsEl && calendarSeasons.length > 0)
+	{
+		renderCalendarSeasonTabs(
+			calendarSeasonTabsEl,
+			document.getElementById("calendar-season-content")!,
+			calendarSeasons,
+			dict,
+			ExportChallenges,
+			ExportImages,
+			itemIconMap,
+			itemNameMap,
+			calendarSeasonActivation
 		);
 	}
 

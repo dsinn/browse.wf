@@ -8,6 +8,7 @@ async function setupPage(page: Page) {
   // Wait for tabs to be populated by weekly-forecast.ts
   await page.waitForSelector('#lab-conquest-tabs .nav-link', { timeout: 15000 });
   await page.waitForSelector('#descendia-tabs .nav-link', { timeout: 15000 });
+  await page.waitForSelector('#calendar-season-tabs .nav-link', { timeout: 15000 });
 }
 
 test.describe('Weekly Forecast Page', () => {
@@ -182,6 +183,65 @@ test.describe('Weekly Forecast Page', () => {
       // Should also have 21 rows
       const rows = secondPane.locator('tbody tr');
       await expect(rows).toHaveCount(21);
+    });
+  });
+
+  test.describe('Calendar Seasons tabs', () => {
+    test('shows Calendar Seasons card', async ({ page }) => {
+      const card = page.locator('.card').filter({ hasText: '1999 Calendar' });
+      await expect(card).toBeVisible();
+    });
+
+    test('renders one tab per season in mock data', async ({ page }) => {
+      const tabs = page.locator('#calendar-season-tabs .nav-link');
+      await expect(tabs).toHaveCount(1); // worldState has 1 KnownCalendarSeason
+    });
+
+    test('tab label contains season emoji and name', async ({ page }) => {
+      const tab = page.locator('#calendar-season-tabs .nav-link').first();
+      const label = await tab.textContent();
+      // CST_FALL should map to "🍁 Autumn"
+      expect(label).toMatch(/🍁\s*Autumn/);
+    });
+
+    test('first tab is active (current season)', async ({ page }) => {
+      const firstTab = page.locator('#calendar-season-tabs .nav-link').first();
+      await expect(firstTab).toHaveClass(/active/);
+    });
+
+    test('active pane contains day rows with dates', async ({ page }) => {
+      const activePane = page.locator('#calendar-season-content .tab-pane.active');
+      await expect(activePane).toBeVisible();
+      // Mock data has days with events — each gets a .calendar-season-date label
+      const dateCols = activePane.locator('.calendar-season-date');
+      const count = await dateCols.count();
+      expect(count).toBeGreaterThan(0);
+    });
+
+    test('day rows show formatted calendar dates', async ({ page }) => {
+      const activePane = page.locator('#calendar-season-content .tab-pane.active');
+      const dateText = await activePane.locator('.calendar-season-date').first().textContent();
+      // Should be a short date like "Oct 6" (no year)
+      expect(dateText).toMatch(/\b[A-Z][a-z]{2} \d{1,2}$/);
+    });
+
+    test.describe('Challenge event rendering', () => {
+      test.skip();
+      // challenge row has an <img> element
+      // challenge row text shows description with count (e.g. "Kill 250 Enemies")
+      // challengeData.name is NOT rendered
+    });
+
+    test.describe('Reward event rendering', () => {
+      test.skip();
+      // reward row has an <img> element when icon is available
+      // reward row text shows the translated item name
+    });
+
+    test.describe('Upgrade event rendering', () => {
+      test.skip();
+      // upgrade row shows ✨ prefix
+      // upgrade name is derived from camelCase path tail
     });
   });
 

@@ -241,6 +241,7 @@
 								<p class="mb-0 text-muted d-none" id="weekly-missions-empty-state">No missions to display based on the current filters.</p>
 							</div>
 						</div>
+						<?php require "components/calendar-season-card.php"; ?>
 						<div class="card mb-3">
 							<div class="card-header d-flex">
 								<h5 class="mb-0"><span data-collapse-toggle="baro"></span> <span id="baro-header">Baro Ki'Teer</h5>
@@ -514,6 +515,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<script src="typestripped/src/card-filters.js"></script>
 	<script src="typestripped/src/news-mark-read.js"></script>
+	<script src="typestripped/src/calendar-seasons.js"></script>
+	<link rel="stylesheet" href="src/calendar-seasons.css" media="print" onload="this.media='all'">
 	<script src="typestripped/src/descendia.js"></script>
 	<link rel="stylesheet" href="src/descendia.css" media="print" onload="this.media='all'">
 	<script src="typestripped/src/bounty-filters.js"></script>

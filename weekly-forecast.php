@@ -7,6 +7,7 @@
 	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
 	<link rel="stylesheet" href="src/tooltip.css">
 	<link rel="stylesheet" href="src/descendia.css">
+	<link rel="stylesheet" href="src/calendar-seasons.css">
 </head>
 <body data-bs-theme="dark">
 	<?php require "components/navbar.php"; ?>
@@ -30,6 +31,14 @@
 		</div>
 
 		<div class="card mb-4">
+			<div class="card-header"><h5 class="mb-0">1999 Calendar</h5></div>
+			<div class="card-body">
+				<ul class="nav nav-tabs mb-3" id="calendar-season-tabs" role="tablist"></ul>
+				<div class="tab-content" id="calendar-season-content">Loading...</div>
+			</div>
+		</div>
+
+		<div class="card mb-4">
 			<div class="card-header"><h5 class="mb-0">Descendia</h5></div>
 			<div class="card-body">
 				<?php require "components/untranslated-notice.php"; ?>
@@ -42,6 +51,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<script src="typestripped/src/conquest-helpers.js"></script>
 	<script src="typestripped/src/descendia.js"></script>
+	<script src="typestripped/src/calendar-seasons.js"></script>
 	<script src="typestripped/src/weekly-forecast.js"></script>
 </body>
 </html>

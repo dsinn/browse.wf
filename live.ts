@@ -1083,6 +1083,10 @@ function updateWorldState()
 
 		updateWorldStateLocalised();
 		updateWeekly();
+		if ((window as any).updateCalendarSeason)
+		{
+			(window as any).updateCalendarSeason();
+		}
 		if ((window as any).updateDescendia)
 		{
 			(window as any).updateDescendia();

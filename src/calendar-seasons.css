@@ -1,0 +1,5 @@
+@media (min-width: 768px) {
+	.calendar-season-date {
+		min-width: 4.5rem;
+	}
+}

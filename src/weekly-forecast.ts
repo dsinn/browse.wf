@@ -38,12 +38,12 @@ declare function getSeasonLabel(season: string): string;
 
 declare function renderCalendarSeasonPane(
 	season: any,
-	dict: Record<string, string>,
-	ExportChallenges: Record<string, any>,
-	ExportImages: Record<string, any>,
-	itemIconMap: Record<string, string>,
-	itemNameMap: Record<string, string>
-): HTMLDivElement;
+	ExportImages: Promise<Record<string, any>>,
+	ExportResources: Promise<Record<string, any>>,
+	ExportBundles: Promise<Record<string, any>>,
+	ExportBoosterPacks: Promise<Record<string, any>>,
+	ExportBoosters: Promise<Record<string, any>>
+): Promise<HTMLDivElement>;
 
 function mongoMs(d: IMongoDate): number
 {
@@ -219,17 +219,17 @@ function renderDescentTabs(
 	}
 }
 
-function renderCalendarSeasonTabs(
+async function renderCalendarSeasonTabs(
 	tabsEl: HTMLElement,
 	contentEl: HTMLElement,
 	seasons: any[],
-	dict: Record<string, string>,
-	ExportChallenges: Record<string, any>,
-	ExportImages: Record<string, any>,
-	itemIconMap: Record<string, string>,
-	itemNameMap: Record<string, string>,
+	ExportImages: Promise<Record<string, any>>,
+	ExportResources: Promise<Record<string, any>>,
+	ExportBundles: Promise<Record<string, any>>,
+	ExportBoosterPacks: Promise<Record<string, any>>,
+	ExportBoosters: Promise<Record<string, any>>,
 	preserveActivation: string | null = null
-): void
+): Promise<void>
 {
 	const now = Date.now();
 	tabsEl.innerHTML = "";
@@ -239,6 +239,12 @@ function renderCalendarSeasonTabs(
 		mongoMs(s.Activation) <= now && now < mongoMs(s.Expiry)
 	);
 
+	// Render all season panes in parallel (leverages caching in prepareCalendarSeasonData)
+	const seasonPanes = await Promise.all(
+		seasons.map(season => renderCalendarSeasonPane(season, ExportImages, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters))
+	);
+
+	// Build tabs with the rendered content
 	seasons.forEach((season, i) =>
 	{
 		const activationMs = mongoMs(season.Activation);
@@ -248,7 +254,7 @@ function renderCalendarSeasonTabs(
 
 		buildTab(tabsEl, contentEl, id, label, activationMs, isActive, pane =>
 		{
-			pane.appendChild(renderCalendarSeasonPane(season, dict, ExportChallenges, ExportImages, itemIconMap, itemNameMap));
+			pane.appendChild(seasonPanes[i]);
 		});
 	});
 
@@ -292,19 +298,6 @@ async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
 		fetch("warframe-public-export-plus/ExportBoosterPacks.json").then(r => r.json()),
 		fetch("warframe-public-export-plus/ExportBoosters.json").then(r => r.json()),
 	]);
-
-	// Build combined item lookup maps from reward export files
-	const itemIconMap: Record<string, string> = {};
-	const itemNameMap: Record<string, string> = {};
-	for (const exportData of [ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters])
-	{
-		for (const [key, val] of Object.entries(exportData) as [string, any][])
-		{
-			const normalized = key.replace("/Lotus/StoreItems/", "/Lotus/");
-			if (val.icon) itemIconMap[normalized] = val.icon;
-			if (val.name) itemNameMap[normalized] = val.name;
-		}
-	}
 
 	// Deep Archimedea (CT_LAB)
 	const labConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === "CT_LAB");
@@ -357,15 +350,15 @@ async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
 	const calendarSeasons = worldState.KnownCalendarSeasons ?? [];
 	if (calendarSeasonTabsEl && calendarSeasons.length > 0)
 	{
-		renderCalendarSeasonTabs(
+		await renderCalendarSeasonTabs(
 			calendarSeasonTabsEl,
 			document.getElementById("calendar-season-content")!,
 			calendarSeasons,
-			dict,
-			ExportChallenges,
-			ExportImages,
-			itemIconMap,
-			itemNameMap,
+			Promise.resolve(ExportImages),
+			Promise.resolve(ExportResources),
+			Promise.resolve(ExportBundles),
+			Promise.resolve(ExportBoosterPacks),
+			Promise.resolve(ExportBoosters),
 			calendarSeasonActivation
 		);
 	}

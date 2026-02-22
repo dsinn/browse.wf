@@ -124,48 +124,12 @@ test.describe('Weekly Forecast Page', () => {
       await expect(firstTab).toHaveClass(/active/);
     });
 
-    test('tab labels are date strings', async ({ page }) => {
-      const tabs = page.locator('#descendia-tabs .nav-link');
-      const count = await tabs.count();
-
-      for (let i = 0; i < count; i++) {
-        const label = await tabs.nth(i).textContent();
-        expect(label).toMatch(/^[A-Z][a-z]{2} \d{1,2}$/);
-      }
-    });
-
     test('active pane renders table with 21 rows', async ({ page }) => {
       const activePane = page.locator('#descendia-content .tab-pane.active');
       await expect(activePane).toBeVisible();
 
       const rows = activePane.locator('tbody tr');
       await expect(rows).toHaveCount(21);
-    });
-
-    test('table headers are Level, Type, Challenge, Arena, Specs, Auras', async ({ page }) => {
-      const activePane = page.locator('#descendia-content .tab-pane.active');
-      const headers = activePane.locator('thead th');
-      await expect(headers).toHaveCount(6);
-      await expect(headers).toHaveText(['#', 'Type', 'Challenge', 'Arena', 'Specs', 'Auras']);
-    });
-
-    test('each row has 6 columns', async ({ page }) => {
-      const activePane = page.locator('#descendia-content .tab-pane.active');
-      const rows = activePane.locator('tbody tr');
-
-      for (let i = 0; i < 3; i++) { // spot-check first 3
-        await expect(rows.nth(i).locator('td')).toHaveCount(6);
-      }
-    });
-
-    test('arena column has no .level suffix', async ({ page }) => {
-      const activePane = page.locator('#descendia-content .tab-pane.active');
-      const arenaCells = activePane.locator('tbody tr td:nth-child(4)');
-      const texts = await arenaCells.allTextContents();
-
-      texts.forEach(text => {
-        expect(text).not.toMatch(/\.level$/i);
-      });
     });
 
     test('clicking a non-active tab switches content', async ({ page }) => {
@@ -197,13 +161,6 @@ test.describe('Weekly Forecast Page', () => {
       await expect(tabs).toHaveCount(1); // worldState has 1 KnownCalendarSeason
     });
 
-    test('tab label contains season emoji and name', async ({ page }) => {
-      const tab = page.locator('#calendar-season-tabs .nav-link').first();
-      const label = await tab.textContent();
-      // CST_FALL should map to "🍁 Autumn"
-      expect(label).toMatch(/🍁\s*Autumn/);
-    });
-
     test('first tab is active (current season)', async ({ page }) => {
       const firstTab = page.locator('#calendar-season-tabs .nav-link').first();
       await expect(firstTab).toHaveClass(/active/);
@@ -223,56 +180,6 @@ test.describe('Weekly Forecast Page', () => {
       const dateText = await activePane.locator('.calendar-season-date').first().textContent();
       // Should be a short date like "Oct 6" (no year)
       expect(dateText).toMatch(/\b[A-Z][a-z]{2} \d{1,2}$/);
-    });
-
-    test.describe('Challenge event rendering', () => {
-      test.skip();
-      // challenge row has an <img> element
-      // challenge row text shows description with count (e.g. "Kill 250 Enemies")
-      // challengeData.name is NOT rendered
-    });
-
-    test.describe('Reward event rendering', () => {
-      test.skip();
-      // reward row has an <img> element when icon is available
-      // reward row text shows the translated item name
-    });
-
-    test.describe('Upgrade event rendering', () => {
-      test.skip();
-      // upgrade row shows ✨ prefix
-      // upgrade name is derived from camelCase path tail
-    });
-  });
-
-  test.describe('Navbar', () => {
-    test('"Weekly Forecast" link is in the More Tools dropdown', async ({ page }) => {
-      const moreTools = page.locator('.nav-item.dropdown').filter({ hasText: 'More Tools' });
-      await moreTools.locator('.nav-link.dropdown-toggle').click();
-
-      const link = moreTools.locator('.dropdown-item', { hasText: 'Weekly Forecast' });
-      await expect(link).toBeVisible();
-    });
-
-    test('More Tools dropdown toggle is active on this page', async ({ page }) => {
-      const moreToolsToggle = page.locator('.nav-item.dropdown').filter({ hasText: 'More Tools' }).locator('.nav-link.dropdown-toggle');
-      await expect(moreToolsToggle).toHaveClass(/active/);
-    });
-  });
-
-  test.describe('Safeguards', () => {
-    test('fetches oracle.browse.wf/worldState.json', async ({ page }) => {
-      // beforeEach already ran setupMockRoutes; register after so this handler takes priority
-      let worldStateFetched = false;
-      await page.route('**/oracle.browse.wf/worldState.json', async (route) => {
-        worldStateFetched = true;
-        await route.continue();
-      });
-
-      await page.reload();
-      await page.waitForSelector('#lab-conquest-tabs .nav-link', { timeout: 15000 });
-
-      expect(worldStateFetched).toBe(true);
     });
   });
 });

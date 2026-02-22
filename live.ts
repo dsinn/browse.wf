@@ -226,6 +226,13 @@ const ExportChallenges_promise = fetch("warframe-public-export-plus/ExportChalle
 const ExportMissionTypes_promise = fetch("warframe-public-export-plus/ExportMissionTypes.json").then(res => res.json());
 const ExportFactions_promise = fetch("warframe-public-export-plus/ExportFactions.json").then(res => res.json());
 
+// Export files needed for calendar seasons (shared with weekly-forecast.ts)
+const ExportImages_promise = fetch("warframe-public-export-plus/ExportImages.json").then(res => res.json());
+const ExportResources_promise = fetch("warframe-public-export-plus/ExportResources.json").then(res => res.json());
+const ExportBundles_promise = fetch("warframe-public-export-plus/ExportBundles.json").then(res => res.json());
+const ExportBoosterPacks_promise = fetch("warframe-public-export-plus/ExportBoosterPacks.json").then(res => res.json());
+const ExportBoosters_promise = fetch("warframe-public-export-plus/ExportBoosters.json").then(res => res.json());
+
 dict_promise.then(dict => { (window as any).dict = dict; });
 osdict_promise.then(osdict => { (window as any).osdict = osdict; });
 ExportRegions_promise.then(res => { (window as any).ExportRegions = res; });
@@ -1085,7 +1092,13 @@ function updateWorldState()
 		updateWeekly();
 		if ((window as any).updateCalendarSeason)
 		{
-			(window as any).updateCalendarSeason();
+			(window as any).updateCalendarSeason(
+				ExportImages_promise,
+				ExportResources_promise,
+				ExportBundles_promise,
+				ExportBoosterPacks_promise,
+				ExportBoosters_promise
+			);
 		}
 		if ((window as any).updateDescendia)
 		{

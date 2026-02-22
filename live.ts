@@ -239,6 +239,7 @@ ExportRegions_promise.then(res => { (window as any).ExportRegions = res; });
 ExportChallenges_promise.then(res => { (window as any).ExportChallenges = res; });
 ExportMissionTypes_promise.then(res => { (window as any).ExportMissionTypes = res; });
 ExportFactions_promise.then(res => { (window as any).ExportFactions = res; });
+ExportImages_promise.then(res => { (window as any).ExportImages = res; });
 
 function formatExpiry(expiry: number): string
 {
@@ -1093,7 +1094,6 @@ function updateWorldState()
 		if ((window as any).updateCalendarSeason)
 		{
 			(window as any).updateCalendarSeason(
-				ExportImages_promise,
 				ExportResources_promise,
 				ExportBundles_promise,
 				ExportBoosterPacks_promise,

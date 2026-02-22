@@ -38,7 +38,6 @@ declare function getSeasonLabel(season: string): string;
 
 declare function renderCalendarSeasonPane(
 	season: any,
-	ExportImages: Promise<Record<string, any>>,
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,
@@ -223,7 +222,6 @@ async function renderCalendarSeasonTabs(
 	tabsEl: HTMLElement,
 	contentEl: HTMLElement,
 	seasons: any[],
-	ExportImages: Promise<Record<string, any>>,
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,
@@ -241,7 +239,7 @@ async function renderCalendarSeasonTabs(
 
 	// Render all season panes in parallel (leverages caching in prepareCalendarSeasonData)
 	const seasonPanes = await Promise.all(
-		seasons.map(season => renderCalendarSeasonPane(season, ExportImages, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters))
+		seasons.map(season => renderCalendarSeasonPane(season, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters))
 	);
 
 	// Build tabs with the rendered content
@@ -299,6 +297,9 @@ async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
 		fetch("warframe-public-export-plus/ExportBoosters.json").then(r => r.json()),
 	]);
 
+	// Set up globals needed by common.js setImageSource()
+	(window as any).ExportImages = ExportImages;
+
 	// Deep Archimedea (CT_LAB)
 	const labConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === "CT_LAB");
 	if (labConquests.length > 0)
@@ -354,7 +355,6 @@ async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
 			calendarSeasonTabsEl,
 			document.getElementById("calendar-season-content")!,
 			calendarSeasons,
-			Promise.resolve(ExportImages),
 			Promise.resolve(ExportResources),
 			Promise.resolve(ExportBundles),
 			Promise.resolve(ExportBoosterPacks),

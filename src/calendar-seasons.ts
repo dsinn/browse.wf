@@ -6,6 +6,7 @@
 // Globals available on the live page from live.ts
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function createCompletionToggle(oid: string): HTMLAnchorElement;
+declare function setImageSource(img: HTMLImageElement, icon: string): void;
 
 const SEASON_LABELS: Record<string, string> = {
 	CST_SPRING: "🌸 Spring",
@@ -36,34 +37,14 @@ function camelToWords(s: string): string
 	return s.replace(/(?<=.)(?=[A-Z])/g, " ");
 }
 
-/**
- * Returns a content.warframe.com URL for the given icon path, using ExportImages for the hash.
- * Falls back to the bare icon path string if not found in ExportImages.
- */
-function getIconUrl(iconPath: string, ExportImages: Record<string, any>): string
-{
-	let url = `https://content.warframe.com/PublicExport${iconPath}`;
-	const entry = ExportImages[iconPath];
-	if (entry?.contentHash)
-	{
-		url += `!${entry.contentHash}`;
-	}
-	return url;
-}
-
-function makeIcon(iconPath: string, ExportImages: Record<string, any>): HTMLImageElement
+function makeIcon(iconPath: string): HTMLImageElement
 {
 	const img = document.createElement("img");
 	img.style.height = "24px";
 	img.style.width = "24px";
 	img.style.objectFit = "contain";
 	img.alt = "";
-	img.src = getIconUrl(iconPath, ExportImages);
-	img.onerror = () =>
-	{
-		img.onerror = null;
-		img.src = `https://browse.wf${iconPath}`;
-	};
+	setImageSource(img, iconPath);
 	return img;
 }
 
@@ -74,7 +55,6 @@ function makeIcon(iconPath: string, ExportImages: Record<string, any>): HTMLImag
 let preparedData: Promise<{
 	dict: Record<string, string>;
 	ExportChallenges: Record<string, any>;
-	ExportImages: Record<string, any>;
 	itemIconMap: Record<string, string>;
 	itemNameMap: Record<string, string>;
 }> | null = null;
@@ -86,7 +66,6 @@ let preparedData: Promise<{
  * Private helper - not exposed globally.
  */
 async function prepareCalendarSeasonData(
-	ExportImages: Promise<Record<string, any>>,
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,
@@ -94,7 +73,6 @@ async function prepareCalendarSeasonData(
 ): Promise<{
 	dict: Record<string, string>;
 	ExportChallenges: Record<string, any>;
-	ExportImages: Record<string, any>;
 	itemIconMap: Record<string, string>;
 	itemNameMap: Record<string, string>;
 }>
@@ -108,9 +86,8 @@ async function prepareCalendarSeasonData(
 	preparedData = (async () =>
 	{
 		// Await all export data
-		const [dict, resolvedImages, resolvedResources, resolvedBundles, resolvedBoosterPacks, resolvedBoosters] = await Promise.all([
+		const [dict, resolvedResources, resolvedBundles, resolvedBoosterPacks, resolvedBoosters] = await Promise.all([
 			getDictPromise(),
-			ExportImages,
 			ExportResources,
 			ExportBundles,
 			ExportBoosterPacks,
@@ -124,7 +101,6 @@ async function prepareCalendarSeasonData(
 		return {
 			dict,
 			ExportChallenges,
-			ExportImages: resolvedImages,
 			itemIconMap,
 			itemNameMap
 		};
@@ -164,7 +140,6 @@ function buildItemMaps(
  */
 async function renderCalendarSeasonPane(
 	season: any,
-	ExportImages: Promise<Record<string, any>>,
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,
@@ -172,8 +147,7 @@ async function renderCalendarSeasonPane(
 ): Promise<HTMLDivElement>
 {
 	// Prepare all data needed for rendering (cached)
-	const { dict, ExportChallenges, ExportImages: resolvedImages, itemIconMap, itemNameMap } = await prepareCalendarSeasonData(
-		ExportImages,
+	const { dict, ExportChallenges, itemIconMap, itemNameMap } = await prepareCalendarSeasonData(
 		ExportResources,
 		ExportBundles,
 		ExportBoosterPacks,
@@ -209,7 +183,7 @@ async function renderCalendarSeasonPane(
 				const challengeData = ExportChallenges[event.challenge];
 				if (challengeData)
 				{
-					eventRow.appendChild(makeIcon(challengeData.icon, resolvedImages));
+					eventRow.appendChild(makeIcon(challengeData.icon));
 
 					const span = document.createElement("span");
 					const desc = challengeData.description ? dict[challengeData.description] : null;
@@ -243,7 +217,7 @@ async function renderCalendarSeasonPane(
 
 				if (iconPath)
 				{
-					eventRow.appendChild(makeIcon(iconPath, resolvedImages));
+					eventRow.appendChild(makeIcon(iconPath));
 				}
 
 				const span = document.createElement("span");
@@ -276,7 +250,6 @@ async function renderCalendarSeasonPane(
  * Reads worldState.KnownCalendarSeasons, renders the active season, and injects a completion toggle.
  */
 async function updateCalendarSeason(
-	ExportImages: Promise<Record<string, any>>,
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,
@@ -304,7 +277,7 @@ async function updateCalendarSeason(
 	if (body)
 	{
 		body.innerHTML = "";
-		body.appendChild(await renderCalendarSeasonPane(activeSeason, ExportImages, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters));
+		body.appendChild(await renderCalendarSeasonPane(activeSeason, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters));
 	}
 }
 

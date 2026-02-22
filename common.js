@@ -68,6 +68,7 @@ function toTitleCase(str)
 
 function setImageSource(img, icon)
 {
+	img.loading = "lazy";
 	if (ExportImages[icon]?.forumName)
 	{
 		img.src = "https://media.invisioncic.com/Mwarframe/pages_media/" + ExportImages[icon].forumName + ".png";

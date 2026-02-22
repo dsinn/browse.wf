@@ -7,7 +7,25 @@ import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { loadScript } from '../helpers/dom-helpers';
 import { loadMock, loadExportJson } from '../helpers/api-mocks';
 
+// Load real export data from warframe-public-export-plus (at module level)
+const worldState = loadMock('worldState.json');
+const dict = loadExportJson('dict.en.json');
+const ExportChallenges = loadExportJson('ExportChallenges.json');
+const ExportImages = loadExportJson('ExportImages.json');
+const ExportResources = loadExportJson('ExportResources.json');
+const ExportBundles = loadExportJson('ExportBundles.json');
+const ExportBoosterPacks = loadExportJson('ExportBoosterPacks.json');
+const ExportBoosters = loadExportJson('ExportBoosters.json');
+
 beforeEach(() => {
+  // Set up globals needed by calendar-seasons.js
+  (window as any).ExportImages = ExportImages;
+
+  // Minimal stub for setImageSource (defined in common.js but not on window)
+  // We don't test its implementation here - just that calendar-seasons can call it
+  (window as any).setImageSource = () => {};
+
+  // Load real calendar-seasons.js (follows "avoid test drift" principle)
   loadScript('typestripped/src/calendar-seasons.js');
 });
 
@@ -18,21 +36,10 @@ afterEach(() => {
 });
 
 describe('renderCalendarSeasonPane', () => {
-  const worldState = loadMock('worldState.json');
   const season = worldState.KnownCalendarSeasons[0]; // CST_FALL
-
-  // Load real export data from warframe-public-export-plus
-  const dict = loadExportJson('dict.en.json');
-  const ExportChallenges = loadExportJson('ExportChallenges.json');
-  const ExportImages = loadExportJson('ExportImages.json');
-  const ExportResources = loadExportJson('ExportResources.json');
-  const ExportBundles = loadExportJson('ExportBundles.json');
-  const ExportBoosterPacks = loadExportJson('ExportBoosterPacks.json');
-  const ExportBoosters = loadExportJson('ExportBoosters.json');
 
   // Default export promises using real data (as array for spreading into function calls)
   const defaultExportPromises = [
-    Promise.resolve(ExportImages),
     Promise.resolve(ExportResources),
     Promise.resolve(ExportBundles),
     Promise.resolve(ExportBoosterPacks),

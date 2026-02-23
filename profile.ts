@@ -940,12 +940,27 @@ function renderProfile(): void
 	const missionStats = ["MissionsCompleted", "MissionsFailed", "MissionsQuit", "MissionsInterrupted", "MissionsDumped"];
 	const totalMissions = missionStats.reduce((sum, stat) => sum + (profile.Stats?.[stat] || 0), 0);
 
+	// Calculate total ciphers for percentage calculations
+	const cipherStats = ["CiphersSolved", "CiphersFailed"];
+	const totalCiphers = cipherStats.reduce((sum, stat) => sum + (profile.Stats?.[stat] || 0), 0);
+
 	for (const stat of ["TimePlayedSec", "Income", "MissionsCompleted", "MissionsFailed", "MissionsQuit", "MissionsInterrupted", "MissionsDumped", "CiphersSolved", "CiphersFailed", "CipherTime", "ReviveCount", "HealCount", "Deaths"/*, "MeleeKills"*/])
 	{
 		const value = (profile.Stats && profile.Stats[stat]) ? profile.Stats[stat] : 0;
 		if (stat == "TimePlayedSec" || stat == "CipherTime")
 		{
-			document.getElementById("stat-" + stat).textContent = (value / 3600).toFixed(1) + " hours";
+			const elm = document.getElementById(`stat-${stat}`);
+			elm.textContent = `${(value / 3600).toFixed(1)} hours`;
+
+			// Add tooltip with exact seconds for CipherTime
+			if (stat == "CipherTime")
+			{
+				elm.style.cursor = "help";
+				elm.style.textDecoration = "underline dotted";
+				elm.setAttribute("data-bs-toggle", "tooltip");
+				elm.setAttribute("data-bs-title", `${Math.round(value).toLocaleString()} seconds`);
+				new (window as any).bootstrap.Tooltip(elm);
+			}
 		}
 		else
 		{
@@ -957,11 +972,27 @@ function renderProfile(): void
 				const percentage = ((value / totalMissions) * 100).toFixed(2);
 				document.getElementById("stat-" + stat).textContent += ` (${percentage}%)`;
 			}
+
+			// Add percentage for cipher stats
+			if (cipherStats.includes(stat) && totalCiphers > 0)
+			{
+				const percentage = ((value / totalCiphers) * 100).toFixed(2);
+				document.getElementById(`stat-${stat}`).textContent += ` (${percentage}%)`;
+			}
 		}
 	}
 	if (profile.Stats && profile.Stats.CipherTime && profile.Stats.CiphersSolved)
 	{
-		document.getElementById("stat-CipherTimeAvg").textContent = (profile.Stats.CipherTime / profile.Stats.CiphersSolved).toFixed(3) + "s";
+		const avgCipherTime = profile.Stats.CipherTime / profile.Stats.CiphersSolved;
+		const elm = document.getElementById("stat-CipherTimeAvg");
+		elm.textContent = `${avgCipherTime.toFixed(3)}s`;
+
+		// Add tooltip with unrounded value
+		elm.style.cursor = "help";
+		elm.style.textDecoration = "underline dotted";
+		elm.setAttribute("data-bs-toggle", "tooltip");
+		elm.setAttribute("data-bs-title", `${avgCipherTime} seconds`);
+		new (window as any).bootstrap.Tooltip(elm);
 	}
 	else
 	{

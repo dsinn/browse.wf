@@ -1179,9 +1179,7 @@ async function updateSorties()
 		const node = ExportRegions[variant.node];
 		const locationElem = document.createElement("span");
 		locationElem.textContent = `${dict[node.name]}, ${dict[node.systemName]}`;
-		const formattedTileset = variant.tileset
-			.replace('Tileset', '') // Remove redundant word
-			.replace(/(?<=[a-z])(?=[A-Z])/g, ' '); // Convert PascalCase to Title Case
+		const formattedTileset = (window as any).formatTileset(variant.tileset);
 		addTooltip(locationElem, formattedTileset);
 		td.appendChild(locationElem);
 

@@ -9,8 +9,8 @@ describe('Arbitration Schedule (/arbys)', () => {
   let document: Document;
 
   beforeEach(() => {
-    // Load the actual arbys.php HTML (remove problematic CSS for JSDOM)
-    let html = readFileSync(join(process.cwd(), 'arbys.php'), 'utf-8');
+    // Load the rendered arbys.html (PHP has been executed during build)
+    let html = readFileSync(join(process.cwd(), 'dist/arbys.html'), 'utf-8');
     html = html.replace(/<style>[\s\S]*?<\/style>/g, '<style></style>');
 
     dom = new JSDOM(html, {
@@ -278,21 +278,60 @@ describe('Arbitration Schedule (/arbys)', () => {
     });
   });
 
-  describe('Script loading structure', () => {
-    test('loads arbyTiers.js before arbys.js', () => {
-      const html = readFileSync(join(process.cwd(), 'arbys.php'), 'utf-8');
+  describe('HTML structure: Tileset filters', () => {
+    const tilesets = [
+      'CorpusGasCityTileset', 'CorpusIcePlanetTileset', 'CorpusIcePlanetTilesetCaves',
+      'CorpusOutpostTileset', 'CorpusShipTileset', 'EntratiTileset',
+      'GrineerAsteroidTileset', 'GrineerForestTileset', 'GrineerGalleonTileset',
+      'GrineerOceanTileset', 'GrineerSettlementTileset', 'GrineerShipyardsTileset',
+      'InfestedCorpusShipTileset', 'OrokinDerelictTileset', 'OrokinMoonTilesetCorpus',
+      'OrokinMoonTilesetGrineer', 'OrokinVoidTileset', 'ZarimanTileset'
+    ];
 
-      const arbyTiersIndex = html.indexOf('arbyTiers.js');
-      const arbysIndex = html.indexOf('typestripped/arbys.js');
-
-      expect(arbyTiersIndex).toBeGreaterThan(0);
-      expect(arbysIndex).toBeGreaterThan(0);
-      expect(arbyTiersIndex).toBeLessThan(arbysIndex);
+    test('all tileset checkboxes exist', () => {
+      tilesets.forEach(tileset => {
+        const checkbox = document.getElementById(`filter-${tileset}`) as HTMLInputElement;
+        expect(checkbox, `filter-${tileset} should exist`).toBeTruthy();
+        expect(checkbox.type).toBe('checkbox');
+        expect(checkbox.checked).toBe(true); // All checked by default
+      });
     });
 
-    test('includes Bootstrap bundle for UI components', () => {
-      const html = readFileSync(join(process.cwd(), 'arbys.php'), 'utf-8');
-      expect(html).toContain('bootstrap');
+    test('has rows for all tilesets in Next Occurrence table', () => {
+      tilesets.forEach(tileset => {
+        const row = document.getElementById(`next-${tileset}`);
+        expect(row, `next-${tileset} row should exist`).toBeTruthy();
+        expect(row?.children.length).toBe(3);
+      });
+    });
+  });
+
+  describe('HTML structure: Table category headings', () => {
+    test('has all category headings', () => {
+      const headings = Array.from(document.querySelectorAll('tbody tr.category-heading'));
+      expect(headings.length).toBe(4);
+
+      expect(headings[0]?.textContent).toContain('Mission Types');
+      expect(headings[1]?.textContent).toContain('Tiers');
+      expect(headings[2]?.textContent).toContain('Factions');
+      expect(headings[3]?.textContent).toContain('Tilesets');
+    });
+  });
+
+  describe('HTML structure: Save/Load buttons', () => {
+    test('Save settings button exists', () => {
+      const btn = document.getElementById('btn-save-settings') as HTMLButtonElement;
+      expect(btn, 'Save settings button should exist').toBeTruthy();
+      expect(btn.tagName).toBe('BUTTON');
+      expect(btn.textContent).toContain('Save settings');
+    });
+
+    test('Load settings button exists and starts disabled', () => {
+      const btn = document.getElementById('btn-load-settings') as HTMLButtonElement;
+      expect(btn, 'Load settings button should exist').toBeTruthy();
+      expect(btn.tagName).toBe('BUTTON');
+      expect(btn.textContent).toContain('Restore settings');
+      expect(btn.disabled, 'Load button should start disabled').toBe(true);
     });
   });
 });

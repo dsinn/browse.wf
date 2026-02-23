@@ -124,9 +124,9 @@ test.describe('Arbitration Schedule (/arbys)', () => {
     });
 
     test('unchecking faction filters it from log', async ({ page }) => {
-      // First, verify Grineer missions ARE present
+      // First, verify Grineer missions ARE present (check for faction in mission details)
       const logTextBefore = await page.locator('#log').textContent();
-      expect(logTextBefore?.toLowerCase()).toContain('grineer');
+      expect(logTextBefore?.toLowerCase()).toContain('- grineer @');
 
       const initialCount = await page.locator('#log [data-timestamp]').count();
 
@@ -141,9 +141,9 @@ test.describe('Arbitration Schedule (/arbys)', () => {
       // Should have fewer entries
       expect(newCount).toBeLessThan(initialCount);
 
-      // Grineer missions should NOW be gone
+      // Grineer faction missions should NOW be gone (tilesets with "grineer" in name are OK)
       const logTextAfter = await page.locator('#log').textContent();
-      expect(logTextAfter?.toLowerCase()).not.toContain('grineer');
+      expect(logTextAfter?.toLowerCase()).not.toContain('- grineer @');
     });
 
     test('unchecking filter updates URL hash', async ({ page }) => {
@@ -327,8 +327,8 @@ test.describe('Arbitration Schedule (/arbys)', () => {
     });
 
     test('date cells have timestamp attributes', async ({ page }) => {
-      // Find any row with data
-      const rows = await page.locator('table tbody tr').all();
+      // Find any data row (skip category heading rows)
+      const rows = await page.locator('table tbody tr:not(.category-heading)').all();
 
       let foundTimestamp = false;
       for (const row of rows) {
@@ -578,4 +578,177 @@ test.describe('Arbitration Schedule (/arbys)', () => {
       expect(newCount).toBeGreaterThan(0);
     });
   });
+
+  test.describe('Tileset filtering', () => {
+    test('unchecking tileset filter removes those arbitrations from log', async ({ page }) => {
+      // First, verify Grineer Asteroid entries ARE present (we need to look in details)
+      const initialEntries = await page.locator('#log [data-timestamp]').all();
+      let foundGrineerAsteroid = false;
+      for (const entry of initialEntries) {
+        const text = await entry.textContent();
+        if (text?.includes('Grineer Asteroid')) {
+          foundGrineerAsteroid = true;
+          break;
+        }
+      }
+
+      if (foundGrineerAsteroid) {
+        const initialCount = await page.locator('#log [data-timestamp]').count();
+
+        // Uncheck Grineer Asteroid tileset
+        await page.locator('#filter-GrineerAsteroidTileset').uncheck();
+
+        // Wait for count to decrease
+        await expect(page.locator('#log [data-timestamp]')).not.toHaveCount(initialCount);
+
+        const newCount = await page.locator('#log [data-timestamp]').count();
+
+        // Should have fewer entries
+        expect(newCount).toBeLessThan(initialCount);
+
+        // Grineer Asteroid missions should NOW be gone
+        const newEntries = await page.locator('#log [data-timestamp]').all();
+        for (const entry of newEntries) {
+          const text = await entry.textContent();
+          expect(text).not.toContain('Grineer Asteroid');
+        }
+      }
+    });
+
+    test('tileset rows exist in Next Occurrence table', async ({ page }) => {
+      // Verify tileset filter rows exist in the table
+      const grineerAsteroidRow = page.locator('#next-GrineerAsteroidTileset');
+      await expect(grineerAsteroidRow).toBeVisible();
+
+      const corpusShipRow = page.locator('#next-CorpusShipTileset');
+      await expect(corpusShipRow).toBeVisible();
+
+      const orokinVoidRow = page.locator('#next-OrokinVoidTileset');
+      await expect(orokinVoidRow).toBeVisible();
+    });
+  });
+
+  test.describe('Save/Load settings buttons', () => {
+    test('Save button exists and is enabled', async ({ page }) => {
+      const saveBtn = page.locator('#btn-save-settings');
+      await expect(saveBtn).toBeVisible();
+      await expect(saveBtn).not.toBeDisabled();
+      await expect(saveBtn).toContainText('Save settings');
+    });
+
+    test('Load button exists and starts disabled', async ({ page }) => {
+      const loadBtn = page.locator('#btn-load-settings');
+      await expect(loadBtn).toBeVisible();
+      await expect(loadBtn).toBeDisabled();
+      await expect(loadBtn).toContainText('Restore settings');
+    });
+
+    test('Save button saves settings to localStorage and enables Load button', async ({ page }) => {
+      // Make some changes
+      await page.selectOption('#select-days', '7');
+      await page.locator('#filter-MT_DEFENSE').uncheck();
+
+      // Click Save button
+      const saveBtn = page.locator('#btn-save-settings');
+      await saveBtn.click();
+
+      // Button should show "Saving..." then "Saved!"
+      await expect(saveBtn).toContainText(/Sav(ing|ed)/);
+
+      // Load button should become enabled
+      await expect(page.locator('#btn-load-settings')).not.toBeDisabled();
+
+      // Check localStorage
+      const savedSettings = await page.evaluate(() => {
+        return localStorage.getItem('arbys.settings');
+      });
+
+      expect(savedSettings).toBeTruthy();
+      const settings = JSON.parse(savedSettings!);
+      expect(settings.select_days).toBe('7');
+      expect(settings.filters.MT_DEFENSE).toBe(false);
+    });
+
+    test('Load button restores saved settings', async ({ page }) => {
+      // First save some settings
+      await page.selectOption('#select-days', '30');
+      await page.selectOption('#select-hourfmt', '12');
+      await page.locator('#filter-MT_SURVIVAL').uncheck();
+
+      const saveBtn = page.locator('#btn-save-settings');
+      await saveBtn.click();
+      await expect(page.locator('#btn-load-settings')).not.toBeDisabled();
+
+      // Change settings to something else
+      await page.selectOption('#select-days', '7');
+      await page.selectOption('#select-hourfmt', '24');
+      await page.locator('#filter-MT_SURVIVAL').check();
+
+      // Verify changed
+      await expect(page.locator('#select-days')).toHaveValue('7');
+      await expect(page.locator('#select-hourfmt')).toHaveValue('24');
+      await expect(page.locator('#filter-MT_SURVIVAL')).toBeChecked();
+
+      // Click Load button
+      const loadBtn = page.locator('#btn-load-settings');
+      await loadBtn.click();
+
+      // Wait for button to show "Loaded!"
+      await expect(loadBtn).toContainText('Load');
+
+      // Settings should be restored
+      await expect(page.locator('#select-days')).toHaveValue('30');
+      await expect(page.locator('#select-hourfmt')).toHaveValue('12');
+      await expect(page.locator('#filter-MT_SURVIVAL')).not.toBeChecked();
+    });
+
+    test('Load button updates URL hash after loading', async ({ page }) => {
+      // Save settings with excluded filters
+      await page.locator('#filter-MT_DEFENSE').uncheck();
+      await page.locator('#filter-MT_SURVIVAL').uncheck();
+
+      const saveBtn = page.locator('#btn-save-settings');
+      await saveBtn.click();
+      await expect(page.locator('#btn-load-settings')).not.toBeDisabled();
+
+      // Navigate away (clear hash)
+      await page.evaluate(() => { window.location.hash = ''; });
+
+      // Restore settings
+      const loadBtn = page.locator('#btn-load-settings');
+      await loadBtn.click();
+
+      // URL hash should be updated
+      await expect(page).toHaveURL(/exclude=/);
+      await expect(page).toHaveURL(/MT_DEFENSE/);
+      await expect(page).toHaveURL(/MT_SURVIVAL/);
+    });
+  });
+
+  test.describe('Tileset display in log', () => {
+    test('log entries show tileset names', async ({ page }) => {
+      // Get first few log entries and check if they contain tileset names
+      const entries = await page.locator('#log [data-timestamp]').all();
+
+      let foundTileset = false;
+      const tilesetPatterns = [
+        'Grineer Asteroid', 'Grineer Galleon', 'Corpus Ship', 'Orokin Void',
+        'Corpus Gas City', 'Zariman', 'Entrati'
+      ];
+
+      for (const entry of entries.slice(0, 10)) {
+        const text = await entry.textContent();
+        for (const pattern of tilesetPatterns) {
+          if (text?.includes(pattern)) {
+            foundTileset = true;
+            break;
+          }
+        }
+        if (foundTileset) break;
+      }
+
+      expect(foundTileset, 'Should find at least one tileset name in log entries').toBe(true);
+    });
+  });
+
 });

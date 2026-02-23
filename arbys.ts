@@ -68,6 +68,20 @@ function formathour(hour: number): string
 	}
 }
 
+// Wait for cloud sync to emit one of its events (or timeout)
+const cloudSyncEvent = new Promise<string>(resolve => {
+	window.addEventListener('cloud-sync-complete', () => resolve('complete'), { once: true });
+	window.addEventListener('cloud-sync-unavailable', () => resolve('unavailable'), { once: true });
+	window.addEventListener('cloud-sync-unauthenticated', () => resolve('unauthenticated'), { once: true });
+	window.addEventListener('cloud-sync-error', () => resolve('error'), { once: true });
+	setTimeout(() => resolve('timeout'), 3000);
+});
+
+// After cloud sync completes, check if saved settings exist and enable Load button if so
+cloudSyncEvent.then(() => {
+	checkLoadButtonState();
+});
+
 const params = new URLSearchParams(location.hash.replace("#", ""));
 if (params.has("days"))
 {
@@ -172,9 +186,18 @@ function updateLog(): void
 			continue;
 		}
 
+		// Check tileset filter
+		const nodeTileset = (window as any).getTileset(node, arr[1]);
+		if (nodeTileset) {
+			const tilesetCheckbox = document.getElementById(`filter-${nodeTileset}`) as HTMLInputElement | null;
+			if (tilesetCheckbox && !tilesetCheckbox.checked) {
+				continue;
+			}
+		}
+
 		const date = new Date(arr[0] * 1000);
 		const thisArbyHour = zulu ? date.getUTCHours() : date.getHours();
-		const thisArbyDay = zulu ? date.getUTCDate() : date.getDate();								
+		const thisArbyDay = zulu ? date.getUTCDate() : date.getDate();
 
 		if (thisArbyDay != lastArbyDay)
 		{
@@ -198,6 +221,11 @@ function updateLog(): void
 		{
 			span.textContent += ", " + (node.darkSectorData.resourceBonus * 100).toFixed(0) + "% resource bonus";
 		}
+		const formattedTileset = (window as any).formatTileset(nodeTileset);
+		if (formattedTileset)
+		{
+			span.textContent += `, ${formattedTileset}`;
+		}
 		span.textContent += ")";
 		document.getElementById("log").appendChild(span);
 
@@ -210,8 +238,8 @@ function updateLog(): void
 		document.getElementById("log").appendChild(span);
 	}
 
-	// Update table
-	document.querySelectorAll("table tbody tr").forEach(tr => {
+	// Update table (skip category heading rows)
+	document.querySelectorAll("table tbody tr:not(.category-heading)").forEach(tr => {
 		tr.setAttribute("data-starved", "true");
 		tr.children[1].innerHTML = "N/A";
 		tr.children[2].innerHTML = "N/A";
@@ -272,6 +300,22 @@ function updateLog(): void
 				}
 			}
 		}
+		{
+			const nodeTileset = (window as any).getTileset(node, arr[1]);
+			if (nodeTileset) {
+				const tr = document.getElementById(`next-${nodeTileset}`);
+				if (tr.children[1].innerHTML == "N/A") {
+					tr.removeAttribute("data-starved");
+					tr.children[1].setAttribute("data-timestamp", arr[0].toString());
+					tr.children[1].textContent = `${days[thisArbyWeekDay]}, ${months[thisArbyMonth]} ${thisArbyDay}, ${formathour(thisArbyHour)}`;
+					tr.children[2].textContent = `${toTitleCase(loc(node.missionName))} - ${dict[ExportFactions[node.faction].name]} @ ${loc(node.name)}, ${loc(node.systemName)}`;
+					if ("darkSectorData" in node)
+					{
+						tr.children[2].textContent += ` (${(node.darkSectorData.resourceBonus * 100).toFixed(0)}% resource bonus)`;
+					}
+				}
+			}
+		}
 	}
 
 	// Ensure data stays up-to-date
@@ -311,6 +355,147 @@ function saveSettings(): void
 
 	location.hash = hash;
 }
+
+function saveToLocalStorage(): void
+{
+	const settings: any = {
+		select_days: (document.getElementById("select-days") as HTMLSelectElement).value,
+		select_tz: (document.getElementById("select-tz") as HTMLSelectElement).value,
+		select_hourfmt: (document.getElementById("select-hourfmt") as HTMLSelectElement).value,
+		filters: {}
+	};
+
+	// Save all filter checkbox states
+	document.querySelectorAll<HTMLInputElement>('input[type=checkbox][id^="filter-"]').forEach(checkbox => {
+		const filterId = checkbox.id.substring(7); // Remove "filter-" prefix
+		settings.filters[filterId] = checkbox.checked;
+	});
+
+	localStorage.setItem("arbys.settings", JSON.stringify(settings));
+}
+
+function loadFromLocalStorage(): void
+{
+	const settingsJson = localStorage.getItem("arbys.settings");
+	if (!settingsJson) return;
+
+	try {
+		const settings = JSON.parse(settingsJson);
+
+		// Restore dropdown values
+		if (settings.select_days) {
+			(document.getElementById("select-days") as HTMLSelectElement).value = settings.select_days;
+		}
+		if (settings.select_tz) {
+			(document.getElementById("select-tz") as HTMLSelectElement).value = settings.select_tz;
+		}
+		if (settings.select_hourfmt) {
+			(document.getElementById("select-hourfmt") as HTMLSelectElement).value = settings.select_hourfmt;
+		}
+
+		// Restore checkbox states
+		if (settings.filters) {
+			for (const [filterId, checked] of Object.entries(settings.filters)) {
+				const checkbox = document.getElementById(`filter-${filterId}`) as HTMLInputElement | null;
+				if (checkbox) {
+					checkbox.checked = checked as boolean;
+				}
+			}
+		}
+	} catch (e) {
+		console.error("Failed to parse saved settings:", e);
+	}
+}
+
+function checkLoadButtonState(): void
+{
+	const btnLoad = document.getElementById("btn-load-settings") as HTMLButtonElement | null;
+	if (!btnLoad) return;
+
+	let shouldDisable = true;
+	const settingsJson = localStorage.getItem("arbys.settings");
+	if (settingsJson) {
+		try {
+			JSON.parse(settingsJson); // Validate it's valid JSON
+			shouldDisable = false;
+		} catch {
+		}
+	}
+
+	btnLoad.disabled = shouldDisable
+}
+
+// Expose checkLoadButtonState globally for cloud sync to call
+(window as any).checkLoadButtonState = checkLoadButtonState;
+
+// Save button handler
+document.getElementById("btn-save-settings")?.addEventListener("click", function() {
+	const btn = this as HTMLButtonElement;
+	const originalText = btn.textContent;
+	btn.disabled = true;
+	btn.textContent = "Saving...";
+
+	try {
+		// Save to localStorage
+		saveToLocalStorage();
+
+		// Trigger cloud sync if available
+		if ((window as any).triggerCloudSync) {
+			(window as any).triggerCloudSync();
+		}
+
+		btn.textContent = "Saved!";
+
+		// Enable Load button since settings now exist
+		checkLoadButtonState();
+
+		setTimeout(() => {
+			btn.textContent = originalText;
+			btn.disabled = false;
+		}, 3000);
+	} catch (error) {
+		console.error("Failed to save settings:", error);
+		btn.textContent = "Error";
+		setTimeout(() => {
+			btn.textContent = originalText;
+			btn.disabled = false;
+		}, 3000);
+	}
+});
+
+// Load button handler
+document.getElementById("btn-load-settings")?.addEventListener("click", function() {
+	const btn = this as HTMLButtonElement;
+	const originalText = btn.textContent;
+	btn.disabled = true;
+	btn.textContent = "Loading...";
+
+	try {
+		// Load from localStorage
+		loadFromLocalStorage();
+
+		// Update display
+		if ("arbys" in window) {
+			updateLog();
+		}
+
+		// Update URL hash to match loaded settings
+		saveSettings();
+
+		btn.textContent = "Loaded!";
+		setTimeout(() => {
+			btn.textContent = originalText;
+			btn.disabled = false;
+		}, 3000);
+	} catch (error) {
+		console.error("Failed to load settings:", error);
+		btn.textContent = "Error";
+		setTimeout(() => {
+			btn.textContent = originalText;
+			btn.disabled = false;
+		}, 3000);
+	}
+});
 
 document.querySelectorAll<HTMLSelectElement | HTMLInputElement>("select, input[type=checkbox]").forEach(elm =>
 {

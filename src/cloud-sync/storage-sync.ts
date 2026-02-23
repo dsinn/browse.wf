@@ -546,6 +546,11 @@ export class StorageSyncService {
     if ((window as any).updateIncursionsLocalised) {
       (window as any).updateIncursionsLocalised()
     }
+
+    // Refresh arbys Load button state (enable/disable based on saved settings)
+    if ((window as any).checkLoadButtonState) {
+      (window as any).checkLoadButtonState()
+    }
   }
 
   /**

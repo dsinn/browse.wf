@@ -24,7 +24,7 @@
 /* Fade animations for unread items */
 @keyframes fade-primary {
   0%, 100% {
-    color: var(--bs-primary);
+    color: var(--bs-primary-text-emphasis);
   }
   50% {
     color: white;
@@ -33,7 +33,7 @@
 
 @keyframes fade-success {
   0%, 100% {
-    color: var(--bs-success);
+    color: var(--bs-success-text-emphasis);
   }
   50% {
     color: white;
@@ -52,12 +52,12 @@
 /* Hover state: show category color without animation */
 #news-body .news-item.news-primary a:hover {
   animation: none;
-  color: var(--bs-primary);
+  color: var(--bs-primary-text-emphasis);
 }
 
 #news-body .news-item.news-success a:hover {
   animation: none;
-  color: var(--bs-success);
+  color: var(--bs-success-text-emphasis);
 }
 
 #news-body .news-item.news-read a {

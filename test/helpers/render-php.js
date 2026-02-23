@@ -36,6 +36,11 @@ const FIXTURES = {
     output: 'weekly-forecast.html',
     description: 'Weekly Forecast page full HTML',
   },
+  arbys: {
+    url: '/arbys.php',
+    output: 'arbys.html',
+    description: 'Arbitration Schedule page full HTML',
+  },
 };
 
 

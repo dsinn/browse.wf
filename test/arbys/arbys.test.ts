@@ -9,8 +9,8 @@ describe('Arbitration Schedule (/arbys)', () => {
   let document: Document;
 
   beforeEach(() => {
-    // Load the rendered arbys.html (PHP has been executed during build)
-    let html = readFileSync(join(process.cwd(), 'dist/arbys.html'), 'utf-8');
+    // Load the rendered arbys.html fixture (PHP has been rendered via render-fixtures script)
+    let html = readFileSync(join(process.cwd(), 'test/__fixtures__/arbys.html'), 'utf-8');
     html = html.replace(/<style>[\s\S]*?<\/style>/g, '<style></style>');
 
     dom = new JSDOM(html, {

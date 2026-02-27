@@ -349,7 +349,7 @@
 		}
 		else if (node.type == "/EE/Types/Engine/SpecialCompletionDialogueNode")
 		{
-			if (node.OtherDialogueInfos.length == 1)
+			if (node.OtherDialogueInfos?.length == 1)
 			{
 				addToHistory("System", node.OtherDialogueInfos[0].Tag + " would now be queued in " + node.OtherDialogueInfos[0].Dialogue + ".");
 			}

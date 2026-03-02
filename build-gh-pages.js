@@ -19,6 +19,7 @@ const __dirname = path.dirname(__filename);
 
 const BUILD_DIR = path.join(__dirname, 'dist');
 const PHP_SERVER_PORT = 60980; // Different port for build
+const CACHE_BUSTER = process.env.GITHUB_SHA?.slice(0, 8) ?? Date.now().toString();
 
 // PHP files to render (excluding components)
 const PHP_FILES = [
@@ -57,7 +58,10 @@ function fixPathsForGitHubPages(html) {
     // Fix script sources (e.g., src="/common.js" → src="/browse.wf/common.js")
     .replace(/src="\/([^"]+\.js)"/g, `src="${BASE_PATH}/$1"`)
     // Fix env-config.php to env-config.js (PHP won't execute on GitHub Pages)
-    .replace(/src="env-config\.php"/g, 'src="env-config.js"');
+    .replace(/src="env-config\.php"/g, 'src="env-config.js"')
+    // GitHub Pages caches assets for 10 minutes; append cache-buster to all local assets
+    .replace(/src="((?:typestripped\/|common\.js|env-config\.js|supplemental-data\/)[^"?]*)(?:\?[^"]*)?"/g, `src="$1?${CACHE_BUSTER}"`)
+    .replace(/href="(src\/[^"?]+\.css)(?:\?[^"]*)?"/g, `href="$1?${CACHE_BUSTER}"`);
 }
 
 /**

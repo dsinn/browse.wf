@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { setupMockRoutes } from '../helpers/api-mocks';
+import { TEST_FRONT_PROXY_BASE_URL } from '../../test/helpers/test-constants';
 
 /**
  * Archimedea E2E Tests
@@ -330,7 +331,7 @@ test.describe('Live Page - Archimedea Cards', () => {
     test('both cards use data from worldState.Conquests', async ({ page }) => {
       // Intercept worldState fetch to verify it's being used
       let worldStateFetched = false;
-      await page.route('**/oracle.browse.wf/worldState.json', async (route) => {
+      await page.route(`**/${new URL(TEST_FRONT_PROXY_BASE_URL).host}/worldState`, async (route) => {
         worldStateFetched = true;
         await route.continue();
       });

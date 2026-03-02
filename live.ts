@@ -1069,7 +1069,7 @@ function updateWorldStateLocalised()
 function updateWorldState()
 {
 	window.refresh_world_state_at = undefined;
-	fetch("https://oracle.browse.wf/worldState.json").then(res => res.json()).then(worldState =>
+	(window as any).WarframeApiFrontProxyClient.fetchWorldState().then((worldState: any) =>
 	{
 		window.worldState = worldState;
 

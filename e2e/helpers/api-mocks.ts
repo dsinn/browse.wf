@@ -1,8 +1,8 @@
 import { Page } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
-import { MOCK_TIMESTAMP } from '../../test/helpers/test-constants';
-import { isBlockedDomain, isImageRequest } from '../../test/helpers/domain-blocker';
+import { MOCK_TIMESTAMP, TEST_FRONT_PROXY_BASE_URL } from '../../test/helpers/test-constants';
+import { isImageRequest } from '../../test/helpers/domain-blocker';
 
 export { MOCK_TIMESTAMP };
 
@@ -38,19 +38,26 @@ export async function setupMockRoutes(page: Page, options?: { worldStateFile?: s
   const dictEnData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'dicts', 'en.json'), 'utf8'));
 
   // SAFEGUARD: Register catch-all FIRST (will be checked LAST due to reverse order)
-  // This blocks unmocked requests to production browse.wf domains
+  // Blocks all requests not handled by a specific mock above, except for localhost,
+  // known CDN hosts, image requests (stubbed with an empty PNG), and /Lotus/ paths
+  // (item/weapon lookups, stubbed with an empty object).
   await page.route('**/*', (route) => {
     const url = route.request().url();
+    const { hostname } = new URL(url);
 
-    // Only intercept browse.wf domains
-    if (!isBlockedDomain(url)) {
-      // Not a blocked domain - let it through to localhost
+    const ALLOWED_EXTERNAL_HOSTS = [
+      'localhost',
+      '127.0.0.1',
+      'cdn.jsdelivr.net',   // Bootstrap, table-sort-js
+      'esm.sh',             // Supabase
+      'pluto-lang.org',     // PlutoScript
+    ];
+
+    if (ALLOWED_EXTERNAL_HOSTS.includes(hostname)) {
       return route.continue();
     }
 
-    // This is a blocked domain that wasn't handled by specific routes below
     if (isImageRequest(url)) {
-      // Image requests: silently fulfill with empty response
       return route.fulfill({
         status: 200,
         contentType: 'image/png',
@@ -67,8 +74,7 @@ export async function setupMockRoutes(page: Page, options?: { worldStateFile?: s
       });
     }
 
-    // Non-image, non-Lotus request to production domain - this is an error
-    console.error(`TEST SAFEGUARD: Blocked request to production domain: ${url}`);
+    console.error(`TEST SAFEGUARD: Blocked unmocked request to: ${url}`);
     route.abort('failed');
   });
 
@@ -98,8 +104,8 @@ export async function setupMockRoutes(page: Page, options?: { worldStateFile?: s
     route.abort('failed');
   });
 
-  // Mock oracle.browse.wf/worldState.json (used in live.ts:868)
-  await page.route('**/oracle.browse.wf/worldState.json', route => {
+  // Mock the front proxy worldState endpoint (used by WarframeApiFrontProxyClient)
+  await page.route(`**/${new URL(TEST_FRONT_PROXY_BASE_URL).host}/worldState`, route => {
     route.fulfill({
       status: 200,
       contentType: 'application/json',

@@ -146,7 +146,9 @@ async function build() {
     const envConfig = {
       VITE_ENV: 'production',  // Always 'production' for GitHub Pages build
       VITE_DATABASE_URL: process.env.VITE_DATABASE_URL || '',
-      VITE_DATABASE_ANON_KEY: process.env.VITE_DATABASE_ANON_KEY || ''
+      VITE_DATABASE_ANON_KEY: process.env.VITE_DATABASE_ANON_KEY || '',
+      WARFRAME_API_FRONT_PROXY_BASE_URL: process.env.WARFRAME_API_FRONT_PROXY_BASE_URL || '',
+      WARFRAME_API_FRONT_PROXY_TOKEN: process.env.WARFRAME_API_FRONT_PROXY_TOKEN || ''
     };
     const envConfigContent = `window.__ENV__ = ${JSON.stringify(envConfig)};\n`;
     fs.writeFileSync(path.join(BUILD_DIR, 'env-config.js'), envConfigContent);

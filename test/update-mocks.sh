@@ -14,7 +14,13 @@ echo "✓ Updated min.json"
 curl -s "https://oracle.browse.wf/bounty-cycle" > "$MOCKS_DIR/bounty-cycle.json"
 echo "✓ Updated bounty-cycle.json"
 
-curl -s "https://oracle.browse.wf/worldState.json" > "$MOCKS_DIR/worldState.json"
+if [ -z "$WARFRAME_API_FRONT_PROXY_TOKEN" ]; then
+  echo "Error: WARFRAME_API_FRONT_PROXY_TOKEN is not set"
+  exit 1
+fi
+FRONT_PROXY_BASE_URL="${WARFRAME_API_FRONT_PROXY_BASE_URL:-https://warframe-api-front-proxy.dsinn69.workers.dev}"
+curl -s -H "X-Warframe-API-Front-Proxy-Token: $WARFRAME_API_FRONT_PROXY_TOKEN" \
+  "$FRONT_PROXY_BASE_URL/worldState" > "$MOCKS_DIR/worldState.json"
 echo "✓ Updated worldState.json"
 
 curl -s "https://oracle.browse.wf/invasions" > "$MOCKS_DIR/invasions.json"

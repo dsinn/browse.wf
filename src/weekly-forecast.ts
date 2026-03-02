@@ -285,7 +285,7 @@ async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
 	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsEl) ? getActiveTabActivation(calendarSeasonTabsEl) : null;
 
 	const [worldState, dict, osdict, ExportMissionTypes, ExportChallenges, ExportImages, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters] = await Promise.all([
-		fetch("https://oracle.browse.wf/worldState.json").then(r => r.json()),
+		(window as any).WarframeApiFrontProxyClient.fetchWorldState(),
 		getDictPromise(),
 		getOSDictPromise(),
 		fetch("warframe-public-export-plus/ExportMissionTypes.json").then(r => r.json()),

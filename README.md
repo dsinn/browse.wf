@@ -116,6 +116,71 @@ npm run test:e2e      # Run E2E tests (Playwright)
 
 For more commands, debugging options, and testing strategies, see [test/README.md](test/README.md).
 
+### Warframe API Proxy (Optional)
+
+The Warframe API (`api.warframe.com`) does not send CORS headers, preventing direct browser fetches. The API's WAF also returns 403 for all requests originating from Cloudflare Worker egress IPs. This fork uses a two-hop proxy to work around both issues:
+
+```mermaid
+flowchart LR
+    A["browse.wf\n(browser)"] --> B["Front proxy\n(Cloudflare Worker)"]
+    B --> C["Private proxy"]
+    C --> D["api.warframe.com\ncontent.warframe.com"]
+```
+
+| Component | Responsibilities |
+|---|---|
+| **browse.wf** | Initiates API requests; supplies auth token |
+| **Front proxy** | Enforces CORS, validates the auth token, validates and routes requests to the private proxy |
+| **Private proxy** | Forwards requests to the Warframe API via plain HTTP fetch from a non-Cloudflare IP |
+| **Warframe API** | Source of world state and player profile data |
+
+See [warframe-api-front-proxy](https://github.com/dsinn/warframe-api-front-proxy) for the Worker and its private proxy interface specification. An example private proxy implementation is available at [warframe-api-private-proxy-php](https://github.com/dsinn/warframe-api-private-proxy-php).
+
+<details>
+<summary>Abridged Architecture Decision Record</summary>
+
+**Context**
+
+The Warframe API (`api.warframe.com`) does not send CORS headers, preventing browser-based apps from fetching it directly. A server-side proxy is the standard solution, but the API's WAF (Akamai) returns 403 for all requests originating from Cloudflare Worker egress IPs, regardless of request headers.
+
+**Options considered**
+
+- **Direct browser fetch** — blocked by missing CORS headers
+- **Single serverless proxy** — blocked by Cloudflare egress IPs being rejected by the WAF
+- **GitHub Actions scheduled job** — would require regular workflow runs to keep a cached copy fresh; rejected as operationally fragile
+- **Two-hop proxy via shared hosting** — shared hosting providers make plain HTTP requests from a non-Cloudflare IP; a Cloudflare Worker can act as the public-facing layer while delegating the actual fetch to the shared host
+
+**Decision**
+
+Use a two-hop architecture. The two components are named by their role in the chain:
+
+- **Front proxy** — the public-facing Cloudflare Worker; because its URL is public, it enforces CORS, token authentication, input validation, and strict route-to-upstream mappings
+- **Private proxy** — its URL is kept secret and known only to the front proxy; intentionally kept as simple as possible (accept a `?url=` parameter, fetch it, return the response) so that the contract is easy to implement in whatever language the host provider supports
+
+**Consequences**
+
+- The Warframe API receives requests from a non-Cloudflare IP, bypassing the WAF block ✓
+- CORS and auth are handled at the Cloudflare edge, not on shared hosting ✓
+- The private proxy URL is kept secret; only the front proxy URL is exposed to clients ✓
+- Requires maintaining two deployed services instead of one ✗
+- Depends on shared hosting remaining available and on a non-blocked IP range ✗
+
+</details>
+
+The app defaults to using the front proxy at `https://warframe-api-front-proxy.dsinn69.workers.dev`. To use it, add the token to your `.env`:
+
+```
+WARFRAME_API_FRONT_PROXY_TOKEN=<value of X-Warframe-API-Front-Proxy-Token from browser dev tools>
+```
+
+To use a different front proxy, also set:
+
+```
+WARFRAME_API_FRONT_PROXY_BASE_URL=https://your-worker.workers.dev
+```
+
+> **Note for downstream forks:** The front proxy validates `ALLOWED_HOST`, so the default front proxy will reject requests from your fork's domain. You must deploy your own front proxy and private proxy — see [warframe-api-front-proxy](https://github.com/dsinn/warframe-api-front-proxy) and [warframe-api-private-proxy-php](https://github.com/dsinn/warframe-api-private-proxy-php).
+
 ### Cloud Sync (Optional)
 
 This app stores all preferences locally in your browser by default. Cloud sync uses Discord for authentication, and the instructions below are tailored for Supabase as the storage backend.

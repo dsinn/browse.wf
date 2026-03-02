@@ -23,6 +23,8 @@ jobs:
 
       - name: Validate API structure matches mocks
         run: npm run test:api-validation
+        env:
+          WARFRAME_API_FRONT_PROXY_TOKEN: ${{ secrets.WARFRAME_API_FRONT_PROXY_TOKEN }}
 
       - name: Comment on failure
         if: failure()

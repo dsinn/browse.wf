@@ -8,7 +8,9 @@ header('Content-Type: application/javascript');
 
 $envVars = [
 	'VITE_DATABASE_URL' => '',
-	'VITE_DATABASE_ANON_KEY' => ''
+	'VITE_DATABASE_ANON_KEY' => '',
+	'WARFRAME_API_FRONT_PROXY_BASE_URL' => '',
+	'WARFRAME_API_FRONT_PROXY_TOKEN' => ''
 ];
 
 // First, try to read from system environment variables (for GitHub Actions build)
@@ -20,7 +22,7 @@ foreach (array_keys($envVars) as $key) {
 }
 
 // Then, try to read .env file (for local development)
-// This will override system env vars if .env exists
+// .env values take precedence over system env vars
 $envFile = __DIR__ . '/.env';
 if (file_exists($envFile)) {
 	$lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

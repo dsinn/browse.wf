@@ -23,6 +23,8 @@ declare global {
       VITE_ENV?: string;
       VITE_DATABASE_URL?: string;
       VITE_DATABASE_ANON_KEY?: string;
+      WARFRAME_API_FRONT_PROXY_BASE_URL?: string;
+      WARFRAME_API_FRONT_PROXY_TOKEN?: string;
     };
   }
 

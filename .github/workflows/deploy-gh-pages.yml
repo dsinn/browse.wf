@@ -29,6 +29,8 @@ jobs:
         env:
           VITE_DATABASE_URL: ${{ secrets.VITE_DATABASE_URL }}
           VITE_DATABASE_ANON_KEY: ${{ secrets.VITE_DATABASE_ANON_KEY }}
+          WARFRAME_API_FRONT_PROXY_BASE_URL: ${{ secrets.WARFRAME_API_FRONT_PROXY_BASE_URL }}
+          WARFRAME_API_FRONT_PROXY_TOKEN: ${{ secrets.WARFRAME_API_FRONT_PROXY_TOKEN }}
         run: node build-gh-pages.js
 
       - name: Deploy to gh-pages

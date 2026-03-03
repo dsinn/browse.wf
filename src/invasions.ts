@@ -108,8 +108,31 @@ function sortInvasionsInPlace(invasions: any[], extraDataMap: Record<string, Inv
 	});
 }
 
+// Derive the invasion reward filter key from an Oracle API ItemType path.
+// The key is the last path segment, with the part-name suffix stripped for weapons
+// (so all parts and blueprints of the same weapon map to the same checkbox).
+// The derived key matches the data-filter-type attribute on the filter checkboxes.
+function invasionRewardFilterKey(itemType: string): string
+{
+	const segment = itemType.replace(/^.+\//, '');
+	const isWeapon = /\/(?:Weapons|WeaponParts)\/[^\/]+$/.test(itemType);
+	// Weapons: strip trailing part-name word (Barrel, Receiver, Blueprint, etc.) so all
+	// parts and blueprints of the same weapon share one key. SortieBlueprint is two words
+	// so strip it explicitly first.
+	// Non-weapons: strip Blueprint suffix only.
+	return isWeapon
+		? segment.replace(/SortieBlueprint$|[A-Z][a-z]+$/, '')
+		: segment.replace(/Blueprint$/, '');
+}
+
+function isInvasionRewardShown(itemType: string): boolean
+{
+	return (window as any).isFilterEnabled("invasions", `reward-${invasionRewardFilterKey(itemType)}`);
+}
+
 // Expose functions globally for non-module scripts
 (window as any).createInvasionProgressBar = createInvasionProgressBar;
 (window as any).buildInvasionExtraDataMap = buildInvasionExtraDataMap;
 (window as any).renderInvasionProgressPercentage = renderInvasionProgressPercentage;
 (window as any).sortInvasionsInPlace = sortInvasionsInPlace;
+(window as any).isInvasionRewardShown = isInvasionRewardShown;

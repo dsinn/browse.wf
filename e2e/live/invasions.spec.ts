@@ -10,7 +10,7 @@ test.describe('Live Page - Invasions Card', () => {
   // actual data rows (rather than the initial "Loading..." placeholder in the HTML).
   async function waitForInvasionsTable(page: Page) {
     await page.clock.runFor(2000);
-    await page.waitForSelector('#invasions-table tbody tr:not(:has-text("Loading..."))', { timeout: 10000 });
+    await page.waitForSelector('#invasions-table tbody tr:visible:not(:has-text("Loading..."))', { timeout: 10000 });
   }
 
   test.beforeEach(async ({ page }) => {
@@ -36,21 +36,21 @@ test.describe('Live Page - Invasions Card', () => {
     await page.reload();
     await waitForInvasionsTable(page);
 
-    const invasionRows = await page.locator('#invasions-table tbody tr').count();
+    const invasionRows = await page.locator('#invasions-table tbody tr:visible').count();
     expect(invasionRows).toBeGreaterThan(0);
 
-    const firstRowText = await page.locator('#invasions-table tbody tr').first().textContent();
+    const firstRowText = await page.locator('#invasions-table tbody tr:visible').first().textContent();
     expect(firstRowText).toBeTruthy();
 
     // Progress bars and percentages require worldState.Invasions data
     expect(await page.locator('.invasion-progress-container').count()).toBe(0);
     expect(await page.locator('.invasion-percentage').count()).toBe(0);
 
-    expect(await page.locator('#invasions-table tbody tr td').count()).toBeGreaterThan(0);
+    expect(await page.locator('#invasions-table tbody tr:visible td').count()).toBeGreaterThan(0);
   });
 
   test('renders full invasion data when worldState is fresh', async ({ page }) => {
-    expect(await page.locator('#invasions-table tbody tr').count()).toBeGreaterThan(0);
+    expect(await page.locator('#invasions-table tbody tr:visible').count()).toBeGreaterThan(0);
     expect(await page.locator('.invasion-progress-container').count()).toBeGreaterThan(0);
     expect(await page.locator('.invasion-percentage').count()).toBeGreaterThan(0);
   });
@@ -105,7 +105,7 @@ test.describe('Live Page - Invasions Card', () => {
     await expect(warning).toBeVisible();
 
     // Mission column is 2nd td (th=node, td=progress, td=mission, td=reward, td=toggle)
-    const missionSpans = page.locator('#invasions-table tbody tr td:nth-of-type(2) span');
+    const missionSpans = page.locator('#invasions-table tbody tr:visible td:nth-of-type(2) span');
     const countBefore = await missionSpans.count();
 
     const checkbox = page.locator('#filter-invasions-randomized-missions');
@@ -116,7 +116,7 @@ test.describe('Live Page - Invasions Card', () => {
 
     // Only Assassination and Gradivus rows remain
     expect(await missionSpans.count()).toBeLessThanOrEqual(countBefore);
-    expect(await page.locator('#invasions-table tbody tr td:nth-of-type(2) span[data-bs-toggle="tooltip"]').count()).toBe(0);
+    expect(await page.locator('#invasions-table tbody tr:visible td:nth-of-type(2) span[data-bs-toggle="tooltip"]').count()).toBe(0);
 
     await checkbox.check();
     await expect(warning).toBeVisible();
@@ -132,12 +132,113 @@ test.describe('Live Page - Invasions Card', () => {
 
     await expect(page.locator('#invasions-warning')).toHaveClass(/d-none/);
 
-    const assassinationRows = page.locator('#invasions-table tbody tr').filter({ hasText: 'Assassination' });
+    const assassinationRows = page.locator('#invasions-table tbody tr:visible').filter({ hasText: 'Assassination' });
     const count = await assassinationRows.count();
 
     for (let i = 0; i < count; i++) {
       await expect(assassinationRows.nth(i).locator('td:nth-of-type(2)')).toContainText('Assassination');
     }
+  });
+
+  test('reward filter checkboxes exist for all reward groups', async ({ page }) => {
+    const gearIcon = page.locator('[data-filter-toggle="invasions"]');
+    await gearIcon.click();
+
+    // Check all three group headings are present
+    const filterPanel = page.locator('#invasions-filters');
+    await expect(filterPanel.getByText('Resources')).toBeVisible();
+    await expect(filterPanel.getByText('Blueprints')).toBeVisible();
+    await expect(filterPanel.getByText('Weapon parts')).toBeVisible();
+
+    // Spot-check one checkbox per group
+    await expect(page.locator('#filter-invasions-reward-EnergyComponent')).toBeChecked();
+    await expect(page.locator('#filter-invasions-reward-Forma')).toBeChecked();
+    await expect(page.locator('#filter-invasions-reward-KarakWraith')).toBeChecked();
+  });
+
+  test('unchecking a reward filter hides rows with that reward', async ({ page }) => {
+    const rowsBefore = await page.locator('#invasions-table tbody tr:visible').count();
+
+    const gearIcon = page.locator('[data-filter-toggle="invasions"]');
+    await gearIcon.click();
+
+    // The default mock has Snipetron Vandal and Karak Wraith as weapon-part rewards;
+    // unchecking Karak Wraith should reduce the visible row count
+    await page.locator('#filter-invasions-reward-KarakWraith').uncheck();
+    await expect(page.locator('#invasions-table tbody tr:visible')).not.toHaveCount(rowsBefore);
+    expect(await page.locator('#invasions-table tbody tr:visible').count()).toBeLessThan(rowsBefore);
+  });
+
+  test('shows "no results" message when all reward filters are unchecked', async ({ page }) => {
+    const gearIcon = page.locator('[data-filter-toggle="invasions"]');
+    await gearIcon.click();
+
+    const checkboxes = page.locator('#invasions-filters input[type=checkbox][data-filter-type^="reward-"]');
+    for (const checkbox of await checkboxes.all()) {
+      await checkbox.uncheck();
+    }
+
+    await expect(page.locator('#invasions-table')).toContainText('No invasions match the current filters.');
+  });
+
+  test('re-checking a reward filter restores hidden rows', async ({ page }) => {
+    const rowsBefore = await page.locator('#invasions-table tbody tr:visible').count();
+
+    const gearIcon = page.locator('[data-filter-toggle="invasions"]');
+    await gearIcon.click();
+
+    const checkbox = page.locator('#filter-invasions-reward-KarakWraith');
+    await checkbox.uncheck();
+    await expect(page.locator('#invasions-table tbody tr:visible')).not.toHaveCount(rowsBefore);
+
+    await checkbox.check();
+    await expect(page.locator('#invasions-table tbody tr:visible')).toHaveCount(rowsBefore);
+  });
+
+  test('Corpus vs. Grineer: when only the attacker reward is shown, defender row is hidden', async ({ page }) => {
+    // SolNode181 in the mock: attacker=Corpus (Snipetron Vandal), defender=Grineer (Karak Wraith)
+    // These are the first two rows in the table. Hiding Karak Wraith removes the defender row,
+    // leaving only the attacker row (no invasion-defender-reward class).
+    const rowsBefore = await page.locator('#invasions-table tbody tr:visible').count();
+
+    const gearIcon = page.locator('[data-filter-toggle="invasions"]');
+    await gearIcon.click();
+    await page.locator('#filter-invasions-reward-KarakWraith').uncheck();
+
+    await expect(page.locator('#invasions-table tbody tr:visible')).toHaveCount(rowsBefore - 1);
+    // The first row is the attacker row and must not have the defender style
+    await expect(page.locator('#invasions-table tbody tr:visible').first()).not.toHaveClass(/invasion-defender-reward/);
+  });
+
+  test('Corpus vs. Grineer: when only the defender reward is shown, it is promoted to attacker-row style', async ({ page }) => {
+    // SolNode181 in the mock: attacker=Corpus (Snipetron Vandal), defender=Grineer (Karak Wraith)
+    // Hiding Snipetron Vandal removes the attacker row; the defender (Karak Wraith) row is
+    // promoted — it loses invasion-defender-reward styling and gains a completion toggle.
+    const rowsBefore = await page.locator('#invasions-table tbody tr:visible').count();
+
+    const gearIcon = page.locator('[data-filter-toggle="invasions"]');
+    await gearIcon.click();
+    await page.locator('#filter-invasions-reward-SnipetronVandal').uncheck();
+
+    // SolNode217 also has a Snipetron Vandal defender row that gets hidden, so total drops by 2
+    await expect(page.locator('#invasions-table tbody tr:visible')).toHaveCount(rowsBefore - 2);
+    // The promoted SolNode181 Karak Wraith row is now first and must not carry the defender style
+    await expect(page.locator('#invasions-table tbody tr:visible').first()).not.toHaveClass(/invasion-defender-reward/);
+    // Promoted row carries a completion toggle (checkbox icon link)
+    await expect(page.locator('#invasions-table tbody tr:visible').first().locator('.completion-check')).toBeVisible();
+  });
+
+  test('Corpus vs. Grineer: when neither reward is shown, both rows are hidden', async ({ page }) => {
+    // SolNode181 in the mock: Snipetron Vandal (Corpus) + Karak Wraith (Grineer)
+    const rowsBefore = await page.locator('#invasions-table tbody tr:visible').count();
+
+    const gearIcon = page.locator('[data-filter-toggle="invasions"]');
+    await gearIcon.click();
+    await page.locator('#filter-invasions-reward-SnipetronVandal').uncheck();
+    await page.locator('#filter-invasions-reward-KarakWraith').uncheck();
+
+    // SolNode181 loses both rows (-2); SolNode217 also loses its Snipetron Vandal defender row (-1)
+    await expect(page.locator('#invasions-table tbody tr:visible')).toHaveCount(rowsBefore - 3);
   });
 
   test('Gradivus invasion always shows Sabotage regardless of filter setting', async ({ page }) => {

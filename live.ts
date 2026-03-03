@@ -1680,12 +1680,29 @@ async function updateInvasionsLocalised()
 	const extraDataMap = (window as any).buildInvasionExtraDataMap(window.worldState.Invasions, window.invasions);
 	(window as any).sortInvasionsInPlace(window.invasions, extraDataMap);
 
+	// Pre-compute reward visibility for each invasion entry.
+	const rewardVisible = window.invasions.map((inv: any) =>
+		(window as any).isInvasionRewardShown(inv.allyPay?.[0]?.ItemType)
+	);
+
+	const showRandomizedMissions = (window as any).isFilterEnabled?.("invasions", "randomized-missions") ?? true;
+
 	const tbody = document.createElement("tbody");
 	let last_id = "";
+	let anyVisible = false;
 	window.num_invasions = 0;
 
-	for (const invasion of window.invasions)
+	for (let i = 0; i < window.invasions.length; i++)
 	{
+		const invasion = window.invasions[i];
+		const isSecondRow = last_id === invasion.id;
+
+		// Rows are always rendered (never skipped) so [data-oid] elements remain in the
+		// DOM — pruneStaleOids() depends on them being present regardless of filter state.
+		// For a second row, renderAsFirstRow is true only when the attacker (first) row is
+		// hidden but this row is visible — i.e. the defender row is "promoted".
+		const renderAsFirstRow = !isSecondRow || (!rewardVisible[i - 1] && rewardVisible[i]);
+
 		const extraData = extraDataMap[invasion.id];
 		if (!extraData) {
 			console.log(`Unable to find extra invasion data for invasion with oid ${invasion.id}; worldState update may be needed`);
@@ -1693,7 +1710,14 @@ async function updateInvasionsLocalised()
 
 		const tr = document.createElement("tr");
 
-		if (last_id === invasion.id) {
+		if (rewardVisible[i]) {
+			anyVisible = true;
+		} else {
+			tr.classList.add("d-none");
+		}
+
+		// Add invasion-defender-reward only for true second rows (attacker row was visible)
+		if (isSecondRow && rewardVisible[i - 1]) {
 			tr.classList.add("invasion-defender-reward");
 		}
 
@@ -1704,7 +1728,7 @@ async function updateInvasionsLocalised()
 
 		{
 			const th = document.createElement("th");
-			if (last_id != invasion.id)
+			if (renderAsFirstRow)
 			{
 				++window.num_invasions;
 				const node = ExportRegions[invasion.node];
@@ -1728,7 +1752,7 @@ async function updateInvasionsLocalised()
 		}*/
 
 		if (extraData) {
-			tr.appendChild((window as any).renderInvasionProgressPercentage(last_id, extraData));
+			tr.appendChild((window as any).renderInvasionProgressPercentage(renderAsFirstRow ? "" : last_id, extraData));
 		} else {
 			// Render empty cell when extraData unavailable
 			const td = document.createElement("td");
@@ -1738,8 +1762,6 @@ async function updateInvasionsLocalised()
 		{
 			const td = document.createElement("td");
 
-			// Check if randomized missions should be shown
-			const showRandomizedMissions = (window as any).isFilterEnabled?.("invasions", "randomized-missions") ?? true;
 			const isAssassination = invasion.missions[0] === "Assassination";
 			const isGradivus = invasion.node === "SolNode65";
 
@@ -1773,20 +1795,17 @@ async function updateInvasionsLocalised()
 		}
 		{
 			const td = document.createElement("td");
-			if (invasion.allyPay[0].ItemType != "/Lotus/Types/Items/Research/EnergyComponent"
-				&& invasion.allyPay[0].ItemType != "/Lotus/Types/Items/Research/ChemComponent"
-				&& invasion.allyPay[0].ItemType != "/Lotus/Types/Items/Research/BioComponent"
-				&& invasion.allyPay[0].ItemType != "/Lotus/Types/Items/MiscItems/InfestedAladCoordinate"
-				)
-			{
-				td.className = "fw-bolder";
-			}
 			td.textContent = invasion.allyPay[0].ItemCount + "x " + await getItemNamePromise(invasion.allyPay[0].ItemType);
 			tr.appendChild(td);
 		}
 		{
 			const td = document.createElement("td");
-			if (last_id != invasion.id)
+			// Only add completion toggle when this is the canonical "first row" for the invasion.
+			// A hidden first row whose defender was promoted skips the toggle (promoted row has it).
+			const isPairedWithVisiblePromotion = !isSecondRow && !rewardVisible[i] &&
+				i + 1 < window.invasions.length && window.invasions[i + 1].id === invasion.id &&
+				rewardVisible[i + 1];
+			if (renderAsFirstRow && !isPairedWithVisiblePromotion)
 			{
 				if (extraData?.isDuplicate)
 				{
@@ -1806,10 +1825,18 @@ async function updateInvasionsLocalised()
 		tbody.appendChild(tr);
 		last_id = invasion.id;
 	}
+	if (!anyVisible)
+	{
+		const tr = document.createElement("tr");
+		const td = document.createElement("td");
+		td.textContent = "No invasions match the current filters.";
+		tr.appendChild(td);
+		tbody.appendChild(tr);
+	}
+
 	setDatum("invasions-header", toTitleCase(osdict["/Lotus/Language/Menu/WorldStatePanel_Invasions"]), window.refresh_invasions_at);
 
 	// Show/hide warning message based on filter
-	const showRandomizedMissions = (window as any).isFilterEnabled?.("invasions", "randomized-missions") ?? true;
 	const warningElement = document.getElementById("invasions-warning");
 	if (warningElement)
 	{

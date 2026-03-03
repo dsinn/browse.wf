@@ -1,0 +1,34 @@
+{
+  "activation": 1768098600,
+  "expiry": 1768099500,
+  "invasions": [
+    {
+      "id": "aaa000000000000000000001",
+      "node": "SolNode181",
+      "ally": "FC_CORPUS",
+      "allyPay": [{ "ItemCount": 1, "ItemType": "/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint" }],
+      "missions": ["Sabotage", "Exterminate"]
+    },
+    {
+      "id": "aaa000000000000000000001",
+      "node": "SolNode181",
+      "ally": "FC_GRINEER",
+      "allyPay": [{ "ItemCount": 1, "ItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver" }],
+      "missions": ["Defense", "Survival"]
+    },
+    {
+      "id": "aaa000000000000000000002",
+      "node": "SolNode209",
+      "ally": "FC_GRINEER",
+      "allyPay": [{ "ItemCount": 3, "ItemType": "/Lotus/Types/Items/Research/ChemComponent" }],
+      "missions": ["Exterminate", "Capture"]
+    },
+    {
+      "id": "aaa000000000000000000002",
+      "node": "SolNode209",
+      "ally": "FC_CORPUS",
+      "allyPay": [{ "ItemCount": 3, "ItemType": "/Lotus/Types/Items/Research/EnergyComponent" }],
+      "missions": ["Exterminate", "Exterminate"]
+    }
+  ]
+}

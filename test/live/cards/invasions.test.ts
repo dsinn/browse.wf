@@ -1,4 +1,4 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { loadMock } from '../../helpers/api-mocks';
 import { loadScript } from '../../helpers/dom-helpers';
 import { testCardFilters } from '../card-filters-factory';
@@ -46,6 +46,110 @@ describe('Invasions Card', () => {
 
     expect(hasGrineer).toBe(true);
     expect(hasCorpus).toBe(true);
+  });
+});
+
+describe('Invasions - Reward Filter (isInvasionRewardShown)', () => {
+  beforeEach(() => {
+    loadScript('typestripped/src/card-filters.js');
+    loadScript('typestripped/src/invasions.js');
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  test('shows unknown item types by default', () => {
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/SomeUnknownItem')).toBe(true);
+  });
+
+  test('shows all known reward types when no filters are set', () => {
+    const itemTypes = [
+      '/Lotus/Types/Items/Research/EnergyComponent',
+      '/Lotus/Types/Items/Research/ChemComponent',
+      '/Lotus/Types/Items/Research/BioComponent',
+      '/Lotus/Types/Items/MiscItems/InfestedAladCoordinate',
+      '/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver',
+      '/Lotus/Types/Recipes/Weapons/WeaponParts/LatronWraithBarrel',
+      '/Lotus/Types/Recipes/Weapons/WeaponParts/StrunWraithBarrel',
+      '/Lotus/Types/Recipes/Weapons/WeaponParts/TwinVipersWraithBarrel',
+      '/Lotus/Types/Recipes/Weapons/WeaponParts/GrineerCombatKnifeHeatsink',
+      '/Lotus/Types/Recipes/Weapons/WeaponParts/DeraVandalBarrel',
+      '/Lotus/Types/Recipes/Weapons/WeaponParts/SnipetronVandalBarrel',
+      '/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint',
+      '/Lotus/Types/Recipes/Components/FormaBlueprint',
+      '/Lotus/Types/Recipes/Components/OrokinCatalystBlueprint',
+      '/Lotus/Types/Recipes/Components/OrokinReactorBlueprint',
+    ];
+    for (const itemType of itemTypes) {
+      expect((window as any).isInvasionRewardShown(itemType)).toBe(true);
+    }
+  });
+
+  test('hides Fieldron (EnergyComponent) when its filter is unchecked', () => {
+    localStorage.setItem('live.filter.invasions.reward-EnergyComponent', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Items/Research/EnergyComponent')).toBe(false);
+  });
+
+  test('hides Detonite Injector (ChemComponent) when its filter is unchecked', () => {
+    localStorage.setItem('live.filter.invasions.reward-ChemComponent', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Items/Research/ChemComponent')).toBe(false);
+  });
+
+  test('hides Mutagen Mass (BioComponent) when its filter is unchecked', () => {
+    localStorage.setItem('live.filter.invasions.reward-BioComponent', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Items/Research/BioComponent')).toBe(false);
+  });
+
+  test('hides Nav Coordinate when its filter is unchecked', () => {
+    localStorage.setItem('live.filter.invasions.reward-InfestedAladCoordinate', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Items/MiscItems/InfestedAladCoordinate')).toBe(false);
+  });
+
+  test('hides Karak Wraith parts when their filter is unchecked', () => {
+    localStorage.setItem('live.filter.invasions.reward-KarakWraith', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver')).toBe(false);
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithBarrel')).toBe(false);
+  });
+
+  test('hides Snipetron Vandal parts and blueprint when their filter is unchecked', () => {
+    localStorage.setItem('live.filter.invasions.reward-SnipetronVandal', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Weapons/WeaponParts/SnipetronVandalBarrel')).toBe(false);
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint')).toBe(false);
+  });
+
+  test('hides Forma when its filter is unchecked', () => {
+    localStorage.setItem('live.filter.invasions.reward-Forma', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Components/FormaBlueprint')).toBe(false);
+  });
+
+  test('hides Orokin Catalyst when its filter is unchecked', () => {
+    localStorage.setItem('live.filter.invasions.reward-OrokinCatalyst', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Components/OrokinCatalystBlueprint')).toBe(false);
+  });
+
+  test('hides Orokin Reactor when its filter is unchecked', () => {
+    localStorage.setItem('live.filter.invasions.reward-OrokinReactor', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Components/OrokinReactorBlueprint')).toBe(false);
+  });
+
+  test('GrineerCombatKnife sortie blueprint maps to same key as parts', () => {
+    localStorage.setItem('live.filter.invasions.reward-GrineerCombatKnife', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Weapons/GrineerCombatKnifeSortieBlueprint')).toBe(false);
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Weapons/WeaponParts/GrineerCombatKnifeHeatsink')).toBe(false);
+  });
+
+  test('shows reward again after re-checking its filter', () => {
+    localStorage.setItem('live.filter.invasions.reward-EnergyComponent', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Items/Research/EnergyComponent')).toBe(false);
+    localStorage.setItem('live.filter.invasions.reward-EnergyComponent', '1');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Items/Research/EnergyComponent')).toBe(true);
+  });
+
+  test('unchecking one filter does not affect other reward types', () => {
+    localStorage.setItem('live.filter.invasions.reward-EnergyComponent', '0');
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Items/Research/ChemComponent')).toBe(true);
+    expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver')).toBe(true);
   });
 });
 

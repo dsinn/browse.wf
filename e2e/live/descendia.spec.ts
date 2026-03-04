@@ -138,18 +138,20 @@ test.describe('Live Page - Descendia Card', () => {
       });
     });
 
-    test('arena names are displayed without .level suffix', async ({ page }) => {
+    test('arena cells show emoji for known arenas', async ({ page }) => {
       const arenaCells = page.locator('#descendia-table tbody tr td:nth-child(4)');
-      const arenas = await arenaCells.allTextContents();
+      const count = await arenaCells.count();
+      expect(count).toBe(21);
 
-      // Should have 21 arenas
-      expect(arenas.length).toBe(21);
-
-      // None should end with ".level"
-      arenas.forEach(arena => {
-        expect(arena).toBeTruthy();
-        expect(arena).not.toMatch(/\.level$/i);
-      });
+      // Each known arena should render a <span> with a tooltip
+      for (let i = 0; i < count; i++) {
+        const span = arenaCells.nth(i).locator('span[data-bs-toggle="tooltip"]');
+        await expect(span).toBeVisible();
+        const title = await span.getAttribute('data-bs-title');
+        expect(title).toBeTruthy();
+        expect(title).not.toMatch(/\.level$/i);
+        expect(title).not.toContain('/');
+      }
     });
 
     test('specs column shows content or dash', async ({ page }) => {

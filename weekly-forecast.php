@@ -15,6 +15,19 @@
 		<h2 class="mb-4">Weekly Forecast</h2>
 
 		<div class="card mb-4">
+			<div class="card-header"><h5 class="mb-0">Descendia</h5></div>
+			<div class="card-body">
+				<?php require "components/untranslated-notice.php"; ?>
+				<ul class="nav nav-tabs mb-3" id="descendia-tabs" role="tablist"></ul>
+				<div class="tab-content" id="descendia-content">Loading...</div>
+			</div>
+		</div>
+
+		<div class="alert alert-info mb-4" role="alert">
+			The forecast for the weeklies below will update in <span id="weekly-missions-timer"></span>
+		</div>
+
+		<div class="card mb-4">
 			<div class="card-header"><h5 class="mb-0">Deep Archimedea</h5></div>
 			<div class="card-body">
 				<ul class="nav nav-tabs mb-3" id="lab-conquest-tabs" role="tablist"></ul>
@@ -37,18 +50,10 @@
 				<div class="tab-content" id="calendar-season-content">Loading...</div>
 			</div>
 		</div>
-
-		<div class="card mb-4">
-			<div class="card-header"><h5 class="mb-0">Descendia</h5></div>
-			<div class="card-body">
-				<?php require "components/untranslated-notice.php"; ?>
-				<ul class="nav nav-tabs mb-3" id="descendia-tabs" role="tablist"></ul>
-				<div class="tab-content" id="descendia-content">Loading...</div>
-			</div>
-		</div>
 	</div>
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+	<script src="typestripped/src/arbys-timer.js"></script>
 	<script src="typestripped/src/conquest-helpers.js"></script>
 	<script src="typestripped/src/descendia.js"></script>
 	<script src="typestripped/src/calendar-seasons.js"></script>

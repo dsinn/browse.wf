@@ -4,12 +4,12 @@
  * Loads the real compiled production code to avoid test drift.
  */
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { loadScript } from '../helpers/dom-helpers';
+import { loadScript, mockBootstrapTooltip } from '../helpers/dom-helpers';
 import { loadMock } from '../helpers/api-mocks';
 
 beforeEach(() => {
-  // renderDescentChallenges has no dependency on Bootstrap tooltips or getDictPromise;
-  // it just needs a dict object passed directly.
+  // Known arenas render an emoji span with a Bootstrap tooltip.
+  mockBootstrapTooltip();
   loadScript('typestripped/src/descendia.js');
 });
 
@@ -66,6 +66,47 @@ describe('renderDescentChallenges', () => {
       const arenaCell = tr.querySelectorAll('td')[3];
       expect(arenaCell.textContent).not.toMatch(/\.level$/i);
     });
+  });
+
+  test('known arenas render an emoji span with a tooltip', () => {
+    const descent = worldState.Descents[0];
+    const tbody = (window as any).renderDescentChallenges(descent, dict) as HTMLTableSectionElement;
+
+    // All arenas in the mock data are known, so every arena cell should have a <span>
+    tbody.querySelectorAll('tr').forEach((tr: Element) => {
+      const arenaCell = tr.querySelectorAll('td')[3];
+      const span = arenaCell.querySelector('span');
+      expect(span).not.toBeNull();
+      expect(span!.getAttribute('data-bs-toggle')).toBe('tooltip');
+      expect(span!.getAttribute('data-bs-title')).toBeTruthy();
+    });
+  });
+
+  test('arena tooltip title is the internal arena key (no path separators or .level)', () => {
+    const descent = worldState.Descents[0];
+    const tbody = (window as any).renderDescentChallenges(descent, dict) as HTMLTableSectionElement;
+
+    tbody.querySelectorAll('tr').forEach((tr: Element) => {
+      const title = tr.querySelectorAll('td')[3].querySelector('span')!.getAttribute('data-bs-title')!;
+      expect(title).not.toContain('/');
+      expect(title).not.toMatch(/\.level$/i);
+    });
+  });
+
+  test('unknown arenas fall back to plain text', () => {
+    // Construct a descent with an unrecognised arena key
+    const descent = worldState.Descents[0];
+    const unknownDescent = {
+      ...descent,
+      Challenges: [{
+        ...descent.Challenges[0],
+        Level: '/Lotus/Levels/Proc/Descendia/ArenaUnknownXYZ.level',
+      }],
+    };
+    const tbody = (window as any).renderDescentChallenges(unknownDescent, {}) as HTMLTableSectionElement;
+    const arenaCell = tbody.querySelector('tr')!.querySelectorAll('td')[3];
+    expect(arenaCell.querySelector('span')).toBeNull();
+    expect(arenaCell.textContent).toBe('ArenaUnknownXYZ');
   });
 
   test('specs column shows "-" when Specs is empty', () => {

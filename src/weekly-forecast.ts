@@ -107,14 +107,24 @@ function getActiveTabActivation(tabsEl: HTMLElement): string | null
 /**
  * Re-activates the tab whose data-activation matches the given timestamp string.
  * No-ops if not found (the tab no longer exists after a refresh).
+ *
+ * Directly manipulates classes instead of using Bootstrap's Tab JS API to avoid
+ * stale cached instances from the previous render confusing Bootstrap's hide/show logic.
  */
 function restoreActiveTab(tabsEl: HTMLElement, activation: string): void
 {
 	const target = tabsEl.querySelector(`.nav-link[data-activation="${activation}"]`) as HTMLElement | null;
-	if (target)
-	{
-		new window.bootstrap.Tab(target).show();
-	}
+	if (!target) return;
+
+	// Deactivate whichever tab buildTab marked active (index 0 / current)
+	tabsEl.querySelector(".nav-link.active")?.classList.remove("active");
+	const contentEl = document.getElementById(tabsEl.id.replace(/-tabs$/, "-content"));
+	contentEl?.querySelector(".tab-pane.active")?.classList.remove("show", "active");
+
+	// Activate the restored tab
+	target.classList.add("active");
+	const paneId = target.getAttribute("data-bs-target")!.slice(1);
+	document.getElementById(paneId)?.classList.add("show", "active");
 }
 
 function renderConquestTabs(
@@ -263,12 +273,44 @@ async function renderCalendarSeasonTabs(
 }
 
 /**
- * Returns the milliseconds until 00:01 UTC tomorrow.
+ * Returns the Unix timestamp (seconds) of the next Sunday at 23:02 UTC,
+ * when the weekly forecast is expected to be published (23:00 UTC) and both
+ * proxy hops (up to 1 minute cache each) have had time to refresh.
+ * If today is Sunday and it's before 23:02 UTC, returns today's target time.
  */
-function msUntilDailyRefresh(): number
+function nextForecastPublishedSeconds(): number
 {
-	const now = Date.now();
-	return 86400000 - (now % 86400000) + 60000;
+	const now = new Date();
+	// getUTCDay(): 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+	const dayOfWeek = now.getUTCDay();
+	const daysUntilSunday = (7 - dayOfWeek) % 7;
+
+	const target = new Date(Date.UTC(
+		now.getUTCFullYear(),
+		now.getUTCMonth(),
+		now.getUTCDate() + daysUntilSunday,
+		23, 2, 0, 0
+	));
+
+	// If it's Sunday but already past 23:02, go to next week
+	if (target.getTime() <= Date.now())
+	{
+		target.setUTCDate(target.getUTCDate() + 7);
+	}
+
+	return Math.floor(target.getTime() / 1000);
+}
+
+/**
+ * Populates the weekly missions notice with a timer badge and local-time update text.
+ */
+function initWeeklyMissionsNotice(): void
+{
+	const timerEl = document.getElementById("weekly-missions-timer");
+	if (!timerEl) return;
+
+	const badge = (window as any).createArbyCountdownBadge(nextForecastPublishedSeconds());
+	timerEl.appendChild(badge);
 }
 
 async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
@@ -299,6 +341,7 @@ async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
 
 	// Set up globals needed by common.js setImageSource()
 	(window as any).ExportImages = ExportImages;
+	(window as any).ExportChallenges = ExportChallenges;
 
 	// Deep Archimedea (CT_LAB)
 	const labConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === "CT_LAB");
@@ -364,7 +407,8 @@ async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
 	}
 
 	// Schedule next refresh at 00:01 UTC
-	setTimeout(() => initWeeklyForecast(true).catch(console.error), msUntilDailyRefresh());
+	setTimeout(() => initWeeklyForecast(true).catch(console.error), nextForecastPublishedSeconds() * 1000 - Date.now());
 }
 
+initWeeklyMissionsNotice();
 initWeeklyForecast().catch(console.error);

@@ -63,7 +63,11 @@ function updateDescendia(): void
 		const checksSpan = header.querySelector('#descent-checks');
 
 		header.textContent = "";
-		if (collapseToggle) header.appendChild(collapseToggle);
+		if (collapseToggle)
+		{
+			collapseToggle.classList.add("me-1");
+			header.appendChild(collapseToggle);
+		}
 		header.appendChild(document.createTextNode("Descendia "));
 		header.appendChild(createExpiryBadge(expiry));
 		header.appendChild(document.createTextNode(" "));
@@ -84,6 +88,26 @@ function updateDescendia(): void
 		table.appendChild(renderDescentChallenges(activeDescent, dict));
 	});
 }
+
+const ARENA_EMOJI: Record<string, string> = {
+	ArenaAvocado:            "🥑",
+	ArenaBagel:              "🥯",
+	ArenaCherry:             "🍒",
+	ArenaCoconut:            "🥥",
+	ArenaEggplant:           "🍆",
+	ArenaGrape:              "🍇",
+	ArenaMango:              "🥭",
+	ArenaMelon:              "🍈",
+	ArenaPeach:              "🍑",
+	ArenaWaffle:             "🧇",
+	BossArenaSmall:          "⛽︎",
+	BossArenaUriel:          "😈",
+	ProtoframeRoomHarrow:    "👲🏼",
+	ProtoframeRoomWisp:      "👰🏼‍♀️",
+	SpecialChallengeArena01: "🐴1",
+	SpecialChallengeArena02: "🐴2",
+	SpecialChallengeArena03: "🐴3",
+};
 
 /**
  * Renders the challenges of a given Descent into a <tbody> element.
@@ -123,11 +147,24 @@ function renderDescentChallenges(descent: IDescent, dict: Record<string, string>
 			tr.appendChild(td);
 		}
 
-		// Column 4: Arena (Level field with .level trimming and fallback to rightmost /)
+		// Column 4: Arena (Level field — map known arenas to emoji with tooltip)
 		{
 			const td = document.createElement("td");
-			let level = dict[challenge.Level] || challenge.Level.replace(/.*\//, "");
-			td.textContent = level.replace(/\.level$/i, "");
+			const arenaKey = challenge.Level.replace(/.*\//, "").replace(/\.level$/i, "");
+			const emoji = ARENA_EMOJI[arenaKey];
+			if (emoji)
+			{
+				const span = document.createElement("span");
+				span.textContent = emoji;
+				span.setAttribute("data-bs-toggle", "tooltip");
+				span.setAttribute("data-bs-title", arenaKey);
+				new window.bootstrap.Tooltip(span);
+				td.appendChild(span);
+			}
+			else
+			{
+				td.textContent = dict[challenge.Level] || arenaKey;
+			}
 			tr.appendChild(td);
 		}
 

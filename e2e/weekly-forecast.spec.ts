@@ -40,6 +40,17 @@ test.describe('Weekly Forecast Page', () => {
       const notice = page.locator('.card').filter({ hasText: 'Descendia' }).locator('p');
       await expect(notice).toContainText('not yet been translated');
     });
+
+    test('shows weekly missions notice with countdown badge', async ({ page }) => {
+      const notice = page.locator('.alert-info');
+      await expect(notice).toBeVisible();
+      await expect(notice).toContainText('The forecast for the weeklies below will update in');
+      // Badge should have been populated by initWeeklyMissionsNotice
+      const badge = notice.locator('#weekly-missions-timer .badge');
+      await expect(badge).toBeVisible();
+      await expect(badge).not.toBeEmpty();
+    });
+
   });
 
   test.describe('Deep Archimedea tabs', () => {

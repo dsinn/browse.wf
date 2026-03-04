@@ -1,41 +1,66 @@
-import { describe, test, expect } from 'vitest';
-import { loadMock } from '../../helpers/api-mocks';
-import { getById } from '../../helpers/dom-helpers';
+import { describe, test, expect, beforeEach } from 'vitest';
+import { loadMock, loadExportJson } from '../../helpers/api-mocks';
+import { getById, loadScript } from '../../helpers/dom-helpers';
 
-describe('Sortie Card', () => {
-  test('renders sortie missions from worldState', () => {
+describe('Sortie Card - Data Structure', () => {
+  test('worldState contains sortie with three variants', () => {
     const worldState = loadMock('worldState.json');
-
-    expect(worldState.Sorties).toBeDefined();
     expect(Array.isArray(worldState.Sorties)).toBe(true);
+    expect(worldState.Sorties.length).toBeGreaterThan(0);
 
-    if (worldState.Sorties.length > 0) {
-      const sortie = worldState.Sorties[0];
-      expect(sortie.Variants).toBeDefined();
-      expect(sortie.Variants.length).toBeGreaterThan(0);
+    const sortie = worldState.Sorties[0];
+    expect(Array.isArray(sortie.Variants)).toBe(true);
+    expect(sortie.Variants.length).toBe(3);
+  });
 
-      // Each sortie has 3 missions
-      expect(sortie.Variants.length).toBeLessThanOrEqual(3);
-
-      // Each variant has required properties
-      const variant = sortie.Variants[0];
+  test('each sortie variant has missionType, modifierType, node, and tileset', () => {
+    const { Sorties } = loadMock('worldState.json');
+    for (const variant of Sorties[0].Variants) {
       expect(variant).toHaveProperty('missionType');
       expect(variant).toHaveProperty('modifierType');
       expect(variant).toHaveProperty('node');
+      expect(variant).toHaveProperty('tileset');
     }
   });
 
-  test('displays sortie table with missions', () => {
-    const sortieTable = getById('sortie-table');
-
-    // Simulate rendering 3 missions
-    sortieTable.innerHTML = `
-      <tr><th>Defense</th><td>Bow Only</td><td>Mars</td></tr>
-      <tr><th>Survival</th><td>Energy Reduction</td><td>Venus</td></tr>
-      <tr><th>Assassination</th><td>Eximus</td><td>Earth</td></tr>
-    `;
-
-    const rows = sortieTable.querySelectorAll('tr');
-    expect(rows.length).toBe(3);
+  test('sortie nodes exist in ExportRegions', () => {
+    const { Sorties } = loadMock('worldState.json');
+    const regions = loadExportJson('ExportRegions.json');
+    for (const variant of Sorties[0].Variants) {
+      expect(regions[variant.node], `Node ${variant.node} should exist in ExportRegions`).toBeTruthy();
+    }
   });
+});
+
+describe('Sortie Card - DOM Structure', () => {
+  test('sortie table element exists in fixture', () => {
+    const table = getById('sortie-table');
+    expect(table).toBeTruthy();
+    expect(table.tagName).toBe('TABLE');
+  });
+
+  test('sortie header element exists in fixture', () => {
+    const header = getById('sortie-header');
+    expect(header).toBeTruthy();
+  });
+});
+
+describe('Sortie Card - Tileset Tooltip Values', () => {
+  // Matches worldState.json sortie data (validated in data structure tests)
+  // SolNode301: OrokinMoonTilesetGrineer, SolNode122: GrineerOceanTileset, SolNode32: GrineerGalleonTileset
+  const VARIANTS = [
+    { node: 'SolNode301', tileset: 'OrokinMoonTilesetGrineer', expectedTooltip: 'Orokin Moon Grineer' },
+    { node: 'SolNode122', tileset: 'GrineerOceanTileset', expectedTooltip: 'Grineer Ocean' },
+    { node: 'SolNode32', tileset: 'GrineerGalleonTileset', expectedTooltip: 'Grineer Galleon' },
+  ];
+
+  beforeEach(() => {
+    loadScript('typestripped/src/tileset-helpers.js');
+  });
+
+  for (const { node, tileset, expectedTooltip } of VARIANTS) {
+    test(`${node} (${tileset}) formats to "${expectedTooltip}"`, () => {
+      expect((window as any).formatTileset(tileset)).toBe(expectedTooltip);
+    });
+  }
 });

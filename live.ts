@@ -557,7 +557,16 @@ async function updateIncursionsLocalised()
 				b.textContent += " - " + toTitleCase(dict[ExportFactions[node.faction].name]);
 			}
 			elms[i].appendChild(b);
-			elms[i].innerHTML += " (" + (100 + node.minEnemyLevel) + "-" + (100 + node.maxEnemyLevel) + ")" + " @ " + dict[node.name] + ", " + dict[node.systemName];
+			elms[i].appendChild(document.createTextNode(` (${100 + node.minEnemyLevel}-${100 + node.maxEnemyLevel}) @ `));
+			const locationAbbr = document.createElement("abbr");
+			locationAbbr.textContent = `${dict[node.name]}, ${dict[node.systemName]}`;
+			const incursionTileset = (window as any).getTileset(node, window.incursions_today[i]);
+			const formattedIncursionTileset = (window as any).formatTileset(incursionTileset);
+			if (formattedIncursionTileset)
+			{
+				addTooltip(locationAbbr, formattedIncursionTileset);
+			}
+			elms[i].appendChild(locationAbbr);
 			visibleCount++;
 		}
 		else
@@ -1177,7 +1186,7 @@ async function updateSorties()
 		// Location and tileset
 		td.appendChild(document.createElement("br"));
 		const node = ExportRegions[variant.node];
-		const locationElem = document.createElement("span");
+		const locationElem = document.createElement("abbr");
 		locationElem.textContent = `${dict[node.name]}, ${dict[node.systemName]}`;
 		const formattedTileset = (window as any).formatTileset(variant.tileset);
 		addTooltip(locationElem, formattedTileset);

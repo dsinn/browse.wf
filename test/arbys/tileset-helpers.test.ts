@@ -67,10 +67,13 @@ describe('tileset-helpers', () => {
   })
 
   describe('formatTileset', () => {
-    it('should format tileset by removing "Tileset" suffix', () => {
+    it('should format tileset', () => {
       expect((window as any).formatTileset('GrineerAsteroidTileset')).toBe('Grineer Asteroid')
       expect((window as any).formatTileset('CorpusShipTileset')).toBe('Corpus Ship')
       expect((window as any).formatTileset('OrokinVoidTileset')).toBe('Orokin Void')
+      expect((window as any).formatTileset('OrokinMoonTilesetGrineer')).toBe('Orokin Moon Grineer')
+      expect((window as any).formatTileset('GrineerOceanTilesetAnywhere')).toBe('Grineer Ocean Anywhere')
+      expect((window as any).formatTileset('CorpusIcePlanetTilesetCaves')).toBe('Corpus Ice Planet Caves')
     })
 
     it('should convert PascalCase to Title Case', () => {

@@ -39,31 +39,21 @@ test.describe('Live Page - Sortie Card', () => {
   test('displays tileset as tooltip on location', async ({ page }) => {
     await page.waitForSelector('#sortie-table tbody tr', { timeout: 10000 });
 
-    // Check first mission (OrokinMoonTilesetGrineer)
+    // Check first mission (OrokinMoonTilesetGrineer → "Orokin Moon Grineer")
     const firstRow = page.locator('#sortie-table tbody tr').nth(0);
-    const locationSpan = firstRow.locator('td span[data-bs-toggle="tooltip"]');
-
-    // Should have tooltip attribute
-    await expect(locationSpan).toHaveAttribute('data-bs-toggle', 'tooltip');
-
-    // Tooltip should show formatted tileset: OrokinMoonTilesetGrineer → "Orokin Moon Grineer"
-    const tooltipTitle = await locationSpan.getAttribute('data-bs-title');
-    expect(tooltipTitle).toBe('Orokin Moon Grineer');
+    const locationElem = firstRow.locator('td [data-bs-toggle="tooltip"]');
+    await expect(locationElem).toHaveAttribute('data-bs-title', 'Orokin Moon Grineer');
   });
 
   test('formats tileset correctly for different tilesets', async ({ page }) => {
     await page.waitForSelector('#sortie-table tbody tr', { timeout: 10000 });
 
     // Check second mission: GrineerOceanTileset → "Grineer Ocean"
-    const secondRow = page.locator('#sortie-table tbody tr').nth(1);
-    const locationSpan2 = secondRow.locator('td span[data-bs-toggle="tooltip"]');
-    const tooltipTitle2 = await locationSpan2.getAttribute('data-bs-title');
+    const tooltipTitle2 = await page.locator('#sortie-table tbody tr').nth(1).locator('td [data-bs-toggle="tooltip"]').getAttribute('data-bs-title');
     expect(tooltipTitle2).toBe('Grineer Ocean');
 
     // Check third mission: GrineerGalleonTileset → "Grineer Galleon"
-    const thirdRow = page.locator('#sortie-table tbody tr').nth(2);
-    const locationSpan3 = thirdRow.locator('td span[data-bs-toggle="tooltip"]');
-    const tooltipTitle3 = await locationSpan3.getAttribute('data-bs-title');
+    const tooltipTitle3 = await page.locator('#sortie-table tbody tr').nth(2).locator('td [data-bs-toggle="tooltip"]').getAttribute('data-bs-title');
     expect(tooltipTitle3).toBe('Grineer Galleon');
   });
 
@@ -74,21 +64,21 @@ test.describe('Live Page - Sortie Card', () => {
     const row1 = page.locator('#sortie-table tbody tr').nth(0);
     await expect(row1.locator('th')).toContainText('Exterminate');
     await expect(row1.locator('td')).toContainText('Energy Reduction');
-    const location1 = await row1.locator('td span[data-bs-toggle="tooltip"]').textContent();
+    const location1 = await row1.locator('td [data-bs-toggle="tooltip"]').textContent();
     expect(location1).toMatch(LOCATION_FORMAT);
 
     // Mission 2: Rescue - Radiation Hazard @ Stephano, Uranus (GrineerOceanTileset)
     const row2 = page.locator('#sortie-table tbody tr').nth(1);
     await expect(row2.locator('th')).toContainText('Rescue');
     await expect(row2.locator('td')).toContainText('Radiation Hazard');
-    const location2 = await row2.locator('td span[data-bs-toggle="tooltip"]').textContent();
+    const location2 = await row2.locator('td [data-bs-toggle="tooltip"]').textContent();
     expect(location2).toMatch(LOCATION_FORMAT);
 
     // Mission 3: Assassination - Eximus Stronghold @ Tethys, Saturn (GrineerGalleonTileset)
     const row3 = page.locator('#sortie-table tbody tr').nth(2);
     await expect(row3.locator('th')).toContainText('Assassination');
     await expect(row3.locator('td')).toContainText('Eximus Stronghold');
-    const location3 = await row3.locator('td span[data-bs-toggle="tooltip"]').textContent();
+    const location3 = await row3.locator('td [data-bs-toggle="tooltip"]').textContent();
     expect(location3).toMatch(LOCATION_FORMAT);
   });
 

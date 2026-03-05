@@ -1,51 +1,188 @@
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { loadMock } from '../../helpers/api-mocks';
-import { loadScript } from '../../helpers/dom-helpers';
+import { loadScript, mockBootstrapTooltip } from '../../helpers/dom-helpers';
+import { loadMock, loadExportJson } from '../../helpers/api-mocks';
 import { testCardFilters } from '../card-filters-factory';
 
 // Test card filter integration
 testCardFilters('invasions');
 
-describe('Invasions Card', () => {
-  const invasionsData = loadMock('invasions.json');
-
-  test('renders invasion data from API', () => {
-    const invasionsData = loadMock('invasions.json');
-
-    expect(invasionsData.invasions).toBeDefined();
-    expect(Array.isArray(invasionsData.invasions)).toBe(true);
-    expect(invasionsData.invasions.length).toBeGreaterThan(0);
+describe('Invasions - Filter Panel DOM Structure', () => {
+  test('filter panel has all three reward group headings', () => {
+    const panel = document.getElementById('invasions-filters');
+    expect(panel?.textContent).toContain('Resources');
+    expect(panel?.textContent).toContain('Blueprints');
+    expect(panel?.textContent).toContain('Weapon parts');
   });
 
-  test('displays invasion rewards correctly', () => {
-    const firstInvasion = invasionsData.invasions[0];
+  test('spot-check one checkbox per reward group', () => {
+    expect(document.getElementById('filter-invasions-reward-EnergyComponent')).toBeTruthy();
+    expect(document.getElementById('filter-invasions-reward-Forma')).toBeTruthy();
+    expect(document.getElementById('filter-invasions-reward-KarakWraith')).toBeTruthy();
+  });
+});
 
-    expect(firstInvasion).toHaveProperty('node');
-    expect(firstInvasion).toHaveProperty('ally');
-    expect(firstInvasion).toHaveProperty('allyPay');
-    expect(firstInvasion).toHaveProperty('missions');
+// Shared setup for tests that exercise the real updateInvasions function
+function setupInvasionsGlobals() {
+  mockBootstrapTooltip();
+  loadScript('typestripped/src/card-filters.js');
+  loadScript('typestripped/src/invasions.js');
 
-    expect(Array.isArray(firstInvasion.allyPay)).toBe(true);
-    expect(firstInvasion.allyPay[0]).toHaveProperty('ItemType');
-    expect(firstInvasion.allyPay[0]).toHaveProperty('ItemCount');
+  const ExportRegions = loadExportJson('ExportRegions.json');
+  (window as any).ExportRegions = ExportRegions;
+  (window as any).ExportRegions_promise = Promise.resolve(ExportRegions);
+
+  // Minimal dict with just the node names used in tests
+  const dict: Record<string, string> = {
+    '/Lotus/Language/Locations/Adaro': 'Adaro',
+    '/Lotus/Language/Locations/Sedna': 'Sedna',
+    '/Lotus/Language/Locations/Orias': 'Orias',
+    '/Lotus/Language/Locations/Europa': 'Europa',
+    '/Lotus/Language/Locations/Gradivus': 'Gradivus',
+    '/Lotus/Language/Locations/Mars': 'Mars',
+  };
+  (window as any).dict = dict;
+  (window as any).dicts_promise = Promise.resolve([dict, {}]);
+
+  // Stub getItemNamePromise to return the last path segment (e.g. "KarakWraithReceiver")
+  (window as any).getItemNamePromise = (itemType: string) =>
+    Promise.resolve(itemType.replace(/^.*\//, ''));
+
+  // Stub addTooltip and createCompletionToggle
+  (window as any).addTooltip = (el: HTMLElement, title: string) => {
+    el.setAttribute('data-bs-title', title);
+  };
+  (window as any).createCompletionToggle = (oid: string) => {
+    const span = document.createElement('span');
+    span.className = 'completion-check';
+    span.dataset.oid = oid;
+    return span;
+  };
+}
+
+describe('Invasions - updateInvasions DOM rendering', () => {
+  beforeEach(() => {
+    setupInvasionsGlobals();
+    // Set up the invasions-table element that updateInvasions writes into
+    const table = document.createElement('table');
+    table.id = 'invasions-table';
+    document.body.appendChild(table);
+    window.worldState = loadMock('worldState-invasions.json');
   });
 
-  test('shows both sides of invasion', () => {
-    // Find invasions with the same ID (two sides of same conflict)
-    const invasionIds = invasionsData.invasions.map((inv: any) => inv.id);
-    const uniqueIds = new Set(invasionIds);
-
-    // Should have duplicate IDs (representing both sides)
-    expect(invasionIds.length).toBeGreaterThan(uniqueIds.size);
+  afterEach(() => {
+    document.getElementById('invasions-table')?.remove();
+    localStorage.clear();
+    delete (window as any).worldState;
   });
 
-  test('identifies Grineer vs Corpus invasions', () => {
-    const allies = invasionsData.invasions.map((inv: any) => inv.ally);
-    const hasGrineer = allies.some((ally: string) => ally === 'FC_GRINEER');
-    const hasCorpus = allies.some((ally: string) => ally === 'FC_CORPUS');
+  test('renders one visible row per invasion side (two rows per Corpus-vs-Grineer invasion)', async () => {
+    await (window as any).updateInvasions();
+    // worldState-invasions.json has 2 invasions, each with attacker + defender reward → 4 visible rows
+    const rows = document.querySelectorAll('#invasions-table tbody tr:not(.d-none)');
+    expect(rows.length).toBe(4);
+  });
 
-    expect(hasGrineer).toBe(true);
-    expect(hasCorpus).toBe(true);
+  test('attacker row contains progress bar and percentage', async () => {
+    await (window as any).updateInvasions();
+    const firstRow = document.querySelector('#invasions-table tbody tr:not(.d-none)') as HTMLElement;
+    expect(firstRow.querySelector('.invasion-progress-container')).toBeTruthy();
+    expect(firstRow.querySelector('.invasion-percentage')).toBeTruthy();
+  });
+
+  test('defender row has invasion-defender-reward class and no progress bar', async () => {
+    await (window as any).updateInvasions();
+    const defenderRow = document.querySelector('#invasions-table tbody tr.invasion-defender-reward') as HTMLElement;
+    expect(defenderRow).toBeTruthy();
+    expect(defenderRow.querySelector('.invasion-progress-container')).toBeNull();
+  });
+
+  test('attacker row contains a completion toggle', async () => {
+    await (window as any).updateInvasions();
+    const firstRow = document.querySelector('#invasions-table tbody tr:not(.d-none):not(.invasion-defender-reward)') as HTMLElement;
+    expect(firstRow.querySelector('.completion-check')).toBeTruthy();
+  });
+
+  test('node label is rendered from ExportRegions + dict', async () => {
+    await (window as any).updateInvasions();
+    // SolNode181 sorts first (lower percentage = 54.5% vs 72.2%)
+    const firstRow = document.querySelector('#invasions-table tbody tr:not(.d-none)') as HTMLElement;
+    expect(firstRow.querySelector('th')?.textContent).toContain('Adaro, Sedna');
+  });
+
+  test('when all invasions are completed, renders "no invasions" message', async () => {
+    window.worldState.Invasions = window.worldState.Invasions.map((inv: any) => ({ ...inv, Completed: true }));
+    await (window as any).updateInvasions();
+    expect(document.querySelector('#invasions-table')?.textContent)
+      .toContain('No invasions match the current filters.');
+  });
+
+  test('completed invasions are not rendered', async () => {
+    // Add a completed invasion to worldState — it should be ignored
+    window.worldState.Invasions.push({
+      _id: { $oid: 'aabbccddeeff001122334455' },
+      Node: 'SolNode38',
+      Completed: true,
+      Count: -48000,
+      Goal: 48000,
+      Faction: 'FC_GRINEER',
+      DefenderFaction: 'FC_CORPUS',
+      Activation: { $date: { $numberLong: '1769000000000' } },
+      AttackerReward: { countedItems: [{ ItemType: '/Lotus/Types/Items/Research/ChemComponent', ItemCount: 3 }] },
+      DefenderReward: { countedItems: [{ ItemType: '/Lotus/Types/Items/Research/EnergyComponent', ItemCount: 3 }] },
+    });
+    await (window as any).updateInvasions();
+    const rows = document.querySelectorAll('#invasions-table tbody tr:not(.d-none)');
+    expect(rows.length).toBe(4); // unchanged — completed invasion not rendered
+  });
+
+  test('invasions are sorted ascending by completion percentage', async () => {
+    await (window as any).updateInvasions();
+    // SolNode181 (54.5%) should appear before SolNode217 (72.2%)
+    const headers = Array.from(document.querySelectorAll('#invasions-table tbody tr:not(.d-none) th'))
+      .map(th => th.textContent);
+    const adaro = headers.findIndex(h => h?.includes('Adaro'));
+    const orias = headers.findIndex(h => h?.includes('Orias'));
+    expect(adaro).toBeLessThan(orias);
+  });
+
+  test('SolNode65 (Gradivus) hardcoded to show Sabotage mission type', async () => {
+    window.worldState.Invasions = [{
+      _id: { $oid: '6974e8fee68ad4bc31ce5f49' },
+      Node: 'SolNode65',
+      Completed: false,
+      Count: -20000,
+      Goal: 39000,
+      Faction: 'FC_INFESTATION',
+      DefenderFaction: 'FC_CORPUS',
+      Activation: { $date: { $numberLong: '1769982001914' } },
+      AttackerReward: [],
+      DefenderReward: { countedItems: [{ ItemType: '/Lotus/Types/Items/Research/BioComponent', ItemCount: 3 }] },
+    }];
+    await (window as any).updateInvasions();
+    const cells = document.querySelectorAll('#invasions-table tbody tr:not(.d-none) td');
+    const missionCell = cells[1]; // th=node+bar, td=pct, td=mission
+    expect(missionCell?.textContent).toBe('Sabotage');
+  });
+
+  test('when both rewards are filtered out, renders "no invasions" message', async () => {
+    localStorage.setItem('live.filter.invasions.reward-SnipetronVandal', '0');
+    localStorage.setItem('live.filter.invasions.reward-KarakWraith', '0');
+    localStorage.setItem('live.filter.invasions.reward-LatronWraith', '0');
+    await (window as any).updateInvasions();
+    expect(document.querySelector('#invasions-table')?.textContent)
+      .toContain('No invasions match the current filters.');
+  });
+
+  test('defender-only visible row is promoted: no invasion-defender-reward class, has completion toggle', async () => {
+    // Hide SnipetronVandal (SolNode181 attacker) → its defender row (KarakWraith) gets promoted
+    localStorage.setItem('live.filter.invasions.reward-SnipetronVandal', '0');
+    await (window as any).updateInvasions();
+    const rows = Array.from(document.querySelectorAll('#invasions-table tbody tr:not(.d-none)'));
+    // SolNode181 should now have only one visible row, not marked as defender
+    const sol181Rows = rows.filter(r => r.querySelector('th')?.textContent?.includes('Adaro'));
+    expect(sol181Rows.length).toBe(1);
+    expect(sol181Rows[0].classList.contains('invasion-defender-reward')).toBe(false);
+    expect(sol181Rows[0].querySelector('.completion-check')).toBeTruthy();
   });
 });
 
@@ -150,128 +287,5 @@ describe('Invasions - Reward Filter (isInvasionRewardShown)', () => {
     localStorage.setItem('live.filter.invasions.reward-EnergyComponent', '0');
     expect((window as any).isInvasionRewardShown('/Lotus/Types/Items/Research/ChemComponent')).toBe(true);
     expect((window as any).isInvasionRewardShown('/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver')).toBe(true);
-  });
-});
-
-describe('Invasions - Duplicate Node Detection', () => {
-  loadScript('typestripped/src/invasions.js');
-
-  const invasionsData = loadMock('invasions-duplicate-node.json');
-  const worldStateData = loadMock('worldState-duplicate-invasion-node.json');
-  const duplicateNode = 'SolNode189'; // Node with duplicate invasions in the mock data
-
-  test('detects duplicate invasions on the same node based on Activation', () => {
-    // Call the real buildInvasionExtraDataMap function
-    const extraDataMap = (window as any).buildInvasionExtraDataMap(
-      worldStateData.Invasions,
-      invasionsData.invasions
-    );
-
-    // Find invasions with duplicate nodes (duplicateNode appears multiple times)
-    const duplicateNodeInvasions = invasionsData.invasions.filter(
-      (inv: any) => inv.node === duplicateNode
-    );
-
-    expect(duplicateNodeInvasions.length).toBeGreaterThan(1);
-
-    // Get unique invasion IDs on duplicateNode
-    const uniqueInvasionIds = Array.from(new Set(duplicateNodeInvasions.map((inv: any) => inv.id)));
-    expect(uniqueInvasionIds.length).toBeGreaterThanOrEqual(2);
-
-    // The first invasion on duplicateNode should be marked as duplicate in our mock data
-    const firstInvasionId = uniqueInvasionIds[0];
-    const firstExtraData = extraDataMap[firstInvasionId];
-    expect(firstExtraData).toBeDefined();
-    expect(firstExtraData.isDuplicate).toBe(true);
-
-    // The second invasion on duplicateNode should NOT be marked as duplicate in our mock data
-    const secondInvasionId = uniqueInvasionIds[1];
-    const secondExtraData = extraDataMap[secondInvasionId];
-    expect(secondExtraData).toBeDefined();
-    expect(secondExtraData.isDuplicate).toBe(false);
-  });
-
-  test('non-duplicate invasions are not marked as duplicate', () => {
-    const extraDataMap = (window as any).buildInvasionExtraDataMap(
-      worldStateData.Invasions,
-      invasionsData.invasions
-    );
-
-    // Find invasions that are NOT on duplicateNode (unique nodes)
-    const uniqueNodeInvasions = invasionsData.invasions.filter(
-      (inv: any) => inv.node !== duplicateNode
-    );
-
-    // All unique node invasions should NOT be marked as duplicate
-    uniqueNodeInvasions.forEach((invasion: any) => {
-      const extraData = extraDataMap[invasion.id];
-      if (extraData) {
-        expect(extraData.isDuplicate).toBe(false);
-      }
-    });
-  });
-
-  test('tracks node duplicates correctly across multiple nodes', () => {
-    const extraDataMap = (window as any).buildInvasionExtraDataMap(
-      worldStateData.Invasions,
-      invasionsData.invasions
-    );
-
-    // Count how many entries in extraDataMap are marked as duplicates
-    const duplicateCount = Object.values(extraDataMap).filter(
-      (data: any) => data.isDuplicate === true
-    ).length;
-
-    // Count worldState invasions per node (only non-completed)
-    const nodeCounts = new Map<string, number>();
-    worldStateData.Invasions.forEach((wsInvasion: any) => {
-      if (wsInvasion.Completed) return;
-      const node = wsInvasion.Node;
-      nodeCounts.set(node, (nodeCounts.get(node) || 0) + 1);
-    });
-
-    // Calculate expected duplicates:
-    // For each node with N invasions, (N-1) are duplicates
-    // extraDataMap has one entry per worldState invasion
-    // So expected duplicates = sum of (N-1) for all nodes with N > 1
-    let expectedDuplicates = 0;
-    nodeCounts.forEach((count) => {
-      if (count > 1) {
-        expectedDuplicates += (count - 1);
-      }
-    });
-
-    expect(duplicateCount).toBe(expectedDuplicates);
-  });
-
-  test('isDuplicate flag persists in extraDataMap structure', () => {
-    const extraDataMap = (window as any).buildInvasionExtraDataMap(
-      worldStateData.Invasions,
-      invasionsData.invasions
-    );
-
-    // Verify all extraData entries have the isDuplicate property
-    Object.values(extraDataMap).forEach((extraData: any) => {
-      expect(extraData).toHaveProperty('isDuplicate');
-      expect(typeof extraData.isDuplicate).toBe('boolean');
-    });
-  });
-
-  test('completed invasions are excluded from duplicate detection', () => {
-    const extraDataMap = (window as any).buildInvasionExtraDataMap(
-      worldStateData.Invasions,
-      invasionsData.invasions
-    );
-
-    // Find completed invasions in worldState
-    const completedInvasions = worldStateData.Invasions.filter(
-      (ws: any) => ws.Completed === true
-    );
-
-    // Completed invasions should not appear in extraDataMap
-    completedInvasions.forEach((wsInvasion: any) => {
-      const invasionId = wsInvasion._id.$oid;
-      expect(extraDataMap[invasionId]).toBeUndefined();
-    });
   });
 });

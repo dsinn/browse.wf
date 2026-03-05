@@ -180,7 +180,7 @@ function initializeCardFilters_all(): void
 	// Initialize News card filters
 	initializeCardFilters("news", () => {
 		if ((window as any).updateNewsTicker) {
-			(window as any).updateNewsTicker();
+			(window as any).updateNewsTicker(true);
 		}
 	});
 
@@ -194,21 +194,21 @@ function initializeCardFilters_all(): void
 	// Initialize Void Fissures card filters
 	initializeCardFilters("fissures", () => {
 		if ((window as any).updateFissures) {
-			(window as any).updateFissures();
+			(window as any).updateFissures(true);
 		}
 	});
 
 	// Initialize Steel Path Fissures card filters
 	initializeCardFilters("sp-fissures", () => {
 		if ((window as any).updateFissures) {
-			(window as any).updateFissures();
+			(window as any).updateFissures(true);
 		}
 	});
 
 	// Initialize Void Storms (Railjack) card filters
 	initializeCardFilters("rj-fissures", () => {
 		if ((window as any).updateFissures) {
-			(window as any).updateFissures();
+			(window as any).updateFissures(true);
 		}
 	});
 
@@ -221,8 +221,8 @@ function initializeCardFilters_all(): void
 
 	// Initialize Invasions card filters
 	initializeCardFilters("invasions", () => {
-		if ((window as any).updateInvasionsLocalised) {
-			(window as any).updateInvasionsLocalised();
+		if ((window as any).updateInvasions) {
+			(window as any).updateInvasions();
 		}
 	});
 

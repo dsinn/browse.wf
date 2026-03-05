@@ -1,15 +1,5 @@
 <div class="card-filter-panel" id="invasions-filters" style="display:none">
 	<div class="card-body py-2">
-		<div class="form-check">
-			<input class="form-check-input" type="checkbox"
-			       id="filter-invasions-randomized-missions"
-			       data-filter-type="randomized-missions"
-			       checked>
-			<label class="form-check-label" for="filter-invasions-randomized-missions">
-				Show randomized mission types
-			</label>
-		</div>
-		<hr class="my-2">
 		<div class="row g-2">
 			<?php
 			// Keys are the last path segment of the Oracle API ItemType, with the

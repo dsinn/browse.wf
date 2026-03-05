@@ -13,45 +13,10 @@ interface IBountyCycle {
 	}[]>;
 }
 
-// Oracle
-interface IMin {
-    version:       number;
-    latestEvent:   number;
-    latestRedtext: number;
-    darvoSold:     number;
-    invasions:     number;
-    alerts:        number;
-    goals:         number;
-    fissures:      number;
-}
-interface IWeekly {
-	expiry:                    number;
-	labConquestMissions:       IConquestMission[];
-	labConquestFrameVariables: string[];
-	hexConquestMissions:       IConquestMission[];
-	hexConquestFrameVariables: string[];
-}
 interface IConquestMission {
 	type:       string;
 	variant:    string;
 	conditions: string[];
-}
-
-// Oracle
-interface IInvasions {
-	activation: number;
-	expiry:     number;
-	invasions: IInvasion[];
-}
-interface IInvasion {
-	id:       string;
-	node:     string;
-	ally:     string;
-	allyPay:  {
-		ItemType:  string;
-		ItemCount: number;
-	}[];
-	missions: string[];
 }
 
 // worldState
@@ -78,6 +43,24 @@ declare let onLanguageUpdate: () => void;
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
 declare function toTitleCase(str: string): string;
+declare function updateCalendarSeason(ExportResources: Promise<Record<string, any>>, ExportBundles: Promise<Record<string, any>>, ExportBoosterPacks: Promise<Record<string, any>>, ExportBoosters: Promise<Record<string, any>>): Promise<void>;
+declare function updateDescendia(): void;
+
+// invasions.ts
+declare function updateInvasions(): Promise<void>;
+
+// card-filters.ts
+declare function isFilterEnabled(cardName: string, filterType: string): boolean;
+declare function initializeCardFilters_all(): void;
+
+// news-mark-read.ts
+declare function generateNewsItemKey(item: any): string;
+declare function isNewsItemRead(key: string): boolean;
+declare function markNewsItemAsRead(key: string, element: HTMLElement): void;
+declare function initializeMarkAsRead(): void;
+
+// bounty-filters.ts
+declare function initializeBountyFilters_all(): void;
 
 // arbyTiers.js
 declare const arbyTiers: Record<string, string>;
@@ -100,8 +83,6 @@ declare global {
 
 		bountyCycleExpiry: number;
 		bountyCycle: IBountyCycle;
-		refresh_bounty_cycle_at: number;
-
 		arbys: [number, string][];
 		arby_node: IRegion;
 		arby_expiry: number;
@@ -109,9 +90,6 @@ declare global {
 		incursions: [number, string][];
 		incursions_today: string[];
 		incursions_expiry: number;
-
-		weekly: IWeekly;
-		refresh_weekly_at: number;
 
 		worldState: {
 			Events: any[];
@@ -196,27 +174,26 @@ declare global {
 					Auras: string[];
 				}[];
 			}[];
+			SyndicateMissions: {
+				_id: { $oid: string };
+				Activation: IMongoDate;
+				Expiry: IMongoDate;
+				Tag: string;
+				Seed: number;
+				Nodes: string[];
+			}[];
 			Tmp: string;
 		}
 		redtext: { data: string; time: number }[];
-		refresh_news_sources_at: number;
 		news_notify_after: number;
-		events_earmark: number;
 		dailyDeal: IDailyDeal;
-		refresh_world_state_at: number;
 		last_sortie: string;
 		last_darvo_deal: string;
 		last_baro_expiry: string;
-		last_alert_count: number;
-
-		invasions: IInvasion[];
-		refresh_invasions_at: number;
-		num_invasions: number;
-
-		refresh_fissures_at: number;
-		num_fissures: number;
 	}
 }
+
+const STALE_DATA_RETRY_MS = 5_000;
 
 const dict_promise = getDictPromise();
 const osdict_promise = getOSDictPromise();
@@ -232,6 +209,13 @@ const ExportResources_promise = fetch("warframe-public-export-plus/ExportResourc
 const ExportBundles_promise = fetch("warframe-public-export-plus/ExportBundles.json").then(res => res.json());
 const ExportBoosterPacks_promise = fetch("warframe-public-export-plus/ExportBoosterPacks.json").then(res => res.json());
 const ExportBoosters_promise = fetch("warframe-public-export-plus/ExportBoosters.json").then(res => res.json());
+
+let latestRenderedNewsTime = 0;
+let renderedAlertOids: Set<string> | undefined;
+let latestRenderedFissureTime = 0;
+let fissuresScheduledExpiries = new Set<number>();
+let weeklyExpiry = 0;
+let renderedGoals = "";
 
 dict_promise.then(dict => { (window as any).dict = dict; });
 osdict_promise.then(osdict => { (window as any).osdict = osdict; });
@@ -461,7 +445,6 @@ function updateBountyCycleLocalised()
 
 function updateBountyCycle()
 {
-	window.refresh_bounty_cycle_at = undefined;
 	fetch("https://oracle.browse.wf/bounty-cycle").then(res => res.json()).then(async (bountyCycle: IBountyCycle) =>
 	{
 		if (window.bountyCycle && window.bountyCycle.expiry != bountyCycle.expiry && localStorage.getItem("live.notif.bounties"))
@@ -478,11 +461,12 @@ function updateBountyCycle()
 		document.getElementById("bounty-rot").textContent = bountyCycle.rot;
 		document.getElementById("vault-rot").textContent = bountyCycle.vaultRot;
 		updateBountyCycleLocalised();
-		window.refresh_bounty_cycle_at = (stale ? (Date.now() + 240_000 + Math.random() * 120_000) : Math.max(Date.now(), window.bountyCycleExpiry));
+		const nextFetch = stale ? (Date.now() + 240_000 + Math.random() * 120_000) : Math.max(Date.now(), bountyCycle.expiry);
+		setTimeout(updateBountyCycle, nextFetch - Date.now());
 	}).catch(e =>
 	{
 		console.error(e);
-		setTimeout(updateBountyCycle, 5000);
+		setTimeout(updateBountyCycle, STALE_DATA_RETRY_MS);
 	});
 }
 
@@ -544,7 +528,7 @@ async function updateIncursionsLocalised()
 		}
 
 		// Check if this mission type should be displayed (filter check)
-		const isVisible = (window as any).isFilterEnabled?.("incursions", canonicalMissionType) ?? true;
+		const isVisible = isFilterEnabled("incursions", canonicalMissionType);
 
 		if (isVisible)
 		{
@@ -609,6 +593,14 @@ function addTooltip(elm: HTMLElement, title: string): any
 
 function updateWeeklyLocalised()
 {
+	const labConquest = window.worldState.Conquests.find((c: any) => c.Type === "CT_LAB");
+	const hexConquest = window.worldState.Conquests.find((c: any) => c.Type === "CT_HEX");
+
+	const labMissions      = labConquest ? transformConquestMissions(labConquest, "CT_LAB") : [];
+	const labFvs           = labConquest?.Variables || [];
+	const hexMissions      = hexConquest ? transformConquestMissions(hexConquest, "CT_HEX") : [];
+	const hexFvs           = hexConquest?.Variables || [];
+
 	// Helper to create tooltip element with graceful degradation for osdict lookups
 	function createArchimedeaTooltip(
 		keyPrefix: string,
@@ -649,11 +641,11 @@ function updateWeeklyLocalised()
 	}
 
 	{
-		setDatum("labConquest-header", osdict["/Lotus/Language/Conquest/SolarMapLabConquestNode"], window.refresh_weekly_at);
+		setDatum("labConquest-header", osdict["/Lotus/Language/Conquest/SolarMapLabConquestNode"], weeklyExpiry);
 		document.getElementById("labConquest-header").innerHTML += " ";
-		document.getElementById("labConquest-header").appendChild(createCompletionToggle("labconquest-" + window.refresh_weekly_at));
+		document.getElementById("labConquest-header").appendChild(createCompletionToggle("labconquest-" + weeklyExpiry));
 		const tbody = document.createElement("tbody");
-		for (const mission of window.weekly.labConquestMissions)
+		for (const mission of labMissions)
 		{
 			const tr = document.createElement("tr");
 			{
@@ -680,7 +672,7 @@ function updateWeeklyLocalised()
 		document.getElementById("labConquest-missions").appendChild(tbody);
 		document.getElementById("labConquest-fv").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 		document.getElementById("labConquest-fv").innerHTML = "";
-		for (const fv of window.weekly.labConquestFrameVariables)
+		for (const fv of labFvs)
 		{
 			const td = document.createElement("td");
 			const canonicalPersonalMod = conquestVariableTagToLoc(fv);
@@ -690,11 +682,11 @@ function updateWeeklyLocalised()
 	}
 
 	{
-		setDatum("hexConquest-header", osdict["/Lotus/Language/1999Echoes/1999HexConquestNode"], window.refresh_weekly_at);
+		setDatum("hexConquest-header", osdict["/Lotus/Language/1999Echoes/1999HexConquestNode"], weeklyExpiry);
 		document.getElementById("hexConquest-header").innerHTML += " ";
-		document.getElementById("hexConquest-header").appendChild(createCompletionToggle("hexconquest-" + window.refresh_weekly_at));
+		document.getElementById("hexConquest-header").appendChild(createCompletionToggle("hexconquest-" + weeklyExpiry));
 		const tbody = document.createElement("tbody");
-		for (const mission of window.weekly.hexConquestMissions)
+		for (const mission of hexMissions)
 		{
 			const tr = document.createElement("tr");
 			{
@@ -721,7 +713,7 @@ function updateWeeklyLocalised()
 		document.getElementById("hexConquest-missions").appendChild(tbody);
 		document.getElementById("hexConquest-fv").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 		document.getElementById("hexConquest-fv").innerHTML = "";
-		for (const fv of window.weekly.hexConquestFrameVariables)
+		for (const fv of hexFvs)
 		{
 			const td = document.createElement("td");
 			const canonicalPersonalMod = conquestVariableTagToLoc(fv);
@@ -739,102 +731,66 @@ function updateWeekly()
 		return;
 	}
 
-	window.refresh_weekly_at = undefined;
 	Promise.all([dicts_promise, ExportMissionTypes_promise]).then(() =>
 	{
-		if (window.weekly)
+		const labConquest = window.worldState.Conquests.find((c: any) => c.Type === "CT_LAB");
+		const hexConquest = window.worldState.Conquests.find((c: any) => c.Type === "CT_HEX");
+
+		let newWeeklyExpiry: number;
+		if (labConquest) {
+			newWeeklyExpiry = parseInt(labConquest.Expiry.$date.$numberLong);
+		} else if (hexConquest) {
+			newWeeklyExpiry = parseInt(hexConquest.Expiry.$date.$numberLong);
+		} else {
+			const EPOCH = 1736121600 * 1000;
+			const week = Math.trunc((Date.now() - EPOCH) / 604800000);
+			newWeeklyExpiry = EPOCH + (week + 1) * 604800000;
+		}
+
+		// Skip re-render if we're still in the same week
+		if (newWeeklyExpiry === weeklyExpiry) return;
+
+		// New week detected: notify before updating
+		if (weeklyExpiry)
 		{
 			const weekly_notifications_subscribed_to = [];
-			if (localStorage.getItem("live.notif.litesortie"))
-			{
-				weekly_notifications_subscribed_to.push("Archon Hunt");
-			}
-			if (localStorage.getItem("live.notif.teshin"))
-			{
-				weekly_notifications_subscribed_to.push("Vendors");
-			}
-			if (localStorage.getItem("live.notif.circuit"))
-			{
-				weekly_notifications_subscribed_to.push("Weekly Missions");
-			}
-			if (localStorage.getItem("live.notif.labconquest"))
-			{
-				weekly_notifications_subscribed_to.push("Deep Archimedea");
-			}
-			if (localStorage.getItem("live.notif.hexconquest"))
-			{
-				weekly_notifications_subscribed_to.push("Temporal Archimedea");
-			}
+			if (localStorage.getItem("live.notif.litesortie"))  weekly_notifications_subscribed_to.push("Archon Hunt");
+			if (localStorage.getItem("live.notif.teshin"))      weekly_notifications_subscribed_to.push("Vendors");
+			if (localStorage.getItem("live.notif.circuit"))     weekly_notifications_subscribed_to.push("Weekly Missions");
+			if (localStorage.getItem("live.notif.labconquest")) weekly_notifications_subscribed_to.push("Deep Archimedea");
+			if (localStorage.getItem("live.notif.hexconquest")) weekly_notifications_subscribed_to.push("Temporal Archimedea");
 			if (weekly_notifications_subscribed_to.length != 0)
 			{
 				sendNotification("It's a new week. " + weekly_notifications_subscribed_to.join(", ") + " refreshed.");
 			}
 		}
 
-		// Transform worldState.Conquests to IWeekly format (inline, matching updateFissures pattern)
-		const labConquest = window.worldState.Conquests.find(c => c.Type === "CT_LAB");
-		const hexConquest = window.worldState.Conquests.find(c => c.Type === "CT_HEX");
-
-		// Helper to transform missions (reused for both conquest types)
-		const transformMissions = (conquest: any, conquestType: string): IConquestMission[] => {
-			const missions: IConquestMission[] = [];
-			for (const mission of conquest.Missions) {
-				// Extract hard difficulty (fall back to difficulty with most risks, then last element)
-				const hardDiff = mission.difficulties.find(d => d.type === "CD_HARD")
-					|| mission.difficulties.reduce((a, b) => a.risks.length > b.risks.length ? a : b);
-
-				// Extract type from ExportMissionTypes: "/Lotus/Language/Missions/MissionName_Defense" → "Defense"
-				let type = ExportMissionTypes[mission.missionType].name.split("MissionName_")[1];
-
-				// Special case: CT_LAB uses DualDefense instead of Defense
-				if (conquestType === "CT_LAB" && type === "Defense") {
-					type = "DualDefense";
-				}
-
-				missions.push({
-					type: type,
-					variant: hardDiff.deviation,
-					conditions: hardDiff.risks
-				});
-			}
-			return missions;
-		};
-
-		// Allow graceful degradation if one conquest type is missing
-		window.weekly = {
-			expiry: labConquest ? Math.floor(parseInt(labConquest.Expiry.$date.$numberLong) / 1000)
-				  : hexConquest ? Math.floor(parseInt(hexConquest.Expiry.$date.$numberLong) / 1000)
-				  : 0,
-			labConquestMissions: labConquest ? transformMissions(labConquest, "CT_LAB") : [],
-			labConquestFrameVariables: labConquest?.Variables || [],
-			hexConquestMissions: hexConquest ? transformMissions(hexConquest, "CT_HEX") : [],
-			hexConquestFrameVariables: hexConquest?.Variables || []
-		};
-
-		// Used for expiry badge display AND completion toggle OID (must be unique per week)
-		// Prefer labConquest expiry, fall back to hexConquest, then calculate from EPOCH
-		if (labConquest) {
-			window.refresh_weekly_at = parseInt(labConquest.Expiry.$date.$numberLong);
-		} else if (hexConquest) {
-			window.refresh_weekly_at = parseInt(hexConquest.Expiry.$date.$numberLong);
-		} else {
-			// Last resort: calculate weekEnd using same logic as updateTeshin()
-			const EPOCH = 1736121600 * 1000;
-			const week = Math.trunc((Date.now() - EPOCH) / 604800000);
-			const weekStart = EPOCH + week * 604800000;
-			window.refresh_weekly_at = weekStart + 604800000;
-		}
-
+		weeklyExpiry = newWeeklyExpiry;
 		updateWeeklyLocalised();
 	}).catch(e =>
 	{
 		console.error(e);
-		setTimeout(updateWeekly, 5000);
+		setTimeout(updateWeekly, STALE_DATA_RETRY_MS);
 	});
 }
 
-function updateNewsTicker()
+function updateNewsTicker(forceRender = false)
 {
+	if (!window.redtext && isFilterEnabled("news", "danger"))
+	{
+		window.redtext = []; // sentinel: fetch in-flight, prevents duplicate fetches
+		fetch("https://oracle.browse.wf/redtext.json").then(res => res.json()).then(redtext =>
+		{
+			window.redtext = redtext;
+			updateNewsTicker();
+		}).catch(e =>
+		{
+			console.error(e);
+			window.redtext = undefined; // allow retry on next trigger
+		});
+		return;
+	}
+
 	let highest_time = 0;
 	const items = [];
 	if (window.worldState)
@@ -891,13 +847,18 @@ function updateNewsTicker()
 		return;
 	}
 
+	// Skip re-render if data hasn't changed
+	if (!forceRender && latestRenderedNewsTime === highest_time) return;
+
+	latestRenderedNewsTime = highest_time;
+
 	if (window.news_notify_after && localStorage.getItem("live.notif.news"))
 	{
 		for (let i = items.length; i-- != 0; )
 		{
 			// Only notify for items that pass the filter
 			if (items[i].time > window.news_notify_after &&
-			    ((window as any).isFilterEnabled?.("news", items[i].type) ?? true))
+			    (isFilterEnabled("news", items[i].type)))
 			{
 				sendNotification(items[i].data);
 			}
@@ -905,14 +866,13 @@ function updateNewsTicker()
 	}
 	if (window.worldState && window.redtext)
 	{
-		window.refresh_news_sources_at = Date.now() + 60_000;
 		window.news_notify_after = highest_time;
 	}
 
 	// Filter items based on user preferences (mutate in place to minimize upstream changes)
 	for (let i = items.length; i-- > 0; )
 	{
-		if (!((window as any).isFilterEnabled?.("news", items[i].type) ?? true))
+		if (!(isFilterEnabled("news", items[i].type)))
 		{
 			items.splice(i, 1);
 		}
@@ -967,20 +927,18 @@ function updateNewsTicker()
 
 		// Only add mark-as-read functionality to primary/success items (exclude danger)
 		if (!isRedText) {
-			const newsKey = (window as any).generateNewsItemKey?.(items[i]) ?? "";
+			const newsKey = generateNewsItemKey(items[i]);
 			p.setAttribute("data-news-key", newsKey);
 
 			// Add read state class if already marked as read
-			if ((window as any).isNewsItemRead?.(newsKey)) {
+			if (isNewsItemRead(newsKey)) {
 				p.classList.add("news-read");
 			}
 
 			// Add click handler to mark as read
 			p.style.cursor = "pointer";
 			p.addEventListener("click", () => {
-				if ((window as any).markNewsItemAsRead) {
-					(window as any).markNewsItemAsRead(newsKey, p);
-				}
+				markNewsItemAsRead(newsKey, p);
 			});
 		}
 
@@ -989,131 +947,38 @@ function updateNewsTicker()
 	document.querySelector("#news-body > :last-child").classList.remove("mb-1");
 }
 
-async function updateNewsSources()
-{
-	window.refresh_news_sources_at = undefined;
-
-	// Note: Redtext API only called if danger filter is enabled
-	// This saves bandwidth when users have red text filtered out
-	// Notifications for redtext won't fire if filter is disabled
-	const sourcesToUpdate = {
-		events: !window.worldState,
-		redtext: !window.redtext && ((window as any).isFilterEnabled?.("news", "danger") ?? true),
-	};
-	if (window.worldState || window.redtext)
-	{
-		try
-		{
-			const meta: IMin = await fetch("https://oracle.browse.wf/min").then(res => res.json());
-			if (meta.version > window.LIVE_VERSION)
-			{
-				document.getElementById("update-prompt").classList.remove("d-none");
-			}
-			if (window.worldState)
-			{
-				sourcesToUpdate.events = (
-					window.events_earmark != meta.latestEvent
-					|| window.worldState.Alerts.length != meta.alerts
-					|| window.worldState.Goals.length != meta.goals
-					|| (window.num_fissures && window.num_fissures != meta.fissures)
-					);
-			}
-			if (window.redtext)
-			{
-				sourcesToUpdate.redtext = (window.redtext[window.redtext.length - 1].time != meta.latestRedtext);
-			}
-			if (window.dailyDeal)
-			{
-				document.getElementById("darvo-stock").textContent = (window.dailyDeal.AmountTotal - meta.darvoSold) + "/" + window.dailyDeal.AmountTotal;
-			}
-			if (window.num_invasions && window.num_invasions != meta.invasions)
-			{
-				updateInvasions();
-			}
-		}
-		catch (e)
-		{
-			console.error(e);
-		}
-	}
-	else
-	{
-		const meta: IMin = await fetch("https://oracle.browse.wf/min").then(res => res.json());
-		if (meta.version > window.LIVE_VERSION)
-		{
-			document.getElementById("update-prompt").classList.remove("d-none");
-		}
-	}
-
-	if (sourcesToUpdate.events)
-	{
-		updateWorldState();
-	}
-	if (sourcesToUpdate.redtext)
-	{
-		fetch("https://oracle.browse.wf/redtext.json").then(res => res.json()).then(redtext =>
-		{
-			window.redtext = redtext;
-			updateNewsTicker();
-		});
-	}
-
-	if (!sourcesToUpdate.events && !sourcesToUpdate.redtext)
-	{
-		window.refresh_news_sources_at = Date.now() + 60_000;
-	}
-}
-
 function updateWorldStateLocalised()
 {
 	updateNewsTicker();
-	updateSorties();
-	updateDarvosDeal();
-	updateBaro();
 	updateAlerts();
 	updateGoals();
 	updateFissures();
+	updateInvasions();
 }
 
-function updateWorldState()
+function fetchWorldState(): Promise<void>
 {
-	window.refresh_world_state_at = undefined;
-	(window as any).WarframeApiFrontProxyClient.fetchWorldState().then((worldState: any) =>
+	return (window as any).WarframeApiFrontProxyClient.fetchWorldState().then((worldState: any) =>
 	{
 		window.worldState = worldState;
-
-		window.bountyCycleExpiry = parseInt(worldState.SyndicateMissions.find(x => x.Tag == "HexSyndicate").Expiry.$date.$numberLong);
-		updateDayNightCycle();
-
-		window.events_earmark = 0;
-		for (const event of worldState.Events)
-		{
-			if (event.Date)
-			{
-				const time = Math.trunc(event.Date.$date.$numberLong / 1000);
-				if (time > window.events_earmark)
-				{
-					window.events_earmark = time;
-				}
-			}
-		}
-
 		updateWorldStateLocalised();
-		updateWeekly();
-		if ((window as any).updateCalendarSeason)
-		{
-			(window as any).updateCalendarSeason(
-				ExportResources_promise,
-				ExportBundles_promise,
-				ExportBoosterPacks_promise,
-				ExportBoosters_promise
-			);
-		}
-		if ((window as any).updateDescendia)
-		{
-			(window as any).updateDescendia();
-		}
 	});
+}
+
+function initWorldStateCards(): void
+{
+	updateDayNightCycle();
+	updateSorties();
+	updateDarvosDeal();
+	updateBaro();
+	updateWeekly();
+	updateCalendarSeason(
+		ExportResources_promise,
+		ExportBundles_promise,
+		ExportBoosterPacks_promise,
+		ExportBoosters_promise
+	);
+	updateDescendia();
 }
 
 const sortieModifiers = {
@@ -1149,19 +1014,6 @@ const sortieModifiers = {
 	"SORTIE_MODIFIER_BOW_ONLY": "Bow Only",
 };
 
-function setWorldStateExpiry(expiry: number): void
-{
-	if (Date.now() > expiry)
-	{
-		console.trace("World state already expired");
-		expiry = Date.now() + 30000;
-	}
-	if (!window.refresh_world_state_at || window.refresh_world_state_at > expiry)
-	{
-		window.refresh_world_state_at = expiry;
-	}
-}
-
 async function updateSorties()
 {
 	await dicts_promise;
@@ -1169,7 +1021,7 @@ async function updateSorties()
 	await ExportRegions_promise;
 
 	const sortie = window.worldState.Sorties.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
-	setWorldStateExpiry(parseInt(sortie.Expiry.$date.$numberLong));
+	if (!sortie) { setTimeout(updateSorties, STALE_DATA_RETRY_MS); return; }
 	setDatum("sortie-header", toTitleCase(osdict["/Lotus/Language/Menu/SortieMissionName"]), parseInt(sortie.Expiry.$date.$numberLong));
 	document.getElementById("sortie-header").innerHTML += " ";
 	document.getElementById("sortie-header").appendChild(createCompletionToggle(sortie._id.$oid));
@@ -1204,7 +1056,6 @@ async function updateSorties()
 	window.last_sortie = sortie._id.$oid;
 
 	const litesortie = window.worldState.LiteSorties.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
-	setWorldStateExpiry(parseInt(litesortie.Expiry.$date.$numberLong));
 	setDatum("litesortie-header", osdict["/Lotus/Language/WorldStateWindow/LiteSortieMissionName"], parseInt(litesortie.Expiry.$date.$numberLong));
 	document.getElementById("litesortie-header").innerHTML += " ";
 	document.getElementById("litesortie-header").appendChild(createCompletionToggle(litesortie._id.$oid));
@@ -1219,13 +1070,14 @@ async function updateSorties()
 	document.getElementById("litesortie-body").innerHTML = "";
 	document.getElementById("litesortie-body").appendChild(span);
 	document.getElementById("litesortie-body").innerHTML += " • " + mission_names.join(", ");
+	setTimeout(updateSorties, parseInt(sortie.Expiry.$date.$numberLong) - Date.now());
 }
 
 async function updateDarvosDeal()
 {
 	window.dailyDeal = window.worldState.DailyDeals.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
+	if (!window.dailyDeal) { setTimeout(updateDarvosDeal, STALE_DATA_RETRY_MS); return; }
 	setDatum("darvo-header", "Darvo's Deal", parseInt(window.dailyDeal.Expiry.$date.$numberLong));
-	setWorldStateExpiry(parseInt(window.dailyDeal.Expiry.$date.$numberLong));
 	const item_data = await getItemDataPromise(window.dailyDeal.StoreItem);
 	await dicts_promise;
 	document.getElementById("darvo-item").textContent = dict[item_data.name];
@@ -1243,6 +1095,7 @@ async function updateDarvosDeal()
 		sendNotification("Darvo sells " + dict[item_data.name] + " for " + window.dailyDeal.SalePrice + " Platinum today.");
 	}
 	window.last_darvo_deal = window.dailyDeal.Activation.$date.$numberLong;
+	setTimeout(updateDarvosDeal, parseInt(window.dailyDeal.Expiry.$date.$numberLong) - Date.now());
 }
 
 async function updateBaro()
@@ -1255,7 +1108,6 @@ async function updateBaro()
 		document.getElementById("baro-soon").classList.add("d-none");
 		document.getElementById("baro-now").classList.remove("d-none");
 
-		setWorldStateExpiry(parseInt(window.worldState.VoidTraders[0].Expiry.$date.$numberLong));
 		setDatum("baro-header", "Baro Ki'Teer", parseInt(window.worldState.VoidTraders[0].Expiry.$date.$numberLong));
 
 		for (const item of window.worldState.VoidTraders[0].Manifest)
@@ -1323,15 +1175,27 @@ async function updateBaro()
 		document.getElementById("baro-soon").classList.remove("d-none");
 		document.getElementById("baro-now").classList.add("d-none");
 
-		setWorldStateExpiry(parseInt(window.worldState.VoidTraders[0].Activation.$date.$numberLong));
 		setDatum("baro-header", "Baro Ki'Teer", parseInt(window.worldState.VoidTraders[0].Activation.$date.$numberLong));
 
 		window.last_baro_expiry = "69";
 	}
+	const baroNext = window.worldState.VoidTraders[0].Manifest
+		? parseInt(window.worldState.VoidTraders[0].Expiry.$date.$numberLong)
+		: parseInt(window.worldState.VoidTraders[0].Activation.$date.$numberLong);
+	setTimeout(updateBaro, baroNext - Date.now());
 }
 
-async function updateAlerts()
+async function updateAlerts(forceRender = false)
 {
+	// Skip re-render if the OID set is unchanged
+	const currentOids = new Set<string>(window.worldState.Alerts.map((a: any) => a._id.$oid));
+	const prevOids = renderedAlertOids;
+	const sameOids = prevOids
+		&& currentOids.size === prevOids.size
+		&& [...currentOids].every(oid => prevOids.has(oid));
+	renderedAlertOids = currentOids;
+	if (!forceRender && sameOids) return;
+
 	if (window.worldState.Alerts.length != 0)
 	{
 		const promises = [dict_promise, ExportMissionTypes_promise, ExportFactions_promise, ExportRegions_promise];
@@ -1360,7 +1224,7 @@ async function updateAlerts()
 		{
 			if (Date.now() < alert.Activation.$date.$numberLong)
 			{
-				setWorldStateExpiry(parseInt(alert.Activation.$date.$numberLong));
+				// not yet active
 			}
 			else if (Date.now() < alert.Expiry.$date.$numberLong)
 			{
@@ -1376,7 +1240,6 @@ async function updateAlerts()
 					}
 					span.innerHTML += " (" + alert.MissionInfo.minEnemyLevel + "-" + alert.MissionInfo.maxEnemyLevel + ") @ "+ dict[ExportRegions[alert.MissionInfo.location].name] + ", " + dict[ExportRegions[alert.MissionInfo.location].systemName] + " ";
 					span.appendChild(createExpiryBadge(alert.Expiry.$date.$numberLong));
-					setWorldStateExpiry(parseInt(alert.Expiry.$date.$numberLong));
 					span.innerHTML += " ";
 					span.appendChild(createCompletionToggle(alert._id.$oid));
 					block.appendChild(span);
@@ -1416,30 +1279,31 @@ async function updateAlerts()
 		document.getElementById("alerts-body").textContent = "None right now.";
 	}
 
-	if ("last_alert_count" in window && window.worldState.Alerts.length > window.last_alert_count && localStorage.getItem("live.notif.alerts"))
+	if (!sameOids && prevOids)
 	{
-		const diff = (window.worldState.Alerts.length - window.last_alert_count);
-		sendNotification(diff == 1 ? "A new alert is live." : diff + " new alerts are live.");
+		const newAlerts = window.worldState.Alerts.filter((a: any) => !prevOids.has(a._id.$oid));
+		if (newAlerts.length > 0 && localStorage.getItem("live.notif.alerts"))
+		{
+			sendNotification(newAlerts.length == 1 ? "A new alert is live." : newAlerts.length + " new alerts are live.");
+		}
 	}
-	window.last_alert_count = window.worldState.Alerts.length;
 }
 
-async function updateGoals()
+async function updateGoals(forceRender = false)
 {
-	if (window.worldState.Goals.length != 0)
+	await osdict_promise;
+	const goal_names = [];
+	for (const goal of window.worldState.Goals)
 	{
-		await osdict_promise;
-		const goal_names = [];
-		for (const goal of window.worldState.Goals)
-		{
-			goal_names.push(osdict[goal.Desc] ? toTitleCase(osdict[goal.Desc]) : goal.Desc);
-		}
-		document.getElementById("goals-body").textContent = goal_names.join(", ");
+		goal_names.push(osdict[goal.Desc] ? toTitleCase(osdict[goal.Desc]) : goal.Desc);
 	}
-	else
-	{
-		document.getElementById("goals-body").textContent = "None right now.";
-	}
+	const content = goal_names.join(", ") || "None right now.";
+
+	// Skip re-render if content is unchanged
+	if (!forceRender && content === renderedGoals) return;
+	renderedGoals = content;
+
+	document.getElementById("goals-body").textContent = content;
 }
 
 function updateTeshin()
@@ -1512,7 +1376,7 @@ function updateCircuitLocalised()
 
 		for (const entry of entries) {
 			const mission = (entry as HTMLElement).getAttribute('data-mission');
-			const isVisible = (window as any).isFilterEnabled?.('weekly-missions', mission) ?? true;
+			const isVisible = isFilterEnabled('weekly-missions', mission);
 			(entry as HTMLElement).style.display = isVisible ? '' : 'none';
 			if (isVisible) {
 				visibleCount++;
@@ -1674,219 +1538,6 @@ function createCompletionToggle(oid: string): HTMLAnchorElement
 	return a;
 }
 
-async function updateInvasionsLocalised()
-{
-	const startTime = Date.now();
-	while (!window.worldState?.Invasions ||
-			(window.refresh_world_state_at && window.refresh_world_state_at <= Date.now())) {
-		if (Date.now() - startTime > 10000) {
-			console.warn('Timeout waiting for worldState.Invasions');
-			return;
-		}
-		await new Promise(resolve => setTimeout(resolve, 1000));
-	}
-
-	const extraDataMap = (window as any).buildInvasionExtraDataMap(window.worldState.Invasions, window.invasions);
-	(window as any).sortInvasionsInPlace(window.invasions, extraDataMap);
-
-	// Pre-compute reward visibility for each invasion entry.
-	const rewardVisible = window.invasions.map((inv: any) =>
-		(window as any).isInvasionRewardShown(inv.allyPay?.[0]?.ItemType)
-	);
-
-	const showRandomizedMissions = (window as any).isFilterEnabled?.("invasions", "randomized-missions") ?? true;
-
-	const tbody = document.createElement("tbody");
-	let last_id = "";
-	let anyVisible = false;
-	window.num_invasions = 0;
-
-	for (let i = 0; i < window.invasions.length; i++)
-	{
-		const invasion = window.invasions[i];
-		const isSecondRow = last_id === invasion.id;
-
-		// Rows are always rendered (never skipped) so [data-oid] elements remain in the
-		// DOM — pruneStaleOids() depends on them being present regardless of filter state.
-		// For a second row, renderAsFirstRow is true only when the attacker (first) row is
-		// hidden but this row is visible — i.e. the defender row is "promoted".
-		const renderAsFirstRow = !isSecondRow || (!rewardVisible[i - 1] && rewardVisible[i]);
-
-		const extraData = extraDataMap[invasion.id];
-		if (!extraData) {
-			console.log(`Unable to find extra invasion data for invasion with oid ${invasion.id}; worldState update may be needed`);
-		}
-
-		const tr = document.createElement("tr");
-
-		if (rewardVisible[i]) {
-			anyVisible = true;
-		} else {
-			tr.classList.add("d-none");
-		}
-
-		// Add invasion-defender-reward only for true second rows (attacker row was visible)
-		if (isSecondRow && rewardVisible[i - 1]) {
-			tr.classList.add("invasion-defender-reward");
-		}
-
-		// Add styling for duplicate invasions (not yet active)
-		if (extraData?.isDuplicate) {
-			tr.classList.add("opacity-50");
-		}
-
-		{
-			const th = document.createElement("th");
-			if (renderAsFirstRow)
-			{
-				++window.num_invasions;
-				const node = ExportRegions[invasion.node];
-				th.textContent = dict[node.name] + ", " + dict[node.systemName];
-
-				if (extraData) {
-					const progressBar = (window as any).createInvasionProgressBar(extraData);
-					th.appendChild(progressBar);
-				}
-			}
-			tr.appendChild(th);
-		}
-
-		/*{
-			const td = document.createElement("td");
-			const span = document.createElement("span");
-			span.textContent = dict[invasion.ally == "FC_GRINEER" ? "/Lotus/Language/Game/Faction_GrineerUC" : "/Lotus/Language/Game/Faction_CorpusUC"];
-			addTooltip(span, "Your ally");
-			td.appendChild(span);
-			tr.appendChild(td);
-		}*/
-
-		if (extraData) {
-			tr.appendChild((window as any).renderInvasionProgressPercentage(renderAsFirstRow ? "" : last_id, extraData));
-		} else {
-			// Render empty cell when extraData unavailable
-			const td = document.createElement("td");
-			tr.appendChild(td);
-		}
-
-		{
-			const td = document.createElement("td");
-
-			const isAssassination = invasion.missions[0] === "Assassination";
-			const isGradivus = invasion.node === "SolNode65";
-
-			// Show mission type if: filter enabled OR Assassination OR Gradivus
-			if (showRandomizedMissions || isAssassination || isGradivus)
-			{
-				const span = document.createElement("span");
-
-				let missionType, nextMissionType;
-				if (invasion.node === "SolNode65")
-				{
-					// Hardcode Gradivus, Mars to always show Sabotage (API response is irrelevant)
-					missionType = "Sabotage";
-					nextMissionType = "Sabotage";
-				}
-				else
-				{
-					missionType = invasion.missions[0];
-					nextMissionType = invasion.missions[1];
-				}
-				span.textContent = toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + missionType]);
-
-				// Only add tooltip if randomized missions are shown
-				if (showRandomizedMissions)
-				{
-					addTooltip(span, "Next: " + toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + nextMissionType]));
-				}
-				td.appendChild(span);
-			}
-			tr.appendChild(td);
-		}
-		{
-			const td = document.createElement("td");
-			td.textContent = invasion.allyPay[0].ItemCount + "x " + await getItemNamePromise(invasion.allyPay[0].ItemType);
-			tr.appendChild(td);
-		}
-		{
-			const td = document.createElement("td");
-			// Only add completion toggle when this is the canonical "first row" for the invasion.
-			// A hidden first row whose defender was promoted skips the toggle (promoted row has it).
-			const isPairedWithVisiblePromotion = !isSecondRow && !rewardVisible[i] &&
-				i + 1 < window.invasions.length && window.invasions[i + 1].id === invasion.id &&
-				rewardVisible[i + 1];
-			if (renderAsFirstRow && !isPairedWithVisiblePromotion)
-			{
-				if (extraData?.isDuplicate)
-				{
-					const span = document.createElement("span");
-					span.textContent = "⏳";
-					const node = ExportRegions[invasion.node];
-					addTooltip(span, `Will unlock after the first ${dict[node.name] + ", " + dict[node.systemName]} invasion is completed.`);
-					td.appendChild(span);
-				}
-				else
-				{
-					td.appendChild(createCompletionToggle(invasion.id));
-				}
-			}
-			tr.appendChild(td);
-		}
-		tbody.appendChild(tr);
-		last_id = invasion.id;
-	}
-	if (!anyVisible)
-	{
-		const tr = document.createElement("tr");
-		const td = document.createElement("td");
-		td.textContent = "No invasions match the current filters.";
-		tr.appendChild(td);
-		tbody.appendChild(tr);
-	}
-
-	setDatum("invasions-header", toTitleCase(osdict["/Lotus/Language/Menu/WorldStatePanel_Invasions"]), window.refresh_invasions_at);
-
-	// Show/hide warning message based on filter
-	const warningElement = document.getElementById("invasions-warning");
-	if (warningElement)
-	{
-		warningElement.classList.toggle("d-none", !showRandomizedMissions);
-	}
-
-	document.getElementById("invasions-table").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
-	document.getElementById("invasions-table").innerHTML = "";
-	document.getElementById("invasions-table").appendChild(tbody);
-}
-
-function updateInvasions()
-{
-	window.refresh_invasions_at = undefined;
-	fetch("https://oracle.browse.wf/invasions").then(res => res.json()).then(async (res: IInvasions) =>
-	{
-		const promises = [dicts_promise, ExportRegions_promise];
-		for (const invasion of res.invasions)
-		{
-			promises.push(getItemNamePromise(invasion.allyPay[0].ItemType));
-		}
-		await Promise.all(promises);
-
-		window.invasions = res.invasions;
-		window.refresh_invasions_at = res.expiry * 1000;
-
-		updateInvasionsLocalised();
-	}).catch(e =>
-	{
-		console.error(e);
-		setTimeout(updateInvasions, 5000);
-	});
-}
-
-function setFissuresExpiry(expiry: number): void
-{
-	if (!window.refresh_fissures_at || window.refresh_fissures_at > expiry)
-	{
-		window.refresh_fissures_at = expiry;
-	}
-}
 
 const fissureTiers = {
 	VoidT1: "Lith",
@@ -1897,11 +1548,22 @@ const fissureTiers = {
 	VoidT6: "Omnia",
 };
 
-async function updateFissures()
+async function updateFissures(forceRender = false)
 {
 	await dict_promise;
 	await ExportRegions_promise;
 	await ExportFactions_promise;
+
+	// Skip re-render if no new mission has entered the set
+	// (expiry-based re-renders handle removals; we only need to catch additions here)
+	const now = Date.now();
+	const maxActivation = [...window.worldState.ActiveMissions, ...window.worldState.VoidStorms]
+		.reduce((max, f) => {
+			const activation = parseInt(f.Activation.$date.$numberLong);
+			return activation <= now && now < parseInt(f.Expiry.$date.$numberLong) ? Math.max(max, activation) : max;
+		}, 0);
+	if (!forceRender && maxActivation === latestRenderedFissureTime) return;
+	latestRenderedFissureTime = maxActivation;
 
 	const fissures = [];
 	for (const fissure of window.worldState.ActiveMissions)
@@ -1933,7 +1595,6 @@ async function updateFissures()
 		return parseInt(a.Expiry.$date.$numberLong) - parseInt(b.Expiry.$date.$numberLong);
 	});
 
-	window.num_fissures = 0;
 	const tbody = {
 		"fissures": document.createElement("tbody"),
 		"sp-fissures": document.createElement("tbody"),
@@ -1945,11 +1606,28 @@ async function updateFissures()
 		"sp-fissures": new Set<string>(),
 		"rj-fissures": new Set<string>(),
 	}
+
+	// Schedule re-render when each active fissure expires
+	const activeFissureExpiries = new Set(
+		fissures
+			.filter(f => Date.now() >= parseInt(f.Activation.$date.$numberLong) && Date.now() < parseInt(f.Expiry.$date.$numberLong))
+			.map(f => parseInt(f.Expiry.$date.$numberLong))
+	);
+	for (const expiry of activeFissureExpiries) {
+		if (!fissuresScheduledExpiries.has(expiry)) {
+			fissuresScheduledExpiries.add(expiry);
+			setTimeout(function() {
+				fissuresScheduledExpiries.delete(expiry);
+				updateFissures();
+			}, Math.max(0, expiry - Date.now()));
+		}
+	}
+
 	for (const fissure of fissures)
 	{
 		if (Date.now() < fissure.Activation.$date.$numberLong)
 		{
-			setFissuresExpiry(fissure.Activation.$date.$numberLong);
+			// not yet active; expiry-based re-render will handle it when worldState refreshes
 		}
 		else if (Date.now() < fissure.Expiry.$date.$numberLong)
 		{
@@ -1970,8 +1648,8 @@ async function updateFissures()
 				canonicalMissionType = "MT_SPY" as TMissionType;
 			}
 
-			const tierVisible = (window as any).isFilterEnabled?.(cardName, tier) ?? true;
-			const missionVisible = (window as any).isFilterEnabled?.(cardName, canonicalMissionType) ?? true;
+			const tierVisible = isFilterEnabled(cardName, tier);
+			const missionVisible = isFilterEnabled(cardName, canonicalMissionType);
 			if (!tierVisible || !missionVisible) {
 				continue;
 			}
@@ -2032,8 +1710,6 @@ async function updateFissures()
 			}
 
 			tbody[fissure.Category].appendChild(tr);
-			setFissuresExpiry(fissure.Expiry.$date.$numberLong);
-			++window.num_fissures;
 		}
 	}
 
@@ -2080,6 +1756,21 @@ function conquestVariableTagToLoc(tag)
 	return tag;
 }
 
+function transformConquestMissions(conquest: any, conquestType: string): IConquestMission[]
+{
+	const missions: IConquestMission[] = [];
+	for (const mission of conquest.Missions) {
+		const hardDiff = mission.difficulties.find((d: any) => d.type === "CD_HARD")
+			|| mission.difficulties.reduce((a: any, b: any) => a.risks.length > b.risks.length ? a : b);
+		let type = ExportMissionTypes[mission.missionType].name.split("MissionName_")[1];
+		if (conquestType === "CT_LAB" && type === "Defense") {
+			type = "DualDefense";
+		}
+		missions.push({ type, variant: hardDiff.deviation, conditions: hardDiff.risks });
+	}
+	return missions;
+}
+
 updateBountyCycle();
 
 dict_promise.then(() => updateNames());
@@ -2102,17 +1793,13 @@ dicts_promise.then(([dict, osdict]) =>
 		{
 			updateIncursionsLocalised();
 		}
-		if (window.weekly)
+		if (window.worldState)
 		{
 			updateWeeklyLocalised();
 		}
 		if (window.worldState)
 		{
 			updateWorldStateLocalised();
-		}
-		if (window.invasions)
-		{
-			updateInvasionsLocalised();
 		}
 	};
 
@@ -2133,8 +1820,27 @@ dicts_promise.then(([dict, osdict]) =>
 	});
 });
 
-updateNewsSources(); // does updateWorldState (which calls updateWeekly)
-updateInvasions();
+// Initial worldState fetch + redtext
+// Initial worldState fetch: initialize all expiry-based card lifecycles once data is available
+fetchWorldState().then(initWorldStateCards);
+
+// Active-tab polling: fetch worldState every minute and update poll-driven cards
+setInterval(function()
+{
+	if (!document.hidden)
+	{
+		fetchWorldState();
+	}
+}, 60_000);
+
+// Eager re-fetch on tab becoming visible
+document.addEventListener("visibilitychange", function()
+{
+	if (!document.hidden)
+	{
+		fetchWorldState();
+	}
+});
 
 setInterval(function()
 {
@@ -2147,30 +1853,6 @@ setInterval(function()
 		elm.textContent = formatActivation(parseInt(elm.getAttribute("data-activation")));
 	}
 }, 100);
-
-setInterval(function()
-{
-	if (window.refresh_bounty_cycle_at && Date.now() >= window.refresh_bounty_cycle_at)
-	{
-		updateBountyCycle();
-	}
-	if (window.refresh_fissures_at && Date.now() >= window.refresh_fissures_at)
-	{
-		updateFissures();
-	}
-	if (window.refresh_news_sources_at && Date.now() >= window.refresh_news_sources_at)
-	{
-		updateNewsSources();
-	}
-	if (window.refresh_world_state_at && Date.now() >= window.refresh_world_state_at)
-	{
-		updateWorldState();
-	}
-	if (window.refresh_invasions_at && Date.now() >= window.refresh_invasions_at)
-	{
-		updateInvasions();
-	}
-}, 500);
 
 function refreshCollapseStatus(elm: HTMLElement): void
 {
@@ -2279,23 +1961,10 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 	};
 });
 
-// Initialize card filter functionality (from global scope)
-if ((window as any).initializeCardFilters_all)
-{
-	(window as any).initializeCardFilters_all();
-}
+initializeCardFilters_all();
 
-// Initialize news mark-as-read functionality (from global scope)
-if ((window as any).initializeMarkAsRead)
-{
-	(window as any).initializeMarkAsRead();
-}
-
-// Initialize bounty filter functionality (from global scope)
-if ((window as any).initializeBountyFilters_all)
-{
-	(window as any).initializeBountyFilters_all();
-}
+initializeMarkAsRead();
+initializeBountyFilters_all();
 
 document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm, "Voidplume Quills"));
 
@@ -2320,8 +1989,16 @@ function refreshAllCompletionToggles(): void
 	});
 }
 
+// Expose promises and data globally for fork code
+(window as any).dicts_promise = dicts_promise;
+(window as any).ExportRegions_promise = ExportRegions_promise;
+
 // Expose globally for fork code to call
 (window as any).addTooltip = addTooltip;
+(window as any).setDatum = setDatum;
+(window as any).toTitleCase = toTitleCase;
+(window as any).getItemNamePromise = getItemNamePromise;
+(window as any).createCompletionToggle = createCompletionToggle;
 (window as any).refreshAllCompletionToggles = refreshAllCompletionToggles;
 (window as any).refreshCollapseStatus = refreshCollapseStatus;
 (window as any).refreshNotifStatus = refreshNotifStatus;

@@ -50,6 +50,7 @@ function updateDescendia(): void
 
 	if (!activeDescent)
 	{
+		setTimeout(updateDescendia, 5_000); // stale worldState — retry shortly
 		return;
 	}
 

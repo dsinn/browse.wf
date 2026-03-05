@@ -8,9 +8,6 @@ MOCKS_DIR="$(dirname "$0")/__mocks__"
 
 echo "Updating mock API responses..."
 
-curl -s "https://oracle.browse.wf/min" > "$MOCKS_DIR/min.json"
-echo "✓ Updated min.json"
-
 curl -s "https://oracle.browse.wf/bounty-cycle" > "$MOCKS_DIR/bounty-cycle.json"
 echo "✓ Updated bounty-cycle.json"
 
@@ -22,9 +19,6 @@ FRONT_PROXY_BASE_URL="${WARFRAME_API_FRONT_PROXY_BASE_URL:-https://warframe-api-
 curl -s -H "X-Warframe-API-Front-Proxy-Token: $WARFRAME_API_FRONT_PROXY_TOKEN" \
   "$FRONT_PROXY_BASE_URL/worldState" > "$MOCKS_DIR/worldState.json"
 echo "✓ Updated worldState.json"
-
-curl -s "https://oracle.browse.wf/invasions" > "$MOCKS_DIR/invasions.json"
-echo "✓ Updated invasions.json"
 
 curl -s "https://browse.wf/arbys.txt" > "$MOCKS_DIR/arbys.txt"
 echo "✓ Updated arbys.txt"

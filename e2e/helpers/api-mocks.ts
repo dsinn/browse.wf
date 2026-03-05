@@ -29,11 +29,9 @@ export async function setupMockRoutes(page: Page, options?: { worldStateFile?: s
   const mocksDir = path.join(process.cwd(), 'test', '__mocks__');
 
   // Load mock data
-  const minData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'min.json'), 'utf8'));
   const bountyCycleData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'bounty-cycle.json'), 'utf8'));
   const worldStateFile = options?.worldStateFile || 'worldState.json';
   const worldStateData = JSON.parse(fs.readFileSync(path.join(mocksDir, worldStateFile), 'utf8'));
-  const invasionsData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'invasions.json'), 'utf8'));
   const redtextData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'redtext-empty.json'), 'utf8'));
   const dictEnData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'dicts', 'en.json'), 'utf8'));
 
@@ -74,20 +72,19 @@ export async function setupMockRoutes(page: Page, options?: { worldStateFile?: s
       });
     }
 
-    console.error(`TEST SAFEGUARD: Blocked unmocked request to: ${url}`);
+    console.error(`TEST SAFEGUARD: Unregistered request — add a mock for: ${url}`);
     route.abort('failed');
   });
 
   // Now register specific mocks (these will be checked FIRST due to reverse order)
 
-  // Mock oracle.browse.wf/min (used in live.ts:794, 828)
-  await page.route('**/oracle.browse.wf/min', route => {
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(minData),
+  // Prohibited Oracle endpoints — these were removed from the app; calls indicate a regression
+  for (const path of ['/min', '/invasions', '/weekly', '/worldState*']) {
+    await page.route(`**/oracle.browse.wf${path}`, route => {
+      console.error(`TEST SAFEGUARD: Prohibited Oracle endpoint called: ${route.request().url()}`);
+      route.abort('failed');
     });
-  });
+  }
 
   // Mock oracle.browse.wf/bounty-cycle (used in live.ts:388)
   await page.route('**/oracle.browse.wf/bounty-cycle', route => {
@@ -98,27 +95,12 @@ export async function setupMockRoutes(page: Page, options?: { worldStateFile?: s
     });
   });
 
-  // Mock oracle.browse.wf/weekly - no longer used (removed in favor of worldState.Conquests)
-  // Route left in place to catch any unexpected calls
-  await page.route('**/oracle.browse.wf/weekly', route => {
-    route.abort('failed');
-  });
-
   // Mock the front proxy worldState endpoint (used by WarframeApiFrontProxyClient)
   await page.route(`**/${new URL(TEST_FRONT_PROXY_BASE_URL).host}/worldState`, route => {
     route.fulfill({
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify(worldStateData),
-    });
-  });
-
-  // Mock oracle.browse.wf/invasions (used in live.ts:1484)
-  await page.route('**/oracle.browse.wf/invasions', route => {
-    route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(invasionsData),
     });
   });
 

@@ -62,10 +62,9 @@ Captured on **2026-01-10 ~12:00 UTC**:
 
 | File | Description |
 |------|-------------|
-| `min.json` | Game state metadata |
 | `bounty-cycle.json` | Current bounty rotations |
 | `worldState.json` | Complete world state |
-| `invasions.json` | Invasion conflicts |
+| `worldState-invasions.json` | Minimal worldState for invasion filter tests |
 | `arbys.txt` | Arbitration schedule |
 | `dicts/en.json` | Game text translations (used by E2E tests) |
 

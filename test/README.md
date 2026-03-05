@@ -73,9 +73,9 @@ npm run test:api-validation
 ```
 test/
 ├── __mocks__/              # Real API responses (captured 2026-01-10)
-│   ├── min.json
 │   ├── bounty-cycle.json
-│   ├── invasions.json
+│   ├── worldState.json
+│   ├── worldState-invasions.json  # Minimal mock for invasion filter tests
 │   ├── arbys.txt
 │   ├── dicts/
 │   │   └── en.json        # Game text translations

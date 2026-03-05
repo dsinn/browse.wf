@@ -262,13 +262,28 @@ async function updateCalendarSeason(
 	const now = Date.now();
 	const activeSeason = seasons.find(s =>
 		parseInt(s.Activation.$date.$numberLong) <= now && now < parseInt(s.Expiry.$date.$numberLong)
-	) ?? seasons[0];
+	);
+
+	if (activeSeason)
+	{
+		// Schedule re-render when the active season expires
+		const expiry = parseInt(activeSeason.Expiry.$date.$numberLong);
+		setTimeout(() => updateCalendarSeason(ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters), expiry - Date.now());
+	}
+	else
+	{
+		// No active season yet — worldState may be stale; retry shortly
+		setTimeout(() => updateCalendarSeason(ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters), 5_000);
+		return;
+	}
+
+	const seasonToRender = activeSeason ?? seasons[0];
 
 	// Inject completion toggle into header span
 	const checksSpan = document.getElementById("calendar-season-checks");
 	if (checksSpan)
 	{
-		const oid = "calendarseason-" + activeSeason.Activation.$date.$numberLong;
+		const oid = "calendarseason-" + seasonToRender.Activation.$date.$numberLong;
 		checksSpan.innerHTML = "";
 		checksSpan.appendChild(createCompletionToggle(oid));
 	}
@@ -277,7 +292,7 @@ async function updateCalendarSeason(
 	if (body)
 	{
 		body.innerHTML = "";
-		body.appendChild(await renderCalendarSeasonPane(activeSeason, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters));
+		body.appendChild(await renderCalendarSeasonPane(seasonToRender, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters));
 	}
 }
 

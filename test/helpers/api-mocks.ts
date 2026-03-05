@@ -32,11 +32,11 @@ export function loadExportJson(filename: string): any {
  */
 export function setupMockFetch() {
   const mocks = {
-    'https://oracle.browse.wf/min': loadMock('min.json'),
     'https://oracle.browse.wf/bounty-cycle': loadMock('bounty-cycle.json'),
     'https://oracle.browse.wf/worldState.json': null, // Should never be hit; worldState is fetched via the front proxy
+    'https://oracle.browse.wf/min': null, // No longer used
+    'https://oracle.browse.wf/invasions': null, // No longer used; invasions come from worldState
     'https://oracle.browse.wf/redtext.json': [], // Empty array for redtext (no red text in tests)
-    'https://oracle.browse.wf/invasions': loadMock('invasions.json'),
     'https://browse.wf/arbys.txt': loadMock('arbys.txt'),
   };
 

@@ -468,7 +468,6 @@
 					</div>
 					<?php require 'components/live/invasion-filters-partial.php'; ?>
 					<div class="card-body overflow-auto">
-						<p id="invasions-warning">⚠️ Randomized mission types are often incorrect.</p>
 						<table class="table table-sm table-hover table-borderless mb-0" id="invasions-table"><tr><td>Loading...</td></tr></table>
 					</div>
 				</div>

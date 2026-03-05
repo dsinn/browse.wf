@@ -12,7 +12,7 @@ describe('Production Domain Safeguards', () => {
   describe('Vitest fetch mocking', () => {
     it('allows mocked oracle.browse.wf endpoints', async () => {
       // These should work because they're in the mock list
-      const response = await fetch('https://oracle.browse.wf/min');
+      const response = await fetch('https://oracle.browse.wf/bounty-cycle');
       expect(response.ok).toBe(true);
       const data = await response.json();
       expect(data).toBeDefined();
@@ -79,7 +79,7 @@ describe('Production Domain Safeguards', () => {
 
     it('blocks API calls with query parameters', async () => {
       await expect(
-        fetch('https://oracle.browse.wf/min?timestamp=12345')
+        fetch('https://oracle.browse.wf/bounty-cycle?timestamp=12345')
       ).rejects.toThrow(/TEST SAFEGUARD/);
     });
 

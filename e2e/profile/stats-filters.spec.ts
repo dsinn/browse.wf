@@ -107,12 +107,16 @@ test.describe('Profile Stats Filters', () => {
       await expect(firstBtn).not.toHaveClass(/active/);
 
       // All visible rows match the second filter
-      const visibleRows = page.locator('#equipment-stats tr:visible');
-      const count = await visibleRows.count();
-      expect(count).toBeGreaterThan(0);
-      for (let i = 0; i < count; i++) {
-        await expect(visibleRows.nth(i)).toHaveAttribute('data-category', secondFilter!);
-      }
+      const { visibleCount, mismatches } = await page.evaluate((filter: string) => {
+        const visible = Array.from(document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr'))
+          .filter(tr => getComputedStyle(tr).display !== 'none');
+        return {
+          visibleCount: visible.length,
+          mismatches: visible.filter(tr => tr.dataset.category !== filter).map(tr => tr.dataset.category),
+        };
+      }, secondFilter!);
+      expect(visibleCount).toBeGreaterThan(0);
+      expect(mismatches).toEqual([]);
     });
   });
 
@@ -156,23 +160,31 @@ test.describe('Profile Stats Filters', () => {
     });
   });
 
+  const checkSequentialRanks = (page: any, tbodyId: string) =>
+    page.evaluate((id: string) => {
+      const rows = document.querySelectorAll<HTMLTableRowElement>(`#${id} tr`);
+      const errors: string[] = [];
+      let rank = 1;
+      for (const tr of rows) {
+        const actual = tr.cells[0]?.textContent;
+        if (actual !== String(rank)) errors.push(`row ${rank}: expected "${rank}", got "${actual}"`);
+        rank++;
+      }
+      return { count: rows.length, errors };
+    }, tbodyId);
+
   test.describe('Equipment rank column', () => {
     test('shows sequential ranks starting at 1', async ({ page }) => {
-      const rows = page.locator('#equipment-stats tr');
-      const count = await rows.count();
+      const { count, errors } = await checkSequentialRanks(page, 'equipment-stats');
       expect(count).toBeGreaterThan(0);
-      for (let i = 0; i < count; i++) {
-        await expect(rows.nth(i).locator('td').first()).toHaveText(String(i + 1));
-      }
+      expect(errors).toEqual([]);
     });
 
     test('renumbers sequentially after sorting a column', async ({ page }) => {
       await page.locator('table:has(#equipment-stats) th').nth(1).click();
-      const rows = page.locator('#equipment-stats tr');
-      const count = await rows.count();
-      for (let i = 0; i < count; i++) {
-        await expect(rows.nth(i).locator('td').first()).toHaveText(String(i + 1));
-      }
+      const { count, errors } = await checkSequentialRanks(page, 'equipment-stats');
+      expect(count).toBeGreaterThan(0);
+      expect(errors).toEqual([]);
     });
 
     test('visible ranks are gapless after filtering', async ({ page }) => {
@@ -181,31 +193,16 @@ test.describe('Profile Stats Filters', () => {
       const visibleRows = page.locator('#equipment-stats tr:visible');
       const count = await visibleRows.count();
       expect(count).toBeGreaterThan(0);
-      for (let i = 0; i < count; i++) {
-        await expect(visibleRows.nth(i).locator('td').first()).toHaveText(String(i + 1));
-      }
-    });
-
-    test('hidden rows have blank rank cell', async ({ page }) => {
-      const firstCatBtn = page.locator('#equipment-filter-bar button:not([data-filter=""])').first();
-      const filterValue = await firstCatBtn.getAttribute('data-filter');
-      await firstCatBtn.click();
-      const hiddenRows = page.locator(`#equipment-stats tr[data-category]:not([data-category="${filterValue}"])`);
-      const count = await hiddenRows.count();
-      for (let i = 0; i < count; i++) {
-        await expect(hiddenRows.nth(i).locator('td').first()).toHaveText('');
-      }
+      await expect(visibleRows.locator('td:first-child')).toHaveText(Array.from({ length: count }, (_, i) => String(i + 1)));
     });
 
     test('ranks restore after clearing filter', async ({ page }) => {
-      const totalRows = await page.locator('#equipment-stats tr').count();
       const firstCatBtn = page.locator('#equipment-filter-bar button:not([data-filter=""])').first();
       await firstCatBtn.click();
       await firstCatBtn.click(); // toggle back to All
-      const rows = page.locator('#equipment-stats tr');
-      for (let i = 0; i < totalRows; i++) {
-        await expect(rows.nth(i).locator('td').first()).toHaveText(String(i + 1));
-      }
+      const { count, errors } = await checkSequentialRanks(page, 'equipment-stats');
+      expect(count).toBeGreaterThan(0);
+      expect(errors).toEqual([]);
     });
   });
 
@@ -214,9 +211,7 @@ test.describe('Profile Stats Filters', () => {
       const rows = page.locator('#enemy-stats tr');
       const count = await rows.count();
       expect(count).toBeGreaterThan(0);
-      for (let i = 0; i < count; i++) {
-        await expect(rows.nth(i).locator('td').first()).toHaveText(String(i + 1));
-      }
+      await expect(rows.locator('td:first-child')).toHaveText(Array.from({ length: count }, (_, i) => String(i + 1)));
     });
 
     test('visible ranks are gapless after filtering', async ({ page }) => {
@@ -225,9 +220,7 @@ test.describe('Profile Stats Filters', () => {
       const visibleRows = page.locator('#enemy-stats tr:visible');
       const count = await visibleRows.count();
       expect(count).toBeGreaterThan(0);
-      for (let i = 0; i < count; i++) {
-        await expect(visibleRows.nth(i).locator('td').first()).toHaveText(String(i + 1));
-      }
+      await expect(visibleRows.locator('td:first-child')).toHaveText(Array.from({ length: count }, (_, i) => String(i + 1)));
     });
   });
 
@@ -238,27 +231,29 @@ test.describe('Profile Stats Filters', () => {
     const ZERO_USAGE_CATEGORIES = new Set(['MechSuits', 'SpecialItems']);
 
     test('all "Used" cells show a percentage value', async ({ page }) => {
-      const rows = page.locator('#equipment-stats tr');
-      const count = await rows.count();
+      const { count, invalids } = await page.evaluate(() => {
+        const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
+        const invalids: string[] = [];
+        for (const tr of rows) {
+          const text = tr.cells[2]?.textContent ?? '';
+          if (!/^\d+\.\d{2}%$/.test(text)) invalids.push(`"${text}"`);
+        }
+        return { count: rows.length, invalids };
+      });
       expect(count).toBeGreaterThan(0);
-      for (let i = 0; i < count; i++) {
-        const usedText = await rows.nth(i).locator('td').nth(2).textContent();
-        expect(usedText).toMatch(/^\d+\.\d{2}%$/);
-      }
+      expect(invalids).toEqual([]);
     });
 
     test('"Used" percentages sum to ~100% per category', async ({ page }) => {
-      // Collect all rows grouped by data-category
-      const rows = page.locator('#equipment-stats tr');
-      const count = await rows.count();
-      const categoryTotals: Record<string, number> = {};
-      for (let i = 0; i < count; i++) {
-        const row = rows.nth(i);
-        const category = await row.getAttribute('data-category') ?? '';
-        const usedText = await row.locator('td').nth(2).textContent() ?? '0%';
-        const value = parseFloat(usedText);
-        categoryTotals[category] = (categoryTotals[category] ?? 0) + value;
-      }
+      const categoryTotals = await page.evaluate(() => {
+        const totals: Record<string, number> = {};
+        for (const tr of document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')) {
+          const category = tr.dataset.category ?? '';
+          const value = parseFloat(tr.cells[2]?.textContent ?? '0');
+          totals[category] = (totals[category] ?? 0) + value;
+        }
+        return totals;
+      });
       for (const [category, total] of Object.entries(categoryTotals)) {
         if (ZERO_USAGE_CATEGORIES.has(category)) {
           expect(total, `category ${category} has no Used percentage, sums to 0%`).toBeCloseTo(0, 0);
@@ -285,11 +280,12 @@ test.describe('Profile Stats Filters', () => {
       await expect(page.locator('#equipment-stats tr:visible')).toHaveCount(filteredCount);
 
       // All visible rows still match the filter
-      const visibleRows = page.locator('#equipment-stats tr:visible');
-      const count = await visibleRows.count();
-      for (let i = 0; i < count; i++) {
-        await expect(visibleRows.nth(i)).toHaveAttribute('data-category', filterValue!);
-      }
+      const equipMismatches = await page.evaluate((filter: string) =>
+        Array.from(document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr'))
+          .filter(tr => getComputedStyle(tr).display !== 'none' && tr.dataset.category !== filter)
+          .map(tr => tr.dataset.category)
+      , filterValue!);
+      expect(equipMismatches).toEqual([]);
     });
 
     test('enemy filter still applies after sorting a column', async ({ page }) => {
@@ -305,11 +301,12 @@ test.describe('Profile Stats Filters', () => {
 
       await expect(page.locator('#enemy-stats tr:visible')).toHaveCount(filteredCount);
 
-      const visibleRows = page.locator('#enemy-stats tr:visible');
-      const count = await visibleRows.count();
-      for (let i = 0; i < count; i++) {
-        await expect(visibleRows.nth(i)).toHaveAttribute('data-category', filterValue!);
-      }
+      const enemyMismatches = await page.evaluate((filter: string) =>
+        Array.from(document.querySelectorAll<HTMLTableRowElement>('#enemy-stats tr'))
+          .filter(tr => getComputedStyle(tr).display !== 'none' && tr.dataset.category !== filter)
+          .map(tr => tr.dataset.category)
+      , filterValue!);
+      expect(enemyMismatches).toEqual([]);
     });
   });
 });

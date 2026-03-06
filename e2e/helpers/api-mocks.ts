@@ -7,6 +7,15 @@ import { isImageRequest } from '../../test/helpers/domain-blocker';
 export { MOCK_TIMESTAMP };
 
 /**
+ * Reloads the page and re-freezes the clock, since page.clock does not persist across reloads.
+ */
+export async function reloadWithFrozenClock(page: Page, timestamp: number = MOCK_TIMESTAMP): Promise<void> {
+  await page.reload();
+  await page.clock.install({ time: new Date(timestamp) });
+  await page.clock.pauseAt(new Date(timestamp));
+}
+
+/**
  * Sets up mock routes for all oracle.browse.wf API endpoints used by E2E tests.
  *
  * This intercepts network requests and serves mock data from test/__mocks__/

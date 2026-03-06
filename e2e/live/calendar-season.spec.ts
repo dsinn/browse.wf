@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setupMockRoutes } from '../helpers/api-mocks';
+import { setupMockRoutes, reloadWithFrozenClock } from '../helpers/api-mocks';
 
 test.describe('Live Page - 1999 Calendar Card', () => {
   test.beforeEach(async ({ page }) => {
@@ -108,8 +108,8 @@ test.describe('Live Page - 1999 Calendar Card', () => {
 
       expect(completedOids).toContain(oid);
 
-      // Reload page
-      await page.reload();
+      // Reload page (re-freeze clock since it doesn't persist across reloads)
+      await reloadWithFrozenClock(page);
       await page.waitForSelector('#calendar-season-body .calendar-season-date', { timeout: 10000 });
 
       // Should still be marked as complete

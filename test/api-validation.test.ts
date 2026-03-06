@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { TEST_TEST_FRONT_PROXY_BASE_URL } from './helpers/test-constants';
+import { TEST_FRONT_PROXY_BASE_URL } from './helpers/test-constants';
 
 /**
  * API Structure Validation Tests

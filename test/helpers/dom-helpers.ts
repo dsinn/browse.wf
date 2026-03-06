@@ -56,11 +56,32 @@ export function mockBootstrapTooltip() {
 }
 
 /**
+ * Load common.js and promote the named plain function declarations to window.
+ *
+ * common.js uses plain function declarations rather than explicit window
+ * assignments. In a browser, the global scope is window so these are
+ * automatically accessible as window.fn. In vitest, loadScript() uses eval()
+ * inside a strict ES module where function declarations are local to the eval
+ * scope and never reach globalThis. This wrapper appends explicit window
+ * assignments for the requested names as a workaround.
+ *
+ * @param functionNames - Names of functions from common.js to expose on window
+ */
+export function loadCommonJsFunctions(functionNames: string[]) {
+  const fs = require('fs');
+  const path = require('path');
+  const scriptContent = fs.readFileSync(path.join(process.cwd(), 'common.js'), 'utf-8');
+  const promotions = functionNames.map(name => `window.${name} = ${name};`).join('\n');
+  eval(scriptContent + '\n' + promotions);
+}
+
+/**
  * Load a compiled JavaScript file into the test environment
  * Executes the script in the global (window) context
  *
  * @param relativePath - Path relative to project root (e.g., 'typestripped/src/card-filters.js')
  */
+
 export function loadScript(relativePath: string) {
   const fs = require('fs');
   const path = require('path');

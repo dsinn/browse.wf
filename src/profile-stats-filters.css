@@ -1,0 +1,89 @@
+/* Row filtering: data-filter is set on the <tbody>; each <tr> carries data-category.
+   One rule per known value hides non-matching rows when a filter is active. */
+
+#equipment-stats[data-filter="Suits"]           tr:not([data-category="Suits"]),
+#equipment-stats[data-filter="LongGuns"]        tr:not([data-category="LongGuns"]),
+#equipment-stats[data-filter="Pistols"]         tr:not([data-category="Pistols"]),
+#equipment-stats[data-filter="Melee"]           tr:not([data-category="Melee"]),
+#equipment-stats[data-filter="SpaceSuits"]      tr:not([data-category="SpaceSuits"]),
+#equipment-stats[data-filter="MechSuits"]       tr:not([data-category="MechSuits"]),
+#equipment-stats[data-filter="Sentinels"]       tr:not([data-category="Sentinels"]),
+#equipment-stats[data-filter="KubrowPets"]      tr:not([data-category="KubrowPets"]),
+#equipment-stats[data-filter="MoaPets"]         tr:not([data-category="MoaPets"]),
+#equipment-stats[data-filter="SpaceGuns"]       tr:not([data-category="SpaceGuns"]),
+#equipment-stats[data-filter="SpaceMelee"]      tr:not([data-category="SpaceMelee"]),
+#equipment-stats[data-filter="SentinelWeapons"] tr:not([data-category="SentinelWeapons"]),
+#equipment-stats[data-filter="DrifterMelee"]    tr:not([data-category="DrifterMelee"]),
+#equipment-stats[data-filter="OperatorAmps"]    tr:not([data-category="OperatorAmps"]),
+#equipment-stats[data-filter="SpecialItems"]    tr:not([data-category="SpecialItems"]),
+#enemy-stats[data-filter="Grineer"]  tr:not([data-category="Grineer"]),
+#enemy-stats[data-filter="Corpus"]   tr:not([data-category="Corpus"]),
+#enemy-stats[data-filter="Infested"] tr:not([data-category="Infested"]),
+#enemy-stats[data-filter="Orokin"]   tr:not([data-category="Orokin"]),
+#enemy-stats[data-filter="Sentient"] tr:not([data-category="Sentient"]),
+#enemy-stats[data-filter="Narmer"]   tr:not([data-category="Narmer"]),
+#enemy-stats[data-filter="Murmur"]   tr:not([data-category="Murmur"]),
+#enemy-stats[data-filter="Scaldra"]  tr:not([data-category="Scaldra"]),
+#enemy-stats[data-filter="Techrot"]  tr:not([data-category="Techrot"]),
+#enemy-stats[data-filter="Duviri"]   tr:not([data-category="Duviri"]),
+#enemy-stats[data-filter="Stalker"]  tr:not([data-category="Stalker"]) {
+	display: none;
+}
+
+.stats-filter-bar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-bottom: 8px;
+}
+
+.stats-filter-btn {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	padding: 3px 8px;
+	border: 1px solid transparent;
+	border-bottom: 2px solid transparent;
+	border-radius: 4px;
+	background: none;
+	cursor: pointer;
+	font-size: 0.85em;
+	color: inherit;
+	white-space: nowrap;
+	transition: border-color 0.15s;
+}
+
+.stats-filter-btn:hover {
+	border-color: var(--bs-border-color);
+	border-bottom-color: var(--bs-border-color);
+}
+
+.stats-filter-btn.active {
+	border-color: var(--bs-border-color);
+	border-bottom-color: var(--bs-primary);
+}
+
+.stats-filter-btn img {
+	width: 32px;
+	height: 32px;
+	object-fit: contain;
+}
+
+.stats-filter-btn .filter-emoji {
+	font-size: 32px;
+	line-height: 32px;
+	width: 32px;
+	text-align: center;
+}
+
+.stats-filter-btn img,
+.stats-filter-btn .filter-emoji {
+	filter: grayscale(0.69);
+}
+
+.stats-filter-btn.active img,
+.stats-filter-btn.active .filter-emoji,
+.stats-filter-btn:hover img,
+.stats-filter-btn:hover .filter-emoji {
+	filter: saturate(1.69);
+}

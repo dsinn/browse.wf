@@ -300,10 +300,13 @@
 			<div class="row mt-3">
 				<div class="col-lg-6">
 					<h4>Equipment</h4>
+					<div id="equipment-filter-bar" class="stats-filter-bar"></div>
 					<table class="table table-hover table-sort">
 						<thead>
 							<tr>
+								<th class="disable-sort">#</th>
 								<th>Item</th>
+								<th class="numeric-sort order-by-desc">Used</th>
 								<th class="numeric-sort order-by-desc">Hours</th>
 								<th class="numeric-sort order-by-desc">Kills</th>
 								<th class="numeric-sort order-by-desc"><abbr title="Headshots">H.S.</abbr></th>
@@ -316,9 +319,11 @@
 				</div>
 				<div class="col-lg-6">
 					<h4>Enemies</h4>
+					<div id="enemy-filter-bar" class="stats-filter-bar"></div>
 					<table class="table table-hover table-sort">
 						<thead>
 							<tr>
+								<th class="disable-sort">#</th>
 								<th>Enemy</th>
 								<th class="numeric-sort order-by-desc">Kills</th>
 								<th class="numeric-sort order-by-desc">Assists</th>
@@ -337,6 +342,10 @@
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://pluto-lang.org/wasm-builds/out/libpluto/0.9.5/libpluto.js"></script>
 	<script src="https://pluto-lang.org/PlutoScript/plutoscript.js"></script>
+	<link rel="stylesheet" href="src/profile-stats-filters.css">
+	<script src="typestripped/src/string-helpers.js"></script>
+	<script src="typestripped/src/tooltip.js"></script>
+	<script src="typestripped/src/profile-stats-filters.js"></script>
 	<script src="typestripped/profile.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<script src="https://cdn.jsdelivr.net/npm/table-sort-js/table-sort.js"></script>

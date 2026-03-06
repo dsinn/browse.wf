@@ -27,13 +27,18 @@
 			display: none;
 		}
 	</style>
+	<link rel="stylesheet" href="src/profile.css">
 </head>
 <body data-bs-theme="dark">
 	<?php require "components/navbar.php"; ?>
 	<div class="container pt-3">
+		<div id="refresh-alert" class="alert alert-info d-none">
+			Showing cached profile data.
+			<div class="mt-2"><button type="button" class="btn btn-sm btn-info" onclick="refreshProfile()">Refresh Profile</button></div>
+		</div>
 		<ol class="list-group list-group-numbered mb-3">
-			<li class="list-group-item">
-				<span id="step1-status" class="me-2">❌</span>
+			<li class="list-group-item" id="step1-container">
+				<span class="step-status me-2"></span>
 				<strong>Select your platform:</strong>
 				<select id="platform-select" class="form-select form-select-sm mt-2" onchange="onPlatformChange()">
 					<option value="">-- Select Platform --</option>
@@ -45,42 +50,15 @@
 				</select>
 			</li>
 			<li class="list-group-item" id="step2-container">
-				<span id="step2-status" class="me-2">❌</span>
-				<strong>Provide your account ID:</strong>
-				<div class="ms-5">
-					<input id="account-id" type="text" class="form-control form-control-sm mt-2" placeholder="1234567890abcdef12345678" oninput="onAccountIdManualInput()" />
-					<div id="account-id-error" class="invalid-feedback">
-						An account ID should be 24 hexadecimal characters; they are not usernames or email addresses.
-					</div>
-					<div class="mt-2">
-						<label class="form-label">(Optional) Extract from EE.log</label>
-						<ol type="a" class="mb-0">
-							<li class="mb-2">
-								Copy this path: <code id="warframe-path">%localappdata%\Warframe\</code>
-								<button type="button" class="btn btn-sm btn-outline-primary ms-1" onclick="copyWarframePath(event)">Copy</button>
-							</li>
-							<li>
-								Paste into upload dialog's address bar, hit enter and select EE.log:
-								<input id="ee-log-file" type="file" class="form-control form-control-sm mt-1" accept=".log" onchange="loadEELog(this.files[0]);" />
-							</li>
-						</ol>
-					</div>
-				</div>
+				<span class="step-status me-2"></span>
+				<button type="button" class="btn btn-sm btn-primary me-1" onclick="copyWarframePath(event)">Click Me</button> to copy a path to your clipboard.
 			</li>
 			<li class="list-group-item" id="step3-container">
-				<span id="step3-status" class="me-2">❌</span>
-				<strong>Download your profile data:</strong>
-				<div class="mt-2">
-					<a id="download-link" href="#" class="btn btn-primary btn-sm" onclick="onDownloadLinkLeftClick(event)" oncontextmenu="onDownloadLinkRightClick(event)">Right-click and select "Save Link As..."</a>
-					<div id="download-warning" class="text-danger mt-2 d-none">
-						<small><strong>Please right-click the button and select "Save Link As..."</strong></small>
-					</div>
+				<span class="step-status me-2"></span>
+				<strong>Paste into upload dialog's address bar, hit enter and select EE.log:</strong>
+				<div class="w-100 mt-2">
+					<input id="ee-log-file" type="file" class="form-control form-control-sm" accept=".log" onchange="loadEELog(this.files[0]);" />
 				</div>
-			</li>
-			<li class="list-group-item" id="step4-container">
-				<span id="step4-status" class="me-2">❌</span>
-				<strong>Load the downloaded file:</strong>
-				<input id="profile-file" type="file" class="form-control form-control-sm mt-2" onchange="loadProfile(this.files[0]);" />
 			</li>
 		</ol>
 		<div id="status" class="alert alert-light"><div class="spinner-border spinner-border-sm me-2"></div><span>Loading</span></div>

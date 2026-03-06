@@ -125,12 +125,12 @@ function makeSyndicateLogoElement(syndicate: ISyndicate): HTMLDivElement
 const params = new URLSearchParams(location.hash.replace("#", ""));
 
 const platformSelect: HTMLSelectElement = document.getElementById("platform-select") as HTMLSelectElement;
-const accountIdInput: HTMLInputElement = document.getElementById("account-id") as HTMLInputElement;
-const downloadLink: HTMLAnchorElement = document.getElementById("download-link") as HTMLAnchorElement;
 const platformStorageKey = "profile.platform";
 const accountIdStorageKey = "profile.accountId";
 const profileDataStorageKey = "profile.data";
 const profileTimestampStorageKey = "profile.dataFetchedAt";
+
+let currentAccountId = "";
 
 // Wait for cloud sync to emit one of its events (or timeout)
 const cloudSyncEvent = new Promise<string>(resolve => {
@@ -213,20 +213,12 @@ Promise.all([
 		renderProfile();
 	};
 
-	if ((document.getElementById("profile-file") as HTMLInputElement).files.length)
-	{
-		loadProfile((document.getElementById("profile-file") as HTMLInputElement).files[0]);
-	}
-
 	updateFormFromLocalStorage();
 	refreshAllStepIndicators();
 
 	// Trigger validation/updates in case browser autofilled or localStorage restored values
 	if (platformSelect.value) {
 		onPlatformChange();
-	}
-	if (accountIdInput.value) {
-		onAccountIdManualInput();
 	}
 });
 
@@ -249,130 +241,31 @@ function sanitiseName(name: string): string
 	return name;
 }
 
-function loadProfile(file?: File): void
-{
-	if (!file)
-	{
-		return;
-	}
-	document.querySelector("#status span").textContent = "Loading profile...";
-	document.querySelector("#status").classList.remove("d-none");
-	const reader = new FileReader();
-	reader.onload = function(e)
-	{
-		try
-		{
-			(window as any).profile = JSON.parse(e.target.result as string);
-			document.getElementById("profile-nav").classList.remove("d-none");
-			activateTab(params.has("tab") ? params.get("tab") : "fashion");
-			renderProfile();
-			if (!params.has("tab"))
-			{
-				location.hash = "tab=fashion";
-			}
-
-			profileLoadedManually = true;
-			updateStepStatus(4, true);
-			localStorage.setItem(platformStorageKey, platformSelect.value);
-			localStorage.setItem(accountIdStorageKey, accountIdInput.value);
-			localStorage.setItem(profileDataStorageKey, e.target.result as string);
-			localStorage.setItem(profileTimestampStorageKey, Date.now().toString());
-			updateProfileAge();
-
-			// Trigger cloud sync after localStorage updates
-			if ((window as any).triggerCloudSync) {
-				(window as any).triggerCloudSync();
-			}
-		}
-		catch (err)
-		{
-			console.error(err);
-			alert("Failed to parse JSON file.");
-		}
-		document.querySelector("#status").classList.add("d-none");
-	};
-	reader.readAsText(file);
-}
-
-const PLATFORM_API_URLS: Record<string, string> = {
-	"pc": "http://content.warframe.com/dynamic/getProfileViewingData.php",
-	"ps4": "http://content-ps4.warframe.com/dynamic/getProfileViewingData.php",
-	"xb1": "http://content-xb1.warframe.com/dynamic/getProfileViewingData.php",
-	"swi": "http://content-swi.warframe.com/dynamic/getProfileViewingData.php",
-	"mob": "http://content-mob.warframe.com/dynamic/getProfileViewingData.php"
-};
-
 let profileLoadedManually = false;
 
 function updateStepStatus(stepNumber: number, completed: boolean): void
 {
-	const statusEl = document.getElementById(`step${stepNumber}-status`);
-	if (statusEl) {
-		statusEl.textContent = completed ? "✅" : "❌";
-	}
+	document.getElementById(`step${stepNumber}-container`)?.classList.toggle("complete", completed);
 }
 
 function refreshAllStepIndicators(): void
 {
-	const platformValid = !!platformSelect.value;
-	updateStepStatus(1, platformValid);
-
-	const accountIdValid = validateAccountId(accountIdInput.value)
-	updateStepStatus(2, accountIdValid);
-
-	if (accountIdInput.value) {
-		accountIdInput.classList.toggle('is-valid', accountIdValid);
-		accountIdInput.classList.toggle('is-invalid', !accountIdValid);
-	}
-
-	// Step 3: Show ❌ if steps 1 & 2 complete (unless already cleared by right-click)
-	if (platformValid && accountIdValid) {
-		const step3Status = document.getElementById("step3-status");
-		if (step3Status && step3Status.textContent === "") {
-			// Already cleared by right-click, keep it empty
-		} else {
-			updateStepStatus(3, false); // Show ❌
-		}
-	}
-
-	updateStepStatus(4, profileLoadedManually);
+	updateStepStatus(1, !!platformSelect.value);
+	// Step 2 (copy path) and Step 3 (EE.log / profile load) are updated by their respective handlers
 }
 
 function copyWarframePath(event: Event): void
 {
-	const pathText = document.getElementById("warframe-path").textContent;
-	navigator.clipboard.writeText(pathText).then(() => {
+	navigator.clipboard.writeText("%localappdata%\\Warframe\\").then(() => {
 		const button = event.target as HTMLButtonElement;
 		const originalText = button.textContent;
-		button.textContent = "✅ Copied!";
+		button.textContent = "Copied!";
+		updateStepStatus(2, true);
 		setTimeout(() => { button.textContent = originalText; }, 5000);
 	}).catch(err => {
 		console.error("Failed to copy:", err);
 		alert("Failed to copy to clipboard");
 	});
-}
-
-function onDownloadLinkLeftClick(event: Event): void
-{
-	event.preventDefault();
-
-	// Show warning message (stays visible until right-click)
-	const warning = document.getElementById("download-warning");
-	warning.classList.remove("d-none");
-}
-
-function onDownloadLinkRightClick(event: MouseEvent): void
-{
-	// User right-clicked to download - remove the ❌ indicator and warning
-	const statusEl = document.getElementById("step3-status");
-	if (statusEl) {
-		statusEl.textContent = "";
-	}
-
-	const warning = document.getElementById("download-warning");
-	if (warning) {
-		warning.classList.add("d-none");
-	}
 }
 
 function onPlatformChange(): void
@@ -383,7 +276,6 @@ function onPlatformChange(): void
 
 	if (platform) {
 		updateStepStatus(1, true);
-		updateStep3Visibility();
 	} else {
 		updateStepStatus(1, false);
 	}
@@ -393,50 +285,6 @@ function validateAccountId(accountId: string): boolean
 {
 	// Account ID must be hexadecimal (lowercase letters a-f and digits 0-9)
 	return /^[0-9a-f]+$/.test(accountId);
-}
-
-function onAccountIdManualInput(): void
-{
-	const input = document.getElementById("account-id") as HTMLInputElement;
-	const accountId = input.value.trim();
-
-	// User is interacting with form - restore indicators
-	profileLoadedManually = false;
-
-	if (accountId.length > 0) {
-		if (validateAccountId(accountId)) {
-			// Valid account ID
-			input.classList.remove("is-invalid");
-			input.classList.add("is-valid");
-			updateStepStatus(2, true);
-			updateStep3Visibility();
-		} else {
-			// Invalid format (likely username or email)
-			input.classList.remove("is-valid");
-			input.classList.add("is-invalid");
-			updateStepStatus(2, false);
-		}
-	} else {
-		// Empty input
-		input.classList.remove("is-valid", "is-invalid");
-		updateStepStatus(2, false);
-	}
-}
-
-
-function updateStep3Visibility(): void
-{
-	const platform = platformSelect.value;
-	const accountId = accountIdInput.value;
-
-	if (platform && accountId) {
-		// Update download link
-		const downloadUrl = `${PLATFORM_API_URLS[platform]}?playerId=${accountId}`;
-		downloadLink.href = downloadUrl;
-
-		// Show ❌ indicator (user needs to download)
-		updateStepStatus(3, false);
-	}
 }
 
 function loadEELog(file?: File): void
@@ -467,39 +315,86 @@ function loadEELog(file?: File): void
 
 				// Validate extracted account ID
 				if (validateAccountId(accountId)) {
-					// Update manual input field
-					const input = document.getElementById("account-id") as HTMLInputElement;
-					input.value = accountId;
-					input.classList.remove("is-invalid");
-					input.classList.add("is-valid");
+					currentAccountId = accountId;
+					localStorage.setItem(accountIdStorageKey, accountId);
+					updateRefreshAlert();
 
-					// Update step status and show step 3
-					updateStepStatus(2, true);
-					updateStep3Visibility();
-
-					document.querySelector("#status span").textContent = "Account ID extracted! Proceed to step 3.";
+					// Auto-fetch profile via proxy
+					fetchAndRenderProfile(platformSelect.value, accountId, true);
 				} else {
-					alert("Extracted account ID has invalid format. Please try again or enter manually.");
+					alert("Extracted account ID has invalid format. Please try again.");
+					document.querySelector("#status").classList.add("d-none");
 				}
 			} else {
 				alert("Could not find account ID in EE.log. Make sure you've logged in and the file contains 'Logged in' entries.");
+				document.querySelector("#status").classList.add("d-none");
 			}
 		}
 		catch (err)
 		{
 			console.error(err);
 			alert("Failed to parse EE.log file: " + err.message);
-		}
-		finally
-		{
-			setTimeout(() => {
-				document.querySelector("#status").classList.add("d-none");
-			}, 3000);
+			document.querySelector("#status").classList.add("d-none");
 		}
 	};
 	reader.readAsText(file);
 }
 
+
+function updateRefreshAlert(): void
+{
+	const refreshAlert = document.getElementById("refresh-alert");
+	if (refreshAlert) {
+		refreshAlert.classList.toggle("d-none", !currentAccountId);
+	}
+}
+
+function fetchAndRenderProfile(platform: string, accountId: string, fromEELog: boolean): void
+{
+	document.querySelector("#status span").textContent = "Fetching profile...";
+	document.querySelector("#status").classList.remove("d-none");
+
+	(window as any).WarframeApiFrontProxyClient.fetchProfile(platform, accountId).then((data: any) =>
+	{
+		(window as any).profile = data;
+		if (fromEELog) {
+			document.getElementById("profile-nav").classList.remove("d-none");
+			activateTab(params.has("tab") ? params.get("tab") : "fashion");
+			if (!params.has("tab")) {
+				location.hash = "tab=fashion";
+			}
+		}
+		renderProfile();
+
+		profileLoadedManually = true;
+		updateStepStatus(3, true);
+		localStorage.setItem(platformStorageKey, platform);
+		localStorage.setItem(profileDataStorageKey, JSON.stringify(data));
+		localStorage.setItem(profileTimestampStorageKey, Date.now().toString());
+		updateProfileAge();
+
+		if ((window as any).triggerCloudSync) {
+			(window as any).triggerCloudSync();
+		}
+
+		document.getElementById("refresh-alert")?.classList.add("d-none");
+		document.querySelector("#status").classList.add("d-none");
+	}).catch((err: Error) =>
+	{
+		console.error(err);
+		document.querySelector("#status span").textContent = "Failed to fetch profile. Try downloading manually.";
+		setTimeout(() => { document.querySelector("#status").classList.add("d-none"); }, 5000);
+	});
+}
+
+function refreshProfile(): void
+{
+	const platform = platformSelect.value;
+	if (!platform || !currentAccountId) {
+		return;
+	}
+	fetchAndRenderProfile(platform, currentAccountId, false);
+}
 
 function updateFormFromLocalStorage(): void
 {
@@ -511,7 +406,8 @@ function updateFormFromLocalStorage(): void
 	}
 
 	if (savedAccountId) {
-		accountIdInput.value = savedAccountId;
+		currentAccountId = savedAccountId;
+		updateRefreshAlert();
 	}
 }
 
@@ -519,10 +415,8 @@ function updateFormFromLocalStorage(): void
 // Expose functions globally for onclick handlers
 (window as any).copyWarframePath = copyWarframePath;
 (window as any).onPlatformChange = onPlatformChange;
-(window as any).onAccountIdManualInput = onAccountIdManualInput;
 (window as any).loadEELog = loadEELog;
-(window as any).onDownloadLinkLeftClick = onDownloadLinkLeftClick;
-(window as any).onDownloadLinkRightClick = onDownloadLinkRightClick;
+(window as any).refreshProfile = refreshProfile;
 
 let profileAgeUpdateTimer: number | null = null;
 

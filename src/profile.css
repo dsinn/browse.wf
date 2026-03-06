@@ -1,0 +1,10 @@
+#step1-container, #step2-container, #step3-container { align-items: flex-start; flex-wrap: wrap; }
+
+.step-status::before { content: "❌"; }
+.list-group-item.complete .step-status::before { content: "✅"; }
+
+#step2-container { display: none; }
+#step1-container.complete + #step2-container { display: flex; }
+
+#step3-container { display: none; }
+#step1-container.complete + #step2-container.complete + #step3-container { display: flex; }

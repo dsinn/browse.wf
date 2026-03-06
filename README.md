@@ -134,7 +134,7 @@ flowchart LR
 | **Private proxy** | Forwards requests to the Warframe API via plain HTTP fetch from a non-Cloudflare IP |
 | **Warframe API** | Source of world state and player profile data |
 
-See [warframe-api-front-proxy](https://github.com/dsinn/warframe-api-front-proxy) for the Worker and its private proxy interface specification. An example private proxy implementation is available at [warframe-api-private-proxy-php](https://github.com/dsinn/warframe-api-private-proxy-php).
+See [warframe-api-front-proxy](https://github.com/dsinn/warframe-api-front-proxy) for the Worker and its private proxy interface specification. An example private proxy implementation is available [here](https://gist.github.com/dsinn/1fe1847b696952bfc4884a0a35afa5f5).
 
 <details>
 <summary>Abridged Architecture Decision Record</summary>

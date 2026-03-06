@@ -6,6 +6,34 @@ import { isImageRequest } from '../../test/helpers/domain-blocker';
 
 export { MOCK_TIMESTAMP };
 
+const EXPORT_PLUS_DIR = path.join(process.cwd(), 'node_modules', 'warframe-public-export-plus');
+const VALID_EXPORT_FILES = new Set(
+  fs.readdirSync(EXPORT_PLUS_DIR)
+    .filter(f => f.endsWith('.json'))
+    .map(f => f.slice(0, -5))
+);
+
+/**
+ * Mocks warframe-public-export-plus/* endpoints with empty objects.
+ *
+ * Call this in beforeEach for tests that trigger export data fetches but don't assert on the
+ * data itself — content is covered by Vitest unit tests using real export data. Without this,
+ * tests load multi-MB JSON files from disk, causing flakiness under CI load.
+ *
+ * @param exportFiles - File names without extensions (e.g. 'ExportResources'). Must exist in
+ *                      the warframe-public-export-plus package.
+ */
+export async function mockExportData(page: Page, exportFiles: string[]): Promise<void> {
+  for (const exportFile of exportFiles) {
+    if (!VALID_EXPORT_FILES.has(exportFile)) {
+      throw new Error(`mockExportData: "${exportFile}" not found in warframe-public-export-plus. Valid files: ${[...VALID_EXPORT_FILES].sort().join(', ')}`);
+    }
+    await page.route(`**/warframe-public-export-plus/${exportFile}.json`, route => {
+      route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
+    });
+  }
+}
+
 /**
  * Reloads the page and re-freezes the clock, since page.clock does not persist across reloads.
  */

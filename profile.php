@@ -31,7 +31,7 @@
 </head>
 <body data-bs-theme="dark">
 	<?php require "components/navbar.php"; ?>
-	<div class="container pt-3">
+	<div class="container-fluid pt-3">
 		<div id="refresh-alert" class="alert alert-info d-none">
 			Showing cached profile data.
 			<div class="mt-2"><button type="button" class="btn btn-sm btn-info" onclick="refreshProfile()">Refresh Profile</button></div>
@@ -298,10 +298,10 @@
 				</div>
 			</div>
 			<div class="row mt-3">
-				<div class="col-lg-6">
+				<div class="col-lg-6 border-end">
 					<h4>Equipment</h4>
 					<div id="equipment-filter-bar" class="stats-filter-bar"></div>
-					<table class="table table-hover table-sort">
+					<div class="table-responsive"><table class="table table-hover table-sort">
 						<thead>
 							<tr>
 								<th class="disable-sort">#</th>
@@ -315,12 +315,12 @@
 							</tr>
 						</thead>
 						<tbody id="equipment-stats"></tbody>
-					</table>
+					</table></div>
 				</div>
 				<div class="col-lg-6">
 					<h4>Enemies</h4>
 					<div id="enemy-filter-bar" class="stats-filter-bar"></div>
-					<table class="table table-hover table-sort">
+					<div class="table-responsive"><table class="table table-hover table-sort">
 						<thead>
 							<tr>
 								<th class="disable-sort">#</th>
@@ -334,7 +334,7 @@
 							</tr>
 						</thead>
 						<tbody id="enemy-stats"></tbody>
-					</table>
+					</table></div>
 				</div>
 			</div>
 		</div>

@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { setupMockRoutes, mockExportData, reloadWithFrozenClock } from '../helpers/api-mocks';
+import { setupMockRoutes, reloadWithFrozenClock } from '../helpers/api-mocks';
+import { mockLiveExports } from './helpers';
 
 test.describe('Live Page - 1999 Calendar Card', () => {
   test.beforeEach(async ({ page }) => {
     await setupMockRoutes(page);
-    await mockExportData(page, ['dict.en', 'ExportBoosterPacks', 'ExportBundles', 'ExportResources']);
+    await mockLiveExports(page);
     await page.goto('/live.php');
     await page.waitForSelector('#calendar-season-body .calendar-season-date', { timeout: 10000 });
   });

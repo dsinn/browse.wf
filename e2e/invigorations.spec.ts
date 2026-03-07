@@ -1,11 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { setupMockRoutes } from './helpers/api-mocks';
-import {
-  ENTRY_MAG_VOLT_EXCALIBUR,
-  ENTRY_RHINO_FROST_LOKI_PEEK,
-  ENTRY_MAG_VOLT_EXCALIBUR_ALT,
-  ENTRY_RHINO_FROST_LOKI
-} from '../test/invigorations/cache-fixtures';
+import { ENTRY_MAG_VOLT_EXCALIBUR } from '../test/invigorations/cache-fixtures';
 
 /**
  * E2E tests for Invigorations Page (/invigorations.php)
@@ -18,7 +13,7 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
   // Freeze time at module load time (intentionally non-deterministic: different runs may land
   // on different weeks, providing coverage of week-boundary behaviour over time)
   const FROZEN_TIME = Date.now();
-  const CURRENT_WEEK = Math.trunc(((FROZEN_TIME / 1000) - 1391990400) / 604800);
+  let CURRENT_WEEK = 0;
 
   test.beforeEach(async ({ page }) => {
     // Mock API responses for deterministic, fast, offline-capable tests
@@ -37,6 +32,9 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
       const select = document.querySelector('.suit-select');
       return select && select.options.length > 1;
     }, { timeout: 30000 });
+
+    // Derive CURRENT_WEEK from production code — if the offset formula changes, this follows automatically
+    CURRENT_WEEK = await page.evaluate(() => (window as any).getWeekIndex(Date.now()));
   });
 
   test('loads without JavaScript errors', async ({ page }) => {
@@ -67,115 +65,6 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
 
     // No cache alert should be shown
     await expect(page.locator('#cache-alert')).toHaveClass(/d-none/);
-  });
-
-  test('Scenario 1: loads fresh cache from same week', async ({ page }) => {
-    const mockCache = {
-      [CURRENT_WEEK]: ENTRY_MAG_VOLT_EXCALIBUR
-    };
-
-    await page.evaluate((cache) => {
-      localStorage.setItem('invigorations.cache', JSON.stringify(cache));
-    }, mockCache);
-
-    // Reload page to trigger cache loading
-    await page.reload();
-    await page.waitForFunction(() => {
-      const select = document.querySelector('.suit-select');
-      return select && select.options.length > 1;
-    }, { timeout: 30000 });
-
-    // Verify info alert is shown
-    await expect(page.locator('#cache-alert')).toBeVisible();
-    await expect(page.locator('#cache-alert')).toHaveClass(/alert-info/);
-    await expect(page.locator('#cache-alert')).toContainText('Pre-filled form with data for this week only from cache. For next week\'s invigorations, please verify and re-calculate.');
-
-    // Verify form is pre-filled (peek=true since we have current week results)
-    await expect(page.locator('#username')).toHaveValue('TestUser');
-    await expect(page.locator('#peek')).toBeChecked();
-
-    // Verify results are displayed
-    await expect(page.locator('#results')).not.toHaveClass(/d-none/);
-    await expect(page.locator('#out-suit-0')).toContainText('Mag');
-    await expect(page.locator('#out-suit-1')).toContainText('Volt');
-    await expect(page.locator('#out-suit-2')).toContainText('Excalibur');
-  });
-
-  test('Scenario 2: loads one-week-old cache and pre-fills form', async ({ page }) => {
-    const mockCache = {
-      [CURRENT_WEEK - 1]: ENTRY_RHINO_FROST_LOKI_PEEK
-    };
-
-    await page.evaluate((cache) => {
-      localStorage.setItem('invigorations.cache', JSON.stringify(cache));
-    }, mockCache);
-
-    // Reload page to trigger cache loading
-    await page.reload();
-    await page.waitForFunction(() => {
-      const select = document.querySelector('.suit-select');
-      return select && select.options.length > 1;
-    }, { timeout: 30000 });
-
-    // Verify info alert is shown
-    await expect(page.locator('#cache-alert')).toBeVisible();
-    await expect(page.locator('#cache-alert')).toHaveClass(/alert-info/);
-    await expect(page.locator('#cache-alert')).toContainText('Pre-filled form with stale data from last week\'s cache');
-
-    // Verify form is pre-filled (peek=false for stale last week data, no results shown)
-    await expect(page.locator('#username')).toHaveValue('TestUser');
-    await expect(page.locator('#peek')).not.toBeChecked();
-
-    // Verify suit selects are filled with RESPONSE suits (not request suits)
-    const selects = page.locator('.suit-select');
-    await expect(selects.nth(0)).toHaveValue('/Lotus/Powersuits/Rhino/RhinoBaseSuit');
-    await expect(selects.nth(1)).toHaveValue('/Lotus/Powersuits/Frost/FrostBaseSuit');
-    await expect(selects.nth(2)).toHaveValue('/Lotus/Powersuits/Loki/LokiBaseSuit');
-
-    // Verify results are NOT displayed
-    await expect(page.locator('#results')).toHaveClass(/d-none/);
-  });
-
-  test('Scenario 3: loads 2+ week old cache with only username', async ({ page }) => {
-    const mockCache = {
-      [CURRENT_WEEK - 2]: {
-        ...ENTRY_MAG_VOLT_EXCALIBUR,
-        request: {
-          ...ENTRY_MAG_VOLT_EXCALIBUR.request,
-          n: 'OldUser'
-        },
-        response: ENTRY_RHINO_FROST_LOKI_PEEK.response
-      }
-    };
-
-    await page.evaluate((cache) => {
-      localStorage.setItem('invigorations.cache', JSON.stringify(cache));
-    }, mockCache);
-
-    // Reload page to trigger cache loading
-    await page.reload();
-    await page.waitForFunction(() => {
-      const select = document.querySelector('.suit-select');
-      return select && select.options.length > 1;
-    }, { timeout: 30000 });
-
-    // Verify warning alert is shown
-    await expect(page.locator('#cache-alert')).toBeVisible();
-    await expect(page.locator('#cache-alert')).toHaveClass(/alert-warning/);
-    await expect(page.locator('#cache-alert')).toContainText('Cached data is 2 weeks old - too stale to pre-fill form');
-
-    // Verify only username is pre-filled
-    await expect(page.locator('#username')).toHaveValue('OldUser');
-    await expect(page.locator('#peek')).not.toBeChecked();
-
-    // Verify suit selects are NOT pre-filled (default to "---")
-    const selects = page.locator('.suit-select');
-    await expect(selects.nth(0)).toHaveValue('---');
-    await expect(selects.nth(1)).toHaveValue('---');
-    await expect(selects.nth(2)).toHaveValue('---');
-
-    // Verify results are NOT displayed
-    await expect(page.locator('#results')).toHaveClass(/d-none/);
   });
 
   test('alert disappears after manual form submission', async ({ page }) => {
@@ -324,206 +213,6 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
       '/Lotus/Powersuits/Volt/VoltBaseSuit'
     ]);
     expect(savedCache[targetWeek].response.suits).toHaveLength(3);
-  });
-
-  test('displays both weeks in history table when available', async ({ page }) => {
-    const mockCache = {
-      [CURRENT_WEEK - 1]: ENTRY_MAG_VOLT_EXCALIBUR_ALT,
-      [CURRENT_WEEK]: ENTRY_RHINO_FROST_LOKI
-    };
-
-    await page.evaluate((cache) => {
-      localStorage.setItem('invigorations.cache', JSON.stringify(cache));
-    }, mockCache);
-
-    // Reload page to trigger cache loading
-    await page.reload();
-    await page.waitForFunction(() => {
-      const select = document.querySelector('.suit-select');
-      return select && select.options.length > 1;
-    }, { timeout: 30000 });
-
-    // Verify info alert (simple message, no history)
-    await expect(page.locator('#cache-alert')).toBeVisible();
-    await expect(page.locator('#cache-alert')).toHaveClass(/alert-info/);
-    await expect(page.locator('#cache-alert')).toContainText('Pre-filled form with data for this week only from cache. For next week\'s invigorations, please verify and re-calculate.');
-
-    // Verify history section is visible
-    await expect(page.locator('#history')).toBeVisible();
-    await expect(page.locator('#history h4')).toContainText('Invigoration History');
-
-    // Verify both week sections are visible
-    const thisWeekDiv = page.locator('#history-this-week');
-    const lastWeekDiv = page.locator('#history-last-week');
-    await expect(thisWeekDiv).toBeVisible();
-    await expect(lastWeekDiv).toBeVisible();
-
-    // Verify this week content
-    await expect(thisWeekDiv.locator('h5')).toContainText('This Week');
-    await expect(thisWeekDiv).toContainText('Rhino');
-    await expect(thisWeekDiv).toContainText('Frost');
-    await expect(thisWeekDiv).toContainText('Loki');
-
-    // Verify last week content
-    await expect(lastWeekDiv.locator('h5')).toContainText('Last Week');
-    await expect(lastWeekDiv).toContainText('Mag');
-    await expect(lastWeekDiv).toContainText('Volt');
-    await expect(lastWeekDiv).toContainText('Excalibur');
-  });
-
-  test('cache pruning keeps last/current week only', async ({ page }) => {
-    // Create cache with entries spanning multiple weeks
-    const mockCache = {
-      [CURRENT_WEEK - 3]: ENTRY_MAG_VOLT_EXCALIBUR,
-      [CURRENT_WEEK - 2]: ENTRY_MAG_VOLT_EXCALIBUR,
-      [CURRENT_WEEK - 1]: ENTRY_MAG_VOLT_EXCALIBUR,
-      [CURRENT_WEEK]: ENTRY_MAG_VOLT_EXCALIBUR,
-      [CURRENT_WEEK + 1]: ENTRY_MAG_VOLT_EXCALIBUR
-    };
-
-    await page.evaluate((cache) => {
-      localStorage.setItem('invigorations.cache', JSON.stringify(cache));
-    }, mockCache);
-
-    // Fill in form and submit to trigger pruning
-    await page.locator('#username').fill('TestUser');
-    const selects = page.locator('.suit-select');
-    await selects.nth(0).selectOption('/Lotus/Powersuits/Mag/MagBaseSuit');
-
-    // Mock the API response
-    await page.route('**/oracle.browse.wf/invigorations*', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          suits: ['/Lotus/Powersuits/Volt/VoltBaseSuit'],
-          offensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerRange'],
-          defensiveUpgrades: ['/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationArmor']
-        })
-      });
-    });
-
-    // Submit form
-    await page.locator('input[type="submit"]').click();
-
-    // Wait for results
-    await expect(page.locator('#results')).not.toHaveClass(/d-none/);
-
-    // Verify pruning happened
-    const prunedCache = await page.evaluate(() => {
-      const cache = localStorage.getItem('invigorations.cache');
-      return cache ? JSON.parse(cache) : null;
-    });
-
-    expect(prunedCache).not.toBeNull();
-
-    // Old weeks should be pruned, last/current/future weeks should remain
-    expect(prunedCache[CURRENT_WEEK - 3]).toBeUndefined();
-    expect(prunedCache[CURRENT_WEEK - 2]).toBeUndefined();
-    expect(prunedCache[CURRENT_WEEK - 1]).toBeDefined();
-    expect(prunedCache[CURRENT_WEEK]).toBeDefined();
-    expect(prunedCache[CURRENT_WEEK + 1]).toBeDefined();
-  });
-
-  test('Scenario 4: loads next-week cache (peek result saved previously)', async ({ page }) => {
-    const mockCache = {
-      [CURRENT_WEEK + 1]: ENTRY_RHINO_FROST_LOKI_PEEK
-    };
-
-    await page.evaluate((cache) => {
-      localStorage.setItem('invigorations.cache', JSON.stringify(cache));
-    }, mockCache);
-
-    await page.reload();
-    await page.waitForFunction(() => {
-      const select = document.querySelector('.suit-select');
-      return select && select.options.length > 1;
-    }, { timeout: 30000 });
-
-    // Verify success alert is shown
-    await expect(page.locator('#cache-alert')).toBeVisible();
-    await expect(page.locator('#cache-alert')).toHaveClass(/alert-success/);
-    await expect(page.locator('#cache-alert')).toContainText('Loaded fresh data from cache');
-
-    // Verify form is pre-filled with peek=true
-    await expect(page.locator('#username')).toHaveValue('TestUser');
-    await expect(page.locator('#peek')).toBeChecked();
-
-    // Verify results are displayed (next week's data)
-    await expect(page.locator('#results')).not.toHaveClass(/d-none/);
-    await expect(page.locator('#out-suit-0')).toContainText('Rhino');
-    await expect(page.locator('#out-suit-1')).toContainText('Frost');
-    await expect(page.locator('#out-suit-2')).toContainText('Loki');
-  });
-
-  test('saving with peek=false stores at currentWeek', async ({ page }) => {
-    await page.locator('#username').fill('TestUser');
-    // peek is unchecked by default
-
-    const selects = page.locator('.suit-select');
-    await selects.nth(0).selectOption('/Lotus/Powersuits/Mag/MagBaseSuit');
-
-    await page.route('**/oracle.browse.wf/invigorations*', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ENTRY_MAG_VOLT_EXCALIBUR.response)
-      });
-    });
-
-    await page.locator('input[type="submit"]').click();
-    await expect(page.locator('#results')).not.toHaveClass(/d-none/);
-
-    const savedCache = await page.evaluate(() => JSON.parse(localStorage.getItem('invigorations.cache')!));
-    expect(savedCache[CURRENT_WEEK]).toBeDefined();
-    expect(savedCache[CURRENT_WEEK + 1]).toBeUndefined();
-  });
-
-  test('saving with peek=true stores at currentWeek+1', async ({ page }) => {
-    await page.locator('#username').fill('TestUser');
-    await page.locator('#peek').check();
-
-    const selects = page.locator('.suit-select');
-    await selects.nth(0).selectOption('/Lotus/Powersuits/Mag/MagBaseSuit');
-
-    await page.route('**/oracle.browse.wf/invigorations*', route => {
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(ENTRY_RHINO_FROST_LOKI_PEEK.response)
-      });
-    });
-
-    await page.locator('input[type="submit"]').click();
-    await expect(page.locator('#results')).not.toHaveClass(/d-none/);
-
-    const savedCache = await page.evaluate(() => JSON.parse(localStorage.getItem('invigorations.cache')!));
-    expect(savedCache[CURRENT_WEEK]).toBeUndefined();
-    expect(savedCache[CURRENT_WEEK + 1]).toBeDefined();
-  });
-
-  test('history shows only last week when no current week data', async ({ page }) => {
-    const mockCache = {
-      [CURRENT_WEEK - 1]: ENTRY_RHINO_FROST_LOKI_PEEK
-    };
-
-    await page.evaluate((cache) => {
-      localStorage.setItem('invigorations.cache', JSON.stringify(cache));
-    }, mockCache);
-
-    await page.reload();
-    await page.waitForFunction(() => {
-      const select = document.querySelector('.suit-select');
-      return select && select.options.length > 1;
-    }, { timeout: 30000 });
-
-    // History section should be visible but only last week shown
-    await expect(page.locator('#history')).toBeVisible();
-    await expect(page.locator('#history-this-week')).toHaveClass(/d-none/);
-    await expect(page.locator('#history-last-week')).toBeVisible();
-    await expect(page.locator('#history-last-week')).toContainText('Rhino');
-    await expect(page.locator('#history-last-week')).toContainText('Frost');
-    await expect(page.locator('#history-last-week')).toContainText('Loki');
   });
 
 });

@@ -74,6 +74,7 @@
 		</div>
 	</div>
 	<?php require "components/commonjs.html"; ?>
+	<script src="typestripped/src/invigorations.js"></script>
 	<script>
 		Promise.all([
 			getDictPromise(),
@@ -169,7 +170,8 @@
 					// Current week data exists - we have results, so peek=true
 					preFillForm(currentWeekData.request.n, true, currentWeekData.request.s);
 
-					showResults(currentWeekData.response, currentWeekData.request);
+					// Force p=false: data saved as "next week" last week is now this week's data
+					showResults(currentWeekData.response, { ...currentWeekData.request, p: false });
 					showCacheAlert("info", "Pre-filled form with data for this week only from cache. For next week's invigorations, please verify and re-calculate.");
 					showHistory(currentWeek, cache);
 				}
@@ -208,7 +210,7 @@
 			document.getElementById("input-header").textContent = this.checked ? "Current Offerings" : "Previous Offerings";
 		};
 
-		const invigorationNames = {
+		window.invigorationNames = {
 			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerStrength": "+200% Ability Strength",
 			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerRange": "+100% Ability Range",
 			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerDuration": "+100% Ability Duration",
@@ -231,12 +233,6 @@
 			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationEnergyRegen": "+2 Energy Regen",
 		};
 
-		// Helper function to get week index from timestamp
-		function getWeekIndex(timestamp)
-		{
-			return Math.trunc(((timestamp / 1000) - 1391990400) / 604800);
-		}
-
 		// Helper function to show cache alert
 		function showCacheAlert(type, message)
 		{
@@ -244,149 +240,6 @@
 			alert.className = `alert alert-${type} mb-3`;
 			alert.textContent = message;
 			alert.classList.remove("d-none");
-		}
-
-		// Helper function to load cache
-		function loadCache()
-		{
-			const cacheStr = localStorage.getItem("invigorations.cache");
-			if (!cacheStr)
-			{
-				return {};
-			}
-
-			try
-			{
-				const parsed = JSON.parse(cacheStr);
-				// Must be an object (not array, null, etc.)
-				if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))
-				{
-					return {};
-				}
-				return parsed;
-			}
-			catch (e)
-			{
-				console.error("Failed to parse invigoration cache:", e);
-				return {};
-			}
-		}
-
-		// Helper function to show invigoration history
-		function showHistory(currentWeek, cache)
-		{
-			const currentData = cache[currentWeek];
-			const lastWeekData = cache[currentWeek - 1];
-
-			const historyDiv = document.getElementById("history");
-			const thisWeekDiv = document.getElementById("history-this-week");
-			const lastWeekDiv = document.getElementById("history-last-week");
-
-			if (!currentData && !lastWeekData)
-			{
-				historyDiv.classList.add("d-none");
-				return;
-			}
-
-			historyDiv.classList.remove("d-none");
-
-			if (currentData)
-			{
-				populateInvigorationGrid("this-week", currentData.response);
-				thisWeekDiv.classList.remove("d-none");
-			}
-			else
-			{
-				thisWeekDiv.classList.add("d-none");
-			}
-
-			if (lastWeekData)
-			{
-				populateInvigorationGrid("last-week", lastWeekData.response);
-				lastWeekDiv.classList.remove("d-none");
-			}
-			else
-			{
-				lastWeekDiv.classList.add("d-none");
-			}
-		}
-
-		// Helper function to save response to cache
-		function saveToCache(request, response)
-		{
-			const currentWeek = getWeekIndex(Date.now());
-			const targetWeek = request.p ? currentWeek + 1 : currentWeek;
-
-			const cache = loadCache();
-			cache[targetWeek] = {
-				request: request,
-				response: response
-			};
-
-			const prunedCache = [currentWeek - 1, currentWeek, currentWeek + 1].reduce((acc, week) =>
-			{
-				if (cache[week]) acc[week] = cache[week];
-				return acc;
-			}, {});
-
-			localStorage.setItem("invigorations.cache", JSON.stringify(prunedCache));
-			if (window.triggerCloudSync)
-			{
-				window.triggerCloudSync();
-			}
-		}
-
-		// Populates a pre-existing invigoration grid identified by element ID prefix
-		function populateInvigorationGrid(prefix, response)
-		{
-			for (let i = 0; i < response.suits.length; i++)
-			{
-				const suitData = baseSuitTypes[response.suits[i]];
-				// Fall back to untranslated response in case of new content
-				document.getElementById(prefix + "-suit-" + i).textContent = suitData ? dict[suitData.name] : response.suits[i];
-				document.getElementById(prefix + "-off-" + i).textContent = invigorationNames[response.offensiveUpgrades[i]] || response.offensiveUpgrades[i];
-				document.getElementById(prefix + "-def-" + i).textContent = invigorationNames[response.defensiveUpgrades[i]] || response.defensiveUpgrades[i];
-			}
-		}
-
-		// Helper function to pre-fill form from cache data
-		function preFillForm(username, peek, suits)
-		{
-			const usernameInput = document.getElementById("username");
-			const peekCheckbox = document.getElementById("peek");
-			const suitSelects = document.querySelectorAll(".suit-select");
-
-			usernameInput.value = username;
-			peekCheckbox.checked = peek;
-			peekCheckbox.onchange();
-			suits.forEach((suit, i) => suitSelects[i].value = suit);
-		}
-
-		// Helper function to display results
-		function showResults(response, request)
-		{
-			const resultsDiv = document.getElementById("results");
-			resultsDiv.classList.remove("d-none");
-
-			// Update heading
-			document.querySelector("#results h4").textContent = request.p ? "Next Week's Offerings" : "Current Offerings";
-
-			// Update explainer text
-			document.querySelectorAll(".explainer").forEach(x => { x.classList.add("d-none") });
-			if (request.s.length != response.suits.length)
-			{
-				document.querySelector("#explain-noprev").classList.remove("d-none");
-			}
-			else if (!request.p)
-			{
-				document.querySelector("#explain-current").classList.remove("d-none");
-			}
-			else
-			{
-				document.querySelector("#explain-peek").classList.remove("d-none");
-			}
-			document.querySelectorAll("#results b").forEach(x => { x.textContent = request.n });
-			populateInvigorationGrid("out", response);
 		}
 
 		function doSubmit()

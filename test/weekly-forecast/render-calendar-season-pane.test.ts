@@ -3,7 +3,7 @@
  *
  * Loads the real compiled production code to avoid test drift.
  */
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { loadScript } from '../helpers/dom-helpers';
 import { loadMock, loadExportJson } from '../helpers/api-mocks';
 
@@ -385,6 +385,39 @@ describe('renderCalendarSeasonPane', () => {
     });
   });
 
+});
+
+describe('updateCalendarSeason', () => {
+  const activeSeason = worldState.KnownCalendarSeasons[0];
+  const activeSeasonExpiry = parseInt(activeSeason.Expiry.$date.$numberLong);
+
+  const defaultExportPromises = [
+    Promise.resolve(ExportResources),
+    Promise.resolve(ExportBundles),
+    Promise.resolve(ExportBoosterPacks),
+    Promise.resolve(ExportBoosters)
+  ] as const;
+
+  beforeEach(() => {
+    (window as any).getDictPromise = () => Promise.resolve(dict);
+    (window as any).ExportChallenges = ExportChallenges;
+    (window as any).worldState = worldState;
+    (window as any).createCompletionToggle = vi.fn(() => document.createTextNode(''));
+    (window as any).createExpiryBadge = vi.fn(() => document.createTextNode(''));
+  });
+
+  afterEach(() => {
+    delete (window as any).getDictPromise;
+    delete (window as any).ExportChallenges;
+    delete (window as any).worldState;
+    delete (window as any).createCompletionToggle;
+    delete (window as any).createExpiryBadge;
+  });
+
+  test('calls createExpiryBadge with the active season expiry', async () => {
+    await (window as any).updateCalendarSeason(...defaultExportPromises);
+    expect((window as any).createExpiryBadge).toHaveBeenCalledWith(activeSeasonExpiry);
+  });
 });
 
 describe('getSeasonLabel', () => {

@@ -519,6 +519,7 @@
 	<script src="typestripped/src/descendia.js"></script>
 	<link rel="stylesheet" href="src/descendia.css" media="print" onload="this.media='all'">
 	<script src="typestripped/src/bounty-filters.js"></script>
+	<script src="typestripped/src/bounty-checkboxes.js"></script>
 	<script src="typestripped/src/invasions.js"></script>
 	<script src="typestripped/src/tileset-helpers.js"></script>
 	<script src="typestripped/live.js?lv0"></script>

@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { mockExportData } from '../helpers/api-mocks';
 
 // All warframe-public-export-plus files fetched by live.ts that are large enough to cause
@@ -14,6 +14,13 @@ const LIVE_EXPORT_FILES = [
   'ExportRegions',      // 330 KB
   'ExportResources',    // 2 MB
 ];
+
+/**
+ * Returns a locator for the expiry badge within a given element.
+ */
+export function expiryBadge(element: Locator): Locator {
+  return element.locator('.badge[data-expiry]');
+}
 
 /**
  * Mocks all large warframe-public-export-plus files fetched by live.ts with empty objects.

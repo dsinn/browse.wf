@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { setupMockRoutes } from '../helpers/api-mocks';
+import { expiryBadge } from './helpers';
 
 test.describe('Live Page - Descendia Card', () => {
   test.beforeEach(async ({ page }) => {
@@ -22,13 +23,7 @@ test.describe('Live Page - Descendia Card', () => {
       const collapseToggle = header.locator('[data-collapse-toggle="descendia"]');
       await expect(collapseToggle).toBeVisible();
 
-      // Should have expiry badge
-      const expiryBadge = header.locator('.badge[data-expiry]');
-      await expect(expiryBadge).toBeVisible();
-
-      // Badge should have countdown with numbers (like "3d 12h 45m 23s")
-      const badgeText = await expiryBadge.textContent();
-      expect(badgeText).toMatch(/\d/);
+      await expect(expiryBadge(header)).toBeVisible();
 
       // Should have completion toggles container
       const completionToggles = header.locator('#descent-checks');

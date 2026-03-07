@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { setupMockRoutes } from '../helpers/api-mocks';
 import { TEST_FRONT_PROXY_BASE_URL } from '../../test/helpers/test-constants';
+import { expiryBadge } from './helpers';
 
 /**
  * Archimedea E2E Tests
@@ -61,9 +62,7 @@ test.describe('Live Page - Archimedea Cards', () => {
       const headerText = await header.textContent();
       expect(headerText).toContain('Deep Archimedea');
 
-      // Should have an expiry badge
-      const expiryBadge = header.locator('.badge');
-      await expect(expiryBadge).toBeVisible();
+      await expect(expiryBadge(header)).toBeVisible();
     });
 
     test('renders exactly 3 missions', async ({ page }) => {
@@ -194,9 +193,7 @@ test.describe('Live Page - Archimedea Cards', () => {
       const headerText = await header.textContent();
       expect(headerText).toBeTruthy();
 
-      // Should have an expiry badge
-      const expiryBadge = header.locator('.badge');
-      await expect(expiryBadge).toBeVisible();
+      await expect(expiryBadge(header)).toBeVisible();
     });
 
     test('renders exactly 3 missions', async ({ page }) => {

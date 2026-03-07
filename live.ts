@@ -62,6 +62,9 @@ declare function initializeMarkAsRead(): void;
 // bounty-filters.ts
 declare function initializeBountyFilters_all(): void;
 
+// bounty-checkboxes.ts
+declare function updateBountyCheckboxes(): void;
+
 // arbyTiers.js
 declare const arbyTiers: Record<string, string>;
 
@@ -406,38 +409,11 @@ function updateBountyCycleLocalised()
 		{
 			const minTier = (window as any).getMinimumTier(syndicateTag);
 			const heading = document.getElementById(syndicateTag + "-name");
-
-			// If minTier is -1, hide the entire syndicate (heading + table)
-			if (minTier < 1)
+			heading?.classList.toggle("d-none", minTier < 1);
+			for (let i = 0; i < rows.length; ++i)
 			{
-				if (heading)
-				{
-					(heading as HTMLElement).style.display = "none";
-				}
-				for (let i = 0; i < rows.length; ++i)
-				{
-					(rows[i] as HTMLElement).style.display = "none";
-				}
-			}
-			else
-			{
-				// Show heading and filter rows by tier
-				if (heading)
-				{
-					(heading as HTMLElement).style.display = "";
-				}
-				for (let i = 0; i < rows.length; ++i)
-				{
-					const tier = i + 1; // Tier 1 is index 0, Tier 2 is index 1, etc.
-					if (tier < minTier)
-					{
-						(rows[i] as HTMLElement).style.display = "none";
-					}
-					else
-					{
-						(rows[i] as HTMLElement).style.display = "";
-					}
-				}
+				const tier = i + 1; // Tier 1 is index 0, Tier 2 is index 1, etc.
+				rows[i].classList.toggle("d-none", minTier < 1 || tier < minTier);
 			}
 		}
 	}
@@ -480,6 +456,7 @@ function updateNames()
 	document.getElementById("HexSyndicate-name").textContent = dict["/Lotus/Language/1999/MessengerHexName"];
 	document.getElementById("EntratiLabSyndicate-name").textContent = dict["/Lotus/Language/EntratiLab/EntratiGeneral/EntratiLabSyndicateName"];
 	document.getElementById("ZarimanSyndicate-name").textContent = dict["/Lotus/Language/Syndicates/ZarimanName"];
+	updateBountyCheckboxes(); // Re-inject checkboxes after textContent wipes the heading children
 }
 
 async function updateArbyLocalised()
@@ -1965,6 +1942,7 @@ initializeCardFilters_all();
 
 initializeMarkAsRead();
 initializeBountyFilters_all();
+updateBountyCheckboxes();
 
 document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm, "Voidplume Quills"));
 

@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { setupMockRoutes } from '../helpers/api-mocks';
+import { expiryBadge } from './helpers';
 
 // Regex pattern for validating "NodeName, SystemName" format
 // Handles multi-word locations (e.g., "Kuva Fortress", "Plains of Eidolon")
@@ -85,9 +86,7 @@ test.describe('Live Page - Sortie Card', () => {
   test('sortie header displays expiry badge and completion toggle', async ({ page }) => {
     await page.waitForSelector('#sortie-header', { timeout: 10000 });
 
-    // Should have expiry badge
-    const expiryBadge = page.locator('#sortie-header span.badge[data-expiry]');
-    await expect(expiryBadge).toBeVisible();
+    await expect(expiryBadge(page.locator('#sortie-header'))).toBeVisible();
 
     // Should have completion toggle checkbox
     const completionToggle = page.locator('#sortie-header a.completion-check');

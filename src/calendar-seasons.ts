@@ -6,6 +6,7 @@
 // Globals available on the live page from live.ts
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function createCompletionToggle(oid: string): HTMLAnchorElement;
+declare function createExpiryBadge(expiry: number): HTMLSpanElement;
 declare function setImageSource(img: HTMLImageElement, icon: string): void;
 
 const SEASON_LABELS: Record<string, string> = {
@@ -278,6 +279,14 @@ async function updateCalendarSeason(
 	}
 
 	const seasonToRender = activeSeason ?? seasons[0];
+
+	// Inject expiry badge into header
+	const expirySpan = document.getElementById("calendar-season-expiry");
+	if (expirySpan)
+	{
+		expirySpan.innerHTML = "";
+		expirySpan.appendChild(createExpiryBadge(parseInt(activeSeason.Expiry.$date.$numberLong)));
+	}
 
 	// Inject completion toggle into header span
 	const checksSpan = document.getElementById("calendar-season-checks");

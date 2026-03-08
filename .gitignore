@@ -14,6 +14,9 @@ coverage/
 # PHP fixtures (auto-generated)
 test/__fixtures__/
 
+# Pre-rendered HTML for Vite dev server (auto-generated)
+public/
+
 # Playwright artifacts (auto-generated)
 test-results/
 playwright-report/

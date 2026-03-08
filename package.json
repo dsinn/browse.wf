@@ -2,7 +2,7 @@
   "name": "browse.wf",
   "type": "module",
   "scripts": {
-    "dev": "php-ts-dev --port ${PORT:-60969}",
+    "dev": "concurrently \"npx tsc --watch\" \"node scripts/render-pages.js --watch\" \"vite --config vitest.config.ts\"",
     "lint": "eslint *.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -24,10 +24,11 @@
     "@typescript-eslint/parser": "^8.43.0",
     "@vitest/ui": "^4.0.18",
     "chokidar": "^4.0.3",
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.2",
     "jsdom": "^28.0.0",
-    "php-ts-dev": "^0.1.1",
     "typescript": "^5.9.2",
+    "vite": "^6.4.1",
     "vitest": "^4.0.18",
     "warframe-public-export-plus": "^0.5.86"
   },

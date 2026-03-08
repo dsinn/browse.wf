@@ -12,7 +12,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { startPhpServer, stopPhpServer, fetchHtml } from './helpers/php-server.js';
+import { discoverPhpPages, renderPhpFiles, startPhpServer, stopPhpServer, fetchHtml } from './helpers/php-renderer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,27 +20,6 @@ const __dirname = path.dirname(__filename);
 const BUILD_DIR = path.join(__dirname, 'dist');
 const PHP_SERVER_PORT = 60980; // Different port for build
 const CACHE_BUSTER = process.env.GITHUB_SHA?.slice(0, 8) ?? Date.now().toString();
-
-// PHP files to render (excluding components)
-const PHP_FILES = [
-  '404.php',
-  'about.php',
-  'arbys.php',
-  'color-picker.php',
-  'glyphs.php',
-  'index.php',
-  'inventory.php',
-  'invigorations.php',
-  'kim-convo-locator.php',
-  'kimulacrum.php',
-  'live.php',
-  'platform-suffix.php',
-  'prime-vault.php',
-  'profile.php',
-  'rivencalc.php',
-  'text-icons.php',
-  'weekly-forecast.php',
-];
 
 
 /**
@@ -168,7 +147,8 @@ async function build() {
     console.log('✓ PHP server started\n');
 
     // Render all PHP files
-    console.log('🎨 Rendering PHP files to HTML...');
+    const PHP_FILES = discoverPhpPages();
+    console.log(`🎨 Rendering ${PHP_FILES.length} PHP files to HTML...`);
     for (const phpFile of PHP_FILES) {
       await renderPhpFile(phpFile);
     }

@@ -47,7 +47,8 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 
 - **Backend**: PHP
 - **Frontend**: TypeScript, Bootstrap
-- **Build Tool**: php-ts-dev (combines PHP development server with TypeScript watch mode)
+- **Dev Server**: Vite (serves pre-rendered PHP pages with hot reload)
+- **Build**: TypeScript compiler, PHP renderer
 - **Testing**: Vitest + jsdom (unit), Playwright (E2E)
 - **Dependencies**:
   - Bootstrap (CSS framework)
@@ -86,11 +87,10 @@ Before running this application locally, ensure you have the following installed
    PORT=8080 npm run dev
    ```
 
-   This command will:
-   - Start a PHP development server (default port: 60969)
-   - Watch TypeScript files and automatically compile them to JavaScript
-   - Output compiled files to the `typestripped/` directory
-   - Automatically reload the browser when files change
+   This runs three processes concurrently:
+   - **TypeScript compiler** (`tsc --watch`): Compiles `.ts` files to `typestripped/`
+   - **PHP renderer** (`scripts/render-pages.js --watch`): Renders PHP pages to static HTML in `public/`, re-renders when `.php` files change
+   - **Vite dev server**: Serves the site with hot reload for PHP, TypeScript, and CSS changes
 
 2. Open your browser and navigate to http://127.0.0.1:60969 (or your custom port)
 
@@ -99,8 +99,9 @@ Before running this application locally, ensure you have the following installed
 ## Development
 
 - TypeScript source files (`.ts`) are compiled to JavaScript in the `typestripped/` directory
-- The development server watches for changes and automatically recompiles TypeScript files
-- PHP files are served directly by the PHP development server
+- PHP files are rendered to static HTML in `public/` and served by Vite
+- The dev server watches for changes to `.php`, `.ts`, and `.css` files and auto-reloads the browser
+- Changes to test files, config files, and documentation do not trigger reloads
 - The app uses Bootstrap's dark theme by default
 - The server runs on a fixed port (60969) to preserve localStorage data across restarts
 - localStorage is used to store user inventory, notification preferences, and language settings
@@ -218,9 +219,12 @@ For detailed setup instructions, see:
 
 - `*.php` - PHP page templates
 - `*.ts` - TypeScript source files
-- `typestripped/` - Compiled JavaScript output (generated, do not edit)
 - `components/` - Reusable PHP components (navbar, common JS includes)
+- `helpers/` - Shared build utilities (PHP server, PHP renderer)
+- `public/` - Pre-rendered HTML for Vite dev server (generated, do not edit)
+- `scripts/` - Dev and build scripts (PHP page renderer)
 - `supplemental-data/` - Additional game data and utilities
+- `typestripped/` - Compiled JavaScript output (generated, do not edit)
 
 ## Available Scripts
 
@@ -264,9 +268,9 @@ The workflow is manually triggered only. It builds the site and pushes to the `g
 ## Notes
 
 - The development server runs on port 60969 by default (configurable via `PORT` environment variable)
-- TypeScript compilation happens automatically in watch mode
-- Source maps are generated for easier debugging
 - Using a fixed port ensures localStorage data (inventory, preferences) persists across server restarts
+- TypeScript compilation happens automatically in watch mode; source maps are generated for debugging
+- PHP pages are auto-discovered (any `.php` file in the root, excluding partials and config files)
 
 ## Example Git Hooks
 

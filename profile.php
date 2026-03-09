@@ -34,9 +34,8 @@
 	<div class="container-fluid pt-3">
 		<div id="refresh-alert" class="alert alert-info d-none">
 			Showing cached profile data.
-			<div class="mt-2"><button type="button" class="btn btn-sm btn-info" onclick="refreshProfile()">Refresh Profile</button></div>
 		</div>
-		<ol class="list-group list-group-numbered mb-3">
+		<ol id="steps" class="list-group list-group-numbered mb-3">
 			<li class="list-group-item" id="step1-container">
 				<span class="step-status me-2"></span>
 				<strong>Select your platform:</strong>
@@ -51,13 +50,56 @@
 			</li>
 			<li class="list-group-item" id="step2-container">
 				<span class="step-status me-2"></span>
-				<button type="button" class="btn btn-sm btn-primary me-1" onclick="copyWarframePath(event)">Click Me</button> to copy a path to your clipboard.
+				<div>
+					<strong>Provide your account ID.</strong>
+					<div class="mt-1">
+						First, <button type="button" class="btn btn-sm btn-primary me-1" onclick="copyWarframePath(event)">Click Me</button> to copy the <code>%localappdata%\Warframe</code> path to your clipboard.
+					</div>
+					<div class="mt-4">
+						<strong>Option A:</strong>
+						<div class="alert alert-secondary mt-2 mb-2">
+							⚠️ The <a href="https://wiki.warframe.com/w/EE.log" target="_blank">EE.log</a> file contains sensitive information, so you can either trust the maintainer of this browse.wf fork, or use Option B below.
+						</div>
+						<div>
+							Click "Browse...", paste the path you copied into your file browser's address bar, hit enter, and select EE.log.
+						</div>
+						<div class="mt-1">
+							<input id="ee-log-file" type="file" class="form-control form-control-sm" accept=".log" onchange="loadEELog(this.files[0]);" />
+						</div>
+					</div>
+					<div class="mt-4">
+						<strong>Option B:</strong>
+						<div class="mt-1">
+							Use a file explorer or text editor to navigate to the path that you copied, open EE.log as a text document, search for the text "Logged in", and copy the hexadecimal ID inside the parentheses on that line.
+						</div>
+						<div class="mt-1">
+							<input id="account-id" type="text" class="form-control form-control-sm" placeholder="Example: 55540360384632532d7b23c6" oninput="onAccountIdManualInput()" />
+							<div id="account-id-invalid-chars" class="invalid-feedback d-none">Only numbers and letters from A to F are allowed.</div>
+							<div id="account-id-feedback" class="invalid-feedback"><span id="account-id-char-count">0</span>/24 characters</div>
+						</div>
+					</div>
+				</div>
 			</li>
-			<li class="list-group-item" id="step3-container">
+			<li class="list-group-item" id="step3-auto-container">
 				<span class="step-status me-2"></span>
-				<strong>Paste into upload dialog's address bar, hit enter and select EE.log:</strong>
+				<button type="button" class="btn btn-sm btn-primary" onclick="fetchProfile()">Fetch Profile</button>
+			</li>
+			<li class="list-group-item" id="step3-manual-container">
+				<span class="step-status me-2"></span>
+				<div>
+					<div id="rate-limit-notice" class="mb-2 d-none">Rate limited. Next fetch available in <span id="rate-limit-countdown"></span> or use the manual download below.</div>
+					<a id="download-link" class="btn btn-sm btn-primary" href="#" target="_blank"
+					   onclick="onDownloadLinkLeftClick(event)" oncontextmenu="onDownloadLinkRightClick(event)">
+						Right-click and select "Save Link As..."
+					</a>
+					<div id="download-warning" class="d-none mt-1 text-warning small">Please right-click the button and choose "Save link as..." to download the file.</div>
+				</div>
+			</li>
+			<li class="list-group-item" id="step4-container">
+				<span class="step-status me-2"></span>
+				<strong>Select the downloaded profile data file:</strong>
 				<div class="w-100 mt-2">
-					<input id="ee-log-file" type="file" class="form-control form-control-sm" accept=".log" onchange="loadEELog(this.files[0]);" />
+					<input id="profile-file" type="file" class="form-control form-control-sm" onchange="loadProfile(this.files[0]);" />
 				</div>
 			</li>
 		</ol>
@@ -343,6 +385,7 @@
 	<script src="https://pluto-lang.org/wasm-builds/out/libpluto/0.9.5/libpluto.js"></script>
 	<script src="https://pluto-lang.org/PlutoScript/plutoscript.js"></script>
 	<link rel="stylesheet" href="src/profile-stats-filters.css">
+	<script src="typestripped/src/arbys-timer.js"></script>
 	<script src="typestripped/src/string-helpers.js"></script>
 	<script src="typestripped/src/tooltip.js"></script>
 	<script src="typestripped/src/profile-stats-filters.js"></script>

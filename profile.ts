@@ -35,6 +35,9 @@ const platform_suffix_pluto_promise = pluto_require("platform-suffix.pluto");
 	this.select();
 };*/
 
+// Keep in sync with VALID_PLAYER_ID_REGEX in warframe-api-front-proxy/profile.js
+const VALID_PLAYER_ID_REGEX = /^[0-9a-f]{24}$/;
+
 const guideTiers = [0, "Junior Guide of the Lotus", "Senior Guide of the Lotus"];
 const founderTiers = [0, "Disciple", "Hunter", "Master", "Grand Master"];
 const clanTiers = [0, "Ghost", "Shadow", "Storm", "Mountain", "Moon"];
@@ -131,6 +134,7 @@ const platformStorageKey = "profile.platform";
 const accountIdStorageKey = "profile.accountId";
 const profileDataStorageKey = "profile.data";
 const profileTimestampStorageKey = "profile.dataFetchedAt";
+const nextFetchAvailableAtStorageKey = "profile.nextFetchAvailableAt";
 
 let currentAccountId = "";
 
@@ -182,10 +186,23 @@ Promise.all([
 		ExportSyndicates,
 		ExportWarframes,
 		ExportWeapons,
-		_cloudSyncEventType,
+		syncResult,
 		initialProfile
 	]) =>
 {
+	const useAutoFetch = syncResult === 'complete';
+	const storedNextFetch = parseInt(localStorage.getItem(nextFetchAvailableAtStorageKey) ?? "0");
+	const msUntilAvailable = storedNextFetch - Date.now();
+	const isRateLimited = useAutoFetch && msUntilAvailable > 0;
+	const showAutoFetchFlow = useAutoFetch && !isRateLimited;
+
+	// Show manual flow steps via CSS when not in auto-fetch flow
+	document.getElementById("steps")?.classList.toggle("manual-flow", !showAutoFetchFlow);
+
+	if (isRateLimited) {
+		showRateLimitNotice(storedNextFetch);
+	}
+
 	(window as any).dict = dict;
 	(window as any).ExportAchievements = ExportAchievements;
 	(window as any).ExportCustoms = ExportCustoms;
@@ -199,6 +216,7 @@ Promise.all([
 	(window as any).ExportWarframes = ExportWarframes;
 	(window as any).ExportWeapons = ExportWeapons;
 	(window as any).profile = initialProfile;
+	(window as any).__showAutoFetchFlow = showAutoFetchFlow;
 
 	for (let i = 0; i != syndicateTags.length; ++i)
 	{
@@ -248,15 +266,15 @@ function sanitiseName(name: string): string
 
 let profileLoadedManually = false;
 
-function updateStepStatus(stepNumber: number, completed: boolean): void
+function updateStepStatus(selector: string, completed: boolean): void
 {
-	document.getElementById(`step${stepNumber}-container`)?.classList.toggle("complete", completed);
+	document.querySelector(selector)?.classList.toggle("complete", completed);
 }
 
 function refreshAllStepIndicators(): void
 {
-	updateStepStatus(1, !!platformSelect.value);
-	// Step 2 (copy path) and Step 3 (EE.log / profile load) are updated by their respective handlers
+	updateStepStatus("#step1-container", !!platformSelect.value);
+	// Step 2 (account ID) and beyond are updated by their respective handlers
 }
 
 function copyWarframePath(event: Event): void
@@ -265,7 +283,6 @@ function copyWarframePath(event: Event): void
 		const button = event.target as HTMLButtonElement;
 		const originalText = button.textContent;
 		button.textContent = "Copied!";
-		updateStepStatus(2, true);
 		setTimeout(() => { button.textContent = originalText; }, 5000);
 	}).catch(err => {
 		console.error("Failed to copy:", err);
@@ -279,17 +296,12 @@ function onPlatformChange(): void
 
 	const platform = platformSelect.value;
 
-	if (platform) {
-		updateStepStatus(1, true);
-	} else {
-		updateStepStatus(1, false);
-	}
+	updateStepStatus("#step1-container", !!platform);
 }
 
 function validateAccountId(accountId: string): boolean
 {
-	// Account ID must be hexadecimal (lowercase letters a-f and digits 0-9)
-	return /^[0-9a-f]+$/.test(accountId);
+	return VALID_PLAYER_ID_REGEX.test(accountId);
 }
 
 function loadEELog(file?: File): void
@@ -312,26 +324,31 @@ function loadEELog(file?: File): void
 			const content = e.target.result as string;
 
 			// Extract account ID from EE.log
-			const logPattern = /Sys \[Info\]: Logged in .* \(([0-9a-f]+)\)/;
+			const logPattern = /(?:Logged|Player).*\b([0-9a-f]{24})\b/;
 			const match = content.match(logPattern);
 
 			if (match) {
 				const accountId = match[1];
 
-				// Validate extracted account ID
-				if (validateAccountId(accountId)) {
-					currentAccountId = accountId;
-					localStorage.setItem(accountIdStorageKey, accountId);
-					updateRefreshAlert();
+				currentAccountId = accountId;
+				localStorage.setItem(accountIdStorageKey, accountId);
+				updateRefreshAlert();
 
-					// Auto-fetch profile via proxy
+				if ((window as any).__showAutoFetchFlow) {
+					// Auto-fetch profile via proxy (logged in, not rate-limited)
 					fetchAndRenderProfile(platformSelect.value, accountId, true);
 				} else {
-					alert("Extracted account ID has invalid format. Please try again.");
+					// Manual flow: populate account ID field and mark step 2 done
+					const accountIdInput = document.getElementById("account-id") as HTMLInputElement | null;
+					if (accountIdInput) {
+						accountIdInput.value = accountId;
+					}
+					updateStepStatus("#step2-container", true);
+					updateDownloadLink();
 					document.querySelector("#status").classList.add("d-none");
 				}
 			} else {
-				alert("Could not find account ID in EE.log. Make sure you've logged in and the file contains 'Logged in' entries.");
+				alert("Could not find account ID in EE.log. Make sure you've logged in and the file contains a \"Logged in\" line.");
 				document.querySelector("#status").classList.add("d-none");
 			}
 		}
@@ -354,13 +371,65 @@ function updateRefreshAlert(): void
 	}
 }
 
+function showRateLimitNotice(epochMs: number): void
+{
+	const countdown = document.getElementById("rate-limit-countdown");
+	if (countdown) {
+		countdown.replaceChildren((window as any).createArbyCountdownBadge(Math.floor(epochMs / 1000)));
+	}
+	document.getElementById("rate-limit-notice")?.classList.remove("d-none");
+}
+
+function switchToManualFlow(message: string): void
+{
+	document.getElementById("steps")?.classList.add("manual-flow");
+	updateDownloadLink();
+	showStatusError(message);
+}
+
+function showStatusError(message: string): void
+{
+	document.querySelector("#status span").textContent = message;
+	document.querySelector("#status").classList.remove("d-none");
+	setTimeout(() => { document.querySelector("#status").classList.add("d-none"); }, 5000);
+}
+
 function fetchAndRenderProfile(platform: string, accountId: string, fromEELog: boolean): void
 {
 	document.querySelector("#status span").textContent = "Fetching profile...";
 	document.querySelector("#status").classList.remove("d-none");
 
-	(window as any).WarframeApiFrontProxyClient.fetchProfile(platform, accountId).then((data: any) =>
+	const accountIdInput = document.getElementById("account-id") as HTMLInputElement | null;
+	if (accountIdInput) {
+		accountIdInput.value = accountId;
+	}
+
+	(window as any).WarframeApiFrontProxyClient.fetchProfile(platform, accountId).then(({ status, data, nextFetchAvailableAt }: { status: number; data: any; nextFetchAvailableAt: number | null }) =>
 	{
+		if (status === 429) {
+			if (nextFetchAvailableAt) {
+				localStorage.setItem(nextFetchAvailableAtStorageKey, nextFetchAvailableAt.toString());
+				showRateLimitNotice(nextFetchAvailableAt);
+			}
+			updateStepStatus("#step2-container", true);
+			updateDownloadLink();
+			document.getElementById("steps")?.classList.add("manual-flow");
+			document.querySelector("#status").classList.add("d-none");
+			return;
+		}
+		if (status === 401) {
+			switchToManualFlow("Sign-in session expired. Please log in again.");
+			return;
+		}
+		if (!data) {
+			showStatusError("Failed to fetch profile. Try downloading manually.");
+			return;
+		}
+
+		if (nextFetchAvailableAt) {
+			localStorage.setItem(nextFetchAvailableAtStorageKey, nextFetchAvailableAt.toString());
+		}
+
 		(window as any).profile = data;
 		if (fromEELog) {
 			document.getElementById("profile-nav").classList.remove("d-none");
@@ -372,8 +441,10 @@ function fetchAndRenderProfile(platform: string, accountId: string, fromEELog: b
 		renderProfile();
 
 		profileLoadedManually = true;
-		updateStepStatus(3, true);
+		updateStepStatus("#step2-container", true);
+		updateDownloadLink();
 		localStorage.setItem(platformStorageKey, platform);
+		localStorage.setItem(accountIdStorageKey, accountId);
 		localStorage.setItem(profileDataStorageKey, JSON.stringify(data));
 		localStorage.setItem(profileTimestampStorageKey, Date.now().toString());
 		updateProfileAge();
@@ -392,14 +463,138 @@ function fetchAndRenderProfile(platform: string, accountId: string, fromEELog: b
 	});
 }
 
-function refreshProfile(): void
+function updateDownloadLink(): void
 {
 	const platform = platformSelect.value;
-	if (!platform || !currentAccountId) {
-		return;
+	const accountId = (document.getElementById("account-id") as HTMLInputElement | null)?.value ?? "";
+	const downloadLink = document.getElementById("download-link") as HTMLAnchorElement | null;
+	if (downloadLink && platform && validateAccountId(accountId)) {
+		const platformStr = platform === "pc" ? "" : `-${platform}`;
+		downloadLink.href = `http://content${platformStr}.warframe.com/dynamic/getProfileViewingData.php?playerId=${encodeURIComponent(accountId)}`;
 	}
-	fetchAndRenderProfile(platform, currentAccountId, false);
 }
+
+function loadProfile(file?: File): void
+{
+	if (!file) { return; }
+
+	const reader = new FileReader();
+	reader.onload = function(e)
+	{
+		try
+		{
+			const data = JSON.parse(e.target.result as string);
+			(window as any).profile = data;
+			document.getElementById("profile-nav").classList.remove("d-none");
+			activateTab(params.has("tab") ? params.get("tab") : "fashion");
+			renderProfile();
+
+			profileLoadedManually = true;
+			updateStepStatus("#step4-container", true);
+			localStorage.setItem(platformStorageKey, platformSelect.value);
+			localStorage.setItem(profileDataStorageKey, JSON.stringify(data));
+			localStorage.setItem(profileTimestampStorageKey, Date.now().toString());
+			updateProfileAge();
+
+			if ((window as any).triggerCloudSync) {
+				(window as any).triggerCloudSync();
+			}
+		}
+		catch (err: any)
+		{
+			console.error(err);
+			alert("Failed to parse profile file: " + err.message);
+		}
+	};
+	reader.readAsText(file);
+}
+
+let invalidCharsMinTimeElapsed = false;
+let invalidCharsHideTimer: number | null = null;
+
+function onAccountIdManualInput(): void
+{
+	const input = document.getElementById("account-id") as HTMLInputElement | null;
+	if (!input) { return; }
+
+	// Strip non-hex characters and lowercase, preserving cursor position
+	const raw = input.value;
+	const cleaned = raw.toLowerCase().replace(/[^0-9a-f]/g, "");
+	const hadInvalidChars = cleaned.length !== raw.length;
+	if (cleaned !== raw) {
+		const selectionStart = input.selectionStart ?? cleaned.length;
+		const removed = raw.length - cleaned.length;
+		input.value = cleaned;
+		input.setSelectionRange(Math.max(0, selectionStart - removed), Math.max(0, selectionStart - removed));
+	}
+
+	const notice = document.getElementById("account-id-invalid-chars");
+	if (hadInvalidChars) {
+		invalidCharsMinTimeElapsed = false;
+		if (notice) {
+			notice.classList.remove("d-none");
+		}
+		if (invalidCharsHideTimer !== null) {
+			clearTimeout(invalidCharsHideTimer);
+		}
+		invalidCharsHideTimer = window.setTimeout(() => {
+			invalidCharsMinTimeElapsed = true;
+			invalidCharsHideTimer = null;
+		}, 3000);
+	} else if (invalidCharsMinTimeElapsed && notice) {
+		notice.classList.add("d-none");
+		invalidCharsMinTimeElapsed = false;
+	}
+
+	const accountId = cleaned.trim();
+	const charCount = document.getElementById("account-id-char-count");
+	if (charCount) {
+		charCount.textContent = accountId.length.toString();
+	}
+	const feedback = document.getElementById("account-id-feedback");
+	if (validateAccountId(accountId)) {
+		input.classList.remove("is-invalid");
+		input.classList.add("is-valid");
+		if (feedback) {
+			feedback.classList.remove("invalid-feedback");
+			feedback.classList.add("valid-feedback");
+		}
+		currentAccountId = accountId;
+		localStorage.setItem(accountIdStorageKey, accountId);
+		updateStepStatus("#step2-container", true);
+		updateDownloadLink();
+	} else {
+		input.classList.remove("is-valid");
+		if (feedback) {
+			feedback.classList.remove("valid-feedback");
+			feedback.classList.add("invalid-feedback");
+		}
+		updateStepStatus("#step2-container", false);
+		if (accountId.length === 0) {
+			input.classList.remove("is-invalid");
+		} else {
+			input.classList.add("is-invalid");
+		}
+	}
+}
+
+function onDownloadLinkLeftClick(event: Event): void
+{
+	event.preventDefault();
+	document.getElementById("download-warning")?.classList.remove("d-none");
+}
+
+function onDownloadLinkRightClick(_event: Event): void
+{
+	document.getElementById("step3-manual-container")?.classList.add("complete");
+	document.getElementById("download-warning")?.classList.add("d-none");
+}
+
+function fetchProfile(): void
+{
+	fetchAndRenderProfile(platformSelect.value, currentAccountId, false);
+}
+
 
 function updateFormFromLocalStorage(): void
 {
@@ -410,8 +605,14 @@ function updateFormFromLocalStorage(): void
 		platformSelect.value = savedPlatform;
 	}
 
-	if (savedAccountId) {
+	if (savedAccountId && validateAccountId(savedAccountId)) {
 		currentAccountId = savedAccountId;
+		const accountIdInput = document.getElementById("account-id") as HTMLInputElement | null;
+		if (accountIdInput) {
+			accountIdInput.value = savedAccountId;
+		}
+		updateStepStatus("#step2-container", true);
+		updateDownloadLink();
 		updateRefreshAlert();
 	}
 }
@@ -419,9 +620,13 @@ function updateFormFromLocalStorage(): void
 
 // Expose functions globally for onclick handlers
 (window as any).copyWarframePath = copyWarframePath;
-(window as any).onPlatformChange = onPlatformChange;
+(window as any).fetchProfile = fetchProfile;
 (window as any).loadEELog = loadEELog;
-(window as any).refreshProfile = refreshProfile;
+(window as any).loadProfile = loadProfile;
+(window as any).onAccountIdManualInput = onAccountIdManualInput;
+(window as any).onDownloadLinkLeftClick = onDownloadLinkLeftClick;
+(window as any).onDownloadLinkRightClick = onDownloadLinkRightClick;
+(window as any).onPlatformChange = onPlatformChange;
 
 let profileAgeUpdateTimer: number | null = null;
 

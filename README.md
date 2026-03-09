@@ -123,15 +123,17 @@ The Warframe API (`api.warframe.com`) does not send CORS headers, preventing dir
 
 ```mermaid
 flowchart LR
-    A["browse.wf\n(browser)"] --> B["Front proxy\n(Cloudflare Worker)"]
+    A["browse.wf<br/>(browser)"] --> B["Front proxy<br/>(Cloudflare Worker)"]
+    A -->|"auth &amp; cloud sync"| E["Supabase"]
+    B -->|"rate limit check<br/>(profile requests)"| E
     B --> C["Private proxy"]
-    C --> D["api.warframe.com\ncontent.warframe.com"]
+    C --> D["api.warframe.com<br/>content.warframe.com"]
 ```
 
 | Component | Responsibilities |
 |---|---|
 | **browse.wf** | Initiates API requests; supplies auth token |
-| **Front proxy** | Enforces CORS, validates the auth token, validates and routes requests to the private proxy |
+| **Front proxy** | Enforces CORS, validates the auth token, validates and routes requests to the private proxy; for `/profile` requests, requires `DATABASE_URL` to be configured, verifies Discord login, and enforces a 23-hour rate limit per user |
 | **Private proxy** | Forwards requests to the Warframe API via plain HTTP fetch from a non-Cloudflare IP |
 | **Warframe API** | Source of world state and player profile data |
 
@@ -182,6 +184,8 @@ WARFRAME_API_FRONT_PROXY_BASE_URL=https://your-worker.workers.dev
 
 > **Note for downstream forks:** The front proxy validates `ALLOWED_HOST`, so the default front proxy will reject requests from your fork's domain. You must deploy your own front proxy and private proxy — see [warframe-api-front-proxy](https://github.com/dsinn/warframe-api-front-proxy) and [warframe-api-private-proxy-php](https://github.com/dsinn/warframe-api-private-proxy-php).
 
+If cloud sync is enabled, set two additional Worker secrets to enable per-user profile rate limiting: `DATABASE_URL` (same as `VITE_DATABASE_URL`) and `DATABASE_SERVICE_ROLE_KEY` (from the database dashboard → Project Settings → API → service_role).
+
 ### Cloud Sync (Optional)
 
 This app stores all preferences locally in your browser by default. Cloud sync uses Discord for authentication, and the instructions below are tailored for Supabase as the storage backend.
@@ -191,7 +195,7 @@ If you want to enable cloud sync to backup preferences and sync across devices:
 1. **Create a database project** at https://supabase.com
    - Get your Project URL and anon key from Project Settings → API
    - Expose the "public" schema in Settings → API → "Extra exposed schemas" (add `public` to the list)
-   - Run `cloud-sync-schema.sql` in the SQL Editor to create the database schema
+   - Run `cloud-sync-schema.sql` in the SQL Editor to create the database schema (also includes rate limiting columns and a stored procedure used by the front proxy)
    - Enable Realtime for the `user_data` table in Database → Replication (for instant cross-device sync)
    - Configure redirect URLs in Authentication → URL Configuration:
      - Set **Site URL** to your production URL (e.g., `https://dsinn.github.io`)

@@ -7,7 +7,7 @@
 
 import { AuthService } from './auth.js'
 import { StorageSyncService } from './storage-sync.js'
-import { isDatabaseConfigured } from './database.js'
+import { db, isDatabaseConfigured } from './database.js'
 
 // Initialize auth on page load
 async function initializeAuth() {
@@ -187,3 +187,11 @@ function triggerCloudSync() {
 
 // Expose globally for non-module code
 ;(window as any).triggerCloudSync = triggerCloudSync
+
+/**
+ * Get the current Supabase access token for use by non-module scripts (e.g. warframe-api-proxy-client.ts)
+ */
+;(window as any).__getSupabaseAccessToken = async () => {
+	const { data } = await db.auth.getSession()
+	return data.session?.access_token ?? null
+}

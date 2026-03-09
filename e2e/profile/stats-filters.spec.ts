@@ -11,24 +11,39 @@ const __dirname = path.dirname(__filename);
 const proxyHost = new URL(TEST_FRONT_PROXY_BASE_URL).host;
 const profileData = JSON.parse(fs.readFileSync(path.join(__dirname, '../../test/profile/getProfileViewingData.html'), 'utf8'));
 
+async function simulateLoggedIn(page: any) {
+  await page.addInitScript(() => {
+    const original = window.dispatchEvent.bind(window);
+    window.dispatchEvent = function(event: Event) {
+      if (event.type.startsWith('cloud-sync-') && event.type !== 'cloud-sync-complete') {
+        return original(new CustomEvent('cloud-sync-complete'));
+      }
+      return original(event);
+    };
+  });
+}
+
 test.describe('Profile Stats Filters', () => {
   test.beforeEach(async ({ page }) => {
     await setupMockRoutes(page);
+    await simulateLoggedIn(page);
 
     await page.route(`**/${proxyHost}/profile*`, route => {
       route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify(profileData),
+        body: JSON.stringify({
+          nextFetchAvailableAt: new Date(Date.now() + 23 * 60 * 60 * 1000).toISOString(),
+          profile: profileData,
+        }),
       });
     });
 
     await page.goto('/profile.php');
     await page.selectOption('#platform-select', 'pc');
-    await page.click('button:has-text("Click Me")');
     const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
     await page.setInputFiles('#ee-log-file', eeLogPath);
-    await expect(page.locator('#step3-container')).toHaveClass(/complete/, { timeout: 5000 });
+    await expect(page.locator('#step2-container')).toHaveClass(/complete/, { timeout: 5000 });
 
     // Navigate to Stats tab
     await page.click('a[data-tab="stats"]');

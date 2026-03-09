@@ -70,7 +70,8 @@ async function prepareCalendarSeasonData(
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,
-	ExportBoosters: Promise<Record<string, any>>
+	ExportBoosters: Promise<Record<string, any>>,
+	ExportImages: Promise<Record<string, any>>
 ): Promise<{
 	dict: Record<string, string>;
 	ExportChallenges: Record<string, any>;
@@ -87,13 +88,17 @@ async function prepareCalendarSeasonData(
 	preparedData = (async () =>
 	{
 		// Await all export data
-		const [dict, resolvedResources, resolvedBundles, resolvedBoosterPacks, resolvedBoosters] = await Promise.all([
+		const [dict, resolvedResources, resolvedBundles, resolvedBoosterPacks, resolvedBoosters, resolvedImages] = await Promise.all([
 			getDictPromise(),
 			ExportResources,
 			ExportBundles,
 			ExportBoosterPacks,
-			ExportBoosters
+			ExportBoosters,
+			ExportImages
 		]);
+
+		// Required for common.js' setImageSource
+		(window as any).ExportImages = resolvedImages;
 
 		const ExportChallenges: Record<string, any> = (window as any).ExportChallenges ?? {};
 
@@ -144,7 +149,8 @@ async function renderCalendarSeasonPane(
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,
-	ExportBoosters: Promise<Record<string, any>>
+	ExportBoosters: Promise<Record<string, any>>,
+	ExportImages: Promise<Record<string, any>>
 ): Promise<HTMLDivElement>
 {
 	// Prepare all data needed for rendering (cached)
@@ -152,7 +158,8 @@ async function renderCalendarSeasonPane(
 		ExportResources,
 		ExportBundles,
 		ExportBoosterPacks,
-		ExportBoosters
+		ExportBoosters,
+		ExportImages
 	);
 
 	const container = document.createElement("div");
@@ -254,7 +261,8 @@ async function updateCalendarSeason(
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,
-	ExportBoosters: Promise<Record<string, any>>
+	ExportBoosters: Promise<Record<string, any>>,
+	ExportImages: Promise<Record<string, any>>
 ): Promise<void>
 {
 	const seasons: any[] = (window as any).worldState?.KnownCalendarSeasons ?? [];
@@ -269,12 +277,12 @@ async function updateCalendarSeason(
 	{
 		// Schedule re-render when the active season expires
 		const expiry = parseInt(activeSeason.Expiry.$date.$numberLong);
-		setTimeout(() => updateCalendarSeason(ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters), expiry - Date.now());
+		setTimeout(() => updateCalendarSeason(ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, ExportImages), expiry - Date.now());
 	}
 	else
 	{
 		// No active season yet — worldState may be stale; retry shortly
-		setTimeout(() => updateCalendarSeason(ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters), 5_000);
+		setTimeout(() => updateCalendarSeason(ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, ExportImages), 5_000);
 		return;
 	}
 
@@ -301,7 +309,7 @@ async function updateCalendarSeason(
 	if (body)
 	{
 		body.innerHTML = "";
-		body.appendChild(await renderCalendarSeasonPane(seasonToRender, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters));
+		body.appendChild(await renderCalendarSeasonPane(seasonToRender, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, ExportImages));
 	}
 }
 

@@ -43,7 +43,8 @@ describe('renderCalendarSeasonPane', () => {
     Promise.resolve(ExportResources),
     Promise.resolve(ExportBundles),
     Promise.resolve(ExportBoosterPacks),
-    Promise.resolve(ExportBoosters)
+    Promise.resolve(ExportBoosters),
+    Promise.resolve(ExportImages)
   ] as const;
 
   // Helpers to navigate the DOM structure semantically (without relying on CSS classes)
@@ -395,7 +396,8 @@ describe('updateCalendarSeason', () => {
     Promise.resolve(ExportResources),
     Promise.resolve(ExportBundles),
     Promise.resolve(ExportBoosterPacks),
-    Promise.resolve(ExportBoosters)
+    Promise.resolve(ExportBoosters),
+    Promise.resolve(ExportImages)
   ] as const;
 
   beforeEach(() => {

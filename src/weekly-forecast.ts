@@ -41,7 +41,8 @@ declare function renderCalendarSeasonPane(
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,
-	ExportBoosters: Promise<Record<string, any>>
+	ExportBoosters: Promise<Record<string, any>>,
+	ExportImages: Promise<Record<string, any>>
 ): Promise<HTMLDivElement>;
 
 function mongoMs(d: IMongoDate): number
@@ -236,6 +237,7 @@ async function renderCalendarSeasonTabs(
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,
 	ExportBoosters: Promise<Record<string, any>>,
+	ExportImages: Promise<Record<string, any>>,
 	preserveActivation: string | null = null
 ): Promise<void>
 {
@@ -249,7 +251,7 @@ async function renderCalendarSeasonTabs(
 
 	// Render all season panes in parallel (leverages caching in prepareCalendarSeasonData)
 	const seasonPanes = await Promise.all(
-		seasons.map(season => renderCalendarSeasonPane(season, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters))
+		seasons.map(season => renderCalendarSeasonPane(season, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, ExportImages))
 	);
 
 	// Build tabs with the rendered content
@@ -402,6 +404,7 @@ async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
 			Promise.resolve(ExportBundles),
 			Promise.resolve(ExportBoosterPacks),
 			Promise.resolve(ExportBoosters),
+			Promise.resolve(ExportImages),
 			calendarSeasonActivation
 		);
 	}

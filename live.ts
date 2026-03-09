@@ -43,7 +43,7 @@ declare let onLanguageUpdate: () => void;
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
 declare function toTitleCase(str: string): string;
-declare function updateCalendarSeason(ExportResources: Promise<Record<string, any>>, ExportBundles: Promise<Record<string, any>>, ExportBoosterPacks: Promise<Record<string, any>>, ExportBoosters: Promise<Record<string, any>>): Promise<void>;
+declare function updateCalendarSeason(ExportResources: Promise<Record<string, any>>, ExportBundles: Promise<Record<string, any>>, ExportBoosterPacks: Promise<Record<string, any>>, ExportBoosters: Promise<Record<string, any>>, ExportImages: Promise<Record<string, any>>): Promise<void>;
 declare function updateDescendia(): void;
 
 // invasions.ts
@@ -953,7 +953,8 @@ function initWorldStateCards(): void
 		ExportResources_promise,
 		ExportBundles_promise,
 		ExportBoosterPacks_promise,
-		ExportBoosters_promise
+		ExportBoosters_promise,
+		ExportImages_promise
 	);
 	updateDescendia();
 }

@@ -236,8 +236,8 @@
 								<p class="mb-1" data-mission="maroo">Ayatan Treasure Hunt <span id="maroo-check"></span></p>
 								<p class="mb-1" data-mission="circuit-normal">The Circuit (Normal): <b id="circuit-frames">Loading...</b> <span id="circuit-frames-check"></span></p>
 								<p class="mb-1" data-mission="circuit-sp">The Circuit (Steel Path): <b id="circuit-weapons"></b> <span id="circuit-weapons-check"></span></p>
-								<p class="mb-1" data-mission="netracells">Netracells <span id="netracell-checks"></span></p>
-								<p class="mb-0" data-mission="kahl">Break Narmer <span id="kahl-checks"></span></p>
+								<p class="mb-1" data-mission="netracells">Netracells <span id="netracell-checks" data-checkbox-group></span></p>
+								<p class="mb-0" data-mission="kahl">Break Narmer <span id="kahl-checks" data-checkbox-group></span></p>
 								<p class="mb-0 text-muted d-none" id="weekly-missions-empty-state">No missions to display based on the current filters.</p>
 							</div>
 						</div>
@@ -473,7 +473,7 @@
 				</div>
 				<div class="card mb-3">
 					<div class="card-header d-flex">
-						<h5 class="mb-0"><span data-collapse-toggle="labconquest"></span> <span id="labConquest-header">Deep Archimedea</h5>
+						<h5 class="mb-0"><span data-collapse-toggle="labconquest"></span> <span id="labConquest-header" data-autocheck-target="#netracell-checks" data-autocheck-count="2">Deep Archimedea</h5>
 						<a class="m-auto me-0" data-notif-toggle="labconquest"></a>
 					</div>
 					<div class="card-body overflow-auto">
@@ -489,7 +489,7 @@
 				</div>
 				<div class="card mb-3">
 					<div class="card-header d-flex">
-						<h5 class="mb-0"><span data-collapse-toggle="hexconquest"></span> <span id="hexConquest-header">Temporal Archimedea</h5>
+						<h5 class="mb-0"><span data-collapse-toggle="hexconquest"></span> <span id="hexConquest-header" data-autocheck-target="#netracell-checks" data-autocheck-count="2">Temporal Archimedea</h5>
 						<a class="m-auto me-0" data-notif-toggle="hexconquest"></a>
 					</div>
 					<div class="card-body overflow-auto">
@@ -512,16 +512,18 @@
 	<?php require "components/footer.php"; ?>
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-	<script src="typestripped/src/card-filters.js"></script>
-	<script src="typestripped/src/news-mark-read.js"></script>
+	<script src="typestripped/src/bounty-checkboxes.js"></script>
+	<script src="typestripped/src/bounty-filters.js"></script>
 	<script src="typestripped/src/calendar-seasons.js"></script>
 	<link rel="stylesheet" href="src/calendar-seasons.css" media="print" onload="this.media='all'">
+	<script src="typestripped/src/card-filters.js"></script>
+	<script src="typestripped/src/checkbox-linking.js"></script>
 	<script src="typestripped/src/descendia.js"></script>
 	<link rel="stylesheet" href="src/descendia.css" media="print" onload="this.media='all'">
-	<script src="typestripped/src/bounty-filters.js"></script>
-	<script src="typestripped/src/bounty-checkboxes.js"></script>
 	<script src="typestripped/src/invasions.js"></script>
+	<script src="typestripped/src/news-mark-read.js"></script>
 	<script src="typestripped/src/tileset-helpers.js"></script>
+	<!-- live.js must come last as it calls functions defined in the modules above -->
 	<script src="typestripped/live.js?lv0"></script>
 </body>
 </html>

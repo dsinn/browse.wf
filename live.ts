@@ -1495,22 +1495,16 @@ function toggleOidCompletion(oid: string): void
 
 function createCompletionToggle(oid: string): HTMLAnchorElement
 {
-	let what = "completed";
-	if (oid.substring(0, 5) == "kahlb")
-	{
-		what += " (Bonus Objective #" + oid.substring(5, 6) + ")";
-	}
-
 	const a = document.createElement("a");
 	a.className = "completion-check";
 	a.setAttribute("data-oid", oid);
 	a.innerHTML = isOidMarkedAsCompleted(oid) ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
-	const tooltip = addTooltip(a, (isOidMarkedAsCompleted(oid) ? "Unmark as " : "Mark as ") + what);
+	addTooltip(a, (isOidMarkedAsCompleted(oid) ? "Unmark as " : "Mark as ") + "completed");
 	a.onclick = function()
 	{
-		toggleOidCompletion(oid);
-		a.innerHTML = isOidMarkedAsCompleted(oid) ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
-		tooltip.setContent({ ".tooltip-inner": (isOidMarkedAsCompleted(oid) ? "Unmark as " : "Mark as ") + what });
+		const newCompletedState = !isOidMarkedAsCompleted(oid);
+		setCompletionToggle(a, newCompletedState);
+		(window as any).applyCheckboxLinking(a, newCompletedState);
 	};
 	return a;
 }
@@ -1946,43 +1940,44 @@ updateBountyCheckboxes();
 
 document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm, "Voidplume Quills"));
 
+function setCompletionToggle(elm: HTMLAnchorElement, completed: boolean): void
+{
+	const oid = elm.getAttribute("data-oid");
+	if (!oid) return;
+	if (isOidMarkedAsCompleted(oid) !== completed) toggleOidCompletion(oid);
+	elm.innerHTML = completed ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
+	const tooltip = window.bootstrap?.Tooltip.getInstance(elm);
+	if (tooltip) {
+		tooltip.setContent({ ".tooltip-inner": (completed ? "Unmark as " : "Mark as ") + "completed" });
+	}
+}
+
 // Refresh all completion checkboxes based on current localStorage state
 function refreshAllCompletionToggles(): void
 {
 	document.querySelectorAll<HTMLAnchorElement>(".completion-check").forEach(elm => {
 		const oid = elm.getAttribute("data-oid");
-		if (oid) {
-			const isCompleted = isOidMarkedAsCompleted(oid);
-			elm.innerHTML = isCompleted ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
-			// Update tooltip if it exists
-			const tooltip = window.bootstrap?.Tooltip.getInstance(elm);
-			if (tooltip) {
-				let what = "completed";
-				if (oid.substring(0, 5) == "kahlb") {
-					what += " (Bonus Objective #" + oid.substring(5, 6) + ")";
-				}
-				tooltip.setContent({ ".tooltip-inner": (isCompleted ? "Unmark as " : "Mark as ") + what });
-			}
-		}
+		if (oid) setCompletionToggle(elm, isOidMarkedAsCompleted(oid));
 	});
 }
 
-// Expose promises and data globally for fork code
+// Expose globally for fork code
+(window as any).addTooltip = addTooltip;
+(window as any).createCompletionToggle = createCompletionToggle;
 (window as any).dicts_promise = dicts_promise;
 (window as any).ExportRegions_promise = ExportRegions_promise;
-
-// Expose globally for fork code to call
-(window as any).addTooltip = addTooltip;
-(window as any).setDatum = setDatum;
-(window as any).toTitleCase = toTitleCase;
 (window as any).getItemNamePromise = getItemNamePromise;
-(window as any).createCompletionToggle = createCompletionToggle;
+(window as any).isOidMarkedAsCompleted = isOidMarkedAsCompleted;
 (window as any).refreshAllCompletionToggles = refreshAllCompletionToggles;
+(window as any).setCompletionToggle = setCompletionToggle;
 (window as any).refreshCollapseStatus = refreshCollapseStatus;
 (window as any).refreshNotifStatus = refreshNotifStatus;
+(window as any).setDatum = setDatum;
+(window as any).toggleOidCompletion = toggleOidCompletion;
+(window as any).toTitleCase = toTitleCase;
 (window as any).updateBountyCycleLocalised = updateBountyCycleLocalised;
-(window as any).updateNewsTicker = updateNewsTicker;
-(window as any).updateIncursionsLocalised = updateIncursionsLocalised;
-(window as any).updateWeeklyLocalised = updateWeeklyLocalised;
-(window as any).updateFissures = updateFissures;
 (window as any).updateCircuitLocalised = updateCircuitLocalised;
+(window as any).updateFissures = updateFissures;
+(window as any).updateIncursionsLocalised = updateIncursionsLocalised;
+(window as any).updateNewsTicker = updateNewsTicker;
+(window as any).updateWeeklyLocalised = updateWeeklyLocalised;

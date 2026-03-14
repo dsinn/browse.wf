@@ -1,7 +1,15 @@
 import { defineConfig, Plugin } from 'vitest/config';
+import { loadEnv } from 'vite';
 import chokidar from 'chokidar';
 import fs from 'fs';
 import path from 'path';
+
+// Load specific secrets from .env for tests that hit real APIs
+const env = loadEnv('', process.cwd(), '');
+const TEST_SECRETS = ['WARFRAME_API_FRONT_PROXY_TOKEN'];
+for (const key of TEST_SECRETS) {
+  if (env[key]) process.env[key] = env[key];
+}
 
 const DEV_PORT = parseInt(process.env.PORT || '60969', 10);
 

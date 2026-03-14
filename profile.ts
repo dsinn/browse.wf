@@ -75,7 +75,8 @@ const platformNames = {
 	"ps4": "PlayStation",
 	"xb1": "Xbox",
 	"swi": "Switch",
-	"mob": "Mobile",
+	"mob": "iOS",
+	"and": "Android",
 };
 
 function peColourToHex(colour: IColour): string

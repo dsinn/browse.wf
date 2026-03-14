@@ -45,7 +45,8 @@
 					<option value="ps4">PlayStation</option>
 					<option value="xb1">Xbox</option>
 					<option value="swi">Switch</option>
-					<option value="mob">Mobile</option>
+					<option value="mob">iOS</option>
+					<option value="and">Android</option>
 				</select>
 			</li>
 			<li class="list-group-item" id="step2-container">

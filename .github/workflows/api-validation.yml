@@ -12,9 +12,9 @@ jobs:
     # Only run scheduled tests on the dsinn fork, but allow manual runs anywhere
     if: github.repository == 'dsinn/browse.wf' || github.event_name == 'workflow_dispatch'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm

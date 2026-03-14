@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -27,12 +27,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
-      - uses: shivammathur/setup-php@v2
+      - &setup-php
+        # TODO: Check for a Node.js 24 release and add FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true (or bump version)
+        # https://github.com/shivammathur/setup-php/releases
+        uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
       - run: npm ci
@@ -46,14 +49,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
-      - uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
+      - *setup-php
       - run: npm ci
       - name: Compile TypeScript
         run: npm exec tsc

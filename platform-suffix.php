@@ -22,7 +22,8 @@
 								<option value="1">PlayStation</option>
 								<option value="2">Xbox</option>
 								<option value="3">Switch</option>
-								<option value="4">Mobile</option>
+								<option value="4">iOS</option>
+								<option value="5">Android</option>
 							</select>
 							<input type="submit" class="btn btn-primary" />
 						</form>
@@ -55,12 +56,12 @@
 			document.getElementById("partial2full-res").textContent = document.getElementById("partial-name").value + "#" + (await pluto_invoke("get_discriminator", document.getElementById("partial-name").value, parseInt(document.getElementById("platform").value))).toString().padStart(3, "0");
 		}
 
-		const platform_names = [ "PC", "PlayStation", "Xbox", "Switch", "Mobile", "Invalid" ];
+		const platform_names = [ "PC", "PlayStation", "Xbox", "Switch", "iOS", "Android", "Invalid" ];
 		async function full2platform()
 		{
 			const arr = document.getElementById("full-name").value.split("#");
 			let i = 0;
-			for (; i != 5; ++i)
+			for (; i != 6; ++i)
 			{
 				if (await pluto_invoke("get_discriminator", arr[0], i) == arr[1])
 				{

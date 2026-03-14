@@ -192,6 +192,10 @@ function triggerCloudSync() {
  * Get the current Supabase access token for use by non-module scripts (e.g. warframe-api-proxy-client.ts)
  */
 ;(window as any).__getSupabaseAccessToken = async () => {
+	if (!isDatabaseConfigured())
+	{
+		return null
+	}
 	const { data } = await db.auth.getSession()
 	return data.session?.access_token ?? null
 }

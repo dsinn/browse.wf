@@ -67,6 +67,12 @@ jobs:
       - name: Run E2E tests
         run: npm run test:e2e
         timeout-minutes: 5
+        env:
+          # Fake credentials so isDatabaseConfigured() returns true and auth-init.ts
+          # creates a Supabase client. The simulateLoggedIn() helper intercepts the
+          # cloud-sync-* events before any real auth calls are made.
+          VITE_DATABASE_URL: https://placeholder.supabase.test
+          VITE_DATABASE_ANON_KEY: placeholder-anon-key
       - name: Upload test results
         if: failure()
         uses: actions/upload-artifact@v4

@@ -47,7 +47,8 @@ function setupInvasionsGlobals() {
   (window as any).getItemNamePromise = (itemType: string) =>
     Promise.resolve(itemType.replace(/^.*\//, ''));
 
-  // Stub addTooltip and createCompletionToggle
+  // Stub setImageSource, addTooltip, and createCompletionToggle
+  (window as any).setImageSource = (img: HTMLImageElement, icon: string) => { img.src = icon; };
   (window as any).addTooltip = (el: HTMLElement, title: string) => {
     el.setAttribute('data-bs-title', title);
   };
@@ -145,7 +146,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
     expect(adaro).toBeLessThan(orias);
   });
 
-  test('SolNode65 (Gradivus) hardcoded to show Sabotage mission type', async () => {
+  test('SolNode65 (Gradivus) shows 💥 emoji with Sabotage tooltip in node header', async () => {
     window.worldState.Invasions = [{
       _id: { $oid: '6974e8fee68ad4bc31ce5f49' },
       Node: 'SolNode65',
@@ -159,9 +160,34 @@ describe('Invasions - updateInvasions DOM rendering', () => {
       DefenderReward: { countedItems: [{ ItemType: '/Lotus/Types/Items/Research/BioComponent', ItemCount: 3 }] },
     }];
     await (window as any).updateInvasions();
-    const cells = document.querySelectorAll('#invasions-table tbody tr:not(.d-none) td');
-    const missionCell = cells[1]; // th=node+bar, td=pct, td=mission
-    expect(missionCell?.textContent).toBe('Sabotage');
+    const th = document.querySelector('#invasions-table tbody tr:not(.d-none) th') as HTMLElement;
+    expect(th?.textContent).toContain('💥');
+    const tooltipEl = th?.querySelector('[data-bs-title]');
+    expect(tooltipEl?.getAttribute('data-bs-title')).toBe('Sabotage');
+  });
+
+  test('Assassination invasion shows Phorid sigil icon with tooltip in node header', async () => {
+    // Add dict entries needed for an assassination node (e.g. SolNode144 = Exta, Ceres)
+    (window as any).dict['/Lotus/Language/Locations/Exta'] = 'Exta';
+    (window as any).dict['/Lotus/Language/Locations/Ceres'] = 'Ceres';
+    window.worldState.Invasions = [{
+      _id: { $oid: 'aabbccddeeff001122334455' },
+      Node: 'SolNode144',
+      Completed: false,
+      Count: -20000,
+      Goal: 39000,
+      Faction: 'FC_INFESTATION',
+      DefenderFaction: 'FC_GRINEER',
+      Activation: { $date: { $numberLong: '1769982001914' } },
+      AttackerReward: [],
+      DefenderReward: { countedItems: [{ ItemType: '/Lotus/Types/Items/Research/BioComponent', ItemCount: 3 }] },
+    }];
+    await (window as any).updateInvasions();
+    const th = document.querySelector('#invasions-table tbody tr:not(.d-none) th') as HTMLElement;
+    const img = th?.querySelector('img.invasion-boss-icon') as HTMLImageElement;
+    expect(img).toBeTruthy();
+    expect(img.src).toContain('Phorid');
+    expect(img.getAttribute('data-bs-title')).toBe('Assassination (Phorid)');
   });
 
   test('when both rewards are filtered out, renders "no invasions" message', async () => {

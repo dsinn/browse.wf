@@ -132,14 +132,6 @@ async function updateInvasions(): Promise<void>
 		const node = ExportRegions[invasion.Node];
 		const nodeLabel = dict[node.name] + ", " + dict[node.systemName];
 
-		// Determine mission type display
-		let missionTypeText: string | null = null;
-		if (invasion.Node === "SolNode65") {
-			missionTypeText = "Sabotage";
-		} else if (node.missionType === "MT_ASSASSINATION") {
-			missionTypeText = "Assassination";
-		}
-
 		// Row 1: attacker row (or promoted defender row)
 		const isAttackerPromoted = !attackerVisible && defenderVisible;
 		const row1Item = isAttackerPromoted ? defenderItem : attackerItem;
@@ -149,10 +141,22 @@ async function updateInvasions(): Promise<void>
 			const tr = document.createElement("tr");
 			if (isDuplicate) tr.classList.add("opacity-50");
 
-			// th: node name + progress bar
+			// th: node name + special mission icon + progress bar
 			{
 				const th = document.createElement("th");
 				th.textContent = nodeLabel;
+				if (node.missionType === "MT_ASSASSINATION") {
+					const img = document.createElement("img");
+					img.className = "invasion-boss-icon ms-1";
+					(window as any).setImageSource(img, "/Lotus/Interface/Icons/Sigils/Phorid.png");
+					(window as any).addTooltip(img, "Assassination (Phorid)");
+					th.appendChild(img);
+				} else if (invasion.Node === "SolNode65") {
+					const span = document.createElement("span");
+					span.textContent = " 💥";
+					(window as any).addTooltip(span, "Sabotage");
+					th.appendChild(span);
+				}
 				th.appendChild(createInvasionProgressBar(invasion, percentage));
 				tr.appendChild(th);
 			}
@@ -165,15 +169,6 @@ async function updateInvasions(): Promise<void>
 				span.className = "invasion-percentage";
 				span.textContent = `${percentage.toFixed(1)}%`;
 				td.appendChild(span);
-				tr.appendChild(td);
-			}
-
-			// td: mission type
-			{
-				const td = document.createElement("td");
-				if (missionTypeText) {
-					td.textContent = missionTypeText;
-				}
 				tr.appendChild(td);
 			}
 
@@ -218,9 +213,6 @@ async function updateInvasions(): Promise<void>
 			tr.appendChild(document.createElement("th"));
 
 			// td: empty percentage cell
-			tr.appendChild(document.createElement("td"));
-
-			// td: mission type (empty for second row)
 			tr.appendChild(document.createElement("td"));
 
 			// td: defender reward

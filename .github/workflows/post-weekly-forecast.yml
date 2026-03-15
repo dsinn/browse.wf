@@ -1,0 +1,29 @@
+name: Post Weekly Forecast to Discord
+
+on:
+  schedule:
+    # Every Sunday at 23:02 UTC (forecast published at 23:00, proxy caches flush by 23:02)
+    - cron: '2 23 * * 0'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (print output without posting to Discord)'
+        type: boolean
+        default: false
+
+jobs:
+  post-forecast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Post weekly forecast to Discord
+        run: node scripts/post-weekly-forecast.js ${{ inputs.dry_run && '--dry-run' || '' }}
+        env:
+          WEEKLY_FORECAST_DISCORD_WEBHOOK_URL: ${{ secrets.WEEKLY_FORECAST_DISCORD_WEBHOOK_URL }}
+          WARFRAME_API_FRONT_PROXY_TOKEN: ${{ secrets.WARFRAME_API_FRONT_PROXY_TOKEN }}

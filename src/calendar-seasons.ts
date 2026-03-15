@@ -9,34 +9,20 @@ declare function createCompletionToggle(oid: string): HTMLAnchorElement;
 declare function createExpiryBadge(expiry: number): HTMLSpanElement;
 declare function setImageSource(img: HTMLImageElement, icon: string): void;
 
-const SEASON_LABELS: Record<string, string> = {
-	CST_SPRING: "🌸 Spring",
-	CST_SUMMER: "🌻 Summer",
-	CST_FALL:   "🍁 Autumn",
-	CST_WINTER: "❄️ Winter",
-};
+// Provided by src/calendar-seasons-data.ts (loaded before this script in the browser)
+declare function getSeasonLabel(season: string): string;
+declare function formatSeasonDay(day: number): string;
+declare function resolveCalendarSeasonDays(
+	season: any,
+	dict: Record<string, string>,
+	ExportChallenges: Record<string, any>,
+	ExportResources: Record<string, any>,
+	ExportBundles: Record<string, any>,
+	ExportBoosterPacks: Record<string, any>,
+	ExportBoosters: Record<string, any>
+): IResolvedCalendarDay[];
 
-function getSeasonLabel(season: string): string
-{
-	return SEASON_LABELS[season] ?? season;
-}
-
-/**
- * Converts a 1-indexed day of the 1999 in-game calendar to a short date string.
- * Day 1 = Jan 1, Day 101 = Apr 11, etc.
- */
-function formatSeasonDay(day: number): string
-{
-	return new Date(1999, 0, day).toLocaleDateString("en", { month: "short", day: "numeric" });
-}
-
-/**
- * Converts a camelCase identifier to words: "GasChanceToPrimary" → "Gas Chance To Primary"
- */
-function camelToWords(s: string): string
-{
-	return s.replace(/(?<=.)(?=[A-Z])/g, " ");
-}
+// IResolvedCalendarEvent and IResolvedCalendarDay are defined in src/calendar-seasons-data.ts
 
 function makeIcon(iconPath: string): HTMLImageElement
 {
@@ -51,19 +37,19 @@ function makeIcon(iconPath: string): HTMLImageElement
 
 /**
  * Cache for prepared calendar season data.
- * Shared across all calls to avoid rebuilding item maps multiple times.
+ * Shared across all calls to avoid resolving promises multiple times.
  */
 let preparedData: Promise<{
 	dict: Record<string, string>;
 	ExportChallenges: Record<string, any>;
-	itemIconMap: Record<string, string>;
-	itemNameMap: Record<string, string>;
+	ExportResources: Record<string, any>;
+	ExportBundles: Record<string, any>;
+	ExportBoosterPacks: Record<string, any>;
+	ExportBoosters: Record<string, any>;
 }> | null = null;
 
 /**
- * Prepares all data needed for rendering calendar seasons.
- * Awaits export promises, builds item maps, and returns everything needed.
- * Results are cached to avoid rebuilding maps on subsequent calls.
+ * Resolves and caches all export promises needed for rendering calendar seasons.
  * Private helper - not exposed globally.
  */
 async function prepareCalendarSeasonData(
@@ -75,8 +61,10 @@ async function prepareCalendarSeasonData(
 ): Promise<{
 	dict: Record<string, string>;
 	ExportChallenges: Record<string, any>;
-	itemIconMap: Record<string, string>;
-	itemNameMap: Record<string, string>;
+	ExportResources: Record<string, any>;
+	ExportBundles: Record<string, any>;
+	ExportBoosterPacks: Record<string, any>;
+	ExportBoosters: Record<string, any>;
 }>
 {
 	if (preparedData)
@@ -84,10 +72,8 @@ async function prepareCalendarSeasonData(
 		return preparedData;
 	}
 
-	// Build the data (only happens once)
 	preparedData = (async () =>
 	{
-		// Await all export data
 		const [dict, resolvedResources, resolvedBundles, resolvedBoosterPacks, resolvedBoosters, resolvedImages] = await Promise.all([
 			getDictPromise(),
 			ExportResources,
@@ -100,44 +86,17 @@ async function prepareCalendarSeasonData(
 		// Required for common.js' setImageSource
 		(window as any).ExportImages = resolvedImages;
 
-		const ExportChallenges: Record<string, any> = (window as any).ExportChallenges ?? {};
-
-		const { itemIconMap, itemNameMap } = buildItemMaps(resolvedResources, resolvedBundles, resolvedBoosterPacks, resolvedBoosters);
-
 		return {
 			dict,
-			ExportChallenges,
-			itemIconMap,
-			itemNameMap
+			ExportChallenges: (window as any).ExportChallenges ?? {},
+			ExportResources: resolvedResources,
+			ExportBundles: resolvedBundles,
+			ExportBoosterPacks: resolvedBoosterPacks,
+			ExportBoosters: resolvedBoosters,
 		};
 	})();
 
 	return preparedData;
-}
-
-/**
- * Builds itemIconMap and itemNameMap from export data.
- * Private helper used internally by calendar season rendering.
- */
-function buildItemMaps(
-	ExportResources: Record<string, any>,
-	ExportBundles: Record<string, any>,
-	ExportBoosterPacks: Record<string, any>,
-	ExportBoosters: Record<string, any>
-): { itemIconMap: Record<string, string>; itemNameMap: Record<string, string> }
-{
-	const itemIconMap: Record<string, string> = {};
-	const itemNameMap: Record<string, string> = {};
-	for (const exportData of [ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters])
-	{
-		for (const [key, val] of Object.entries(exportData) as [string, any][])
-		{
-			const normalized = key.replace("/Lotus/StoreItems/", "/Lotus/");
-			if (val.icon) itemIconMap[normalized] = val.icon;
-			if (val.name) itemNameMap[normalized] = val.name;
-		}
-	}
-	return { itemIconMap, itemNameMap };
 }
 
 /**
@@ -153,8 +112,7 @@ async function renderCalendarSeasonPane(
 	ExportImages: Promise<Record<string, any>>
 ): Promise<HTMLDivElement>
 {
-	// Prepare all data needed for rendering (cached)
-	const { dict, ExportChallenges, itemIconMap, itemNameMap } = await prepareCalendarSeasonData(
+	const { dict, ExportChallenges, ExportResources: resolvedResources, ExportBundles: resolvedBundles, ExportBoosterPacks: resolvedBoosterPacks, ExportBoosters: resolvedBoosters } = await prepareCalendarSeasonData(
 		ExportResources,
 		ExportBundles,
 		ExportBoosterPacks,
@@ -162,12 +120,13 @@ async function renderCalendarSeasonPane(
 		ExportImages
 	);
 
+	const resolvedDays = resolveCalendarSeasonDays(
+		season, dict, ExportChallenges, resolvedResources, resolvedBundles, resolvedBoosterPacks, resolvedBoosters
+	);
+
 	const container = document.createElement("div");
 
-	const EVENT_EMOJI: Record<string, string> = { CET_CHALLENGE: "📋", CET_REWARD: "🎁", CET_UPGRADE: "🔧" };
-	const daysWithEvents = (season.Days as any[]).filter(d => d.events.length > 0);
-
-	for (const dayEntry of daysWithEvents)
+	for (const dayData of resolvedDays)
 	{
 		// Two-column layout on md+: date label on left, events stacked on right
 		const row = document.createElement("div");
@@ -175,73 +134,31 @@ async function renderCalendarSeasonPane(
 
 		const dateCol = document.createElement("div");
 		dateCol.className = "fw-bold small me-3 calendar-season-date";
-		dateCol.textContent = (EVENT_EMOJI[dayEntry.events[0].type] ?? "") + " " + formatSeasonDay(dayEntry.day);
+		dateCol.textContent = (dayData.events[0]?.emoji ?? "") + " " + formatSeasonDay(dayData.day);
 		row.appendChild(dateCol);
 
 		const eventsCol = document.createElement("div");
 		eventsCol.className = "flex-grow-1";
 
-		for (const event of dayEntry.events as any[])
+		for (const event of dayData.events)
 		{
 			const eventRow = document.createElement("div");
 			eventRow.className = "d-flex align-items-start gap-2 mb-1";
 
-			if (event.type === "CET_CHALLENGE")
+			if (event.iconPath)
 			{
-				const challengeData = ExportChallenges[event.challenge];
-				if (challengeData)
-				{
-					eventRow.appendChild(makeIcon(challengeData.icon));
-
-					const span = document.createElement("span");
-					const desc = challengeData.description ? dict[challengeData.description] : null;
-					const count = challengeData.requiredCount;
-					if (desc && count)
-					{
-						span.textContent = desc.replace("|COUNT|", String(count));
-					}
-					else if (count)
-					{
-						span.textContent = camelToWords(event.challenge.split("/").pop() ?? "") + " \u00d7" + count;
-					}
-					else
-					{
-						span.textContent = camelToWords(event.challenge.split("/").pop() ?? event.challenge);
-					}
-					eventRow.appendChild(span);
-				}
-				else
-				{
-					const span = document.createElement("span");
-					span.textContent = camelToWords(event.challenge.split("/").pop() ?? event.challenge);
-					eventRow.appendChild(span);
-				}
-			}
-			else if (event.type === "CET_REWARD")
-			{
-				const normalized = event.reward.replace("/Lotus/StoreItems/", "/Lotus/");
-				const iconPath = itemIconMap[normalized];
-				const nameKey = itemNameMap[normalized];
-
-				if (iconPath)
-				{
-					eventRow.appendChild(makeIcon(iconPath));
-				}
-
-				const span = document.createElement("span");
-				span.textContent = (nameKey && dict[nameKey]) ?? camelToWords(event.reward.split("/").pop() ?? event.reward);
-				eventRow.appendChild(span);
+				eventRow.appendChild(makeIcon(event.iconPath));
 			}
 			else if (event.type === "CET_UPGRADE")
 			{
 				const icon = document.createElement("span");
 				icon.textContent = "✨";
 				eventRow.appendChild(icon);
-
-				const span = document.createElement("span");
-				span.textContent = camelToWords(event.upgrade.split("/").pop() ?? event.upgrade);
-				eventRow.appendChild(span);
 			}
+
+			const span = document.createElement("span");
+			span.textContent = event.text;
+			eventRow.appendChild(span);
 
 			eventsCol.appendChild(eventRow);
 		}
@@ -313,6 +230,5 @@ async function updateCalendarSeason(
 	}
 }
 
-(window as any).getSeasonLabel = getSeasonLabel;
 (window as any).renderCalendarSeasonPane = renderCalendarSeasonPane;
 (window as any).updateCalendarSeason = updateCalendarSeason;

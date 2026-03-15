@@ -6,7 +6,6 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { loadScript } from '../helpers/dom-helpers';
 import { loadMock, loadExportJson } from '../helpers/api-mocks';
-
 // Load real export data from warframe-public-export-plus (at module level)
 const worldState = loadMock('worldState.json');
 const dict = loadExportJson('dict.en.json');
@@ -18,6 +17,8 @@ const ExportBoosterPacks = loadExportJson('ExportBoosterPacks.json');
 const ExportBoosters = loadExportJson('ExportBoosters.json');
 
 beforeEach(() => {
+  loadScript('typestripped/src/calendar-seasons-data.js');
+
   // Set up globals needed by calendar-seasons.js
   (window as any).ExportImages = ExportImages;
 
@@ -30,7 +31,12 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  delete (window as any).SEASON_LABELS;
   delete (window as any).getSeasonLabel;
+  delete (window as any).resolveCalendarSeasonDays;
+  delete (window as any).buildItemMaps;
+  delete (window as any).formatSeasonDay;
+  delete (window as any).camelToWords;
   delete (window as any).renderCalendarSeasonPane;
   delete (window as any).updateCalendarSeason;
 });

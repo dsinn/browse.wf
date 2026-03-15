@@ -8,12 +8,15 @@ import { loadScript, mockBootstrapTooltip } from '../helpers/dom-helpers';
 import { loadMock } from '../helpers/api-mocks';
 
 beforeEach(() => {
+  loadScript('typestripped/src/descendia-data.js');
   // Known arenas render an emoji span with a Bootstrap tooltip.
   mockBootstrapTooltip();
   loadScript('typestripped/src/descendia.js');
 });
 
 afterEach(() => {
+  delete (window as any).resolveDescentChallenges;
+  delete (window as any).ARENA_EMOJI;
   delete (window as any).updateDescendia;
   delete (window as any).renderDescentChallenges;
 });

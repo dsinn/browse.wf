@@ -10,6 +10,14 @@
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function createExpiryBadge(expiry: number): HTMLSpanElement;
 
+// Provided by src/descendia-data.ts (loaded before this script in the browser)
+declare function resolveDescentChallenges(
+	descent: IDescent,
+	dict: Record<string, string>
+): IDescentChallengeRow[];
+
+// IDescentChallengeRow is defined in src/descendia-data.ts (includes typeLabel for display)
+
 interface IMongoDate {
 	$date: {
 		$numberLong: string;
@@ -90,26 +98,6 @@ function updateDescendia(): void
 	});
 }
 
-const ARENA_EMOJI: Record<string, string> = {
-	ArenaAvocado:            "🥑",
-	ArenaBagel:              "🥯",
-	ArenaCherry:             "🍒",
-	ArenaCoconut:            "🥥",
-	ArenaEggplant:           "🍆",
-	ArenaGrape:              "🍇",
-	ArenaMango:              "🥭",
-	ArenaMelon:              "🍈",
-	ArenaPeach:              "🍑",
-	ArenaWaffle:             "🧇",
-	BossArenaSmall:          "⛽︎",
-	BossArenaUriel:          "😈",
-	ProtoframeRoomHarrow:    "👲🏼",
-	ProtoframeRoomWisp:      "👰🏼‍♀️",
-	SpecialChallengeArena01: "🐴1",
-	SpecialChallengeArena02: "🐴2",
-	SpecialChallengeArena03: "🐴3",
-};
-
 /**
  * Renders the challenges of a given Descent into a <tbody> element.
  * Extracted from updateDescendia() so weekly-forecast can render any descent, not just the active one.
@@ -122,7 +110,7 @@ function renderDescentChallenges(descent: IDescent, dict: Record<string, string>
 {
 	const tbody = document.createElement("tbody");
 
-	for (const challenge of descent.Challenges)
+	for (const row of resolveDescentChallenges(descent, dict))
 	{
 		const tr = document.createElement("tr");
 
@@ -130,76 +118,54 @@ function renderDescentChallenges(descent: IDescent, dict: Record<string, string>
 		{
 			const td = document.createElement("td");
 			td.className = "text-center";
-			td.textContent = challenge.Index.toString();
+			td.textContent = row.index.toString();
 			tr.appendChild(td);
 		}
 
 		// Column 2: Mission Type
 		{
 			const td = document.createElement("td");
-			td.textContent = challenge.Type;
+			td.textContent = row.typeLabel;
 			tr.appendChild(td);
 		}
 
 		// Column 3: Challenge
 		{
 			const td = document.createElement("td");
-			td.textContent = dict[challenge.Challenge] || challenge.Challenge;
+			td.textContent = row.challenge;
 			tr.appendChild(td);
 		}
 
-		// Column 4: Arena (Level field — map known arenas to emoji with tooltip)
+		// Column 4: Arena (known arenas → emoji span with tooltip; unknown → plain text)
 		{
 			const td = document.createElement("td");
-			const arenaKey = challenge.Level.replace(/.*\//, "").replace(/\.level$/i, "");
-			const emoji = ARENA_EMOJI[arenaKey];
-			if (emoji)
+			if (row.arenaEmoji)
 			{
 				const span = document.createElement("span");
-				span.textContent = emoji;
+				span.textContent = row.arenaEmoji;
 				span.setAttribute("data-bs-toggle", "tooltip");
-				span.setAttribute("data-bs-title", arenaKey);
+				span.setAttribute("data-bs-title", row.arenaKey);
 				new window.bootstrap.Tooltip(span);
 				td.appendChild(span);
 			}
 			else
 			{
-				td.textContent = dict[challenge.Level] || arenaKey;
+				td.textContent = row.arenaFallback;
 			}
 			tr.appendChild(td);
 		}
 
-		// Column 5: Specs (array with fallback)
+		// Column 5: Specs
 		{
 			const td = document.createElement("td");
-			if (challenge.Specs && challenge.Specs.length > 0)
-			{
-				const specs = challenge.Specs.map(spec =>
-					dict[spec] || spec.replace(/.*\//, "")
-				);
-				td.textContent = specs.join(", ");
-			}
-			else
-			{
-				td.textContent = "-";
-			}
+			td.textContent = row.specs.length > 0 ? row.specs.join(", ") : "-";
 			tr.appendChild(td);
 		}
 
-		// Column 6: Auras (array with fallback)
+		// Column 6: Auras
 		{
 			const td = document.createElement("td");
-			if (challenge.Auras && challenge.Auras.length > 0)
-			{
-				const auras = challenge.Auras.map(aura =>
-					dict[aura] || aura.replace(/.*\//, "")
-				);
-				td.textContent = auras.join(", ");
-			}
-			else
-			{
-				td.textContent = "-";
-			}
+			td.textContent = row.auras.length > 0 ? row.auras.join(", ") : "-";
 			tr.appendChild(td);
 		}
 

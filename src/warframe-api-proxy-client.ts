@@ -1,17 +1,19 @@
 const DEFAULT_BASE_URL = "https://warframe-api-front-proxy.dsinn69.workers.dev";
 
 class WarframeApiFrontProxyClient {
-  private static async rawRequest(path: string): Promise<Response> {
+  private static async rawRequest(path: string, includeAuth = false): Promise<Response> {
     const baseUrl = (window as any).__ENV__?.WARFRAME_API_FRONT_PROXY_BASE_URL || DEFAULT_BASE_URL;
     const token = (window as any).__ENV__?.WARFRAME_API_FRONT_PROXY_TOKEN;
-    const getToken = (window as any).__getSupabaseAccessToken;
-    const accessToken = getToken ? await getToken() : null;
 
     const headers: Record<string, string> = {
       "X-Warframe-API-Front-Proxy-Token": token,
     };
-    if (accessToken) {
-      headers["Authorization"] = `Bearer ${accessToken}`;
+    if (includeAuth) {
+      const getToken = (window as any).__getSupabaseAccessToken;
+      const accessToken = getToken ? await getToken() : null;
+      if (accessToken) {
+        headers["Authorization"] = `Bearer ${accessToken}`;
+      }
     }
 
     return fetch(`${baseUrl}${path}`, { headers });
@@ -28,7 +30,8 @@ class WarframeApiFrontProxyClient {
 
   static async fetchProfile(platform: string, playerId: string): Promise<{ status: number; data: any; nextFetchAvailableAt: number | null }> {
     const response = await WarframeApiFrontProxyClient.rawRequest(
-      `/profile?platform=${encodeURIComponent(platform)}&playerId=${encodeURIComponent(playerId)}`
+      `/profile?platform=${encodeURIComponent(platform)}&playerId=${encodeURIComponent(playerId)}`,
+      true
     );
     if (!response.ok) {
       const retryAfter = response.headers.get("Retry-After");

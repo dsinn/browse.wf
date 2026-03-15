@@ -86,6 +86,20 @@ describe('WarframeApiFrontProxyClient.fetchWorldState', () => {
 
     it.todo('falls back to the default URL when WARFRAME_API_FRONT_PROXY_BASE_URL is empty string');
   });
+
+  it('never sends Authorization header even when __getSupabaseAccessToken returns a token', async () => {
+    (window as any).__getSupabaseAccessToken = vi.fn().mockResolvedValue('supabase-jwt-token');
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(MOCK_WORLD_STATE),
+    } as Response);
+
+    await (window as any).WarframeApiFrontProxyClient.fetchWorldState();
+
+    const callHeaders = (fetch as any).mock.calls[0][1].headers;
+    expect(callHeaders).not.toHaveProperty('Authorization');
+  });
 });
 
 describe('WarframeApiFrontProxyClient.fetchProfile', () => {

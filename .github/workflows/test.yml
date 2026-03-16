@@ -33,8 +33,6 @@ jobs:
           node-version: 24
           cache: npm
       - &setup-php
-        # TODO: Check for a Node.js 24 release and add FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true (or bump version)
-        # https://github.com/shivammathur/setup-php/releases
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
@@ -59,7 +57,7 @@ jobs:
       - name: Compile TypeScript
         run: npm exec tsc
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
@@ -76,7 +74,7 @@ jobs:
           VITE_DATABASE_ANON_KEY: placeholder-anon-key
       - name: Upload test results
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-results
           path: |

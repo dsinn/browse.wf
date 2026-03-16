@@ -6,6 +6,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    # peaceiris/actions-gh-pages@v4 still runs on Node.js 20
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout code
@@ -17,8 +20,6 @@ jobs:
           node-version: '24'
           cache: npm
 
-      # TODO: Check for a Node.js 24 release and add FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true (or bump version)
-      # https://github.com/shivammathur/setup-php/releases
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -37,8 +38,6 @@ jobs:
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
-        env:
-          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./dist

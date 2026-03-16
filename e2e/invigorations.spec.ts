@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { setupMockRoutes } from './helpers/api-mocks';
-import { ENTRY_MAG_VOLT_EXCALIBUR } from '../test/invigorations/cache-fixtures';
+import { ENTRY_MAG_VOLT_EXCALIBUR, ENTRY_RHINO_FROST_LOKI_PEEK } from '../test/invigorations/cache-fixtures';
 
 /**
  * E2E tests for Invigorations Page (/invigorations.php)
@@ -152,6 +152,30 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
 
     // Note: We don't check the exact values in selects due to timing issues with inventory loading
     // The important assertion is that cache alert is hidden, proving inventory takes precedence
+  });
+
+  test('pre-fills form with response suits when current-week cache has peek data', async ({ page }) => {
+    // Scenario: user peeked last week (saving data to currentWeek slot now that the week rolled over).
+    // The request.s contains last week's suits; response.suits contains this week's offerings.
+    // The form should be pre-filled with response.suits so the user can immediately peek at next week.
+    const mockCache = {
+      [CURRENT_WEEK]: ENTRY_RHINO_FROST_LOKI_PEEK
+    };
+
+    await page.evaluate((cache) => {
+      localStorage.setItem('invigorations.cache', JSON.stringify(cache));
+    }, mockCache);
+
+    await page.reload();
+    await page.waitForFunction(() => {
+      const select = document.querySelector('.suit-select');
+      return select && select.options.length > 1;
+    }, { timeout: 30000 });
+
+    const selects = page.locator('.suit-select');
+    await expect(selects.nth(0)).toHaveValue(ENTRY_RHINO_FROST_LOKI_PEEK.response.suits[0]);
+    await expect(selects.nth(1)).toHaveValue(ENTRY_RHINO_FROST_LOKI_PEEK.response.suits[1]);
+    await expect(selects.nth(2)).toHaveValue(ENTRY_RHINO_FROST_LOKI_PEEK.response.suits[2]);
   });
 
   test('new submission updates cache in localStorage', async ({ page }) => {

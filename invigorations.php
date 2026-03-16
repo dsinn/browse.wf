@@ -168,7 +168,8 @@
 				else if (currentWeekData)
 				{
 					// Current week data exists - we have results, so peek=true
-					preFillForm(currentWeekData.request.n, true, currentWeekData.request.s);
+					// Use response suits: this week's offerings are the output of last week's peek request
+					preFillForm(currentWeekData.request.n, true, currentWeekData.response.suits);
 
 					// Force p=false: data saved as "next week" last week is now this week's data
 					showResults(currentWeekData.response, { ...currentWeekData.request, p: false });

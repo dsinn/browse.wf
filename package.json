@@ -14,7 +14,7 @@
     "render-fixtures": "node test/helpers/render-php.js",
     "render-fixtures:watch": "node test/helpers/render-php.js --watch",
     "build": "node build-gh-pages.js",
-    "post-weekly-forecast": "node --env-file=.env scripts/post-weekly-forecast.js"
+    "post-weekly-forecast": "node --env-file-if-exists=.env scripts/post-weekly-forecast.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

@@ -705,6 +705,7 @@ function updateWeekly()
 	// worldState must be available before calling this
 	if (!window.worldState?.Conquests) {
 		console.error("worldState.Conquests not available for updateWeekly");
+		setTimeout(updateWeekly, STALE_DATA_RETRY_MS);
 		return;
 	}
 
@@ -744,6 +745,7 @@ function updateWeekly()
 
 		weeklyExpiry = newWeeklyExpiry;
 		updateWeeklyLocalised();
+		setTimeout(updateWeekly, newWeeklyExpiry - Date.now());
 	}).catch(e =>
 	{
 		console.error(e);
@@ -1032,8 +1034,10 @@ async function updateSorties()
 		sendNotification("A new sortie is available.");
 	}
 	window.last_sortie = sortie._id.$oid;
+	setTimeout(updateSorties, parseInt(sortie.Expiry.$date.$numberLong) - Date.now());
 
 	const litesortie = window.worldState.LiteSorties.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
+	if (!litesortie) return;
 	setDatum("litesortie-header", osdict["/Lotus/Language/WorldStateWindow/LiteSortieMissionName"], parseInt(litesortie.Expiry.$date.$numberLong));
 	document.getElementById("litesortie-header").innerHTML += " ";
 	document.getElementById("litesortie-header").appendChild(createCompletionToggle(litesortie._id.$oid));
@@ -1048,13 +1052,13 @@ async function updateSorties()
 	document.getElementById("litesortie-body").innerHTML = "";
 	document.getElementById("litesortie-body").appendChild(span);
 	document.getElementById("litesortie-body").innerHTML += " • " + mission_names.join(", ");
-	setTimeout(updateSorties, parseInt(sortie.Expiry.$date.$numberLong) - Date.now());
 }
 
 async function updateDarvosDeal()
 {
 	window.dailyDeal = window.worldState.DailyDeals.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
 	if (!window.dailyDeal) { setTimeout(updateDarvosDeal, STALE_DATA_RETRY_MS); return; }
+	setTimeout(updateDarvosDeal, parseInt(window.dailyDeal.Expiry.$date.$numberLong) - Date.now());
 	setDatum("darvo-header", "Darvo's Deal", parseInt(window.dailyDeal.Expiry.$date.$numberLong));
 	const item_data = await getItemDataPromise(window.dailyDeal.StoreItem);
 	await dicts_promise;
@@ -1073,13 +1077,16 @@ async function updateDarvosDeal()
 		sendNotification("Darvo sells " + dict[item_data.name] + " for " + window.dailyDeal.SalePrice + " Platinum today.");
 	}
 	window.last_darvo_deal = window.dailyDeal.Activation.$date.$numberLong;
-	setTimeout(updateDarvosDeal, parseInt(window.dailyDeal.Expiry.$date.$numberLong) - Date.now());
 }
 
 async function updateBaro()
 {
 	await dicts_promise;
 	await ExportRegions_promise;
+	const baroNext = window.worldState.VoidTraders[0].Manifest
+		? parseInt(window.worldState.VoidTraders[0].Expiry.$date.$numberLong)
+		: parseInt(window.worldState.VoidTraders[0].Activation.$date.$numberLong);
+	setTimeout(updateBaro, baroNext - Date.now());
 	document.querySelectorAll(".baro-where").forEach(x => x.textContent = dict[ExportRegions[window.worldState.VoidTraders[0].Node].name] + ", " + dict[ExportRegions[window.worldState.VoidTraders[0].Node].systemName]);
 	if (window.worldState.VoidTraders[0].Manifest)
 	{
@@ -1157,10 +1164,6 @@ async function updateBaro()
 
 		window.last_baro_expiry = "69";
 	}
-	const baroNext = window.worldState.VoidTraders[0].Manifest
-		? parseInt(window.worldState.VoidTraders[0].Expiry.$date.$numberLong)
-		: parseInt(window.worldState.VoidTraders[0].Activation.$date.$numberLong);
-	setTimeout(updateBaro, baroNext - Date.now());
 }
 
 async function updateAlerts(forceRender = false)

@@ -61,7 +61,7 @@ export class StorageSyncService {
   private reconnectAttempts = 0  // Track reconnection attempts for exponential backoff
   private reconnectTimer: number | null = null  // Timer for reconnection attempts
   private currentUserId: string | null = null  // Track current user UUID for reconnection
-  private lastKnownFreshDataTimestamp: number | null = null  // Track when connection was last healthy (heartbeat)
+  private lastKnownFreshDataTimestamp: number | null = null  // Track when local data was last known fresh
 
   // localStorage key patterns
   private static readonly LOCAL_ONLY_KEY_REGEX = /^sb-.*-auth-token$/  // Supabase auth token - never sync to cloud
@@ -69,10 +69,12 @@ export class StorageSyncService {
   private static readonly DEBOUNCE_MS = 5000  // 5 seconds - aggressive batching for long-lived tabs
   private static readonly HEARTBEAT_INTERVAL_MS = 5000
   private static readonly QUICK_RECONNECT_THRESHOLD_MS = 10000  // Must be greater than HEARTBEAT_INTERVAL_MS
+  private static readonly VISIBILITY_PULL_THROTTLE_MS = 60000  // Minimum interval between visibility-triggered pulls
 
   private constructor() {
     if (isDatabaseConfigured()) {
       this.startHeartbeat()
+      this.startVisibilityPullFallback()
     }
   }
 
@@ -333,6 +335,39 @@ export class StorageSyncService {
         logger.debug('💓 Heartbeat: Connection healthy')
       }
     }, StorageSyncService.HEARTBEAT_INTERVAL_MS)
+  }
+
+  /**
+   * Pull fresh data when tab becomes visible and WebSocket is unhealthy.
+   * Handles the case where the WebSocket can't reconnect (e.g., extended
+   * connectivity issues) so completion checkboxes and other synced state
+   * still get refreshed when the user returns to the tab.
+   */
+  private startVisibilityPullFallback() {
+    document.addEventListener('visibilitychange', async () => {
+      // Throttle to once per minute to avoid excessive requests when flipping tabs
+      const timeSinceLastFreshMs = this.lastKnownFreshDataTimestamp
+        ? Date.now() - this.lastKnownFreshDataTimestamp
+        : Infinity
+
+      if (document.hidden
+        || !this.currentUserId
+        || this.syncing
+        || this.realtimeChannel?.state === 'joined'  // WebSocket is healthy
+        || timeSinceLastFreshMs < StorageSyncService.VISIBILITY_PULL_THROTTLE_MS
+      ) return
+
+      try {
+        this.syncing = true
+        await this.pullFromDatabase(this.currentUserId)
+        this.lastKnownFreshDataTimestamp = Date.now()
+        logger.log('☁️➡️💻 Synced data from cloud (visibility fallback)')
+      } catch (error) {
+        logger.debug('⚠️ Visibility pull fallback failed:', error)
+      } finally {
+        this.syncing = false
+      }
+    })
   }
 
   /**

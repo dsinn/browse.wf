@@ -175,7 +175,7 @@ async function updateInvasions(): Promise<void>
 			// td: reward
 			{
 				const td = document.createElement("td");
-				td.textContent = row1Item.ItemCount + "x " + await (window as any).getItemNamePromise(row1Item.ItemType);
+				td.textContent = (row1Item.ItemCount > 1 ? row1Item.ItemCount + "x " : "") + await (window as any).getItemNamePromise(row1Item.ItemType);
 				tr.appendChild(td);
 			}
 
@@ -218,7 +218,7 @@ async function updateInvasions(): Promise<void>
 			// td: defender reward
 			{
 				const td = document.createElement("td");
-				td.textContent = defenderItem.ItemCount + "x " + await (window as any).getItemNamePromise(defenderItem.ItemType);
+				td.textContent = (defenderItem.ItemCount > 1 ? defenderItem.ItemCount + "x " : "") + await (window as any).getItemNamePromise(defenderItem.ItemType);
 				tr.appendChild(td);
 			}
 

@@ -190,6 +190,37 @@ describe('Invasions - updateInvasions DOM rendering', () => {
     expect(img.getAttribute('data-bs-title')).toBe('Assassination (Phorid)');
   });
 
+  test('reward text omits "1x" prefix when ItemCount is 1', async () => {
+    // worldState-invasions.json has ItemCount: 1 for all rewards
+    await (window as any).updateInvasions();
+    const rewardCells = Array.from(document.querySelectorAll('#invasions-table tbody tr:not(.d-none) td:nth-child(3)'));
+    expect(rewardCells.length).toBeGreaterThan(0);
+    for (const td of rewardCells) {
+      expect(td.textContent).not.toMatch(/^\d+x /);
+    }
+  });
+
+  test('reward text shows count prefix when ItemCount is greater than 1', async () => {
+    window.worldState.Invasions = [{
+      _id: { $oid: 'aabbccddeeff001122334456' },
+      Node: 'SolNode181',
+      Completed: false,
+      Count: -15000,
+      Goal: 33000,
+      Faction: 'FC_CORPUS',
+      DefenderFaction: 'FC_GRINEER',
+      Activation: { $date: { $numberLong: '1767898807628' } },
+      AttackerReward: { countedItems: [{ ItemType: '/Lotus/Types/Items/Research/EnergyComponent', ItemCount: 3 }] },
+      DefenderReward: { countedItems: [{ ItemType: '/Lotus/Types/Items/Research/ChemComponent', ItemCount: 3 }] },
+    }];
+    await (window as any).updateInvasions();
+    const rewardCells = Array.from(document.querySelectorAll('#invasions-table tbody tr:not(.d-none) td:nth-child(3)'));
+    expect(rewardCells.length).toBeGreaterThan(0);
+    for (const td of rewardCells) {
+      expect(td.textContent).toMatch(/^3x /);
+    }
+  });
+
   test('when both rewards are filtered out, renders "no invasions" message', async () => {
     localStorage.setItem('live.filter.invasions.reward-SnipetronVandal', '0');
     localStorage.setItem('live.filter.invasions.reward-KarakWraith', '0');

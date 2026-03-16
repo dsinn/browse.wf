@@ -7,8 +7,6 @@ This project uses two complementary testing approaches:
 
 **Quick Links:**
 - [Playwright Documentation](https://playwright.dev/docs/intro) - E2E testing reference
-- [Quick Start Guide](QUICK_START.md) - Vitest quick reference
-- [Test Coverage Summary](SUMMARY.md) - Detailed coverage information
 
 ## Setup
 
@@ -110,8 +108,6 @@ test/
 ├── api-validation.test.ts # API structure validation (run weekly)
 ├── safeguards.test.ts     # Production domain blocking tests
 ├── README.md              # This file
-├── SUMMARY.md             # Test coverage details
-├── QUICK_START.md         # Quick reference
 └── update-mocks.sh        # Refresh mock data script
 
 e2e/                        # E2E tests (Playwright)
@@ -200,6 +196,46 @@ await page.route('**/oracle.browse.wf/new-endpoint', route => {
 
 **For upstream code** (`live.ts`, `index.ts`): Don't test behavior in unit tests - test integration points only. Use E2E tests for full behavior verification.
 
+## Shared Helper Utilities
+
+### `helpers/api-mocks.ts`
+- `loadMock(filename)` - Load mock data from files
+- `setupMockFetch()` - Mock all API endpoints
+- `mockEndpoint(url, data)` - Mock specific endpoint
+- `mockEndpointError(url, status)` - Mock failed response
+
+### `helpers/fixture-loader.ts`
+- `loadFixture(name)` - Load pre-rendered PHP HTML for tests
+- Fixtures auto-regenerate via `global-setup.ts`
+
+### `helpers/dom-helpers.ts`
+- `mockBootstrapTooltip()` - Mock Bootstrap tooltip for testing
+- `getById<T>(id)` - Type-safe element query
+- `elementExists(id)` - Check element presence
+
+### `helpers/render-php.js`
+- Renders PHP to HTML fixtures (runs automatically before tests)
+- Uses shared `/helpers/php-server.js` module (also used by build script)
+
+### `helpers/time-helpers.ts`
+- `freezeTime(timestamp)` - Freeze time for tests
+- `advanceTime(ms)` - Move frozen time forward
+- `MOCK_TIMESTAMP` - Constant for mock data time
+
+## Adding New Tests
+
+### Adding New Card Tests
+1. Create `test/live/cards/my-card.test.ts`
+2. Import helpers: `loadMock`, `getById`
+3. Write tests following existing patterns
+4. Tests automatically run with suite
+
+### Adding Integration Tests
+1. Create `test/live/integration/feature.test.ts`
+2. Import helpers: `getById`
+3. Simulate user actions (clicks, input)
+4. Verify DOM updates correctly
+
 ## Updating Mock Data
 
 To refresh mock data with current game state:
@@ -208,6 +244,17 @@ To refresh mock data with current game state:
 ```
 
 This updates all mock files including the dictionary file (`dicts/en.json`), which contains game text translations used by E2E tests to properly display item names, mission types, and other localized content.
+
+**Warning:** Mock data is tied to the world state at capture time. A full replacement will break tests expecting specific values.
+
+Recommended approach:
+1. Run `./test/update-mocks.sh` to fetch current data
+2. Copy only the data you need from the new mocks
+3. Revert the changes (`git checkout -- test/__mocks__/`)
+4. Paste the copied data into the appropriate place
+5. Run `npm test` to verify
+
+Alternatively, update all test expectations to match the new data, and update the capture date in the `__mocks__` directory comment above.
 
 ## CI/CD Integration
 

@@ -9,39 +9,56 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 ### For Warframe players
 
 - **Cloud sync**: Discord authentication with a database backend for backing up preferences and syncing across devices
-- **Custom Arby's timers**: Set custom countdown timers on the arbitration schedule page
 - **Navbar customization**: Optional setting to unfix the navbar
 
 #### Live page
 
 - **Widget filters**: Configurable filter panels to selectively display content; for example:
   - News: Filters for red text, community events, and regular events
-  - Bounties: Filter by tier for each syndicate
-  - Steel Path incursions: Filter by mission type
+  - Bounties: Filter by tier for each syndicate; checkboxes to track completion with a badge showing the count
+  - Steel Path incursions: Filter by mission type, with tileset tooltips on mission type icons
   - Void fissures: Filter by tier/era and mission type
   - Weekly missions: Filter by Archon Hunt, Ayatan Hunt, Elite Archimedia, and Netracells
-  - Invasions: Option to hide randomized mission types
+  - Invasions: Filter by reward item
+- **Checkbox linking**: Checking/unchecking a Netracell or Narmer bounty box propagates to adjacent boxes; checking an Archimedea box auto-checks two Netracell boxes
+- **News card**: Styling that more closely resembles the in-game UI
 - **Improved void fissures UI**: Enhanced layout, sorted by expiry for each relic tier/era
-- **Enhanced invasion info**: Populated with and sorted by progress data
+- **Enhanced invasion info**: Populated with and sorted by progress data; mission type icons replacing the unreliable dynamic mission type column
 - **Sortie locations**: Mission locations now displayed in the Sortie card
+- **1999 calendar card**: Displays the current 1999 calendar rotation
 - **Descendia card**: Experimental Descendia rotation display
 - **Notification icons**: Bells now use a colour/fill pattern (coloured when enabled, grayscale when disabled) instead of bell/bell-slash icons, matching more modern UX patterns.
 - **Cross-platform UI**: System-independent checkbox styling
 
+#### Arbitrations page
+
+- **Custom timers**: Set custom countdown timers on the arbitration schedule page
+- **Tileset filters**: Filter arbitration missions by tileset
+- **2-week schedule view**: Shows the next two weeks by default
+- **Save/load settings**: Persist and restore page settings
+
 #### Other pages
 
 - **Profile viewer**:
-  - Guided workflow with step-by-step instructions for retrieving profile data
+  - Logged-in users can fetch their profile with a single click via the front proxy
+  - Guided workflow with step-by-step instructions for retrieving profile data manually
   - Account ID extraction from EE.log file
-  - Sortable tables on stats tab
-  - Mission completion percentages displayed alongside absolute counts
+  - Sortable tables on stats tab with category filters, rank column, and usage percentages
+  - Percentage calculations for various stats (mission completion/failure/quit rates, cipher rates, etc.)
   - Increased precision for cipher completion times
+  - Playtime tooltip with expanded time duration string
+- **Weekly forecast**: Dedicated page (`/weekly-forecast`) showing the upcoming week's mission rotation
 - **Invigorations**: Response caching so that info is preserved on refresh and next week
 
 ### For developers
 
 - **GitHub Pages deployment**: Automated workflow for deploying static builds to GitHub Pages
+- **Vite dev server**: Replaced `php-ts-dev` with Vite for local development; fixes quirks mode issues and broken tooltips, and hot reload ignores test file changes
 - **Automated testing**: Vitest and Playwright test infrastructure (mainly for the `/live` page so far)
+- **Event-driven live page updates**: Replaced 500ms polling loops with longer intervals, timeouts, and event listeners; also consolidated `/invasions` and `/min` API calls into `worldState`
+- **Lazy-loaded images**: Images load on demand rather than all at page load
+- **Profile rate limiting**: Front proxy enforces a 23-hour per-user rate limit on profile fetch requests for logged-in users
+- **Weekly forecast Discord script**: Script for posting weekly forecast summaries to a Discord webhook; runs automatically via GitHub Actions ~1 hour before the weekly reset
 
 ## Tech Stack
 

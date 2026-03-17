@@ -1,13 +1,8 @@
-import { describe, it, expect, beforeEach } from 'vitest'
-import { loadScript } from '../helpers/dom-helpers'
+import { describe, it, expect } from 'vitest'
+import { getTileset, formatTileset } from '../../src/tileset-helpers'
 import type { IRegion } from 'warframe-public-export-plus'
 
 describe('tileset-helpers', () => {
-  beforeEach(() => {
-    // Load the actual compiled production code
-    loadScript('typestripped/src/tileset-helpers.js')
-  })
-
   describe('getTileset', () => {
     it('should return tileset when node has tileset data', () => {
       const node: Partial<IRegion> = {
@@ -25,7 +20,7 @@ describe('tileset-helpers', () => {
         masteryExp: 0
       }
 
-      expect((window as any).getTileset(node as IRegion)).toBe('GrineerAsteroidTileset')
+      expect(getTileset(node as IRegion)).toBe('GrineerAsteroidTileset')
     })
 
     it('should return hardcoded tileset for SolNode94', () => {
@@ -44,7 +39,7 @@ describe('tileset-helpers', () => {
         masteryExp: 0
       }
 
-      expect((window as any).getTileset(node as IRegion, 'SolNode94')).toBe('GrineerGalleonTileset')
+      expect(getTileset(node as IRegion, 'SolNode94')).toBe('GrineerGalleonTileset')
     })
 
     it('should return undefined for nodes without tileset and no fallback', () => {
@@ -62,33 +57,33 @@ describe('tileset-helpers', () => {
         masteryExp: 0
       }
 
-      expect((window as any).getTileset(node as IRegion, 'SolNode99')).toBeUndefined()
+      expect(getTileset(node as IRegion, 'SolNode99')).toBeUndefined()
     })
   })
 
   describe('formatTileset', () => {
     it('should format tileset', () => {
-      expect((window as any).formatTileset('GrineerAsteroidTileset')).toBe('Grineer Asteroid')
-      expect((window as any).formatTileset('CorpusShipTileset')).toBe('Corpus Ship')
-      expect((window as any).formatTileset('OrokinVoidTileset')).toBe('Orokin Void')
-      expect((window as any).formatTileset('OrokinMoonTilesetGrineer')).toBe('Orokin Moon Grineer')
-      expect((window as any).formatTileset('GrineerOceanTilesetAnywhere')).toBe('Grineer Ocean Anywhere')
-      expect((window as any).formatTileset('CorpusIcePlanetTilesetCaves')).toBe('Corpus Ice Planet Caves')
+      expect(formatTileset('GrineerAsteroidTileset')).toBe('Grineer Asteroid')
+      expect(formatTileset('CorpusShipTileset')).toBe('Corpus Ship')
+      expect(formatTileset('OrokinVoidTileset')).toBe('Orokin Void')
+      expect(formatTileset('OrokinMoonTilesetGrineer')).toBe('Orokin Moon Grineer')
+      expect(formatTileset('GrineerOceanTilesetAnywhere')).toBe('Grineer Ocean Anywhere')
+      expect(formatTileset('CorpusIcePlanetTilesetCaves')).toBe('Corpus Ice Planet Caves')
     })
 
     it('should convert PascalCase to Title Case', () => {
-      expect((window as any).formatTileset('CorpusGasCityTileset')).toBe('Corpus Gas City')
-      expect((window as any).formatTileset('CorpusIcePlanetCavesTileset')).toBe('Corpus Ice Planet Caves')
-      expect((window as any).formatTileset('GrineerShipyardsTileset')).toBe('Grineer Shipyards')
+      expect(formatTileset('CorpusGasCityTileset')).toBe('Corpus Gas City')
+      expect(formatTileset('CorpusIcePlanetCavesTileset')).toBe('Corpus Ice Planet Caves')
+      expect(formatTileset('GrineerShipyardsTileset')).toBe('Grineer Shipyards')
     })
 
     it('should handle undefined input', () => {
-      expect((window as any).formatTileset(undefined)).toBe('')
+      expect(formatTileset(undefined)).toBe('')
     })
 
     it('should handle single-word tilesets', () => {
-      expect((window as any).formatTileset('EntratiTileset')).toBe('Entrati')
-      expect((window as any).formatTileset('ZarimanTileset')).toBe('Zariman')
+      expect(formatTileset('EntratiTileset')).toBe('Entrati')
+      expect(formatTileset('ZarimanTileset')).toBe('Zariman')
     })
   })
 })

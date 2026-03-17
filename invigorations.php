@@ -74,7 +74,6 @@
 		</div>
 	</div>
 	<?php require "components/commonjs.html"; ?>
-	<script src="typestripped/src/invigorations.js"></script>
 	<script>
 		Promise.all([
 			getDictPromise(),

@@ -49,7 +49,7 @@ function autocheckLinkedBoxes(el: HTMLElement, nowChecked: boolean): void {
     }
 }
 
-function applyCheckboxLinking(el: HTMLElement, nowChecked: boolean): void {
+export function applyCheckboxLinking(el: HTMLElement, nowChecked: boolean): void {
     applySequentialGroup(el, nowChecked);
     autocheckLinkedBoxes(el, nowChecked);
 }

@@ -1,10 +1,10 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { loadScript } from '../helpers/dom-helpers';
 import {
 	ENTRY_MAG_VOLT_EXCALIBUR,
 	ENTRY_RHINO_FROST_LOKI_PEEK,
 	ENTRY_RHINO_FROST_LOKI,
 } from './cache-fixtures';
+import { getWeekIndex, loadCache, saveToCache, preFillForm, showResults, showHistory } from '../../src/invigorations';
 
 type InvigorationCacheEntry = typeof ENTRY_MAG_VOLT_EXCALIBUR;
 type InvigorationCache = Record<number, InvigorationCacheEntry>;
@@ -12,9 +12,8 @@ type InvigorationCache = Record<number, InvigorationCacheEntry>;
 let CURRENT_WEEK: number;
 
 beforeEach(() => {
-	loadScript('typestripped/src/invigorations.js');
 	// Derived from production code — if the offset formula changes, this follows automatically
-	CURRENT_WEEK = (window as any).getWeekIndex(Date.now());
+	CURRENT_WEEK = getWeekIndex(Date.now());
 });
 
 // Minimal DOM stub for showResults
@@ -60,17 +59,17 @@ function makeHistoryDOM() {
 describe('getWeekIndex()', () => {
 	test('increments by 1 per week', () => {
 		const oneWeek = 7 * 24 * 60 * 60 * 1000;
-		expect((window as any).getWeekIndex(Date.now() + oneWeek)).toBe(CURRENT_WEEK + 1);
-		expect((window as any).getWeekIndex(Date.now() + 2 * oneWeek)).toBe(CURRENT_WEEK + 2);
+		expect(getWeekIndex(Date.now() + oneWeek)).toBe(CURRENT_WEEK + 1);
+		expect(getWeekIndex(Date.now() + 2 * oneWeek)).toBe(CURRENT_WEEK + 2);
 	});
 
 	test('known timestamps', () => {
-		expect((window as any).getWeekIndex(Date.UTC(2026, 1, 7))).toBe(625);
-		expect((window as any).getWeekIndex(Date.UTC(2026, 1, 14))).toBe(626);
+		expect(getWeekIndex(Date.UTC(2026, 1, 7))).toBe(625);
+		expect(getWeekIndex(Date.UTC(2026, 1, 14))).toBe(626);
 	});
 
 	test('returns -1 for one week before Warframe epoch', () => {
-		expect((window as any).getWeekIndex((1391990400 - 604800) * 1000)).toBe(-1);
+		expect(getWeekIndex((1391990400 - 604800) * 1000)).toBe(-1);
 	});
 });
 
@@ -78,25 +77,25 @@ describe('loadCache()', () => {
 	beforeEach(() => localStorage.clear());
 
 	test('returns {} when nothing stored', () => {
-		expect((window as any).loadCache()).toEqual({});
+		expect(loadCache()).toEqual({});
 	});
 
 	test('returns {} for invalid JSON', () => {
 		localStorage.setItem('invigorations.cache', 'not-json');
-		expect((window as any).loadCache()).toEqual({});
+		expect(loadCache()).toEqual({});
 	});
 
 	test('returns {} for non-object values', () => {
 		localStorage.setItem('invigorations.cache', JSON.stringify([1, 2, 3]));
-		expect((window as any).loadCache()).toEqual({});
+		expect(loadCache()).toEqual({});
 		localStorage.setItem('invigorations.cache', JSON.stringify(null));
-		expect((window as any).loadCache()).toEqual({});
+		expect(loadCache()).toEqual({});
 	});
 
 	test('round-trips cache data', () => {
 		const cache: InvigorationCache = { [CURRENT_WEEK]: ENTRY_MAG_VOLT_EXCALIBUR };
 		localStorage.setItem('invigorations.cache', JSON.stringify(cache));
-		expect((window as any).loadCache()[CURRENT_WEEK]).toEqual(ENTRY_MAG_VOLT_EXCALIBUR);
+		expect(loadCache()[CURRENT_WEEK]).toEqual(ENTRY_MAG_VOLT_EXCALIBUR);
 	});
 });
 
@@ -104,15 +103,15 @@ describe('saveToCache()', () => {
 	beforeEach(() => localStorage.clear());
 
 	test('peek=false saves at currentWeek', () => {
-		(window as any).saveToCache(ENTRY_MAG_VOLT_EXCALIBUR.request, ENTRY_MAG_VOLT_EXCALIBUR.response);
-		const cache = (window as any).loadCache();
+		saveToCache(ENTRY_MAG_VOLT_EXCALIBUR.request, ENTRY_MAG_VOLT_EXCALIBUR.response);
+		const cache = loadCache();
 		expect(cache[CURRENT_WEEK]).toBeDefined();
 		expect(cache[CURRENT_WEEK + 1]).toBeUndefined();
 	});
 
 	test('peek=true saves at currentWeek+1', () => {
-		(window as any).saveToCache(ENTRY_RHINO_FROST_LOKI_PEEK.request, ENTRY_RHINO_FROST_LOKI_PEEK.response);
-		const cache = (window as any).loadCache();
+		saveToCache(ENTRY_RHINO_FROST_LOKI_PEEK.request, ENTRY_RHINO_FROST_LOKI_PEEK.response);
+		const cache = loadCache();
 		expect(cache[CURRENT_WEEK]).toBeUndefined();
 		expect(cache[CURRENT_WEEK + 1]).toBeDefined();
 	});
@@ -125,8 +124,8 @@ describe('saveToCache()', () => {
 		};
 		localStorage.setItem('invigorations.cache', JSON.stringify(staleCache));
 
-		(window as any).saveToCache(ENTRY_MAG_VOLT_EXCALIBUR.request, ENTRY_MAG_VOLT_EXCALIBUR.response);
-		const cache = (window as any).loadCache();
+		saveToCache(ENTRY_MAG_VOLT_EXCALIBUR.request, ENTRY_MAG_VOLT_EXCALIBUR.response);
+		const cache = loadCache();
 
 		expect(cache[CURRENT_WEEK - 3]).toBeUndefined();
 		expect(cache[CURRENT_WEEK - 2]).toBeUndefined();
@@ -137,7 +136,7 @@ describe('saveToCache()', () => {
 	test('calls triggerCloudSync if available', () => {
 		const mockSync = vi.fn();
 		(window as any).triggerCloudSync = mockSync;
-		(window as any).saveToCache(ENTRY_MAG_VOLT_EXCALIBUR.request, ENTRY_MAG_VOLT_EXCALIBUR.response);
+		saveToCache(ENTRY_MAG_VOLT_EXCALIBUR.request, ENTRY_MAG_VOLT_EXCALIBUR.response);
 		expect(mockSync).toHaveBeenCalledOnce();
 		delete (window as any).triggerCloudSync;
 	});
@@ -160,24 +159,24 @@ describe('preFillForm()', () => {
 	});
 
 	test('sets username', () => {
-		(window as any).preFillForm('MyUser', false, []);
+		preFillForm('MyUser', false, []);
 		expect((document.getElementById('username') as HTMLInputElement).value).toBe('MyUser');
 	});
 
 	test('sets peek=true and updates header', () => {
-		(window as any).preFillForm('u', true, []);
+		preFillForm('u', true, []);
 		expect((document.getElementById('peek') as HTMLInputElement).checked).toBe(true);
 		expect(document.getElementById('input-header')!.textContent).toBe('Current Offerings');
 	});
 
 	test('sets peek=false and updates header', () => {
-		(window as any).preFillForm('u', false, []);
+		preFillForm('u', false, []);
 		expect((document.getElementById('peek') as HTMLInputElement).checked).toBe(false);
 		expect(document.getElementById('input-header')!.textContent).toBe('Previous Offerings');
 	});
 
 	test('sets suit selects', () => {
-		(window as any).preFillForm('u', false, ['SuitA', 'SuitB', 'SuitC']);
+		preFillForm('u', false, ['SuitA', 'SuitB', 'SuitC']);
 		const selects = document.querySelectorAll<HTMLSelectElement>('.suit-select');
 		expect(selects[0].value).toBe('SuitA');
 		expect(selects[1].value).toBe('SuitB');
@@ -185,7 +184,7 @@ describe('preFillForm()', () => {
 	});
 
 	test('handles empty suits array', () => {
-		(window as any).preFillForm('u', false, []);
+		preFillForm('u', false, []);
 		const selects = document.querySelectorAll<HTMLSelectElement>('.suit-select');
 		expect(selects[0].value).toBe('---');
 		expect(selects[1].value).toBe('---');
@@ -199,17 +198,17 @@ describe('showResults()', () => {
 	const response = ENTRY_RHINO_FROST_LOKI_PEEK.response;
 
 	test('shows results div', () => {
-		(window as any).showResults(response, { n: 'TestUser', s: response.suits, p: false });
+		showResults(response, { n: 'TestUser', s: response.suits, p: false });
 		expect(document.getElementById('results')!.classList.contains('d-none')).toBe(false);
 	});
 
 	test('heading is "Current Offerings" when p=false', () => {
-		(window as any).showResults(response, { n: 'TestUser', s: response.suits, p: false });
+		showResults(response, { n: 'TestUser', s: response.suits, p: false });
 		expect(document.querySelector('#results h4')!.textContent).toBe('Current Offerings');
 	});
 
 	test('heading is "Next Week\'s Offerings" when p=true', () => {
-		(window as any).showResults(response, { n: 'TestUser', s: response.suits, p: true });
+		showResults(response, { n: 'TestUser', s: response.suits, p: true });
 		expect(document.querySelector('#results h4')!.textContent).toBe("Next Week's Offerings");
 	});
 
@@ -217,33 +216,33 @@ describe('showResults()', () => {
 		// Bug scenario: data saved as peek=true last week is now this week's data.
 		// Caller passes { ...request, p: false } to override before calling showResults.
 		const originalRequest = { n: 'TestUser', s: response.suits, p: true };
-		(window as any).showResults(response, { ...originalRequest, p: false });
+		showResults(response, { ...originalRequest, p: false });
 		expect(document.querySelector('#results h4')!.textContent).toBe('Current Offerings');
 	});
 
 	test('shows explain-noprev when request suits length differs from response', () => {
-		(window as any).showResults(response, { n: 'TestUser', s: [], p: false });
+		showResults(response, { n: 'TestUser', s: [], p: false });
 		expect(document.getElementById('explain-noprev')!.classList.contains('d-none')).toBe(false);
 		expect(document.getElementById('explain-current')!.classList.contains('d-none')).toBe(true);
 		expect(document.getElementById('explain-peek')!.classList.contains('d-none')).toBe(true);
 	});
 
 	test('shows explain-current when p=false and suits match', () => {
-		(window as any).showResults(response, { n: 'TestUser', s: response.suits, p: false });
+		showResults(response, { n: 'TestUser', s: response.suits, p: false });
 		expect(document.getElementById('explain-noprev')!.classList.contains('d-none')).toBe(true);
 		expect(document.getElementById('explain-current')!.classList.contains('d-none')).toBe(false);
 		expect(document.getElementById('explain-peek')!.classList.contains('d-none')).toBe(true);
 	});
 
 	test('shows explain-peek when p=true and suits match', () => {
-		(window as any).showResults(response, { n: 'TestUser', s: response.suits, p: true });
+		showResults(response, { n: 'TestUser', s: response.suits, p: true });
 		expect(document.getElementById('explain-noprev')!.classList.contains('d-none')).toBe(true);
 		expect(document.getElementById('explain-current')!.classList.contains('d-none')).toBe(true);
 		expect(document.getElementById('explain-peek')!.classList.contains('d-none')).toBe(false);
 	});
 
 	test('sets username in all <b> elements', () => {
-		(window as any).showResults(response, { n: 'MyUser', s: response.suits, p: false });
+		showResults(response, { n: 'MyUser', s: response.suits, p: false });
 		document.querySelectorAll('#results b').forEach(b => {
 			expect(b.textContent).toBe('MyUser');
 		});
@@ -258,7 +257,7 @@ describe('showHistory()', () => {
 	}
 
 	test('hides history when no current or last-week data', () => {
-		(window as any).showHistory(CURRENT_WEEK, {});
+		showHistory(CURRENT_WEEK, {});
 		expect(document.getElementById('history')!.classList.contains('d-none')).toBe(true);
 	});
 
@@ -267,7 +266,7 @@ describe('showHistory()', () => {
 			[CURRENT_WEEK - 1]: ENTRY_MAG_VOLT_EXCALIBUR,
 			[CURRENT_WEEK]: ENTRY_RHINO_FROST_LOKI,
 		};
-		(window as any).showHistory(CURRENT_WEEK, cache);
+		showHistory(CURRENT_WEEK, cache);
 		expect(document.getElementById('history')!.classList.contains('d-none')).toBe(false);
 		expect(document.getElementById('history-this-week')!.classList.contains('d-none')).toBe(false);
 		expect(document.getElementById('history-last-week')!.classList.contains('d-none')).toBe(false);
@@ -275,7 +274,7 @@ describe('showHistory()', () => {
 
 	test('hides this-week section when no current data', () => {
 		const cache: InvigorationCache = { [CURRENT_WEEK - 1]: ENTRY_MAG_VOLT_EXCALIBUR };
-		(window as any).showHistory(CURRENT_WEEK, cache);
+		showHistory(CURRENT_WEEK, cache);
 		expect(document.getElementById('history-this-week')!.classList.contains('d-none')).toBe(true);
 		expect(document.getElementById('history-last-week')!.classList.contains('d-none')).toBe(false);
 	});
@@ -290,7 +289,7 @@ describe('showHistory()', () => {
 			[CURRENT_WEEK]: ENTRY_RHINO_FROST_LOKI,
 			[CURRENT_WEEK + 1]: nextWeekEntry,
 		};
-		(window as any).showHistory(CURRENT_WEEK, cache);
+		showHistory(CURRENT_WEEK, cache);
 		// Should show request suits from next week entry (Mag/Volt/Excalibur), not response suits (Rhino/Frost/Loki)
 		expect(suitText('this-week', 0)).toBe(ENTRY_RHINO_FROST_LOKI_PEEK.request.s[0]);
 		expect(suitText('this-week', 1)).toBe(ENTRY_RHINO_FROST_LOKI_PEEK.request.s[1]);
@@ -299,7 +298,7 @@ describe('showHistory()', () => {
 
 	test('this-week falls back to response suits when no next-week data', () => {
 		const cache: InvigorationCache = { [CURRENT_WEEK]: ENTRY_RHINO_FROST_LOKI };
-		(window as any).showHistory(CURRENT_WEEK, cache);
+		showHistory(CURRENT_WEEK, cache);
 		expect(suitText('this-week', 0)).toBe(ENTRY_RHINO_FROST_LOKI.response.suits[0]);
 	});
 
@@ -314,7 +313,7 @@ describe('showHistory()', () => {
 			[CURRENT_WEEK - 1]: ENTRY_MAG_VOLT_EXCALIBUR,
 			[CURRENT_WEEK]: currentEntry,
 		};
-		(window as any).showHistory(CURRENT_WEEK, cache);
+		showHistory(CURRENT_WEEK, cache);
 		// Should show request suits from current week entry (Mag/Volt/Excalibur), not last week's response suits
 		expect(suitText('last-week', 0)).toBe(ENTRY_RHINO_FROST_LOKI_PEEK.request.s[0]);
 		expect(suitText('last-week', 1)).toBe(ENTRY_RHINO_FROST_LOKI_PEEK.request.s[1]);
@@ -323,7 +322,7 @@ describe('showHistory()', () => {
 
 	test('last-week falls back to response suits when no current-week data', () => {
 		const cache: InvigorationCache = { [CURRENT_WEEK - 1]: ENTRY_MAG_VOLT_EXCALIBUR };
-		(window as any).showHistory(CURRENT_WEEK, cache);
+		showHistory(CURRENT_WEEK, cache);
 		expect(suitText('last-week', 0)).toBe(ENTRY_MAG_VOLT_EXCALIBUR.response.suits[0]);
 	});
 
@@ -337,7 +336,7 @@ describe('showHistory()', () => {
 			[CURRENT_WEEK]: ENTRY_RHINO_FROST_LOKI,
 			[CURRENT_WEEK + 1]: nextWeekEntry,
 		};
-		(window as any).showHistory(CURRENT_WEEK, cache);
+		showHistory(CURRENT_WEEK, cache);
 		expect(suitText('this-week', 0)).toBe(ENTRY_RHINO_FROST_LOKI.response.suits[0]);
 	});
 });

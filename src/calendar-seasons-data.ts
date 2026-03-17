@@ -22,7 +22,7 @@ interface IResolvedCalendarDay
 	events: IResolvedCalendarEvent[];
 }
 
-const SEASON_LABELS: Record<string, string> = {
+export const SEASON_LABELS: Record<string, string> = {
 	CST_SPRING: "🌸 Spring",
 	CST_SUMMER: "🌻 Summer",
 	CST_FALL:   "🍁 Autumn",
@@ -35,7 +35,7 @@ const EVENT_EMOJI: Record<string, string> = {
 	CET_UPGRADE:   "🔧",
 };
 
-function getSeasonLabel(season: string): string
+export function getSeasonLabel(season: string): string
 {
 	return SEASON_LABELS[season] ?? season;
 }
@@ -44,12 +44,12 @@ function getSeasonLabel(season: string): string
  * Converts a 1-indexed day of the 1999 in-game calendar to a short date string.
  * Day 1 = Jan 1, Day 101 = Apr 11, etc.
  */
-function formatSeasonDay(day: number): string
+export function formatSeasonDay(day: number): string
 {
 	return new Date(1999, 0, day).toLocaleDateString("en", { month: "short", day: "numeric" });
 }
 
-function camelToWords(s: string): string
+export function camelToWords(s: string): string
 {
 	return s.replace(/(?<=.)(?=[A-Z])/g, " ");
 }
@@ -63,7 +63,7 @@ function lastSegment(path: string): string
  * Builds itemNameMap from export data.
  * Keys are normalized (StoreItems prefix stripped).
  */
-function buildItemMaps(
+export function buildItemMaps(
 	ExportResources: Record<string, any>,
 	ExportBundles: Record<string, any>,
 	ExportBoosterPacks: Record<string, any>,
@@ -88,7 +88,7 @@ function buildItemMaps(
  * Resolves a calendar season's days into display-ready rows.
  * Returns one IResolvedCalendarDay per day that has events, in order.
  */
-function resolveCalendarSeasonDays(
+export function resolveCalendarSeasonDays(
 	season: any,
 	dict: Record<string, string>,
 	ExportChallenges: Record<string, any>,

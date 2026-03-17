@@ -190,9 +190,9 @@ await page.route('**/oracle.browse.wf/new-endpoint', route => {
 
 ## Testing Fork-Specific JavaScript
 
-**Principle:** Test the real compiled code from `typestripped/`, not mocked duplicates. This prevents test drift where tests pass but production is broken.
+**Principle:** Test the real production code, not mocked duplicates. This prevents test drift where tests pass but production is broken.
 
-**For fork code** (`src/` modules): Load the compiled version using `loadScript()` helper. See `test/live/card-filters-factory.ts` for example.
+**For fork code** (`src/` modules): Import directly from the `.ts` source files. Vitest handles TypeScript natively — no compilation step needed. See `test/live/card-filters-factory.ts` for example.
 
 **For upstream code** (`live.ts`, `index.ts`): Don't test behavior in unit tests - test integration points only. Use E2E tests for full behavior verification.
 
@@ -212,6 +212,7 @@ await page.route('**/oracle.browse.wf/new-endpoint', route => {
 - `mockBootstrapTooltip()` - Mock Bootstrap tooltip for testing
 - `getById<T>(id)` - Type-safe element query
 - `elementExists(id)` - Check element presence
+- `loadCommonJsFunctions(names)` - Load upstream `common.js` functions into window scope
 
 ### `helpers/render-php.js`
 - Renders PHP to HTML fixtures (runs automatically before tests)

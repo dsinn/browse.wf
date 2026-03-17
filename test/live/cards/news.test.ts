@@ -8,8 +8,9 @@
  * Content filtering logic should be tested via E2E tests or manual testing.
  */
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { getById, loadScript } from '../../helpers/dom-helpers';
+import { getById } from '../../helpers/dom-helpers';
 import { testCardFilters } from '../card-filters-factory';
+import { generateNewsItemKey, isNewsItemRead, markNewsItemAsRead, markAllNewsAsRead, pruneStaleNewsRead, initializeMarkAsRead } from '../../../src/news-mark-read';
 
 // Test generic card filter integration for News card
 // This verifies: gear icon, accordion, checkboxes, localStorage persistence, auto-expand
@@ -68,26 +69,14 @@ describe('News Card - Mark as Read Module', () => {
     // Clear localStorage before each test
     localStorage.clear();
 
-    // Load the production news-mark-read module
-    loadScript('typestripped/src/news-mark-read.js');
-
     // Mock triggerCloudSync (used for triggering syncs)
     (window as any).triggerCloudSync = () => {};
 
     // Initialize the module
-    if ((window as any).initializeMarkAsRead) {
-      (window as any).initializeMarkAsRead();
-    }
+    initializeMarkAsRead();
   });
 
   afterEach(() => {
-    // Clean up global functions
-    delete (window as any).generateNewsItemKey;
-    delete (window as any).isNewsItemRead;
-    delete (window as any).markNewsItemAsRead;
-    delete (window as any).markAllNewsAsRead;
-    delete (window as any).pruneStaleNewsRead;
-    delete (window as any).initializeMarkAsRead;
     delete (window as any).triggerCloudSync;
   });
 
@@ -100,7 +89,7 @@ describe('News Card - Mark as Read Module', () => {
         link: 'https://example.com'
       };
 
-      const key = (window as any).generateNewsItemKey(item);
+      const key = generateNewsItemKey(item);
       expect(key).toBe('https://example.com|1234567890');
     });
 
@@ -111,7 +100,7 @@ describe('News Card - Mark as Read Module', () => {
         time: 1234567890
       };
 
-      const key = (window as any).generateNewsItemKey(item);
+      const key = generateNewsItemKey(item);
       expect(key).toBe('|1234567890');
     });
 
@@ -130,8 +119,8 @@ describe('News Card - Mark as Read Module', () => {
         link: 'https://example.com'
       };
 
-      const key1 = (window as any).generateNewsItemKey(item1);
-      const key2 = (window as any).generateNewsItemKey(item2);
+      const key1 = generateNewsItemKey(item1);
+      const key2 = generateNewsItemKey(item2);
 
       expect(key1).not.toBe(key2);
       expect(key1).toBe('https://example.com|1000000000');
@@ -141,28 +130,28 @@ describe('News Card - Mark as Read Module', () => {
 
   describe('isNewsItemRead', () => {
     test('returns false when no items are read', () => {
-      const result = (window as any).isNewsItemRead('test-key|123');
+      const result = isNewsItemRead('test-key|123');
       expect(result).toBe(false);
     });
 
     test('returns true when item is marked as read', () => {
       localStorage.setItem('news_items_read', JSON.stringify(['test-key|123']));
 
-      const result = (window as any).isNewsItemRead('test-key|123');
+      const result = isNewsItemRead('test-key|123');
       expect(result).toBe(true);
     });
 
     test('returns false for different key', () => {
       localStorage.setItem('news_items_read', JSON.stringify(['test-key|123']));
 
-      const result = (window as any).isNewsItemRead('different-key|456');
+      const result = isNewsItemRead('different-key|456');
       expect(result).toBe(false);
     });
 
     test('handles corrupted localStorage gracefully', () => {
       localStorage.setItem('news_items_read', 'invalid json');
 
-      const result = (window as any).isNewsItemRead('test-key|123');
+      const result = isNewsItemRead('test-key|123');
       expect(result).toBe(false);
     });
   });
@@ -171,7 +160,7 @@ describe('News Card - Mark as Read Module', () => {
     test('marks item as read in localStorage', () => {
       const element = createNewsItem('primary', 'test-key|123');
 
-      (window as any).markNewsItemAsRead('test-key|123', element);
+      markNewsItemAsRead('test-key|123', element);
 
       const stored = localStorage.getItem('news_items_read');
       expect(stored).toBeTruthy();
@@ -181,7 +170,7 @@ describe('News Card - Mark as Read Module', () => {
     test('adds news-read class to element', () => {
       const element = createNewsItem('primary', 'test-key|123');
 
-      (window as any).markNewsItemAsRead('test-key|123', element);
+      markNewsItemAsRead('test-key|123', element);
 
       expect(element.classList.contains('news-read')).toBe(true);
     });
@@ -190,8 +179,8 @@ describe('News Card - Mark as Read Module', () => {
       const element1 = createNewsItem('primary', 'test-key|123');
       const element2 = createNewsItem('success', 'test-key|123');
 
-      (window as any).markNewsItemAsRead('test-key|123', element1);
-      (window as any).markNewsItemAsRead('test-key|123', element2);
+      markNewsItemAsRead('test-key|123', element1);
+      markNewsItemAsRead('test-key|123', element2);
 
       const stored = localStorage.getItem('news_items_read');
       expect(JSON.parse(stored!)).toEqual(['test-key|123']);
@@ -202,7 +191,7 @@ describe('News Card - Mark as Read Module', () => {
       const element = createNewsItem('primary', 'test-key|123');
       element.classList.add('news-read');
 
-      (window as any).markNewsItemAsRead('test-key|123', element);
+      markNewsItemAsRead('test-key|123', element);
 
       const stored = localStorage.getItem('news_items_read');
       expect(JSON.parse(stored!)).toEqual(['test-key|123']);
@@ -213,7 +202,7 @@ describe('News Card - Mark as Read Module', () => {
 
       const element = createNewsItem('primary', 'new-key|222');
 
-      (window as any).markNewsItemAsRead('new-key|222', element);
+      markNewsItemAsRead('new-key|222', element);
 
       const stored = localStorage.getItem('news_items_read');
       expect(JSON.parse(stored!)).toEqual(['existing-key|111', 'new-key|222']);
@@ -243,7 +232,7 @@ describe('News Card - Mark as Read Module', () => {
       // No data-news-key attribute (danger items don't have it)
       newsBody.appendChild(danger);
 
-      (window as any).markAllNewsAsRead();
+      markAllNewsAsRead();
 
       const stored = localStorage.getItem('news_items_read');
       expect(stored).toBeTruthy();
@@ -262,7 +251,7 @@ describe('News Card - Mark as Read Module', () => {
       const newsBody = getById('news-body');
       newsBody.innerHTML = '';
 
-      (window as any).markAllNewsAsRead();
+      markAllNewsAsRead();
 
       const stored = localStorage.getItem('news_items_read');
       expect(stored).toBeFalsy();
@@ -305,7 +294,7 @@ describe('News Card - Mark as Read Module', () => {
       item.setAttribute('data-news-key', 'current-key|222');
       newsBody.appendChild(item);
 
-      (window as any).pruneStaleNewsRead();
+      pruneStaleNewsRead();
 
       const stored = localStorage.getItem('news_items_read');
       expect(stored).toBeTruthy();
@@ -324,7 +313,7 @@ describe('News Card - Mark as Read Module', () => {
       item.setAttribute('data-news-key', 'different-key|222');
       newsBody.appendChild(item);
 
-      (window as any).pruneStaleNewsRead();
+      pruneStaleNewsRead();
 
       const stored = localStorage.getItem('news_items_read');
       expect(stored).toBeFalsy();
@@ -336,7 +325,7 @@ describe('News Card - Mark as Read Module', () => {
 
       localStorage.setItem('news_items_read', JSON.stringify(['key-1|111', 'key-2|222']));
 
-      (window as any).pruneStaleNewsRead();
+      pruneStaleNewsRead();
 
       // Should NOT prune when DOM is empty (news hasn't loaded yet)
       const stored = localStorage.getItem('news_items_read');
@@ -352,7 +341,7 @@ describe('News Card - Mark as Read Module', () => {
 
       localStorage.setItem('news_items_read', JSON.stringify(['key-1|111']));
 
-      (window as any).pruneStaleNewsRead();
+      pruneStaleNewsRead();
 
       // Should preserve data when card not present
       const stored = localStorage.getItem('news_items_read');
@@ -373,7 +362,7 @@ describe('News Card - Mark as Read Module', () => {
 
       // Should not throw
       expect(() => {
-        (window as any).pruneStaleNewsRead();
+        pruneStaleNewsRead();
       }).not.toThrow();
     });
   });
@@ -383,8 +372,8 @@ describe('News Card - Mark as Read Module', () => {
       const element1 = createNewsItem('primary', 'key-1|123');
       const element2 = createNewsItem('success', 'key-2|456');
 
-      (window as any).markNewsItemAsRead('key-1|123', element1);
-      (window as any).markNewsItemAsRead('key-2|456', element2);
+      markNewsItemAsRead('key-1|123', element1);
+      markNewsItemAsRead('key-2|456', element2);
 
       const stored = localStorage.getItem('news_items_read');
       expect(stored).toBeTruthy();
@@ -405,7 +394,7 @@ describe('News Card - Mark as Read Module', () => {
       item.setAttribute('data-news-key', 'new-key|222');
       newsBody.appendChild(item);
 
-      (window as any).pruneStaleNewsRead();
+      pruneStaleNewsRead();
 
       // Since only stale item, should remove key entirely
       const stored = localStorage.getItem('news_items_read');

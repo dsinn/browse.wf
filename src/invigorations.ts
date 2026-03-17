@@ -19,12 +19,12 @@ interface InvigorationCache {
 	[weekIndex: number]: InvigorationCacheEntry;
 }
 
-function getWeekIndex(timestamp: number): number
+export function getWeekIndex(timestamp: number): number
 {
 	return Math.trunc(((timestamp / 1000) - 1391990400) / 604800);
 }
 
-function loadCache(): InvigorationCache
+export function loadCache(): InvigorationCache
 {
 	const cacheStr = localStorage.getItem("invigorations.cache");
 	if (!cacheStr)
@@ -49,7 +49,7 @@ function loadCache(): InvigorationCache
 	}
 }
 
-function populateInvigorationGrid(prefix: string, response: InvigorationResponse, suits?: string[]): void
+export function populateInvigorationGrid(prefix: string, response: InvigorationResponse, suits?: string[]): void
 {
 	const baseSuitTypes: Record<string, { name: string }> = (window as any).baseSuitTypes;
 	const dict: Record<string, string> = (window as any).dict;
@@ -66,7 +66,7 @@ function populateInvigorationGrid(prefix: string, response: InvigorationResponse
 	}
 }
 
-function preFillForm(username: string, peek: boolean, suits: string[]): void
+export function preFillForm(username: string, peek: boolean, suits: string[]): void
 {
 	const usernameInput = document.getElementById("username") as HTMLInputElement;
 	const peekCheckbox = document.getElementById("peek") as HTMLInputElement;
@@ -78,7 +78,7 @@ function preFillForm(username: string, peek: boolean, suits: string[]): void
 	suits.forEach((suit, i) => suitSelects[i].value = suit);
 }
 
-function saveToCache(request: InvigorationRequest, response: InvigorationResponse): void
+export function saveToCache(request: InvigorationRequest, response: InvigorationResponse): void
 {
 	const currentWeek = getWeekIndex(Date.now());
 	const targetWeek = request.p ? currentWeek + 1 : currentWeek;
@@ -99,7 +99,7 @@ function saveToCache(request: InvigorationRequest, response: InvigorationRespons
 	}
 }
 
-function showHistory(currentWeek: number, cache: InvigorationCache): void
+export function showHistory(currentWeek: number, cache: InvigorationCache): void
 {
 	const currentData = cache[currentWeek];
 	const lastWeekData = cache[currentWeek - 1];
@@ -142,7 +142,7 @@ function showHistory(currentWeek: number, cache: InvigorationCache): void
 	}
 }
 
-function showResults(response: InvigorationResponse, request: InvigorationRequest): void
+export function showResults(response: InvigorationResponse, request: InvigorationRequest): void
 {
 	const resultsDiv = document.getElementById("results")!;
 	resultsDiv.classList.remove("d-none");

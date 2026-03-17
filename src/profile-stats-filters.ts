@@ -5,11 +5,10 @@
  * the same CDN lookup as setImageSource() in common.js.
  */
 
-declare function addTooltip(elm: HTMLElement, title: string): void;
-declare function setImageSource(img: HTMLImageElement, icon: string): void;
+import { addTooltip } from './tooltip.js';
 
 /** Maps productCategory values (from ExportWeapons/ExportWarframes/ExportSentinels) to display metadata. */
-const EQUIPMENT_CATEGORIES: Record<string, { label: string; icon: string }> = {
+export const EQUIPMENT_CATEGORIES: Record<string, { label: string; icon: string }> = {
 	Suits:           { label: "Warframes",        icon: "/Lotus/Interface/Icons/StoreIcons/Warframes/Excalibur.png" },
 	LongGuns:        { label: "Primary",          icon: "/Lotus/Interface/Icons/StoreIcons/Weapons/PrimaryWeapons/Weapons/Braton.png" },
 	Pistols:         { label: "Secondary",        icon: "/Lotus/Interface/Icons/StoreIcons/Weapons/SecondaryWeapons/Weapons/LexPrime.png" },
@@ -31,7 +30,7 @@ const EQUIPMENT_CATEGORIES: Record<string, { label: string; icon: string }> = {
  * Maps faction strings (from ExportEnemies.avatars[x].faction) to display metadata.
  * Multiple source faction strings may map to the same display bucket.
  */
-const ENEMY_FACTIONS: Array<{ label: string; icon: string; factions: string[] }> = [
+export const ENEMY_FACTIONS: Array<{ label: string; icon: string; factions: string[] }> = [
 	{ label: "Grineer",   icon: "/Lotus/Interface/Icons/Player/FactionGrineer.png",                                          factions: ["Grineer"] },
 	{ label: "Corpus",    icon: "/Lotus/Interface/Icons/Player/FactionCorpus.png",                                           factions: ["Corpus"] },
 	{ label: "Infested",  icon: "/Lotus/Interface/Icons/Player/FactionInfested.png",                                         factions: ["Infestation", "Infested"] },
@@ -46,13 +45,13 @@ const ENEMY_FACTIONS: Array<{ label: string; icon: string; factions: string[] }>
 ];
 
 /** Returns the display label for a productCategory, or null if unrecognised. */
-function getEquipmentCategoryLabel(productCategory: string): string | null
+export function getEquipmentCategoryLabel(productCategory: string): string | null
 {
 	return EQUIPMENT_CATEGORIES[productCategory]?.label ?? null;
 }
 
 /** Returns the faction bucket label for an avatar faction string, or null if unrecognised. */
-function getEnemyFactionLabel(faction: string): string | null
+export function getEnemyFactionLabel(faction: string): string | null
 {
 	for (const bucket of ENEMY_FACTIONS)
 	{
@@ -78,7 +77,7 @@ function getEnemyFactionLabel(faction: string): string | null
  * @param onFilter    - Optional callback invoked after each filter change,
  *                      including when "All" is selected.
  */
-function initStatsFilterBar(
+export function initStatsFilterBar(
 	filterBar: HTMLElement,
 	tbody: HTMLElement,
 	entries: Array<{ key: string; label: string; icon: string }>,
@@ -131,7 +130,7 @@ function initStatsFilterBar(
 		{
 			const img = document.createElement("img");
 			img.alt = label;
-			setImageSource(img, icon);
+			(window as any).setImageSource(img, icon);
 			btn.appendChild(img);
 		}
 		else

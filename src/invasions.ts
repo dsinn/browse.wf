@@ -13,7 +13,7 @@ interface InvasionData {
 	DefenderReward: { countedItems: { ItemType: string; ItemCount: number }[] } | [];
 }
 
-function calculatePercentage(wsInvasion: InvasionData): number
+export function calculatePercentage(wsInvasion: InvasionData): number
 {
 	let progress: number = 1 - Math.abs(wsInvasion.Count / wsInvasion.Goal);
 	progress = Math.max(0, progress);
@@ -21,7 +21,7 @@ function calculatePercentage(wsInvasion: InvasionData): number
 	return progress * 100;
 }
 
-function createInvasionProgressBar(wsInvasion: InvasionData, percentage: number): HTMLDivElement
+export function createInvasionProgressBar(wsInvasion: InvasionData, percentage: number): HTMLDivElement
 {
 	const [attackerFactionClass, defenderFactionClass] = [
 		wsInvasion.Faction,
@@ -65,12 +65,12 @@ function invasionRewardFilterKey(itemType: string): string
 		: segment.replace(/Blueprint$/, '');
 }
 
-function isInvasionRewardShown(itemType: string): boolean
+export function isInvasionRewardShown(itemType: string): boolean
 {
 	return (window as any).isFilterEnabled("invasions", `reward-${invasionRewardFilterKey(itemType)}`);
 }
 
-async function updateInvasions(): Promise<void>
+export async function updateInvasions(): Promise<void>
 {
 	if (!window.worldState?.Invasions) return;
 

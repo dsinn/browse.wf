@@ -1,6 +1,7 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect } from 'vitest';
 import { loadMock, loadExportJson } from '../../helpers/api-mocks';
-import { getById, loadScript } from '../../helpers/dom-helpers';
+import { getById } from '../../helpers/dom-helpers';
+import { formatTileset } from '../../../src/tileset-helpers';
 
 describe('Sortie Card - Data Structure', () => {
   test('worldState contains sortie with three variants', () => {
@@ -54,13 +55,9 @@ describe('Sortie Card - Tileset Tooltip Values', () => {
     { node: 'SolNode32', tileset: 'GrineerGalleonTileset', expectedTooltip: 'Grineer Galleon' },
   ];
 
-  beforeEach(() => {
-    loadScript('typestripped/src/tileset-helpers.js');
-  });
-
   for (const { node, tileset, expectedTooltip } of VARIANTS) {
     test(`${node} (${tileset}) formats to "${expectedTooltip}"`, () => {
-      expect((window as any).formatTileset(tileset)).toBe(expectedTooltip);
+      expect(formatTileset(tileset)).toBe(expectedTooltip);
     });
   }
 });

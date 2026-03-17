@@ -4,9 +4,8 @@
  * These are used by both weekly-forecast.ts (via globals) to avoid duplicating logic.
  */
 
-declare function toTitleCase(str: string): string;
 
-function conquestRiskTagToLoc(tag: string): string
+export function conquestRiskTagToLoc(tag: string): string
 {
 	if (tag == "EMPBlackHole")
 	{
@@ -15,7 +14,7 @@ function conquestRiskTagToLoc(tag: string): string
 	return tag;
 }
 
-function conquestVariableTagToLoc(tag: string): string
+export function conquestVariableTagToLoc(tag: string): string
 {
 	if (tag == "DullBlades")
 	{
@@ -28,7 +27,7 @@ function conquestVariableTagToLoc(tag: string): string
 	return tag;
 }
 
-function transformFrameVariable(desc: string, rawValue: string): string
+export function transformFrameVariable(desc: string, rawValue: string): string
 {
 	desc = desc.replaceAll(/<[^>]+>/g, "");
 	if (rawValue === "ShieldDelay")
@@ -49,7 +48,7 @@ function transformFrameVariable(desc: string, rawValue: string): string
  * @param osdict     The OS dictionary (key → text)
  * @param descTransform  Optional transform for the tooltip description
  */
-function createArchimedeaTooltipEl(
+export function createArchimedeaTooltipEl(
 	keyPrefix: string,
 	rawValue: string,
 	osdict: Record<string, string>,
@@ -92,7 +91,7 @@ function createArchimedeaTooltipEl(
  * @param conquestType     "CT_LAB" or "CT_HEX"
  * @param ExportMissionTypes  The ExportMissionTypes lookup table
  */
-function transformConquestMissions(
+export function transformConquestMissions(
 	conquest: any,
 	conquestType: string,
 	ExportMissionTypes: Record<string, { name: string }>
@@ -126,7 +125,7 @@ function transformConquestMissions(
  * @param osdict       The OS dictionary
  * @param dict         The main dictionary (for mission type names)
  */
-function renderConquestMissions(
+export function renderConquestMissions(
 	missions: IConquestMission[],
 	variantKeyPrefix: string,
 	osdict: Record<string, string>,
@@ -164,7 +163,7 @@ function renderConquestMissions(
  * @param frameVariables  string[] of variable tags (e.g. "ShieldDelay")
  * @param osdict          The OS dictionary
  */
-function renderConquestFrameVariables(
+export function renderConquestFrameVariables(
 	frameVariables: string[],
 	osdict: Record<string, string>
 ): HTMLTableRowElement

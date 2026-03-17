@@ -14,6 +14,13 @@ interface IConquestMission {
   conditions: string[];
 }
 
+// Upstream functions from common.js / live.ts used by fork modules
+declare function getDictPromise(): Promise<Record<string, string>>;
+declare function createExpiryBadge(expiry: number): HTMLSpanElement;
+declare function createCompletionToggle(oid: string): HTMLAnchorElement;
+declare function setImageSource(img: HTMLImageElement, icon: string): void;
+declare function toTitleCase(str: string): string;
+
 declare global {
   interface Window {
     bootstrap?: any;
@@ -31,4 +38,5 @@ declare global {
   // Allow dict and osdict to be declared with more specific types elsewhere
   var dict: any;
   var osdict: any;
+
 }

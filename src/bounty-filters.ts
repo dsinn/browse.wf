@@ -19,7 +19,7 @@ const SYNDICATE_TAGS = [
  * @param syndicateTag - The syndicate tag (e.g., "ZarimanSyndicate")
  * @returns The minimum tier to display (-1 = hide, 1 = show all, higher = hide lower tiers)
  */
-function getMinimumTier(syndicateTag: string): number
+export function getMinimumTier(syndicateTag: string): number
 {
 	const storageKey = `live.filter.bounties.${syndicateTag}`;
 	const savedValue = localStorage.getItem(storageKey);
@@ -84,7 +84,7 @@ function initializeBountyFilters(): void
  * Initialize all bounty filter functionality
  * Call this after the DOM is loaded
  */
-function initializeBountyFilters_all(): void
+export function initializeBountyFilters_all(): void
 {
 	initializeBountyFilters();
 }

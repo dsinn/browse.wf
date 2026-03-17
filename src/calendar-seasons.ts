@@ -3,26 +3,7 @@
  * Displays the 1999 in-game calendar days with challenges, rewards, and upgrades.
  */
 
-// Globals available on the live page from live.ts
-declare function getDictPromise(): Promise<Record<string, string>>;
-declare function createCompletionToggle(oid: string): HTMLAnchorElement;
-declare function createExpiryBadge(expiry: number): HTMLSpanElement;
-declare function setImageSource(img: HTMLImageElement, icon: string): void;
-
-// Provided by src/calendar-seasons-data.ts (loaded before this script in the browser)
-declare function getSeasonLabel(season: string): string;
-declare function formatSeasonDay(day: number): string;
-declare function resolveCalendarSeasonDays(
-	season: any,
-	dict: Record<string, string>,
-	ExportChallenges: Record<string, any>,
-	ExportResources: Record<string, any>,
-	ExportBundles: Record<string, any>,
-	ExportBoosterPacks: Record<string, any>,
-	ExportBoosters: Record<string, any>
-): IResolvedCalendarDay[];
-
-// IResolvedCalendarEvent and IResolvedCalendarDay are defined in src/calendar-seasons-data.ts
+import { getSeasonLabel, formatSeasonDay, resolveCalendarSeasonDays } from './calendar-seasons-data.js';
 
 function makeIcon(iconPath: string): HTMLImageElement
 {
@@ -103,7 +84,7 @@ async function prepareCalendarSeasonData(
  * Renders the content pane for a single calendar season.
  * Returns a div containing day rows for each day with events.
  */
-async function renderCalendarSeasonPane(
+export async function renderCalendarSeasonPane(
 	season: any,
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
@@ -174,7 +155,7 @@ async function renderCalendarSeasonPane(
  * Updates the Calendar Seasons card on the live page.
  * Reads worldState.KnownCalendarSeasons, renders the active season, and injects a completion toggle.
  */
-async function updateCalendarSeason(
+export async function updateCalendarSeason(
 	ExportResources: Promise<Record<string, any>>,
 	ExportBundles: Promise<Record<string, any>>,
 	ExportBoosterPacks: Promise<Record<string, any>>,

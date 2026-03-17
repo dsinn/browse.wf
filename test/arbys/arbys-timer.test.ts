@@ -1,30 +1,10 @@
 import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
-import { JSDOM } from 'jsdom';
-import { loadScript } from '../helpers/dom-helpers';
+import { createArbyCountdownBadge, initializeArbyTimer } from '../../src/arbys-timer';
 
 describe('Arbitration Timer (/arbys timer badges)', () => {
-  let dom: JSDOM;
-  let document: Document;
-  let window: Window & typeof globalThis;
-
   beforeEach(() => {
-    // Create a minimal DOM environment
-    dom = new JSDOM('<!DOCTYPE html><html><body></body></html>', {
-      url: 'https://browse.wf/arbys'
-    });
-    document = dom.window.document;
-    window = dom.window as unknown as Window & typeof globalThis;
-
-    // Set up global references for the script
-    (global as any).window = window;
-    (global as any).document = document;
-    (global as any).HTMLElement = window.HTMLElement;
-
     // Mock setTimeout and clearTimeout for controlled testing
     vi.useFakeTimers();
-
-    // Load the actual compiled arbys-timer.js
-    loadScript('typestripped/src/arbys-timer.js');
   });
 
   afterEach(() => {
@@ -35,7 +15,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
   describe('createArbyCountdownBadge()', () => {
     test('creates a span element with correct attributes', () => {
       const timestamp = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.tagName).toBe('SPAN');
       expect(badge.getAttribute('data-arby-timestamp')).toBe(timestamp.toString());
@@ -46,7 +26,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
     test('has fixed width and inline-block display', () => {
       const timestamp = Math.floor(Date.now() / 1000) + 3600;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.style.display).toBe('inline-block');
       expect(badge.style.width).toBe('5.5em');
@@ -59,7 +39,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // Test: 2 days + 5 hours from now
       const timestamp = Math.floor(now / 1000) + (2 * 86400) + (5 * 3600);
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.textContent).toMatch(/2d \d+h/);
     });
@@ -70,7 +50,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 1 hour ago
       const timestamp = Math.floor(now / 1000) - 3600;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.textContent).toBe('Started');
     });
@@ -83,7 +63,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 5 days + 3 hours + 45 minutes + 30 seconds
       const timestamp = Math.floor(now / 1000) + (5 * 86400) + (3 * 3600) + (45 * 60) + 30;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       // Should show only days + hours, not minutes or seconds
       expect(badge.textContent).toBe('5d 3h');
@@ -95,7 +75,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 5 hours + 23 minutes + 45 seconds
       const timestamp = Math.floor(now / 1000) + (5 * 3600) + (23 * 60) + 45;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       // Should show only hours + minutes, not seconds
       expect(badge.textContent).toBe('5h 23m');
@@ -107,7 +87,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 23 minutes + 45 seconds
       const timestamp = Math.floor(now / 1000) + (23 * 60) + 45;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       // Should show minutes + seconds
       expect(badge.textContent).toBe('23m 45s');
@@ -119,7 +99,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 5 minutes + 5 seconds
       const timestamp = Math.floor(now / 1000) + (5 * 60) + 5;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.textContent).toBe('5m 05s');
     });
@@ -130,7 +110,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 45 seconds
       const timestamp = Math.floor(now / 1000) + 45;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.textContent).toBe('0m 45s');
     });
@@ -141,7 +121,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // Current second (0 seconds remaining)
       const timestamp = Math.floor(now / 1000);
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.textContent).toBe('Started');
     });
@@ -154,7 +134,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 2 days + 30 minutes from now (showing days+hours)
       const timestamp = Math.floor(now / 1000) + (2 * 86400) + (30 * 60);
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
       document.body.appendChild(badge);
 
       expect(badge.textContent).toMatch(/2d \d+h/);
@@ -174,7 +154,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 5 hours + 30 seconds from now (showing hours+minutes)
       const timestamp = Math.floor(now / 1000) + (5 * 3600) + 30;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
       document.body.appendChild(badge);
 
       expect(badge.textContent).toMatch(/5h \d+m/);
@@ -194,7 +174,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 5 minutes + 500ms from now (showing minutes+seconds)
       const timestamp = Math.floor(now / 1000) + (5 * 60);
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
       document.body.appendChild(badge);
 
       expect(badge.textContent).toMatch(/\d+m \d+s/);
@@ -217,7 +197,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 3 seconds from now
       const timestamp = Math.floor(now / 1000) + 3;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
       document.body.appendChild(badge);
 
       expect(badge.textContent).toBe('0m 03s');
@@ -251,7 +231,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
       document.body.appendChild(badge2);
 
       // Initialize timers
-      (window as any).initializeArbyTimer();
+      initializeArbyTimer();
 
       // Both badges should have been updated with countdown text
       expect(badge1.textContent).toMatch(/\d+m/);
@@ -264,7 +244,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // Should not throw
       expect(() => {
-        (window as any).initializeArbyTimer();
+        initializeArbyTimer();
       }).not.toThrow();
     });
   });
@@ -275,7 +255,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
       vi.setSystemTime(now);
 
       const timestamp = Math.floor(now / 1000) + 86400;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.textContent).toBe('1d 0h');
     });
@@ -285,7 +265,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
       vi.setSystemTime(now);
 
       const timestamp = Math.floor(now / 1000) + 3600;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.textContent).toBe('1h 0m');
     });
@@ -295,7 +275,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
       vi.setSystemTime(now);
 
       const timestamp = Math.floor(now / 1000) + 60;
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.textContent).toBe('1m 00s');
     });
@@ -306,7 +286,7 @@ describe('Arbitration Timer (/arbys timer badges)', () => {
 
       // 150 days
       const timestamp = Math.floor(now / 1000) + (150 * 86400);
-      const badge = (window as any).createArbyCountdownBadge(timestamp);
+      const badge = createArbyCountdownBadge(timestamp);
 
       expect(badge.textContent).toMatch(/150d \d+h/);
     });

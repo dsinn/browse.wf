@@ -8,7 +8,7 @@ import type { IRegion } from "warframe-public-export-plus";
  * @param node - The region node from ExportRegions
  * @param regionKey - Optional region key (e.g., "SolNode94") for fallback logic
  */
-function getTileset(node: IRegion, regionKey?: string): string | undefined {
+export function getTileset(node: IRegion, regionKey?: string): string | undefined {
 	// First check if node has tileset data
 	if (node.tileset) {
 		return node.tileset;
@@ -31,7 +31,7 @@ function getTileset(node: IRegion, regionKey?: string): string | undefined {
  * Format tileset string for display
  * Converts "GrineerGalleonTileset" to "Grineer Galleon"
  */
-function formatTileset(tileset: string | undefined): string {
+export function formatTileset(tileset: string | undefined): string {
 	if (!tileset) return "";
 	return tileset
 		.replace('Tileset', '')

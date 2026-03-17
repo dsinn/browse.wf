@@ -35,7 +35,7 @@ interface IDescentChallengeRow
 	auras: string[];      // resolved; empty array means render as "-"
 }
 
-const ARENA_EMOJI: Record<string, string> = {
+export const ARENA_EMOJI: Record<string, string> = {
 	ArenaAvocado:            "🥑",
 	ArenaBagel:              "🥯",
 	ArenaCherry:             "🍒",
@@ -55,7 +55,7 @@ const ARENA_EMOJI: Record<string, string> = {
 	SpecialChallengeArena03: "🐴",
 };
 
-function resolveDescentChallenges(
+export function resolveDescentChallenges(
 	descent: IDescent,
 	dict: Record<string, string>
 ): IDescentChallengeRow[]

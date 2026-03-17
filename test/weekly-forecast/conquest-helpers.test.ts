@@ -4,8 +4,9 @@
  * Loads the real compiled production code to avoid test drift.
  */
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
-import { loadScript, mockBootstrapTooltip } from '../helpers/dom-helpers';
+import { mockBootstrapTooltip } from '../helpers/dom-helpers';
 import { loadMock, loadExportJson } from '../helpers/api-mocks';
+import { conquestRiskTagToLoc, conquestVariableTagToLoc, transformFrameVariable, createArchimedeaTooltipEl, transformConquestMissions, renderConquestMissions, renderConquestFrameVariables } from '../../src/conquest-helpers';
 
 beforeEach(() => {
   mockBootstrapTooltip();
@@ -13,64 +14,55 @@ beforeEach(() => {
   // toTitleCase is provided by common.js on real pages; stub it for unit tests
   (window as any).toTitleCase = (s: string) =>
     s.replace(/\b\w/g, c => c.toUpperCase());
-
-  loadScript('typestripped/src/conquest-helpers.js');
 });
 
 afterEach(() => {
-  delete (window as any).conquestRiskTagToLoc;
-  delete (window as any).conquestVariableTagToLoc;
-  delete (window as any).transformFrameVariable;
-  delete (window as any).createArchimedeaTooltipEl;
-  delete (window as any).transformConquestMissions;
-  delete (window as any).renderConquestMissions;
-  delete (window as any).renderConquestFrameVariables;
   delete (window as any).toTitleCase;
 });
 
 describe('conquestRiskTagToLoc', () => {
   test('remaps EMPBlackHole to MagneticHounds', () => {
-    expect((window as any).conquestRiskTagToLoc('EMPBlackHole')).toBe('MagneticHounds');
+    expect(conquestRiskTagToLoc('EMPBlackHole')).toBe('MagneticHounds');
   });
 
   test('passes unknown tags through unchanged', () => {
-    expect((window as any).conquestRiskTagToLoc('AcceleratedEnemies')).toBe('AcceleratedEnemies');
-    expect((window as any).conquestRiskTagToLoc('SomeNewTag')).toBe('SomeNewTag');
+    expect(conquestRiskTagToLoc('AcceleratedEnemies')).toBe('AcceleratedEnemies');
+    expect(conquestRiskTagToLoc('SomeNewTag')).toBe('SomeNewTag');
   });
 });
 
 describe('conquestVariableTagToLoc', () => {
   test('remaps DullBlades to ComboCountChance', () => {
-    expect((window as any).conquestVariableTagToLoc('DullBlades')).toBe('ComboCountChance');
+    expect(conquestVariableTagToLoc('DullBlades')).toBe('ComboCountChance');
   });
 
   test('remaps Undersupplied to MaxAmmo', () => {
-    expect((window as any).conquestVariableTagToLoc('Undersupplied')).toBe('MaxAmmo');
+    expect(conquestVariableTagToLoc('Undersupplied')).toBe('MaxAmmo');
   });
 
   test('passes unknown tags through unchanged', () => {
-    expect((window as any).conquestVariableTagToLoc('ShieldDelay')).toBe('ShieldDelay');
+    expect(conquestVariableTagToLoc('ShieldDelay')).toBe('ShieldDelay');
   });
 });
 
 describe('transformFrameVariable', () => {
   test('replaces |val| with 500 for ShieldDelay', () => {
-    const result = (window as any).transformFrameVariable('Delay is |val|ms', 'ShieldDelay');
+    const result = transformFrameVariable('Delay is |val|ms', 'ShieldDelay');
     expect(result).toBe('Delay is 500ms');
   });
 
   test('replaces |val| with 50 for TimeDilation', () => {
-    const result = (window as any).transformFrameVariable('Speed at |val|%', 'TimeDilation');
+    const result = transformFrameVariable('Speed at |val|%', 'TimeDilation');
     expect(result).toBe('Speed at 50%');
   });
 
   test('strips HTML tags from description', () => {
-    const result = (window as any).transformFrameVariable('<b>Bold</b> text', 'OtherVar');
+    const result = transformFrameVariable('<b>Bold</b> text', 'OtherVar');
     expect(result).toBe('Bold text');
   });
 
   test('returns description unchanged for unknown variable', () => {
-    const result = (window as any).transformFrameVariable('Some description', 'UnknownVar');
+    const result = transformFrameVariable('Some description', 'UnknownVar');
     expect(result).toBe('Some description');
   });
 });
@@ -82,7 +74,7 @@ describe('createArchimedeaTooltipEl', () => {
   };
 
   test('returns <abbr> with tooltip when text and desc exist', () => {
-    const el = (window as any).createArchimedeaTooltipEl(
+    const el = createArchimedeaTooltipEl(
       '/Lotus/Language/Conquest/Condition_',
       'AcceleratedEnemies',
       osdict
@@ -96,7 +88,7 @@ describe('createArchimedeaTooltipEl', () => {
 
   test('applies descTransform to tooltip description', () => {
     const transform = (desc: string) => desc.toUpperCase();
-    const el = (window as any).createArchimedeaTooltipEl(
+    const el = createArchimedeaTooltipEl(
       '/Lotus/Language/Conquest/Condition_',
       'AcceleratedEnemies',
       osdict,
@@ -110,7 +102,7 @@ describe('createArchimedeaTooltipEl', () => {
     const partialOsdict = {
       '/Lotus/Language/Conquest/Condition_NoDesc': 'Has Name Only',
     };
-    const el = (window as any).createArchimedeaTooltipEl(
+    const el = createArchimedeaTooltipEl(
       '/Lotus/Language/Conquest/Condition_',
       'NoDesc',
       partialOsdict
@@ -121,7 +113,7 @@ describe('createArchimedeaTooltipEl', () => {
   });
 
   test('returns raw value text node when key is missing entirely', () => {
-    const el = (window as any).createArchimedeaTooltipEl(
+    const el = createArchimedeaTooltipEl(
       '/Lotus/Language/Conquest/Condition_',
       'CompletelyUnknownTag',
       {}
@@ -138,7 +130,7 @@ describe('transformConquestMissions', () => {
 
   test('transforms CT_LAB conquest missions correctly', () => {
     const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-    const missions = (window as any).transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
+    const missions = transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
 
     expect(Array.isArray(missions)).toBe(true);
     expect(missions.length).toBe(3);
@@ -154,14 +146,14 @@ describe('transformConquestMissions', () => {
 
   test('transforms CT_HEX conquest missions correctly', () => {
     const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_HEX');
-    const missions = (window as any).transformConquestMissions(conquest, 'CT_HEX', ExportMissionTypes);
+    const missions = transformConquestMissions(conquest, 'CT_HEX', ExportMissionTypes);
 
     expect(missions.length).toBe(3);
   });
 
   test('transforms Defense to DualDefense for CT_LAB', () => {
     const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-    const missions = (window as any).transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
+    const missions = transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
 
     // Mock data has a Defense mission (MT_DEFENSE); CT_LAB must rename it to DualDefense
     expect(missions.some((m: any) => m.type === 'Defense')).toBe(false);
@@ -170,7 +162,7 @@ describe('transformConquestMissions', () => {
 
   test('does NOT transform Defense to DualDefense for CT_HEX', () => {
     const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_HEX');
-    const missions = (window as any).transformConquestMissions(conquest, 'CT_HEX', ExportMissionTypes);
+    const missions = transformConquestMissions(conquest, 'CT_HEX', ExportMissionTypes);
 
     const hasDualDefense = missions.some((m: any) => m.type === 'DualDefense');
     expect(hasDualDefense).toBe(false);
@@ -178,7 +170,7 @@ describe('transformConquestMissions', () => {
 
   test('selects CD_HARD difficulty when available', () => {
     const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-    const missions = (window as any).transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
+    const missions = transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
 
     // Verify each mission's conditions match CD_HARD's risks (not CD_NORMAL's)
     missions.forEach((m: any, i: number) => {
@@ -196,8 +188,8 @@ describe('renderConquestMissions', () => {
 
   test('returns a <tbody> with one row per mission', () => {
     const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-    const missions = (window as any).transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
-    const tbody = (window as any).renderConquestMissions(
+    const missions = transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
+    const tbody = renderConquestMissions(
       missions,
       '/Lotus/Language/Conquest/MissionVariant_LabConquest_',
       osdict,
@@ -210,8 +202,8 @@ describe('renderConquestMissions', () => {
 
   test('each row has th (type) + 3 td (variant + 2 conditions)', () => {
     const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-    const missions = (window as any).transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
-    const tbody = (window as any).renderConquestMissions(
+    const missions = transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
+    const tbody = renderConquestMissions(
       missions,
       '/Lotus/Language/Conquest/MissionVariant_LabConquest_',
       osdict,
@@ -231,7 +223,7 @@ describe('renderConquestFrameVariables', () => {
 
   test('returns a <tr> with one <td> per frame variable', () => {
     const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-    const tr = (window as any).renderConquestFrameVariables(
+    const tr = renderConquestFrameVariables(
       conquest.Variables,
       osdict
     ) as HTMLTableRowElement;
@@ -241,7 +233,7 @@ describe('renderConquestFrameVariables', () => {
   });
 
   test('handles empty frame variables array', () => {
-    const tr = (window as any).renderConquestFrameVariables([], osdict) as HTMLTableRowElement;
+    const tr = renderConquestFrameVariables([], osdict) as HTMLTableRowElement;
     expect(tr.querySelectorAll('td').length).toBe(0);
   });
 });

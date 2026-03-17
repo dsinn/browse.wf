@@ -1,6 +1,6 @@
 const DEFAULT_BASE_URL = "https://warframe-api-front-proxy.dsinn69.workers.dev";
 
-class WarframeApiFrontProxyClient {
+export class WarframeApiFrontProxyClient {
   private static async rawRequest(path: string, includeAuth = false): Promise<Response> {
     const baseUrl = (window as any).__ENV__?.WARFRAME_API_FRONT_PROXY_BASE_URL || DEFAULT_BASE_URL;
     const token = (window as any).__ENV__?.WARFRAME_API_FRONT_PROXY_TOKEN;

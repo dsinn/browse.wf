@@ -11,7 +11,7 @@
  */
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { loadFixture } from '../../helpers/fixture-loader';
-import { loadScript } from '../../helpers/dom-helpers';
+import { initializeBountyFilters_all, getMinimumTier } from '../../../src/bounty-filters';
 
 describe('Bounty Filters', () => {
   beforeEach(() => {
@@ -21,19 +21,12 @@ describe('Bounty Filters', () => {
     // Setup DOM from actual live.php fixture
     document.body.innerHTML = loadFixture('live');
 
-    // Load the actual production code - no mock, no drift
-    loadScript('typestripped/src/bounty-filters.js');
-
     // Initialize the filters
-    if ((window as any).initializeBountyFilters_all) {
-      (window as any).initializeBountyFilters_all();
-    }
+    initializeBountyFilters_all();
   });
 
   afterEach(() => {
     localStorage.clear();
-    delete (window as any).initializeBountyFilters_all;
-    delete (window as any).getMinimumTier;
   });
 
   describe('Dropdown Initialization', () => {
@@ -72,9 +65,7 @@ describe('Bounty Filters', () => {
       localStorage.setItem('live.filter.bounties.EntratiLabSyndicate', '4');
 
       // Reinitialize
-      if ((window as any).initializeBountyFilters_all) {
-        (window as any).initializeBountyFilters_all();
-      }
+      initializeBountyFilters_all();
 
       const dropdown = document.getElementById('bounty-filter-EntratiLabSyndicate') as HTMLSelectElement;
       expect(dropdown.value).toBe('4');
@@ -102,37 +93,37 @@ describe('Bounty Filters', () => {
 
   describe('getMinimumTier Function', () => {
     test('returns 1 when no filter is set (default)', () => {
-      const minTier = (window as any).getMinimumTier('ZarimanSyndicate');
+      const minTier = getMinimumTier('ZarimanSyndicate');
       expect(minTier).toBe(1);
     });
 
     test('returns -1 when Hide is selected', () => {
       localStorage.setItem('live.filter.bounties.HexSyndicate', '-1');
-      const minTier = (window as any).getMinimumTier('HexSyndicate');
+      const minTier = getMinimumTier('HexSyndicate');
       expect(minTier).toBe(-1);
     });
 
     test('returns correct tier for Holdfasts', () => {
       localStorage.setItem('live.filter.bounties.ZarimanSyndicate', '3');
-      const minTier = (window as any).getMinimumTier('ZarimanSyndicate');
+      const minTier = getMinimumTier('ZarimanSyndicate');
       expect(minTier).toBe(3);
     });
 
     test('returns correct tier for Cavia', () => {
       localStorage.setItem('live.filter.bounties.EntratiLabSyndicate', '5');
-      const minTier = (window as any).getMinimumTier('EntratiLabSyndicate');
+      const minTier = getMinimumTier('EntratiLabSyndicate');
       expect(minTier).toBe(5);
     });
 
     test('returns correct tier for Hex', () => {
       localStorage.setItem('live.filter.bounties.HexSyndicate', '7');
-      const minTier = (window as any).getMinimumTier('HexSyndicate');
+      const minTier = getMinimumTier('HexSyndicate');
       expect(minTier).toBe(7);
     });
 
     test('handles invalid values gracefully', () => {
       localStorage.setItem('live.filter.bounties.ZarimanSyndicate', 'invalid');
-      const minTier = (window as any).getMinimumTier('ZarimanSyndicate');
+      const minTier = getMinimumTier('ZarimanSyndicate');
       expect(minTier).toBe(1); // Falls back to default
     });
   });

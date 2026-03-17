@@ -6,17 +6,7 @@
  * specs, and auras.
  */
 
-// Declare global functions available from live.ts
-declare function getDictPromise(): Promise<Record<string, string>>;
-declare function createExpiryBadge(expiry: number): HTMLSpanElement;
-
-// Provided by src/descendia-data.ts (loaded before this script in the browser)
-declare function resolveDescentChallenges(
-	descent: IDescent,
-	dict: Record<string, string>
-): IDescentChallengeRow[];
-
-// IDescentChallengeRow is defined in src/descendia-data.ts (includes typeLabel for display)
+import { resolveDescentChallenges } from './descendia-data.js';
 
 interface IMongoDate {
 	$date: {
@@ -41,7 +31,7 @@ interface IDescent {
 /**
  * Updates the Descendia table with the currently active Descent rotation
  */
-function updateDescendia(): void
+export function updateDescendia(): void
 {
 	// worldState must be available before calling this
 	if (!(window as any).worldState?.Descents || (window as any).worldState.Descents.length === 0)
@@ -106,7 +96,7 @@ function updateDescendia(): void
  * @param dict     The main dictionary (key → localized string)
  * @returns        A <tbody> element ready to be inserted into a table
  */
-function renderDescentChallenges(descent: IDescent, dict: Record<string, string>): HTMLTableSectionElement
+export function renderDescentChallenges(descent: IDescent, dict: Record<string, string>): HTMLTableSectionElement
 {
 	const tbody = document.createElement("tbody");
 

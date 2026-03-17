@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { loadScript } from './helpers/dom-helpers';
 import { TEST_FRONT_PROXY_BASE_URL as DEFAULT_BASE_URL } from './helpers/test-constants';
+import { WarframeApiFrontProxyClient } from '../src/warframe-api-proxy-client';
 const CUSTOM_BASE_URL = 'https://front-proxy.test';
 const PROXY_TOKEN = 'test-token';
 const MOCK_WORLD_STATE = { timestamp: 1234567890, alerts: [] };
@@ -9,7 +9,6 @@ const MOCK_NEXT_FETCH_HTTP_DATE = new Date(Date.now() + 23 * 60 * 60 * 1000).toU
 const MOCK_NEXT_FETCH_EPOCH_MS = new Date(MOCK_NEXT_FETCH_HTTP_DATE).getTime();
 
 beforeEach(() => {
-  loadScript('typestripped/src/warframe-api-proxy-client.js');
   delete (window as any).__ENV__;
   delete (window as any).__getSupabaseAccessToken;
 });
@@ -33,7 +32,7 @@ describe('WarframeApiFrontProxyClient.fetchWorldState', () => {
         json: () => Promise.resolve(MOCK_WORLD_STATE),
       } as Response);
 
-      await (window as any).WarframeApiFrontProxyClient.fetchWorldState();
+      await WarframeApiFrontProxyClient.fetchWorldState();
 
       expect(fetch).toHaveBeenCalledWith(
         `${CUSTOM_BASE_URL}/worldState`,
@@ -47,7 +46,7 @@ describe('WarframeApiFrontProxyClient.fetchWorldState', () => {
         json: () => Promise.resolve(MOCK_WORLD_STATE),
       } as Response);
 
-      const result = await (window as any).WarframeApiFrontProxyClient.fetchWorldState();
+      const result = await WarframeApiFrontProxyClient.fetchWorldState();
 
       expect(result).toEqual(MOCK_WORLD_STATE);
     });
@@ -60,7 +59,7 @@ describe('WarframeApiFrontProxyClient.fetchWorldState', () => {
         json: () => Promise.resolve(MOCK_WORLD_STATE),
       } as Response);
 
-      await (window as any).WarframeApiFrontProxyClient.fetchWorldState();
+      await WarframeApiFrontProxyClient.fetchWorldState();
 
       expect(fetch).toHaveBeenCalledWith(
         `${DEFAULT_BASE_URL}/worldState`,
@@ -76,7 +75,7 @@ describe('WarframeApiFrontProxyClient.fetchWorldState', () => {
         json: () => Promise.resolve(MOCK_WORLD_STATE),
       } as Response);
 
-      await (window as any).WarframeApiFrontProxyClient.fetchWorldState();
+      await WarframeApiFrontProxyClient.fetchWorldState();
 
       expect(fetch).toHaveBeenCalledWith(
         `${DEFAULT_BASE_URL}/worldState`,
@@ -95,7 +94,7 @@ describe('WarframeApiFrontProxyClient.fetchWorldState', () => {
       json: () => Promise.resolve(MOCK_WORLD_STATE),
     } as Response);
 
-    await (window as any).WarframeApiFrontProxyClient.fetchWorldState();
+    await WarframeApiFrontProxyClient.fetchWorldState();
 
     const callHeaders = (fetch as any).mock.calls[0][1].headers;
     expect(callHeaders).not.toHaveProperty('Authorization');
@@ -117,7 +116,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       json: () => Promise.resolve({ nextFetchAvailableAt: MOCK_NEXT_FETCH_HTTP_DATE, profile: MOCK_PROFILE_DATA }),
     } as Response);
 
-    await (window as any).WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
+    await WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
 
     expect(fetch).toHaveBeenCalledWith(
       `${CUSTOM_BASE_URL}/profile?platform=pc&playerId=abc123`,
@@ -132,7 +131,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       json: () => Promise.resolve({ nextFetchAvailableAt: MOCK_NEXT_FETCH_HTTP_DATE, profile: MOCK_PROFILE_DATA }),
     } as Response);
 
-    await (window as any).WarframeApiFrontProxyClient.fetchProfile('ps4', 'abc123');
+    await WarframeApiFrontProxyClient.fetchProfile('ps4', 'abc123');
 
     expect(fetch).toHaveBeenCalledWith(
       `${CUSTOM_BASE_URL}/profile?platform=ps4&playerId=abc123`,
@@ -149,7 +148,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       json: () => Promise.resolve({ nextFetchAvailableAt: MOCK_NEXT_FETCH_HTTP_DATE, profile: MOCK_PROFILE_DATA }),
     } as Response);
 
-    await (window as any).WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
+    await WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
 
     expect(fetch).toHaveBeenCalledWith(
       expect.stringContaining(`${DEFAULT_BASE_URL}/profile`),
@@ -164,7 +163,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       json: () => Promise.resolve({ nextFetchAvailableAt: MOCK_NEXT_FETCH_HTTP_DATE, profile: MOCK_PROFILE_DATA }),
     } as Response);
 
-    await (window as any).WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
+    await WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
 
     expect(fetch).toHaveBeenCalledWith(
       expect.any(String),
@@ -181,7 +180,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       json: () => Promise.resolve({ nextFetchAvailableAt: MOCK_NEXT_FETCH_HTTP_DATE, profile: MOCK_PROFILE_DATA }),
     } as Response);
 
-    await (window as any).WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
+    await WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
 
     expect(fetch).toHaveBeenCalledWith(
       expect.any(String),
@@ -198,7 +197,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       json: () => Promise.resolve({ nextFetchAvailableAt: MOCK_NEXT_FETCH_HTTP_DATE, profile: MOCK_PROFILE_DATA }),
     } as Response);
 
-    await (window as any).WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
+    await WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
 
     const callHeaders = (fetch as any).mock.calls[0][1].headers;
     expect(callHeaders).not.toHaveProperty('Authorization');
@@ -212,7 +211,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       json: () => Promise.resolve({ nextFetchAvailableAt: MOCK_NEXT_FETCH_HTTP_DATE, profile: MOCK_PROFILE_DATA }),
     } as Response);
 
-    await (window as any).WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
+    await WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
 
     const callHeaders = (fetch as any).mock.calls[0][1].headers;
     expect(callHeaders).not.toHaveProperty('Authorization');
@@ -225,7 +224,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       json: () => Promise.resolve({ nextFetchAvailableAt: MOCK_NEXT_FETCH_HTTP_DATE, profile: MOCK_PROFILE_DATA }),
     } as Response);
 
-    const result = await (window as any).WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
+    const result = await WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
 
     expect(result.status).toBe(200);
     expect(result.data).toEqual(MOCK_PROFILE_DATA);
@@ -239,7 +238,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       headers: new Headers(),
     } as Response);
 
-    const result = await (window as any).WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
+    const result = await WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
 
     expect(result.status).toBe(429);
     expect(result.data).toBeNull();
@@ -254,7 +253,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       headers: new Headers({ 'Retry-After': retryAfterHttpDate }),
     } as Response);
 
-    const result = await (window as any).WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
+    const result = await WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
 
     expect(result.status).toBe(429);
     expect(result.nextFetchAvailableAt).toBe(new Date(retryAfterHttpDate).getTime());
@@ -267,7 +266,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
       headers: new Headers(),
     } as Response);
 
-    const result = await (window as any).WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
+    const result = await WarframeApiFrontProxyClient.fetchProfile('pc', 'abc123');
 
     expect(result.status).toBe(401);
     expect(result.data).toBeNull();

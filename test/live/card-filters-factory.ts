@@ -5,11 +5,12 @@
  * Each card that implements filters should call this function to ensure
  * correct integration.
  *
- * Loads the REAL production code (typestripped/src/card-filters.js) to avoid test drift.
+ * Imports the REAL production code (src/card-filters.ts) to avoid test drift.
  */
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { loadFixture } from '../helpers/fixture-loader';
-import { mockBootstrapTooltip, getById, loadScript } from '../helpers/dom-helpers';
+import { mockBootstrapTooltip } from '../helpers/dom-helpers';
+import { initializeCardFilters_all, isFilterEnabled, refreshFilterStatus } from '../../src/card-filters';
 
 /**
  * Test factory function that tests generic card filter functionality for a specific card.
@@ -31,8 +32,8 @@ export function testCardFilters(cardName: string) {
       (window as any).addTooltip = function(element: HTMLElement, title: string) {
         element.setAttribute('data-bs-toggle', 'tooltip');
         element.setAttribute('data-bs-title', title);
-        if ((window as any).bootstrap?.Tooltip) {
-          new (window as any).bootstrap.Tooltip(element);
+        if (window.bootstrap?.Tooltip) {
+          new window.bootstrap.Tooltip(element);
         }
       };
 
@@ -47,23 +48,13 @@ export function testCardFilters(cardName: string) {
         }
       };
 
-      // Load the actual production code - no mock, no drift
-      loadScript('typestripped/src/card-filters.js');
-
-      // Initialize the card filters (not called automatically by the module)
-      if ((window as any).initializeCardFilters_all) {
-        (window as any).initializeCardFilters_all();
-      } else {
-        throw new Error('initializeCardFilters_all not loaded from card-filters.js');
-      }
+      // Initialize the card filters
+      initializeCardFilters_all();
     });
 
     afterEach(() => {
       localStorage.clear();
-      delete (window as any).bootstrap;
-      delete (window as any).initializeCardFilters_all;
-      delete (window as any).isFilterEnabled;
-      delete (window as any).refreshFilterStatus;
+      delete window.bootstrap;
     });
 
     describe('Gear Icon', () => {
@@ -230,9 +221,7 @@ export function testCardFilters(cardName: string) {
         localStorage.setItem(`live.filter.${cardName}.${filterType}`, '0');
 
         // Reinitialize
-        if ((window as any).initializeCardFilters_all) {
-          (window as any).initializeCardFilters_all();
-        }
+        initializeCardFilters_all();
 
         const checkbox = panel?.querySelector<HTMLInputElement>('[data-filter-type]');
         expect(checkbox?.checked).toBe(false);
@@ -241,19 +230,19 @@ export function testCardFilters(cardName: string) {
 
     describe('isFilterEnabled Function', () => {
       test('returns true when no filter is set (default)', () => {
-        const isEnabled = (window as any).isFilterEnabled(cardName, 'any-type');
+        const isEnabled = isFilterEnabled(cardName, 'any-type');
         expect(isEnabled).toBe(true);
       });
 
       test('returns false when filter is explicitly disabled', () => {
         localStorage.setItem(`live.filter.${cardName}.any-type`, '0');
-        const isEnabled = (window as any).isFilterEnabled(cardName, 'any-type');
+        const isEnabled = isFilterEnabled(cardName, 'any-type');
         expect(isEnabled).toBe(false);
       });
 
       test('returns true when filter is explicitly enabled', () => {
         localStorage.setItem(`live.filter.${cardName}.any-type`, '1');
-        const isEnabled = (window as any).isFilterEnabled(cardName, 'any-type');
+        const isEnabled = isFilterEnabled(cardName, 'any-type');
         expect(isEnabled).toBe(true);
       });
     });

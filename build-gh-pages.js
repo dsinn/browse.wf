@@ -124,6 +124,11 @@ async function build() {
       console.warn('⚠️  TypeScript compilation had type errors, but JS files were generated\n');
     }
 
+    // Bundle fork modules
+    console.log('📦 Bundling fork modules...');
+    execSync('node esbuild.config.js', { stdio: 'inherit', cwd: __dirname });
+    console.log('✓ Fork bundle built\n');
+
     // Generate env-config.js for GitHub Pages
     console.log('🔧 Generating env-config.js...');
     const envConfig = {

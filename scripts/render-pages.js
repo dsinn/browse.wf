@@ -82,12 +82,12 @@ async function watchMode() {
 
   console.log('Watching PHP files for changes...\n');
 
-  const IGNORED_DIRS = /[.]git|dist|node_modules|typestripped|vendor/;
+  const IGNORED_DIRS = /[.]git|dist|node_modules|public|typestripped|vendor/;
   const watcher = chokidar.default.watch(rootDir, {
     ignored: (filePath, stats) => {
       if (!stats) return false;
       if (stats.isDirectory()) return IGNORED_DIRS.test(filePath);
-      return !filePath.endsWith('.php');
+      return !filePath.endsWith('.php') && !filePath.endsWith('.html');
     },
     persistent: true,
     ignoreInitial: true,

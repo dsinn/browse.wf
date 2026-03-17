@@ -3,12 +3,10 @@
  * Resets at midnight UTC, matching the Steel Path Incursions timer.
  */
 
-// Globals available on the live page from live.ts
-declare function createCompletionToggle(oid: string): HTMLAnchorElement;
 
 let dailyResetTimer: ReturnType<typeof setTimeout> | null = null;
 
-function updateBountyCheckboxes(): void
+export function updateBountyCheckboxes(): void
 {
 	// lastDailyReset in seconds since epoch at start of UTC day — matches incursions_expiry calculation
 	const lastDailyReset = Math.trunc(Date.now() / 86400000) * 86400;
@@ -22,7 +20,7 @@ function updateBountyCheckboxes(): void
 		let span = document.getElementById(spanId);
 		if (span)
 		{
-			span.querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => (window as any).bootstrap?.Tooltip.getInstance(x)?.dispose());
+			span.querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap?.Tooltip.getInstance(x)?.dispose());
 			span.innerHTML = "";
 		}
 		else

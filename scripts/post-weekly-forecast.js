@@ -25,11 +25,8 @@ import {
 
 const require = createRequire(import.meta.url);
 const osdict = require('../test/__mocks__/dicts/en.json');
-import './node-window-shim.js';
-import '../typestripped/src/descendia-data.js';
-import '../typestripped/src/calendar-seasons-data.js';
-const { resolveDescentChallenges } = globalThis;
-const { resolveCalendarSeasonDays, getSeasonLabel } = globalThis;
+import { resolveDescentChallenges } from '../typestripped/src/descendia-data.js';
+import { resolveCalendarSeasonDays, getSeasonLabel } from '../typestripped/src/calendar-seasons-data.js';
 const camelToWords = s => s.replace(/(?<=.)(?=[A-Z])/g, ' ');
 
 const PROXY_BASE_URL =

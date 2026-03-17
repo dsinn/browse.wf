@@ -18,7 +18,7 @@ const STORAGE_KEY = "news_items_read";
  * Format: {link}|{timestamp}
  * Items without links use empty string for URL part
  */
-function generateNewsItemKey(item: NewsItem): string {
+export function generateNewsItemKey(item: NewsItem): string {
     const linkPart = item.link || "";
     return `${linkPart}|${item.time}`;
 }
@@ -26,7 +26,7 @@ function generateNewsItemKey(item: NewsItem): string {
 /**
  * Check if a news item is marked as read
  */
-function isNewsItemRead(key: string): boolean {
+export function isNewsItemRead(key: string): boolean {
     const readItems = getReadItems();
     return readItems.includes(key);
 }
@@ -35,7 +35,7 @@ function isNewsItemRead(key: string): boolean {
  * Mark a news item as read
  * Updates localStorage, triggers cloud sync, and updates UI
  */
-function markNewsItemAsRead(key: string, element: HTMLElement): void {
+export function markNewsItemAsRead(key: string, element: HTMLElement): void {
     // Don't re-mark already read items
     if (element.classList.contains("news-read")) {
         return;
@@ -62,7 +62,7 @@ function markNewsItemAsRead(key: string, element: HTMLElement): void {
  * Mark all currently visible primary/success news items as read
  * Excludes danger (red text) items
  */
-function markAllNewsAsRead(): void {
+export function markAllNewsAsRead(): void {
     const newsBody = document.getElementById("news-body");
     if (!newsBody) return;
 
@@ -101,7 +101,7 @@ function markAllNewsAsRead(): void {
  * Called before cloud sync to prevent stale data accumulation
  * Only runs if News card is present in DOM
  */
-function pruneStaleNewsRead(): void {
+export function pruneStaleNewsRead(): void {
     const newsBody = document.getElementById("news-body");
     if (!newsBody) return; // News card not present, skip pruning
 
@@ -160,7 +160,7 @@ function saveReadItems(items: string[]): void {
  * Initialize mark-as-read UI handlers
  * Sets up "Mark all as read" button
  */
-function initializeMarkAsRead(): void {
+export function initializeMarkAsRead(): void {
     const markAllBtn = document.getElementById("news-mark-all-read");
     if (markAllBtn) {
         markAllBtn.addEventListener("click", (e) => {

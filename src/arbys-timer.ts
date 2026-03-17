@@ -109,7 +109,7 @@ function scheduleArbyUpdate(elm: HTMLElement): void
 /**
  * Creates a countdown badge element for an arbitration timestamp
  */
-function createArbyCountdownBadge(timestamp: number): HTMLSpanElement
+export function createArbyCountdownBadge(timestamp: number): HTMLSpanElement
 {
 	const span = document.createElement("span");
 	span.setAttribute("data-arby-timestamp", timestamp.toString());
@@ -128,7 +128,7 @@ function createArbyCountdownBadge(timestamp: number): HTMLSpanElement
  * Initializes the timer system for the /arbys page
  * Each badge schedules its own updates based on when the display text will change
  */
-function initializeArbyTimer(): void
+export function initializeArbyTimer(): void
 {
 	// Schedule updates for any existing badges
 	for (const elm of document.querySelectorAll<HTMLElement>("[data-arby-timestamp]"))

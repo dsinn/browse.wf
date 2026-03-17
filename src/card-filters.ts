@@ -11,7 +11,7 @@
 /**
  * Refresh the visual state of a filter gear icon based on panel open/closed state
  */
-function refreshFilterStatus(elm: HTMLElement): void
+export function refreshFilterStatus(elm: HTMLElement): void
 {
 	const cardName = elm.getAttribute("data-filter-toggle");
 	const panelId = cardName + "-filters";
@@ -27,7 +27,7 @@ function refreshFilterStatus(elm: HTMLElement): void
 		(window as any).addTooltip(span, "Widget settings");
 	}
 
-	elm.querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => (window as any).bootstrap?.Tooltip.getInstance(x)?.dispose());
+	elm.querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap?.Tooltip.getInstance(x)?.dispose());
 	elm.innerHTML = "";
 	elm.appendChild(span);
 }
@@ -160,7 +160,7 @@ function initializeCardFilters(cardName: string, onFilterChange?: () => void): v
  * @param filterType - The filter type value from the checkbox's data-filter-type attribute
  * @returns true if the filter is enabled (should show items), false if disabled (should hide items)
  */
-function isFilterEnabled(cardName: string, filterType: string): boolean
+export function isFilterEnabled(cardName: string, filterType: string): boolean
 {
 	const filterKey = `live.filter.${cardName}.${filterType}`;
 	const filterState = localStorage.getItem(filterKey);
@@ -173,7 +173,7 @@ function isFilterEnabled(cardName: string, filterType: string): boolean
  * Initialize all card filter functionality
  * Call this after the DOM is loaded
  */
-function initializeCardFilters_all(): void
+export function initializeCardFilters_all(): void
 {
 	initializeFilterToggles();
 

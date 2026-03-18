@@ -13,6 +13,7 @@
     "test:api-validation": "API_VALIDATION=1 vitest run test/api-validation.test.ts",
     "render-fixtures": "node test/helpers/render-php.js",
     "render-fixtures:watch": "node test/helpers/render-php.js --watch",
+    "compile": "tsc && node esbuild.config.js",
     "build": "node build-gh-pages.js",
     "post-weekly-forecast": "node --env-file-if-exists=.env scripts/post-weekly-forecast.js"
   },

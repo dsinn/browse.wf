@@ -24,13 +24,12 @@ import {
 	ExportBoosters,
 } from 'warframe-public-export-plus';
 import {resolveCalendarSeasonDays, getSeasonLabel} from '../typestripped/src/calendar-seasons-data.js';
-// eslint-disable-next-line import-x/order
 import {resolveDescentChallenges} from '../typestripped/src/descendia-data.js';
+// eslint-disable-next-line import-x/order
+import {resolveConquest} from '../typestripped/src/archimedea-data.js';
 
 const require = createRequire(import.meta.url);
 const osdict = require('../test/__mocks__/dicts/en.json');
-
-const camelToWords = s => s.replaceAll(/(?<=.)(?=[A-Z])/gu, ' ');
 
 const PROXY_BASE_URL
 	= process.env.WARFRAME_API_FRONT_PROXY_BASE_URL
@@ -99,89 +98,37 @@ function toTitleCase(s) {
 
 // Conquest (Deep / Temporal Archimedea)
 
-const CONQUEST_RISK_REMAP = {EMPBlackHole: 'MagneticHounds'};
-const CONQUEST_VARIABLE_REMAP = {DullBlades: 'ComboCountChance', Undersupplied: 'MaxAmmo'};
-
-const FRAME_VARIABLE_VALUE_MAP = {
-	ShieldDelay: '500',
-	TimeDilation: '50',
-};
-
-function conquestLabel(osdict, keyPrefix, raw) {
-	const text = osdict[keyPrefix + raw];
-	return text ?? raw;
-}
-
-export function formatConquest(worldState, conquestType, variantKeyPrefix, sectionTitle, osdict, dict, ExportMissionTypes, find = findWeekly, showTimestamp = false) {
+export function formatConquest(worldState, conquestType, variantKeyPrefix, sectionTitle, find = findWeekly, showTimestamp = false) {
 	const conquests = (worldState.Conquests ?? []).filter(c => c.Type === conquestType);
 	const next = find(conquests);
 	if (!next) {
 		return null;
 	}
 
+	const {missions, frameVariables} = resolveConquest(next, conquestType, variantKeyPrefix, ExportMissionTypes, osdict, dictEn);
+
 	const heading = showTimestamp
 		? `## ${sectionTitle} ${discordTimestamp(mongoMs(next.Activation))}`
 		: `## ${sectionTitle}`;
 	const lines = [heading];
 
-	for (const mission of next.Missions) {
-		let hardDiff = mission.difficulties?.find(d => d.type === 'CD_HARD');
-		if (!hardDiff && mission.difficulties && mission.difficulties.length > 0) {
-			hardDiff = mission.difficulties[0];
-			for (const d of mission.difficulties.slice(1)) {
-				if (d.risks.length > hardDiff.risks.length) {
-					hardDiff = d;
-				}
-			}
-		}
-
-		if (!hardDiff) {
-			continue;
-		}
-
-		let type = ExportMissionTypes[mission.missionType]?.name?.split('MissionName_')[1] ?? mission.missionType;
-		if (conquestType === 'CT_LAB' && type === 'Defense') {
-			type = 'DualDefense';
-		}
-
-		const rawTypeName = dict['/Lotus/Language/Missions/MissionName_' + type] ?? camelToWords(type);
-		const typeName = toTitleCase(rawTypeName);
-
-		const variantName = conquestLabel(osdict, variantKeyPrefix, hardDiff.deviation);
-		const variantDesc = osdict[variantKeyPrefix + hardDiff.deviation + '_Desc'];
-
+	for (const mission of missions) {
+		const typeName = toTitleCase(mission.type);
 		lines.push(
 			`**${typeName}**`,
-			variantDesc
-				? `- **${variantName}**: ${variantDesc.replaceAll(/<[^>]+>/gu, '').trim()}`
-				: `- **${variantName}**`,
+			mission.variantDesc
+				? `- **${mission.variant}**: ${mission.variantDesc}`
+				: `- **${mission.variant}**`,
 		);
-
-		for (const r of hardDiff.risks.slice(0, 2)) {
-			const condKey = '/Lotus/Language/Conquest/Condition_' + (CONQUEST_RISK_REMAP[r] ?? r);
-			const condName = osdict[condKey] ?? r;
-			const condDesc = osdict[condKey + '_Desc'];
-			lines.push(condDesc
-				? `- **${condName}**: ${condDesc.replaceAll(/<[^>]+>/gu, '').trim()}`
-				: `- **${condName}**`);
+		for (const cond of mission.conditions) {
+			lines.push(cond.desc ? `- **${cond.name}**: ${cond.desc}` : `- **${cond.name}**`);
 		}
 	}
 
-	if (next.Variables && next.Variables.length > 0) {
+	if (frameVariables.length > 0) {
 		lines.push('> **Frame Variables**');
-		for (const fv of next.Variables) {
-			const canonical = CONQUEST_VARIABLE_REMAP[fv] ?? fv;
-			const key = '/Lotus/Language/Conquest/PersonalMod_' + canonical;
-			const name = osdict[key] ?? fv;
-			const desc = osdict[key + '_Desc'];
-			let line = `> - **${name}**`;
-			if (desc) {
-				const value = FRAME_VARIABLE_VALUE_MAP[fv];
-				const descText = desc.replaceAll(/<[^>]+>/gu, '').replaceAll('|val|', value ?? '').trim();
-				line += `: ${descText}`;
-			}
-
-			lines.push(line);
+		for (const fv of frameVariables) {
+			lines.push(fv.desc ? `> - **${fv.name}**: ${fv.desc}` : `> - **${fv.name}**`);
 		}
 	}
 
@@ -307,24 +254,7 @@ export function chunkMessage(first, rest, limit = 2000) {
 	return chunks;
 }
 
-export async function main() {
-	const args = new Set(process.argv.slice(2));
-	const dryRun = args.has('--dry-run');
-	const force = args.has('--force') || args.has('-f');
-
-	if (!dryRun && !process.env.WEEKLY_FORECAST_DISCORD_WEBHOOK_URL) {
-		console.error('Error: WEEKLY_FORECAST_DISCORD_WEBHOOK_URL environment variable is required.');
-		// eslint-disable-next-line unicorn/no-process-exit
-		process.exit(1);
-	}
-
-	console.log('Fetching data...');
-
-	const worldState = await fetchWorldState();
-	const dict = dictEn;
-
-	// Resolve which entry each section will use before formatting.
-	// Missing weekly entries fall back to closest when --force is active.
+function resolveEntries(worldState, force) {
 	const entries = {
 		Descendia: findWeekly(worldState.Descents ?? []),
 		'1999 Calendar': findWeekly(worldState.KnownCalendarSeasons ?? []),
@@ -343,31 +273,21 @@ export async function main() {
 		}
 
 		console.warn(`Warning: ${message}`);
-		if (entries.Descendia === null) {
-			entries.Descendia = findClosest(worldState.Descents ?? []);
-		}
-
-		if (entries['1999 Calendar'] === null) {
-			entries['1999 Calendar'] = findClosest(worldState.KnownCalendarSeasons ?? []);
-		}
-
-		if (entries['Deep Archimedea'] === null) {
-			entries['Deep Archimedea'] = findClosest((worldState.Conquests ?? []).filter(c => c.Type === 'CT_LAB'));
-		}
-
-		if (entries['Temporal Archimedea'] === null) {
-			entries['Temporal Archimedea'] = findClosest((worldState.Conquests ?? []).filter(c => c.Type === 'CT_HEX'));
+		const fallbackItems = {
+			Descendia: worldState.Descents ?? [],
+			'1999 Calendar': worldState.KnownCalendarSeasons ?? [],
+			'Deep Archimedea': (worldState.Conquests ?? []).filter(c => c.Type === 'CT_LAB'),
+			'Temporal Archimedea': (worldState.Conquests ?? []).filter(c => c.Type === 'CT_HEX'),
+		};
+		for (const key of missing) {
+			entries[key] = findClosest(fallbackItems[key]);
 		}
 	}
 
-	// If all found entries share the same activation, show the timestamp once at the top.
-	// Otherwise each section heading carries its own timestamp.
-	const foundActivations = Object.values(entries).filter(Boolean).map(x => mongoMs(x.Activation));
-	const allSame = foundActivations.length > 0 && foundActivations.every(ms => ms === foundActivations[0]);
-	const showTimestamp = !allSame;
-	const headerTs = allSame ? foundActivations[0] : null;
+	return entries;
+}
 
-	// Build a find function that returns the pre-resolved entry for each section.
+function buildSections(worldState, entries, showTimestamp, dict) {
 	const findResolved = sectionKey => _items => entries[sectionKey];
 
 	const descendia = entries.Descendia ? formatDescendia(worldState, dict, findResolved('Descendia'), showTimestamp) : null;
@@ -375,30 +295,10 @@ export async function main() {
 		? formatCalendarSeason(worldState, dict, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, findResolved('1999 Calendar'), showTimestamp)
 		: null;
 	const deepArchimedea = entries['Deep Archimedea']
-		? formatConquest(
-			worldState,
-			'CT_LAB',
-			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
-			'Deep Archimedea',
-			osdict,
-			dict,
-			ExportMissionTypes,
-			findResolved('Deep Archimedea'),
-			showTimestamp,
-		)
+		? formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', findResolved('Deep Archimedea'), showTimestamp)
 		: null;
 	const temporalArchimedea = entries['Temporal Archimedea']
-		? formatConquest(
-			worldState,
-			'CT_HEX',
-			'/Lotus/Language/Conquest/MissionVariant_HexConquest_',
-			'Temporal Archimedea',
-			osdict,
-			dict,
-			ExportMissionTypes,
-			findResolved('Temporal Archimedea'),
-			showTimestamp,
-		)
+		? formatConquest(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea', findResolved('Temporal Archimedea'), showTimestamp)
 		: null;
 
 	// Try to combine both Archimedeas into one message; split if too long
@@ -413,6 +313,38 @@ export async function main() {
 	} else {
 		sections.push(...archimedeas);
 	}
+
+	return sections;
+}
+
+export async function main() {
+	const args = new Set(process.argv.slice(2));
+	const dryRun = args.has('--dry-run');
+	const force = args.has('--force') || args.has('-f');
+
+	if (!dryRun && !process.env.WEEKLY_FORECAST_DISCORD_WEBHOOK_URL) {
+		console.error('Error: WEEKLY_FORECAST_DISCORD_WEBHOOK_URL environment variable is required.');
+		// eslint-disable-next-line unicorn/no-process-exit
+		process.exit(1);
+	}
+
+	console.log('Fetching data...');
+
+	const worldState = await fetchWorldState();
+	const dict = dictEn;
+
+	// Resolve which entry each section will use before formatting.
+	// Missing weekly entries fall back to closest when --force is active.
+	const entries = resolveEntries(worldState, force);
+
+	// If all found entries share the same activation, show the timestamp once at the top.
+	// Otherwise each section heading carries its own timestamp.
+	const foundActivations = Object.values(entries).filter(Boolean).map(x => mongoMs(x.Activation));
+	const allSame = foundActivations.length > 0 && foundActivations.every(ms => ms === foundActivations[0]);
+	const showTimestamp = !allSame;
+	const headerTs = allSame ? foundActivations[0] : null;
+
+	const sections = buildSections(worldState, entries, showTimestamp, dict);
 
 	if (sections.length === 0) {
 		console.log('No forecast data available. Nothing posted.');

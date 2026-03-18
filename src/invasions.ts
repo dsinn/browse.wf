@@ -65,6 +65,136 @@ export function isInvasionRewardShown(itemType: string): boolean {
 	return (globalThis as any).isFilterEnabled('invasions', `reward-${invasionRewardFilterKey(itemType)}`);
 }
 
+function buildPercentageCell(percentage: number): HTMLTableCellElement {
+	const td = document.createElement('td');
+	td.className = 'text-end';
+	const span = document.createElement('span');
+	span.className = 'invasion-percentage';
+	span.textContent = `${percentage.toFixed(1)}%`;
+	td.append(span);
+	return td;
+}
+
+async function buildRewardCell(item: {ItemType: string; ItemCount: number}): Promise<HTMLTableCellElement> {
+	const td = document.createElement('td');
+	td.textContent = `${item.ItemCount > 1 ? `${String(item.ItemCount)}x ` : ''}${String(await (globalThis as any).getItemNamePromise(item.ItemType))}`;
+	return td;
+}
+
+function buildToggleCell(invasion: InvasionData, isDuplicate: boolean, nodeLabel: string): HTMLTableCellElement {
+	const td = document.createElement('td');
+	if (isDuplicate) {
+		const span = document.createElement('span');
+		span.textContent = '⏳';
+		(globalThis as any).addTooltip(span, `Will unlock after the first ${nodeLabel} invasion is completed.`);
+		td.append(span);
+	} else {
+		td.append((globalThis as any).createCompletionToggle(invasion._id.$oid));
+	}
+
+	return td;
+}
+
+async function buildInvasionHeading(invasion: InvasionData, node: any, nodeLabel: string, percentage: number, exportImagesPromise: Promise<Record<string, any>>): Promise<HTMLTableCellElement> {
+	const th = document.createElement('th');
+	th.textContent = nodeLabel;
+	if (node.missionType === 'MT_ASSASSINATION') {
+		// Lazy-await: most invasions don't need ExportImages, so we defer until first assassination node.
+		// The promise is already in-flight; subsequent awaits in the same loop resolve instantly.
+		await exportImagesPromise;
+		const img = document.createElement('img');
+		img.className = 'invasion-boss-icon ms-1';
+		(globalThis as any).setImageSource(img, '/Lotus/Interface/Icons/Sigils/Phorid.png');
+		(globalThis as any).addTooltip(img, 'Assassination (Phorid)');
+		th.append(img);
+	} else if (invasion.Node === 'SolNode65') {
+		const span = document.createElement('span');
+		span.textContent = ' 💥';
+		(globalThis as any).addTooltip(span, 'Sabotage');
+		th.append(span);
+	}
+
+	th.append(createInvasionProgressBar(invasion, percentage));
+	return th;
+}
+
+type InvasionRowContext = {
+	invasion: InvasionData;
+	percentage: number;
+	isDuplicate: boolean;
+	node: any;
+	nodeLabel: string;
+	attackerItem: {ItemType: string; ItemCount: number} | undefined;
+	defenderItem: {ItemType: string; ItemCount: number} | undefined;
+	attackerVisible: boolean;
+	defenderVisible: boolean;
+	exportImagesPromise: Promise<Record<string, any>>;
+};
+
+async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowElement[]> {
+	const {invasion, percentage, isDuplicate, node, nodeLabel, attackerItem, defenderItem, attackerVisible, defenderVisible, exportImagesPromise} = ctx;
+	const rows: HTMLTableRowElement[] = [];
+
+	// Both hidden → render a hidden placeholder row for pruneStaleOids
+	if (!attackerVisible && !defenderVisible) {
+		const tr = document.createElement('tr');
+		tr.classList.add('d-none');
+		const td = document.createElement('td');
+		if (!isDuplicate) {
+			td.append((globalThis as any).createCompletionToggle(invasion._id.$oid));
+		}
+
+		tr.append(td);
+		rows.push(tr);
+		return rows;
+	}
+
+	// Row 1: attacker row (or promoted defender row)
+	const isAttackerPromoted = !attackerVisible && defenderVisible;
+	const row1Item = isAttackerPromoted ? defenderItem : attackerItem;
+	const row1Visible = isAttackerPromoted ? defenderVisible : attackerVisible;
+
+	if (row1Visible && row1Item) {
+		const tr = document.createElement('tr');
+		if (isDuplicate) {
+			tr.classList.add('opacity-50');
+		}
+
+		// Th: node name + special mission icon + progress bar
+		tr.append(await buildInvasionHeading(invasion, node, nodeLabel, percentage, exportImagesPromise));
+		tr.append(buildPercentageCell(percentage));
+		tr.append(await buildRewardCell(row1Item));
+		tr.append(buildToggleCell(invasion, isDuplicate, nodeLabel));
+
+		rows.push(tr);
+	} else if (!row1Visible && row1Item) {
+		// Hidden attacker row (still add for DOM completeness with completion toggle)
+		const tr = document.createElement('tr');
+		tr.classList.add('d-none');
+		tr.append(document.createElement('td'));
+
+		rows.push(tr);
+	}
+
+	// Row 2: defender row (only if attacker was also visible)
+	if (attackerVisible && defenderVisible && defenderItem) {
+		const tr = document.createElement('tr');
+		tr.classList.add('invasion-defender-reward');
+		if (isDuplicate) {
+			tr.classList.add('opacity-50');
+		}
+
+		tr.append(document.createElement('th'));
+		tr.append(document.createElement('td'));
+		tr.append(await buildRewardCell(defenderItem));
+		tr.append(document.createElement('td'));
+
+		rows.push(tr);
+	}
+
+	return rows;
+}
+
 export async function updateInvasions(
 	dictsPromise: Promise<any[]>,
 	exportRegionsPromise: Promise<Record<string, any>>,
@@ -111,137 +241,22 @@ export async function updateInvasions(
 
 		const attackerItem = attackerItems[0];
 		const defenderItem = defenderItems[0];
-
 		const attackerVisible = attackerItem ? isInvasionRewardShown(attackerItem.ItemType) : false;
 		const defenderVisible = defenderItem ? isInvasionRewardShown(defenderItem.ItemType) : false;
 
-		// Both hidden → skip both rows
-		if (!attackerVisible && !defenderVisible) {
-			// Still render hidden rows so [data-oid] elements stay in DOM for pruneStaleOids
-			const hiddenRow = document.createElement('tr');
-			hiddenRow.classList.add('d-none');
-			const td = document.createElement('td');
-			if (!isDuplicate) {
-				td.append((globalThis as any).createCompletionToggle(invasion._id.$oid));
-			}
-
-			hiddenRow.append(td);
-			tbody.append(hiddenRow);
-			continue;
+		if (attackerVisible || defenderVisible) {
+			anyVisible = true;
 		}
-
-		anyVisible = true;
 
 		const node = ExportRegions[invasion.Node];
 		const nodeLabel = `${String(dict[node.name])}, ${String(dict[node.systemName])}`;
 
-		// Row 1: attacker row (or promoted defender row)
-		const isAttackerPromoted = !attackerVisible && defenderVisible;
-		const row1Item = isAttackerPromoted ? defenderItem : attackerItem;
-		const row1Visible = isAttackerPromoted ? defenderVisible : attackerVisible;
-
-		if (row1Visible && row1Item) {
-			const tr = document.createElement('tr');
-			if (isDuplicate) {
-				tr.classList.add('opacity-50');
-			}
-
-			// Th: node name + special mission icon + progress bar
-			{
-				const th = document.createElement('th');
-				th.textContent = nodeLabel;
-				if (node.missionType === 'MT_ASSASSINATION') {
-					// Lazy-await: most invasions don't need ExportImages, so we defer until first assassination node.
-					// The promise is already in-flight; subsequent awaits in the same loop resolve instantly.
-					// eslint-disable-next-line no-await-in-loop
-					await exportImagesPromise;
-					const img = document.createElement('img');
-					img.className = 'invasion-boss-icon ms-1';
-					(globalThis as any).setImageSource(img, '/Lotus/Interface/Icons/Sigils/Phorid.png');
-					(globalThis as any).addTooltip(img, 'Assassination (Phorid)');
-					th.append(img);
-				} else if (invasion.Node === 'SolNode65') {
-					const span = document.createElement('span');
-					span.textContent = ' 💥';
-					(globalThis as any).addTooltip(span, 'Sabotage');
-					th.append(span);
-				}
-
-				th.append(createInvasionProgressBar(invasion, percentage));
-				tr.append(th);
-			}
-
-			// Td: percentage
-			{
-				const td = document.createElement('td');
-				td.className = 'text-end';
-				const span = document.createElement('span');
-				span.className = 'invasion-percentage';
-				span.textContent = `${percentage.toFixed(1)}%`;
-				td.append(span);
-				tr.append(td);
-			}
-
-			// Td: reward
-			{
-				const td = document.createElement('td');
-				// eslint-disable-next-line no-await-in-loop
-				td.textContent = `${row1Item.ItemCount > 1 ? `${String(row1Item.ItemCount)}x ` : ''}${String(await (globalThis as any).getItemNamePromise(row1Item.ItemType))}`;
-				tr.append(td);
-			}
-
-			// Td: completion toggle
-			{
-				const td = document.createElement('td');
-				if (isDuplicate) {
-					const span = document.createElement('span');
-					span.textContent = '⏳';
-					(globalThis as any).addTooltip(span, `Will unlock after the first ${nodeLabel} invasion is completed.`);
-					td.append(span);
-				} else {
-					td.append((globalThis as any).createCompletionToggle(invasion._id.$oid));
-				}
-
-				tr.append(td);
-			}
-
-			tbody.append(tr);
-		} else if (!row1Visible && row1Item) {
-			// Hidden attacker row (still add for DOM completeness with completion toggle)
-			const tr = document.createElement('tr');
-			tr.classList.add('d-none');
-			const td = document.createElement('td');
-			tr.append(td);
-			tbody.append(tr);
-		}
-
-		// Row 2: defender row (only if attacker was also visible)
-		if (attackerVisible && defenderVisible && defenderItem) {
-			const tr = document.createElement('tr');
-			tr.classList.add('invasion-defender-reward');
-			if (isDuplicate) {
-				tr.classList.add('opacity-50');
-			}
-
-			// Th: empty
-			tr.append(document.createElement('th'));
-
-			// Td: empty percentage cell
-			tr.append(document.createElement('td'));
-
-			// Td: defender reward
-			{
-				const td = document.createElement('td');
-				// eslint-disable-next-line no-await-in-loop
-				td.textContent = `${defenderItem.ItemCount > 1 ? `${String(defenderItem.ItemCount)}x ` : ''}${String(await (globalThis as any).getItemNamePromise(defenderItem.ItemType))}`;
-				tr.append(td);
-			}
-
-			// Td: empty toggle
-			tr.append(document.createElement('td'));
-
-			tbody.append(tr);
-		}
+		// eslint-disable-next-line no-await-in-loop
+		const rows = await buildInvasionRows({
+			invasion, percentage, isDuplicate, node, nodeLabel,
+			attackerItem, defenderItem, attackerVisible, defenderVisible, exportImagesPromise,
+		});
+		tbody.append(...rows);
 	}
 
 	if (!anyVisible) {

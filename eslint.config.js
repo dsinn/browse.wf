@@ -23,9 +23,10 @@ const xoConfigs = xo.xoToEslintConfig([]);
 const config = [
 	{ignores},
 	...xoConfigs,
-	// Allow both LF and CRLF across all files (repo has mixed line endings)
 	// Require 'u' flag (not 'v') — v requires ES2024, incompatible with tsconfig.json target of ES2021
-	{rules: {'@stylistic/linebreak-style': 'off', 'require-unicode-regexp': ['error', {requireFlag: 'u'}]}},
+	{rules: {'require-unicode-regexp': ['error', {requireFlag: 'u'}]}},
+	// Enforce LF line endings in JS/TS files
+	{files: ['**/*.js', '**/*.ts'], rules: {'@stylistic/linebreak-style': 'error'}},
 	{
 		files: ['**/*.ts'],
 		languageOptions: {

@@ -42,7 +42,6 @@ export function createInvasionProgressBar(wsInvasion: InvasionData, percentage: 
 }
 
 function sortInvasions(invasions: InvasionData[]): InvasionData[] {
-	// eslint-disable-next-line unicorn/no-array-sort -- .toSorted() is ES2023; this project targets ES2021
 	return [...invasions].sort((a, b) => calculatePercentage(a) - calculatePercentage(b));
 }
 

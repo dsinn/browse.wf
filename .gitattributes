@@ -1,3 +1,5 @@
+* text=auto eol=lf
+
 *.pluto linguist-language=Lua
 
 typestripped/ linguist-generated

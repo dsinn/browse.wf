@@ -3,47 +3,45 @@
  * Resets at midnight UTC, matching the Steel Path Incursions timer.
  */
 
+let dailyResetTimer: ReturnType<typeof setTimeout> | undefined = null;
 
-let dailyResetTimer: ReturnType<typeof setTimeout> | null = null;
+export function updateBountyCheckboxes(): void {
+	// LastDailyReset in seconds since epoch at start of UTC day — matches incursions_expiry calculation
+	const lastDailyReset = Math.trunc(Date.now() / 86_400_000) * 86_400;
 
-export function updateBountyCheckboxes(): void
-{
-	// lastDailyReset in seconds since epoch at start of UTC day — matches incursions_expiry calculation
-	const lastDailyReset = Math.trunc(Date.now() / 86400000) * 86400;
-
-	for (const headingId of ["EntratiLabSyndicate-name", "HexSyndicate-name"])
-	{
-		const heading = document.getElementById(headingId);
-		if (!heading) continue;
-
-		const spanId = headingId.replace("-name", "-check");
-		let span = document.getElementById(spanId);
-		if (span)
-		{
-			span.querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap?.Tooltip.getInstance(x)?.dispose());
-			span.innerHTML = "";
+	for (const headingId of ['EntratiLabSyndicate-name', 'HexSyndicate-name']) {
+		const heading = document.querySelector<HTMLElement>(`#${headingId}`);
+		if (!heading) {
+			continue;
 		}
-		else
-		{
-			heading.classList.add("d-flex", "align-items-center");
-			span = document.createElement("span");
+
+		const spanId = headingId.replace('-name', '-check');
+		let span = document.querySelector<HTMLElement>(`#${spanId}`);
+		if (span) {
+			for (const x of span.querySelectorAll('[data-bs-toggle=tooltip]')) {
+				globalThis.bootstrap?.Tooltip.getInstance(x)?.dispose();
+			}
+
+			span.innerHTML = '';
+		} else {
+			heading.classList.add('d-flex', 'align-items-center');
+			span = document.createElement('span');
 			span.id = spanId;
-			span.className = "ms-2";
-			heading.appendChild(span);
+			span.className = 'ms-2';
+			heading.append(span);
 		}
-		span.appendChild(createCompletionToggle(`${spanId}-${lastDailyReset}`));
+
+		span.append(createCompletionToggle(`${spanId}-${lastDailyReset}`));
 	}
 
 	// Schedule reset at next daily reset (UTC) — memoized so multiple calls don't stack timers
-	if (!dailyResetTimer)
-	{
-		const nextDailyReset = (lastDailyReset + 86400) * 1000;
-		dailyResetTimer = setTimeout(() =>
-		{
+	if (!dailyResetTimer) {
+		const nextDailyReset = (lastDailyReset + 86_400) * 1000;
+		dailyResetTimer = setTimeout(() => {
 			dailyResetTimer = null;
 			updateBountyCheckboxes();
 		}, nextDailyReset - Date.now());
 	}
 }
 
-(window as any).updateBountyCheckboxes = updateBountyCheckboxes;
+(globalThis as any).updateBountyCheckboxes = updateBountyCheckboxes;

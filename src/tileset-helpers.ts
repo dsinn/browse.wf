@@ -1,6 +1,6 @@
 // Shared tileset helper functions used by arbys.ts and live.ts
 // Type-only import is safe (doesn't trigger module mode)
-import type { IRegion } from "warframe-public-export-plus";
+import type {IRegion} from 'warframe-public-export-plus';
 
 /**
  * Get tileset from a region node
@@ -15,13 +15,13 @@ export function getTileset(node: IRegion, regionKey?: string): string | undefine
 	}
 
 	// Fallback for known nodes without tileset data
-	if (regionKey === "SolNode94") {
-		return "GrineerGalleonTileset";
+	if (regionKey === 'SolNode94') {
+		return 'GrineerGalleonTileset';
 	}
 
 	// Log unexpected missing tileset data
-	if ((window as any).logger && regionKey) {
-		(window as any).logger.debug(`Node ${regionKey} is missing tileset data`);
+	if ((globalThis as any).logger && regionKey) {
+		(globalThis as any).logger.debug(`Node ${regionKey} is missing tileset data`);
 	}
 
 	return undefined;
@@ -32,12 +32,15 @@ export function getTileset(node: IRegion, regionKey?: string): string | undefine
  * Converts "GrineerGalleonTileset" to "Grineer Galleon"
  */
 export function formatTileset(tileset: string | undefined): string {
-	if (!tileset) return "";
+	if (!tileset) {
+		return '';
+	}
+
 	return tileset
 		.replace('Tileset', '')
-		.replace(/(?<=[a-z])(?=[A-Z])/g, ' ');
+		.replaceAll(/(?<=[a-z])(?=[A-Z])/gu, ' ');
 }
 
 // Expose functions globally for non-module scripts
-(window as any).getTileset = getTileset;
-(window as any).formatTileset = formatTileset;
+(globalThis as any).getTileset = getTileset;
+(globalThis as any).formatTileset = formatTileset;

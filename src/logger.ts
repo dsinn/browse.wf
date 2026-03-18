@@ -10,52 +10,48 @@
  * Production detection: VITE_ENV === 'production' (GitHub Pages build only)
  */
 
-const isProduction = () => {
-  return (window as any).__ENV__?.VITE_ENV === 'production'
-}
+const isProduction = () => (globalThis as any).__ENV__?.VITE_ENV === 'production';
 
 /**
  * Returns a formatted timestamp as [YYYY-MM-DDTHH:mm:ss.sssZ]
  */
-const formattedTimestamp = (): string => {
-  return `[${new Date().toISOString()}]`
-}
+const formattedTimestamp = (): string => `[${new Date().toISOString()}]`;
 
 export const logger = {
-  /**
+	/**
    * Debug messages (suppressed in production builds)
    */
-  debug: (...args: any[]) => {
-    if (!isProduction()) {
-      console.log(formattedTimestamp(), ...args)
-    }
-  },
+	debug(...args: any[]) {
+		if (!isProduction()) {
+			console.log(formattedTimestamp(), ...args);
+		}
+	},
 
-  /**
+	/**
    * Informational messages (always shown)
    */
-  log: (...args: any[]) => {
-    console.log(formattedTimestamp(), ...args)
-  },
+	log(...args: any[]) {
+		console.log(formattedTimestamp(), ...args);
+	},
 
-  /**
+	/**
    * Informational messages (alias for log)
    */
-  info: (...args: any[]) => {
-    console.log(formattedTimestamp(), ...args)
-  },
+	info(...args: any[]) {
+		console.log(formattedTimestamp(), ...args);
+	},
 
-  /**
+	/**
    * Warnings (always shown)
    */
-  warn: (...args: any[]) => {
-    console.warn(formattedTimestamp(), ...args)
-  },
+	warn(...args: any[]) {
+		console.warn(formattedTimestamp(), ...args);
+	},
 
-  /**
+	/**
    * Errors (always shown)
    */
-  error: (...args: any[]) => {
-    console.error(formattedTimestamp(), ...args)
-  }
-}
+	error(...args: any[]) {
+		console.error(formattedTimestamp(), ...args);
+	},
+};

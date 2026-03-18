@@ -1,9 +1,8 @@
 /** Attaches a Bootstrap tooltip to an element. */
-export function addTooltip(elm: HTMLElement, title: string): void
-{
-	elm.setAttribute("data-bs-toggle", "tooltip");
-	elm.setAttribute("data-bs-title", title);
-	new window.bootstrap.Tooltip(elm);
+export function addTooltip(elm: HTMLElement, title: string): void {
+	elm.dataset.bsToggle = 'tooltip';
+	elm.dataset.bsTitle = title;
+	void new globalThis.bootstrap.Tooltip(elm);
 }
 
-(window as any).addTooltip = addTooltip;
+(globalThis as any).addTooltip = addTooltip;

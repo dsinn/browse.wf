@@ -3,15 +3,14 @@
  * Displays the 1999 in-game calendar days with challenges, rewards, and upgrades.
  */
 
-import { getSeasonLabel, formatSeasonDay, resolveCalendarSeasonDays } from './calendar-seasons-data.js';
+import {getSeasonLabel, formatSeasonDay, resolveCalendarSeasonDays} from './calendar-seasons-data.js';
 
-function makeIcon(iconPath: string): HTMLImageElement
-{
-	const img = document.createElement("img");
-	img.style.height = "24px";
-	img.style.width = "24px";
-	img.style.objectFit = "contain";
-	img.alt = "";
+function makeIcon(iconPath: string): HTMLImageElement {
+	const img = document.createElement('img');
+	img.style.height = '24px';
+	img.style.width = '24px';
+	img.style.objectFit = 'contain';
+	img.alt = '';
 	setImageSource(img, iconPath);
 	return img;
 }
@@ -22,58 +21,55 @@ function makeIcon(iconPath: string): HTMLImageElement
  */
 let preparedData: Promise<{
 	dict: Record<string, string>;
-	ExportChallenges: Record<string, any>;
-	ExportResources: Record<string, any>;
-	ExportBundles: Record<string, any>;
-	ExportBoosterPacks: Record<string, any>;
-	ExportBoosters: Record<string, any>;
-}> | null = null;
+	exportChallenges: Record<string, any>;
+	exportResources: Record<string, any>;
+	exportBundles: Record<string, any>;
+	exportBoosterPacks: Record<string, any>;
+	exportBoosters: Record<string, any>;
+}> | undefined = null;
 
 /**
  * Resolves and caches all export promises needed for rendering calendar seasons.
  * Private helper - not exposed globally.
  */
 async function prepareCalendarSeasonData(
-	ExportResources: Promise<Record<string, any>>,
-	ExportBundles: Promise<Record<string, any>>,
-	ExportBoosterPacks: Promise<Record<string, any>>,
-	ExportBoosters: Promise<Record<string, any>>,
-	ExportImages: Promise<Record<string, any>>
+	exportResources: Promise<Record<string, any>>,
+	exportBundles: Promise<Record<string, any>>,
+	exportBoosterPacks: Promise<Record<string, any>>,
+	exportBoosters: Promise<Record<string, any>>,
+	exportImages: Promise<Record<string, any>>,
 ): Promise<{
 	dict: Record<string, string>;
-	ExportChallenges: Record<string, any>;
-	ExportResources: Record<string, any>;
-	ExportBundles: Record<string, any>;
-	ExportBoosterPacks: Record<string, any>;
-	ExportBoosters: Record<string, any>;
-}>
-{
-	if (preparedData)
-	{
+	exportChallenges: Record<string, any>;
+	exportResources: Record<string, any>;
+	exportBundles: Record<string, any>;
+	exportBoosterPacks: Record<string, any>;
+	exportBoosters: Record<string, any>;
+}> {
+	if (preparedData !== undefined && preparedData !== null) {
 		return preparedData;
 	}
 
-	preparedData = (async () =>
-	{
+	preparedData = (async () => {
 		const [dict, resolvedResources, resolvedBundles, resolvedBoosterPacks, resolvedBoosters, resolvedImages] = await Promise.all([
 			getDictPromise(),
-			ExportResources,
-			ExportBundles,
-			ExportBoosterPacks,
-			ExportBoosters,
-			ExportImages
+			exportResources,
+			exportBundles,
+			exportBoosterPacks,
+			exportBoosters,
+			exportImages,
 		]);
 
 		// Required for common.js' setImageSource
-		(window as any).ExportImages = resolvedImages;
+		(globalThis as any).ExportImages = resolvedImages;
 
 		return {
 			dict,
-			ExportChallenges: (window as any).ExportChallenges ?? {},
-			ExportResources: resolvedResources,
-			ExportBundles: resolvedBundles,
-			ExportBoosterPacks: resolvedBoosterPacks,
-			ExportBoosters: resolvedBoosters,
+			exportChallenges: (globalThis as any).ExportChallenges ?? {},
+			exportResources: resolvedResources,
+			exportBundles: resolvedBundles,
+			exportBoosterPacks: resolvedBoosterPacks,
+			exportBoosters: resolvedBoosters,
 		};
 	})();
 
@@ -86,66 +82,58 @@ async function prepareCalendarSeasonData(
  */
 export async function renderCalendarSeasonPane(
 	season: any,
-	ExportResources: Promise<Record<string, any>>,
-	ExportBundles: Promise<Record<string, any>>,
-	ExportBoosterPacks: Promise<Record<string, any>>,
-	ExportBoosters: Promise<Record<string, any>>,
-	ExportImages: Promise<Record<string, any>>
-): Promise<HTMLDivElement>
-{
-	const { dict, ExportChallenges, ExportResources: resolvedResources, ExportBundles: resolvedBundles, ExportBoosterPacks: resolvedBoosterPacks, ExportBoosters: resolvedBoosters } = await prepareCalendarSeasonData(
-		ExportResources,
-		ExportBundles,
-		ExportBoosterPacks,
-		ExportBoosters,
-		ExportImages
+	exportResources: Promise<Record<string, any>>,
+	exportBundles: Promise<Record<string, any>>,
+	exportBoosterPacks: Promise<Record<string, any>>,
+	exportBoosters: Promise<Record<string, any>>,
+	exportImages: Promise<Record<string, any>>,
+): Promise<HTMLDivElement> {
+	const {dict, exportChallenges, exportResources: resolvedResources, exportBundles: resolvedBundles, exportBoosterPacks: resolvedBoosterPacks, exportBoosters: resolvedBoosters} = await prepareCalendarSeasonData(
+		exportResources,
+		exportBundles,
+		exportBoosterPacks,
+		exportBoosters,
+		exportImages,
 	);
 
-	const resolvedDays = resolveCalendarSeasonDays(
-		season, dict, ExportChallenges, resolvedResources, resolvedBundles, resolvedBoosterPacks, resolvedBoosters
-	);
+	const resolvedDays = resolveCalendarSeasonDays(season, dict, exportChallenges, resolvedResources, resolvedBundles, resolvedBoosterPacks, resolvedBoosters);
 
-	const container = document.createElement("div");
+	const container = document.createElement('div');
 
-	for (const dayData of resolvedDays)
-	{
+	for (const dayData of resolvedDays) {
 		// Two-column layout on md+: date label on left, events stacked on right
-		const row = document.createElement("div");
-		row.className = "d-md-flex mb-3";
+		const row = document.createElement('div');
+		row.className = 'd-md-flex mb-3';
 
-		const dateCol = document.createElement("div");
-		dateCol.className = "fw-bold small me-3 calendar-season-date";
-		dateCol.textContent = (dayData.events[0]?.emoji ?? "") + " " + formatSeasonDay(dayData.day);
-		row.appendChild(dateCol);
+		const dateCol = document.createElement('div');
+		dateCol.className = 'fw-bold small me-3 calendar-season-date';
+		dateCol.textContent = `${dayData.events[0]?.emoji ?? ''} ${formatSeasonDay(dayData.day)}`;
+		row.append(dateCol);
 
-		const eventsCol = document.createElement("div");
-		eventsCol.className = "flex-grow-1";
+		const eventsCol = document.createElement('div');
+		eventsCol.className = 'flex-grow-1';
 
-		for (const event of dayData.events)
-		{
-			const eventRow = document.createElement("div");
-			eventRow.className = "d-flex align-items-start gap-2 mb-1";
+		for (const event of dayData.events) {
+			const eventRow = document.createElement('div');
+			eventRow.className = 'd-flex align-items-start gap-2 mb-1';
 
-			if (event.iconPath)
-			{
-				eventRow.appendChild(makeIcon(event.iconPath));
-			}
-			else if (event.type === "CET_UPGRADE")
-			{
-				const icon = document.createElement("span");
-				icon.textContent = "✨";
-				eventRow.appendChild(icon);
+			if (event.iconPath) {
+				eventRow.append(makeIcon(event.iconPath));
+			} else if (event.type === 'CET_UPGRADE') {
+				const icon = document.createElement('span');
+				icon.textContent = '✨';
+				eventRow.append(icon);
 			}
 
-			const span = document.createElement("span");
+			const span = document.createElement('span');
 			span.textContent = event.text;
-			eventRow.appendChild(span);
+			eventRow.append(span);
 
-			eventsCol.appendChild(eventRow);
+			eventsCol.append(eventRow);
 		}
 
-		row.appendChild(eventsCol);
-		container.appendChild(row);
+		row.append(eventsCol);
+		container.append(row);
 	}
 
 	return container;
@@ -156,60 +144,58 @@ export async function renderCalendarSeasonPane(
  * Reads worldState.KnownCalendarSeasons, renders the active season, and injects a completion toggle.
  */
 export async function updateCalendarSeason(
-	ExportResources: Promise<Record<string, any>>,
-	ExportBundles: Promise<Record<string, any>>,
-	ExportBoosterPacks: Promise<Record<string, any>>,
-	ExportBoosters: Promise<Record<string, any>>,
-	ExportImages: Promise<Record<string, any>>
-): Promise<void>
-{
-	const seasons: any[] = (window as any).worldState?.KnownCalendarSeasons ?? [];
-	if (seasons.length === 0) return;
+	exportResources: Promise<Record<string, any>>,
+	exportBundles: Promise<Record<string, any>>,
+	exportBoosterPacks: Promise<Record<string, any>>,
+	exportBoosters: Promise<Record<string, any>>,
+	exportImages: Promise<Record<string, any>>,
+): Promise<void> {
+	const seasons: any[] = (globalThis as any).worldState?.KnownCalendarSeasons ?? [];
+	if (seasons.length === 0) {
+		return;
+	}
 
 	const now = Date.now();
 	const activeSeason = seasons.find(s =>
-		parseInt(s.Activation.$date.$numberLong) <= now && now < parseInt(s.Expiry.$date.$numberLong)
-	);
+		Number.parseInt(s.Activation.$date.$numberLong, 10) <= now && now < Number.parseInt(s.Expiry.$date.$numberLong, 10));
 
-	if (activeSeason)
-	{
+	if (activeSeason) {
 		// Schedule re-render when the active season expires
-		const expiry = parseInt(activeSeason.Expiry.$date.$numberLong);
-		setTimeout(() => updateCalendarSeason(ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, ExportImages), expiry - Date.now());
-	}
-	else
-	{
+		const expiry = Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10);
+		setTimeout(() => {
+			void updateCalendarSeason(exportResources, exportBundles, exportBoosterPacks, exportBoosters, exportImages);
+		}, expiry - Date.now());
+	} else {
 		// No active season yet — worldState may be stale; retry shortly
-		setTimeout(() => updateCalendarSeason(ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, ExportImages), 5_000);
+		setTimeout(() => {
+			void updateCalendarSeason(exportResources, exportBundles, exportBoosterPacks, exportBoosters, exportImages);
+		}, 5000);
 		return;
 	}
 
 	const seasonToRender = activeSeason ?? seasons[0];
 
 	// Inject expiry badge into header
-	const expirySpan = document.getElementById("calendar-season-expiry");
-	if (expirySpan)
-	{
-		expirySpan.innerHTML = "";
-		expirySpan.appendChild(createExpiryBadge(parseInt(activeSeason.Expiry.$date.$numberLong)));
+	const expirySpan = document.querySelector('#calendar-season-expiry');
+	if (expirySpan) {
+		expirySpan.innerHTML = '';
+		expirySpan.append(createExpiryBadge(Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10)));
 	}
 
 	// Inject completion toggle into header span
-	const checksSpan = document.getElementById("calendar-season-checks");
-	if (checksSpan)
-	{
-		const oid = "calendarseason-" + seasonToRender.Activation.$date.$numberLong;
-		checksSpan.innerHTML = "";
-		checksSpan.appendChild(createCompletionToggle(oid));
+	const checksSpan = document.querySelector('#calendar-season-checks');
+	if (checksSpan) {
+		const oid = `calendarseason-${String(seasonToRender.Activation.$date.$numberLong)}`;
+		checksSpan.innerHTML = '';
+		checksSpan.append(createCompletionToggle(oid));
 	}
 
-	const body = document.getElementById("calendar-season-body");
-	if (body)
-	{
-		body.innerHTML = "";
-		body.appendChild(await renderCalendarSeasonPane(seasonToRender, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, ExportImages));
+	const body = document.querySelector('#calendar-season-body');
+	if (body) {
+		body.innerHTML = '';
+		body.append(await renderCalendarSeasonPane(seasonToRender, exportResources, exportBundles, exportBoosterPacks, exportBoosters, exportImages));
 	}
 }
 
-(window as any).renderCalendarSeasonPane = renderCalendarSeasonPane;
-(window as any).updateCalendarSeason = updateCalendarSeason;
+(globalThis as any).renderCalendarSeasonPane = renderCalendarSeasonPane;
+(globalThis as any).updateCalendarSeason = updateCalendarSeason;

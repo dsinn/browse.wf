@@ -3,10 +3,10 @@
  * Used by dev server (vitest.config.ts), test fixtures (render-php.js), and build (build-gh-pages.js)
  */
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { startPhpServer, stopPhpServer, fetchHtml } from './php-server.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {startPhpServer, stopPhpServer, fetchHtml} from './php-server.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, '..');
@@ -16,12 +16,11 @@ const rootDir = path.join(__dirname, '..');
  * @returns {string[]} Array of PHP filenames (e.g., ['live.php', 'index.php'])
  */
 export function discoverPhpPages() {
-  return fs.readdirSync(rootDir)
-    .filter(f =>
-      f.endsWith('.php') &&
-      !f.includes('partial') &&
-      !f.includes('config')
-    );
+	return fs.readdirSync(rootDir)
+		.filter(f =>
+			f.endsWith('.php')
+			&& !f.includes('partial')
+			&& !f.includes('config'));
 }
 
 /**
@@ -36,34 +35,36 @@ export function discoverPhpPages() {
  * @returns {Promise<void>}
  */
 export async function renderPhpFiles(options) {
-  const { files, outputDir, port, transform, keepServerRunning = false } = options;
+	const {files, outputDir, port, transform, keepServerRunning = false} = options;
 
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
+	if (!fs.existsSync(outputDir)) {
+		fs.mkdirSync(outputDir, {recursive: true});
+	}
 
-  if (!keepServerRunning) {
-    await startPhpServer({ port, cwd: rootDir });
-  }
+	if (!keepServerRunning) {
+		await startPhpServer({port, cwd: rootDir});
+	}
 
-  try {
-    for (const phpFile of files) {
-      const url = `/${phpFile}`;
-      const htmlFile = phpFile.replace('.php', '.html');
-      const outputPath = path.join(outputDir, htmlFile);
+	try {
+		for (const phpFile of files) {
+			const url = `/${phpFile}`;
+			const htmlFile = phpFile.replace('.php', '.html');
+			const outputPath = path.join(outputDir, htmlFile);
 
-      let html = await fetchHtml(url, port);
-      if (transform) {
-        html = transform(html);
-      }
-      fs.writeFileSync(outputPath, html);
-      console.log(`  ${phpFile} -> ${htmlFile}`);
-    }
-  } finally {
-    if (!keepServerRunning) {
-      stopPhpServer(port);
-    }
-  }
+			// eslint-disable-next-line no-await-in-loop
+			let html = await fetchHtml(url, port);
+			if (transform) {
+				html = transform(html);
+			}
+
+			fs.writeFileSync(outputPath, html);
+			console.log(`  ${phpFile} -> ${htmlFile}`);
+		}
+	} finally {
+		if (!keepServerRunning) {
+			stopPhpServer(port);
+		}
+	}
 }
 
-export { startPhpServer, stopPhpServer, fetchHtml };
+export {stopPhpServer, startPhpServer, fetchHtml} from './php-server.js';

@@ -3,8 +3,8 @@
  * Used by both test fixtures and GitHub Pages build
  */
 
-import { execSync } from 'child_process';
-import http from 'http';
+import {execSync} from 'node:child_process';
+import http from 'node:http';
 
 /**
  * Start PHP built-in server
@@ -15,16 +15,16 @@ import http from 'http';
  * @returns {Promise<void>}
  */
 function startPhpServer(options) {
-  const { port, cwd, startupDelay = 1000 } = options;
+	const {port, cwd, startupDelay = 1000} = options;
 
-  execSync(`php -S localhost:${port} -t . > /dev/null 2>&1 &`, { cwd });
+	execSync(`php -S localhost:${port} -t . > /dev/null 2>&1 &`, {cwd});
 
-  // Wait for server to start
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve();
-    }, startupDelay);
-  });
+	// Wait for server to start
+	return new Promise(resolve => {
+		setTimeout(() => {
+			resolve();
+		}, startupDelay);
+	});
 }
 
 /**
@@ -32,11 +32,11 @@ function startPhpServer(options) {
  * @param {number} port - Port number of PHP server to stop
  */
 function stopPhpServer(port) {
-  try {
-    execSync(`lsof -ti:${port} | xargs kill -9 2>/dev/null`);
-  } catch (e) {
-    // Server wasn't running
-  }
+	try {
+		execSync(`lsof -ti:${port} | xargs kill -9 2>/dev/null`);
+	} catch {
+		// Server wasn't running
+	}
 }
 
 /**
@@ -46,17 +46,19 @@ function stopPhpServer(port) {
  * @returns {Promise<string>} - HTML content
  */
 function fetchHtml(url, port) {
-  return new Promise((resolve, reject) => {
-    http.get(`http://localhost:${port}${url}`, (res) => {
-      let data = '';
-      res.on('data', (chunk) => data += chunk);
-      res.on('end', () => resolve(data));
-    }).on('error', reject);
-  });
+	return new Promise((resolve, reject) => {
+		http.get(`http://localhost:${port}${url}`, response => {
+			let data = '';
+			response.on('data', chunk => {
+				data += chunk;
+			});
+			response.on('end', () => resolve(data));
+		}).on('error', reject);
+	});
 }
 
 export {
-  startPhpServer,
-  stopPhpServer,
-  fetchHtml,
+	startPhpServer,
+	stopPhpServer,
+	fetchHtml,
 };

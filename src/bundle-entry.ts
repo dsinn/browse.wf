@@ -10,22 +10,22 @@
  * eliminating the need for a separate importmap or ES module script tag.
  */
 
-import './arbys-timer.js';
-import './bounty-checkboxes.js';
-import './bounty-filters.js';
-import './calendar-seasons-data.js';
-import './calendar-seasons.js';
-import './card-filters.js';
-import './checkbox-linking.js';
-import './cloud-sync/auth-init.js';
-import './conquest-helpers.js';
-import './descendia-data.js';
-import './descendia.js';
-import './invasions.js';
-import './invigorations.js';
-import './news-mark-read.js';
-import './profile-stats-filters.js';
-import './string-helpers.js';
-import './tileset-helpers.js';
-import './tooltip.js';
-import './warframe-api-proxy-client.js';
+import './arbys-timer.js'; // eslint-disable-line import-x/no-unassigned-import
+import './bounty-checkboxes.js'; // eslint-disable-line import-x/no-unassigned-import
+import './bounty-filters.js'; // eslint-disable-line import-x/no-unassigned-import
+import './calendar-seasons-data.js'; // eslint-disable-line import-x/no-unassigned-import
+import './calendar-seasons.js'; // eslint-disable-line import-x/no-unassigned-import
+import './card-filters.js'; // eslint-disable-line import-x/no-unassigned-import
+import './checkbox-linking.js'; // eslint-disable-line import-x/no-unassigned-import
+import './cloud-sync/auth-init.js'; // eslint-disable-line import-x/no-unassigned-import
+import './conquest-helpers.js'; // eslint-disable-line import-x/no-unassigned-import
+import './descendia-data.js'; // eslint-disable-line import-x/no-unassigned-import
+import './descendia.js'; // eslint-disable-line import-x/no-unassigned-import
+import './invasions.js'; // eslint-disable-line import-x/no-unassigned-import
+import './invigorations.js'; // eslint-disable-line import-x/no-unassigned-import
+import './news-mark-read.js'; // eslint-disable-line import-x/no-unassigned-import
+import './profile-stats-filters.js'; // eslint-disable-line import-x/no-unassigned-import
+import './string-helpers.js'; // eslint-disable-line import-x/no-unassigned-import
+import './tileset-helpers.js'; // eslint-disable-line import-x/no-unassigned-import
+import './tooltip.js'; // eslint-disable-line import-x/no-unassigned-import
+import './warframe-api-proxy-client.js'; // eslint-disable-line import-x/no-unassigned-import

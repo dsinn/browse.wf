@@ -51,7 +51,7 @@ declare function updateInvasions(): Promise<void>;
 
 // card-filters.ts
 declare function isFilterEnabled(cardName: string, filterType: string): boolean;
-declare function initializeCardFilters_all(): void;
+declare function initializeCardFiltersAll(): void;
 
 // news-mark-read.ts
 declare function generateNewsItemKey(item: any): string;
@@ -60,7 +60,7 @@ declare function markNewsItemAsRead(key: string, element: HTMLElement): void;
 declare function initializeMarkAsRead(): void;
 
 // bounty-filters.ts
-declare function initializeBountyFilters_all(): void;
+declare function initializeBountyFiltersAll(): void;
 
 // bounty-checkboxes.ts
 declare function updateBountyCheckboxes(): void;
@@ -1936,10 +1936,10 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 	};
 });
 
-initializeCardFilters_all();
+initializeCardFiltersAll();
 
 initializeMarkAsRead();
-initializeBountyFilters_all();
+initializeBountyFiltersAll();
 updateBountyCheckboxes();
 
 document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm, "Voidplume Quills"));

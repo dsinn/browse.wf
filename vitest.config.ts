@@ -1,17 +1,20 @@
-import { defineConfig, Plugin } from 'vitest/config';
-import { loadEnv } from 'vite';
+import fs from 'node:fs';
+import path from 'node:path';
+import process from 'node:process';
+import {defineConfig, type Plugin} from 'vitest/config';
+import {loadEnv} from 'vite';
 import chokidar from 'chokidar';
-import fs from 'fs';
-import path from 'path';
 
 // Load specific secrets from .env for tests that hit real APIs
 const env = loadEnv('', process.cwd(), '');
 const TEST_SECRETS = ['WARFRAME_API_FRONT_PROXY_TOKEN'];
 for (const key of TEST_SECRETS) {
-  if (env[key]) process.env[key] = env[key];
+	if (env[key]) {
+		process.env[key] = env[key];
+	}
 }
 
-const DEV_PORT = parseInt(process.env.PORT || '60969', 10);
+const DEV_PORT = Number.parseInt(process.env.PORT || '60969', 10);
 
 /**
  * Vite plugin to serve pre-rendered PHP pages from public/ with HMR support.
@@ -21,109 +24,115 @@ const DEV_PORT = parseInt(process.env.PORT || '60969', 10);
  * so the browser auto-reloads when any watched file changes.
  */
 function phpPagesPlugin(): Plugin {
-  const publicDir = path.resolve('public');
+	const publicDir = path.resolve('public');
 
-  return {
-    name: 'php-pages',
-    configureServer(server) {
-      // Watch public/ for changes and trigger full page reload.
-      // Only in dev mode (not during vitest) to avoid keeping the process alive.
-      if (!process.env.VITEST) {
-        const publicWatcher = chokidar.watch(publicDir, { ignoreInitial: true });
-        publicWatcher.on('all', () => {
-          server.ws.send({ type: 'full-reload' });
-        });
-        server.httpServer?.on('close', () => publicWatcher.close());
-      }
+	return {
+		name: 'php-pages',
+		configureServer(server) {
+			// Watch public/ for changes and trigger full page reload.
+			// Only in dev mode (not during vitest) to avoid keeping the process alive.
+			if (!process.env.VITEST) {
+				const publicWatcher = chokidar.watch(publicDir, {ignoreInitial: true});
+				publicWatcher.on('all', () => {
+					server.ws.send({type: 'full-reload'});
+				});
+				server.httpServer?.on('close', () => {
+					void publicWatcher.close();
+				});
+			}
 
-      // Pre-middleware: runs before Vite's built-in file serving.
-      // This is necessary because Vite would otherwise resolve e.g. /live
-      // to live.ts in the project root instead of public/live.html.
-      server.middlewares.use(async (req, res, next) => {
-        if (!req.url || req.method !== 'GET') return next();
+			// Pre-middleware: runs before Vite's built-in file serving.
+			// This is necessary because Vite would otherwise resolve e.g. /live
+			// to live.ts in the project root instead of public/live.html.
+			// eslint-disable-next-line @typescript-eslint/strict-void-return
+			server.middlewares.use(async (request, response, next) => {
+				if (!request.url || request.method !== 'GET') {
+					next();
+					return;
+				}
 
-        const urlPath = req.url.split('?')[0];
+				const urlPath = request.url.split('?')[0];
 
-        // Determine which HTML file to serve
-        let htmlFile: string | undefined;
+				// Determine which HTML file to serve
+				let htmlFile: string | undefined;
 
-        if (urlPath === '/') {
-          htmlFile = 'index.html';
-        } else if (urlPath.endsWith('.php')) {
-          htmlFile = urlPath.slice(1).replace(/\.php$/, '.html');
-        } else if (urlPath.endsWith('.html')) {
-          htmlFile = urlPath.slice(1);
-        } else if (!path.extname(urlPath)) {
-          // Extensionless path — check if a rendered page exists
-          htmlFile = urlPath.slice(1) + '.html';
-        }
+				if (urlPath === '/') {
+					htmlFile = 'index.html';
+				} else if (urlPath.endsWith('.php')) {
+					htmlFile = urlPath.slice(1).replace(/\.php$/u, '.html');
+				} else if (urlPath.endsWith('.html')) {
+					htmlFile = urlPath.slice(1);
+				} else if (!path.extname(urlPath)) {
+					// Extensionless path — check if a rendered page exists
+					htmlFile = urlPath.slice(1) + '.html';
+				}
 
-        if (htmlFile) {
-          const htmlPath = path.join(publicDir, htmlFile);
-          if (fs.existsSync(htmlPath)) {
-            let html = fs.readFileSync(htmlPath, 'utf-8');
-            html = await server.transformIndexHtml(req.url, html);
-            res.writeHead(200, { 'Content-Type': 'text/html; charset=UTF-8' });
-            res.end(html);
-            return;
-          }
-        }
+				if (htmlFile) {
+					const htmlPath = path.join(publicDir, htmlFile);
+					if (fs.existsSync(htmlPath)) {
+						let html = fs.readFileSync(htmlPath, 'utf8');
+						html = await server.transformIndexHtml(request.url, html);
+						response.writeHead(200, {'Content-Type': 'text/html; charset=UTF-8'});
+						response.end(html);
+						return;
+					}
+				}
 
-        // Serve non-HTML files from public/ (e.g., env-config.js)
-        if (path.extname(urlPath)) {
-          const publicFile = path.join(publicDir, urlPath.slice(1));
-          if (fs.existsSync(publicFile) && fs.statSync(publicFile).isFile()) {
-            const mimeTypes: Record<string, string> = {
-              '.js': 'application/javascript',
-              '.css': 'text/css',
-              '.json': 'application/json',
-            };
-            res.writeHead(200, { 'Content-Type': mimeTypes[path.extname(urlPath)] || 'application/octet-stream' });
-            res.end(fs.readFileSync(publicFile));
-            return;
-          }
-        }
+				// Serve non-HTML files from public/ (e.g., env-config.js)
+				if (path.extname(urlPath)) {
+					const publicFile = path.join(publicDir, urlPath.slice(1));
+					if (fs.existsSync(publicFile) && fs.statSync(publicFile).isFile()) {
+						const mimeTypes: Record<string, string> = {
+							'.js': 'application/javascript',
+							'.css': 'text/css',
+							'.json': 'application/json',
+						};
+						response.writeHead(200, {'Content-Type': mimeTypes[path.extname(urlPath)] || 'application/octet-stream'});
+						response.end(fs.readFileSync(publicFile));
+						return;
+					}
+				}
 
-        next();
-      });
-    },
-  };
+				next();
+			});
+		},
+	};
 }
 
 export default defineConfig({
-  // Don't use publicDir — we serve HTML through the plugin above so that
-  // Vite's HTML transform pipeline injects the HMR client script.
-  publicDir: false,
-  plugins: [phpPagesPlugin()],
+	// Don't use publicDir — we serve HTML through the plugin above so that
+	// Vite's HTML transform pipeline injects the HMR client script.
+	publicDir: false,
+	plugins: [phpPagesPlugin()],
 
-  server: {
-    port: DEV_PORT,
-    watch: {
-      ignored: [
-        '**/*.md',
-        'build-gh-pages.js',
-        'e2e/**',
-        'eslint.config.js',
-        'helpers/**',
-        'node_modules/**',
-        'playwright-report/**',
-        'playwright.config.ts',
-        'public/**',  // Watched separately by our chokidar instance
-        'scripts/**',
-        'test/**',
-        'test-results/**',
-        'vitest.config.ts',
-      ],
-    },
-  },
+	server: {
+		port: DEV_PORT,
+		watch: {
+			ignored: [
+				'**/*.md',
+				'build-gh-pages.js',
+				'e2e/**',
+				'eslint.config.js',
+				'helpers/**',
+				'node_modules/**',
+				'playwright-report/**',
+				'playwright.config.ts',
+				'public/**', // Watched separately by our chokidar instance
+				'scripts/**',
+				'test/**',
+				'test-results/**',
+				'vitest.config.ts',
+			],
+		},
+	},
 
-  // Test config
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    setupFiles: ['./test/setup.ts'],
-    globalSetup: ['./test/global-setup.ts'],
-    include: ['test/**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['**/dist/**', '**/e2e/**', '**/node_modules/**', '**/typestripped/**'],
-  },
+	// Test config
+	test: {
+		environment: 'jsdom',
+		globals: true,
+		setupFiles: ['./test/setup.ts'],
+		globalSetup: ['./test/global-setup.ts'],
+		include: ['test/**/*.{test,spec}.{ts,tsx}'],
+		exclude: ['**/dist/**', '**/e2e/**', '**/node_modules/**', '**/typestripped/**'],
+	},
 });

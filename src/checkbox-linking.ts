@@ -12,46 +12,54 @@
  * toggled, the checked count of the target group adjusts by ±count.
  */
 
-function applySequentialGroup(el: HTMLElement, nowChecked: boolean): void {
-    const container = el.closest<HTMLElement>("[data-checkbox-group]");
-    if (!container) return;
+function applySequentialGroup(element: HTMLElement, nowChecked: boolean): void {
+	const container = element.closest<HTMLElement>('[data-checkbox-group]');
+	if (!container) {
+		return;
+	}
 
-    const siblings = Array.from(container.querySelectorAll<HTMLAnchorElement>(".completion-check"));
-    const idx = siblings.indexOf(el as HTMLAnchorElement);
-    if (idx === -1) return;
+	const siblings = [...container.querySelectorAll<HTMLAnchorElement>('.completion-check')];
+	const idx = siblings.indexOf(element as HTMLAnchorElement);
+	if (idx === -1) {
+		return;
+	}
 
-    if (nowChecked) {
-        for (let i = 0; i < idx; i++) {
-            (window as any).setCompletionToggle(siblings[i], true);
-        }
-    } else {
-        for (let i = idx + 1; i < siblings.length; i++) {
-            (window as any).setCompletionToggle(siblings[i], false);
-        }
-    }
+	if (nowChecked) {
+		for (let i = 0; i < idx; i++) {
+			(globalThis as any).setCompletionToggle(siblings[i], true);
+		}
+	} else {
+		for (let i = idx + 1; i < siblings.length; i++) {
+			(globalThis as any).setCompletionToggle(siblings[i], false);
+		}
+	}
 }
 
-function autocheckLinkedBoxes(el: HTMLElement, nowChecked: boolean): void {
-    const source = el.closest<HTMLElement>("[data-autocheck-target]");
-    if (!source) return;
+function autocheckLinkedBoxes(element: HTMLElement, nowChecked: boolean): void {
+	const source = element.closest<HTMLElement>('[data-autocheck-target]');
+	if (!source) {
+		return;
+	}
 
-    const targetSelector = source.getAttribute("data-autocheck-target")!;
-    const count = parseInt(source.getAttribute("data-autocheck-count") ?? "1", 10);
-    const target = document.querySelector<HTMLElement>(targetSelector);
-    if (!target) return;
+	const targetSelector = source.dataset.autocheckTarget;
+	const count = Number.parseInt(source.dataset.autocheckCount ?? '1', 10);
+	const target = document.querySelector<HTMLElement>(targetSelector);
+	if (!target) {
+		return;
+	}
 
-    const checkboxes = Array.from(target.querySelectorAll<HTMLAnchorElement>(".completion-check"));
-    const currentCount = checkboxes.filter(checkbox => (window as any).isOidMarkedAsCompleted(checkbox.getAttribute("data-oid")!)).length;
-    const targetCount = Math.min(Math.max(currentCount + (nowChecked ? count : -count), 0), checkboxes.length);
+	const checkboxes = [...target.querySelectorAll<HTMLAnchorElement>('.completion-check')];
+	const currentCount = checkboxes.filter(checkbox => (globalThis as any).isOidMarkedAsCompleted(checkbox.dataset.oid)).length;
+	const targetCount = Math.min(Math.max(currentCount + (nowChecked ? count : -count), 0), checkboxes.length);
 
-    for (let i = 0; i < checkboxes.length; i++) {
-        (window as any).setCompletionToggle(checkboxes[i], i < targetCount);
-    }
+	for (const [i, checkbox] of checkboxes.entries()) {
+		(globalThis as any).setCompletionToggle(checkbox, i < targetCount);
+	}
 }
 
-export function applyCheckboxLinking(el: HTMLElement, nowChecked: boolean): void {
-    applySequentialGroup(el, nowChecked);
-    autocheckLinkedBoxes(el, nowChecked);
+export function applyCheckboxLinking(element: HTMLElement, nowChecked: boolean): void {
+	applySequentialGroup(element, nowChecked);
+	autocheckLinkedBoxes(element, nowChecked);
 }
 
-(window as any).applyCheckboxLinking = applyCheckboxLinking;
+(globalThis as any).applyCheckboxLinking = applyCheckboxLinking;

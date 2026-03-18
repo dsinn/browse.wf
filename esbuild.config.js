@@ -12,27 +12,28 @@
  *   node esbuild.config.js           # one-off build
  *   node esbuild.config.js --watch   # rebuild on change
  */
+import process from 'node:process';
 import * as esbuild from 'esbuild';
 
 const watch = process.argv.includes('--watch');
 
 /** @type {import('esbuild').BuildOptions} */
 const buildOptions = {
-  entryPoints: ['src/bundle-entry.ts'],
-  bundle: true,
-  format: 'iife',
-  outfile: 'typestripped/src-bundle.js',
-  sourcemap: true,
-  target: 'es2021',
-  // Exclude packages resolved at runtime (not bundled)
-  external: ['warframe-public-export-plus'],
-  logLevel: 'info',
+	entryPoints: ['src/bundle-entry.ts'],
+	bundle: true,
+	format: 'iife',
+	outfile: 'typestripped/src-bundle.js',
+	sourcemap: true,
+	target: 'es2021',
+	// Exclude packages resolved at runtime (not bundled)
+	external: ['warframe-public-export-plus'],
+	logLevel: 'info',
 };
 
 if (watch) {
-  const ctx = await esbuild.context(buildOptions);
-  await ctx.watch();
-  console.log('Watching for changes...');
+	const ctx = await esbuild.context(buildOptions);
+	await ctx.watch();
+	console.log('Watching for changes...');
 } else {
-  await esbuild.build(buildOptions);
+	await esbuild.build(buildOptions);
 }

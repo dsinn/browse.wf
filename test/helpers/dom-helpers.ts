@@ -4,55 +4,59 @@
  * Tests load actual PHP-rendered HTML via loadFixture('name')
  * instead of duplicating HTML structure here.
  */
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import process from 'node:process';
 
 /**
  * Helper to get element by ID with type safety
  */
 export function getById<T extends HTMLElement = HTMLElement>(id: string): T {
-  const element = document.getElementById(id);
-  if (!element) {
-    throw new Error(`Element with id "${id}" not found`);
-  }
-  return element as T;
+	const element = document.querySelector<T>(`#${id}`);
+	if (!element) {
+		throw new Error(`Element with id "${id}" not found`);
+	}
+
+	return element;
 }
 
 /**
  * Helper to check if element exists
  */
 export function elementExists(id: string): boolean {
-  return document.getElementById(id) !== null;
+	return document.querySelector(`#${id}`) !== null;
 }
 
 /**
  * Mock Bootstrap Tooltip for testing
  */
 export function mockBootstrapTooltip() {
-  const tooltipInstances = new Map<HTMLElement, any>();
+	const tooltipInstances = new Map<HTMLElement, any>();
 
-  window.bootstrap = {
-    Tooltip: class MockTooltip {
-      private element: HTMLElement;
-      private title: string;
+	globalThis.bootstrap = {
+		Tooltip: class MockTooltip {
+			static getInstance(element: HTMLElement) {
+				return tooltipInstances.get(element);
+			}
 
-      constructor(element: HTMLElement) {
-        this.element = element;
-        this.title = element.getAttribute('data-bs-title') || element.getAttribute('title') || '';
-        tooltipInstances.set(element, this);
-      }
+			private readonly element: HTMLElement;
+			private readonly title: string;
 
-      dispose() {
-        tooltipInstances.delete(this.element);
-      }
+			constructor(element: HTMLElement) {
+				this.element = element;
+				this.title = element.dataset.bsTitle || element.getAttribute('title') || '';
+				tooltipInstances.set(element, this);
+			}
 
-      static getInstance(element: HTMLElement) {
-        return tooltipInstances.get(element);
-      }
+			dispose() {
+				tooltipInstances.delete(this.element);
+			}
 
-      getTitle() {
-        return this.title;
-      }
-    }
-  };
+			getTitle() {
+				return this.title;
+			}
+		},
+	};
 }
 
 /**
@@ -68,9 +72,8 @@ export function mockBootstrapTooltip() {
  * @param functionNames - Names of functions from common.js to expose on window
  */
 export function loadCommonJsFunctions(functionNames: string[]) {
-  const fs = require('fs');
-  const path = require('path');
-  const scriptContent = fs.readFileSync(path.join(process.cwd(), 'common.js'), 'utf-8');
-  const promotions = functionNames.map(name => `window.${name} = ${name};`).join('\n');
-  eval(scriptContent + '\n' + promotions);
+	const scriptContent = fs.readFileSync(path.join(process.cwd(), 'common.js'), 'utf8');
+	const promotions = functionNames.map(name => `window.${name} = ${name};`).join('\n');
+	// eslint-disable-next-line no-eval
+	eval(String(scriptContent) + '\n' + promotions);
 }

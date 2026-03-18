@@ -1,178 +1,161 @@
-interface InvigorationRequest {
+type InvigorationRequest = {
 	n: string;
 	s: string[];
 	p: boolean;
-}
+};
 
-interface InvigorationResponse {
+type InvigorationResponse = {
 	suits: string[];
 	offensiveUpgrades: string[];
 	defensiveUpgrades: string[];
-}
+};
 
-interface InvigorationCacheEntry {
+type InvigorationCacheEntry = {
 	request: InvigorationRequest;
 	response: InvigorationResponse;
+};
+
+type InvigorationCache = Record<number, InvigorationCacheEntry>;
+
+export function getWeekIndex(timestamp: number): number {
+	return Math.trunc(((timestamp / 1000) - 1_391_990_400) / 604_800);
 }
 
-interface InvigorationCache {
-	[weekIndex: number]: InvigorationCacheEntry;
-}
-
-export function getWeekIndex(timestamp: number): number
-{
-	return Math.trunc(((timestamp / 1000) - 1391990400) / 604800);
-}
-
-export function loadCache(): InvigorationCache
-{
-	const cacheStr = localStorage.getItem("invigorations.cache");
-	if (!cacheStr)
-	{
+export function loadCache(): InvigorationCache {
+	const cacheString = localStorage.getItem('invigorations.cache');
+	if (!cacheString) {
 		return {};
 	}
 
-	try
-	{
-		const parsed = JSON.parse(cacheStr);
+	try {
+		const parsed = JSON.parse(cacheString);
 		// Must be an object (not array, null, etc.)
-		if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed))
-		{
+		if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
 			return {};
 		}
+
 		return parsed;
-	}
-	catch (e)
-	{
-		console.error("Failed to parse invigoration cache:", e);
+	} catch (error) {
+		console.error('Failed to parse invigoration cache:', error);
 		return {};
 	}
 }
 
-export function populateInvigorationGrid(prefix: string, response: InvigorationResponse, suits?: string[]): void
-{
-	const baseSuitTypes: Record<string, { name: string }> = (window as any).baseSuitTypes;
-	const dict: Record<string, string> = (window as any).dict;
-	const invigorationNames: Record<string, string> = (window as any).invigorationNames;
+export function populateInvigorationGrid(prefix: string, response: InvigorationResponse, suits?: string[]): void {
+	const {baseSuitTypes} = (globalThis as any);
+	const {dict} = (globalThis as any);
+	const {invigorationNames} = (globalThis as any);
 
-	const displaySuits = (suits && suits.length === response.suits.length) ? suits : response.suits;
-	for (let i = 0; i < response.suits.length; i++)
-	{
+	const displaySuits = (suits?.length === response.suits.length) ? suits : response.suits;
+	for (let i = 0; i < response.suits.length; i++) {
 		const suitData = baseSuitTypes[displaySuits[i]];
 		// Fall back to untranslated response in case of new content
-		document.getElementById(prefix + "-suit-" + i)!.textContent = suitData ? dict[suitData.name] : displaySuits[i];
-		document.getElementById(prefix + "-off-" + i)!.textContent = invigorationNames[response.offensiveUpgrades[i]] || response.offensiveUpgrades[i];
-		document.getElementById(prefix + "-def-" + i)!.textContent = invigorationNames[response.defensiveUpgrades[i]] || response.defensiveUpgrades[i];
+		document.querySelector(`#${prefix}-suit-${i}`).textContent = suitData ? dict[suitData.name] : displaySuits[i];
+		document.querySelector(`#${prefix}-off-${i}`).textContent = invigorationNames[response.offensiveUpgrades[i]] || response.offensiveUpgrades[i];
+		document.querySelector(`#${prefix}-def-${i}`).textContent = invigorationNames[response.defensiveUpgrades[i]] || response.defensiveUpgrades[i];
 	}
 }
 
-export function preFillForm(username: string, peek: boolean, suits: string[]): void
-{
-	const usernameInput = document.getElementById("username") as HTMLInputElement;
-	const peekCheckbox = document.getElementById("peek") as HTMLInputElement;
-	const suitSelects = document.querySelectorAll<HTMLSelectElement>(".suit-select");
+export function preFillForm(username: string, peek: boolean, suits: string[]): void {
+	const usernameInput = document.querySelector<HTMLInputElement>('#username');
+	const peekCheckbox = document.querySelector<HTMLInputElement>('#peek');
+	const suitSelects = document.querySelectorAll<HTMLSelectElement>('.suit-select');
 
 	usernameInput.value = username;
 	peekCheckbox.checked = peek;
-	peekCheckbox.onchange!(new Event('change'));
-	suits.forEach((suit, i) => suitSelects[i].value = suit);
+	peekCheckbox.dispatchEvent(new Event('change'));
+	for (const [i, suit] of suits.entries()) {
+		suitSelects[i].value = suit;
+	}
 }
 
-export function saveToCache(request: InvigorationRequest, response: InvigorationResponse): void
-{
+export function saveToCache(request: InvigorationRequest, response: InvigorationResponse): void {
 	const currentWeek = getWeekIndex(Date.now());
 	const targetWeek = request.p ? currentWeek + 1 : currentWeek;
 
 	const cache = loadCache();
-	cache[targetWeek] = { request, response };
+	cache[targetWeek] = {request, response};
 
-	const prunedCache = [currentWeek - 1, currentWeek, currentWeek + 1].reduce((acc: InvigorationCache, week) =>
-	{
-		if (cache[week]) acc[week] = cache[week];
-		return acc;
-	}, {});
+	const prunedCache: InvigorationCache = {};
+	for (const week of [currentWeek - 1, currentWeek, currentWeek + 1]) {
+		if (cache[week]) {
+			prunedCache[week] = cache[week];
+		}
+	}
 
-	localStorage.setItem("invigorations.cache", JSON.stringify(prunedCache));
-	if ((window as any).triggerCloudSync)
-	{
-		(window as any).triggerCloudSync();
+	localStorage.setItem('invigorations.cache', JSON.stringify(prunedCache));
+	if ((globalThis as any).triggerCloudSync) {
+		(globalThis as any).triggerCloudSync();
 	}
 }
 
-export function showHistory(currentWeek: number, cache: InvigorationCache): void
-{
+export function showHistory(currentWeek: number, cache: InvigorationCache): void {
 	const currentData = cache[currentWeek];
 	const lastWeekData = cache[currentWeek - 1];
 	const nextWeekData = cache[currentWeek + 1];
 
-	const historyDiv = document.getElementById("history")!;
-	const thisWeekDiv = document.getElementById("history-this-week")!;
-	const lastWeekDiv = document.getElementById("history-last-week")!;
+	const historyDiv = document.querySelector('#history');
+	const thisWeekDiv = document.querySelector('#history-this-week');
+	const lastWeekDiv = document.querySelector('#history-last-week');
 
-	if (!currentData && !lastWeekData)
-	{
-		historyDiv.classList.add("d-none");
+	if (!currentData && !lastWeekData) {
+		historyDiv.classList.add('d-none');
 		return;
 	}
 
-	historyDiv.classList.remove("d-none");
+	historyDiv.classList.remove('d-none');
 
-	if (currentData)
-	{
+	if (currentData) {
 		// Prefer next week's request suits: they represent what the user confirmed as this week's offerings
 		const thisWeekSuits = nextWeekData ? nextWeekData.request.s : undefined;
-		populateInvigorationGrid("this-week", currentData.response, thisWeekSuits);
-		thisWeekDiv.classList.remove("d-none");
-	}
-	else
-	{
-		thisWeekDiv.classList.add("d-none");
+		populateInvigorationGrid('this-week', currentData.response, thisWeekSuits);
+		thisWeekDiv.classList.remove('d-none');
+	} else {
+		thisWeekDiv.classList.add('d-none');
 	}
 
-	if (lastWeekData)
-	{
+	if (lastWeekData) {
 		// Prefer current week's request suits: they represent what the user confirmed as last week's offerings
 		const lastWeekSuits = currentData ? currentData.request.s : undefined;
-		populateInvigorationGrid("last-week", lastWeekData.response, lastWeekSuits);
-		lastWeekDiv.classList.remove("d-none");
-	}
-	else
-	{
-		lastWeekDiv.classList.add("d-none");
+		populateInvigorationGrid('last-week', lastWeekData.response, lastWeekSuits);
+		lastWeekDiv.classList.remove('d-none');
+	} else {
+		lastWeekDiv.classList.add('d-none');
 	}
 }
 
-export function showResults(response: InvigorationResponse, request: InvigorationRequest): void
-{
-	const resultsDiv = document.getElementById("results")!;
-	resultsDiv.classList.remove("d-none");
+export function showResults(response: InvigorationResponse, request: InvigorationRequest): void {
+	const resultsDiv = document.querySelector('#results');
+	resultsDiv.classList.remove('d-none');
 
 	// Update heading
-	(document.querySelector("#results h4") as HTMLElement).textContent = request.p ? "Next Week's Offerings" : "Current Offerings";
+	(document.querySelector('#results h4')).textContent = request.p ? 'Next Week\'s Offerings' : 'Current Offerings';
 
 	// Update explainer text
-	document.querySelectorAll(".explainer").forEach(x => { x.classList.add("d-none") });
-	if (request.s.length != response.suits.length)
-	{
-		document.querySelector("#explain-noprev")!.classList.remove("d-none");
+	for (const x of document.querySelectorAll('.explainer')) {
+		x.classList.add('d-none');
 	}
-	else if (!request.p)
-	{
-		document.querySelector("#explain-current")!.classList.remove("d-none");
+
+	if (request.s.length !== response.suits.length) {
+		document.querySelector('#explain-noprev').classList.remove('d-none');
+	} else if (request.p) {
+		document.querySelector('#explain-peek').classList.remove('d-none');
+	} else {
+		document.querySelector('#explain-current').classList.remove('d-none');
 	}
-	else
-	{
-		document.querySelector("#explain-peek")!.classList.remove("d-none");
+
+	for (const x of document.querySelectorAll('#results b')) {
+		x.textContent = request.n;
 	}
-	document.querySelectorAll("#results b").forEach(x => { x.textContent = request.n });
-	populateInvigorationGrid("out", response);
+
+	populateInvigorationGrid('out', response);
 }
 
 // Expose globally for use by the non-module inline script
-(window as any).getWeekIndex = getWeekIndex;
-(window as any).loadCache = loadCache;
-(window as any).populateInvigorationGrid = populateInvigorationGrid;
-(window as any).preFillForm = preFillForm;
-(window as any).saveToCache = saveToCache;
-(window as any).showHistory = showHistory;
-(window as any).showResults = showResults;
+(globalThis as any).getWeekIndex = getWeekIndex;
+(globalThis as any).loadCache = loadCache;
+(globalThis as any).populateInvigorationGrid = populateInvigorationGrid;
+(globalThis as any).preFillForm = preFillForm;
+(globalThis as any).saveToCache = saveToCache;
+(globalThis as any).showHistory = showHistory;
+(globalThis as any).showResults = showResults;

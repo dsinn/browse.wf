@@ -14,45 +14,43 @@ declare function getOSDictPromise(): Promise<Record<string, string>>;
 declare function transformConquestMissions(
 	conquest: any,
 	conquestType: string,
-	ExportMissionTypes: Record<string, { name: string }>
+	exportMissionTypes: Record<string, {name: string}>,
 ): IConquestMission[];
 
 declare function renderConquestMissions(
 	missions: IConquestMission[],
 	variantKeyPrefix: string,
 	osdict: Record<string, string>,
-	dict: Record<string, string>
+	dict: Record<string, string>,
 ): HTMLTableSectionElement;
 
 declare function renderConquestFrameVariables(
 	frameVariables: string[],
-	osdict: Record<string, string>
+	osdict: Record<string, string>,
 ): HTMLTableRowElement;
 
 declare function renderDescentChallenges(
 	descent: any,
-	dict: Record<string, string>
+	dict: Record<string, string>,
 ): HTMLTableSectionElement;
 
 declare function getSeasonLabel(season: string): string;
 
 declare function renderCalendarSeasonPane(
 	season: any,
-	ExportResources: Promise<Record<string, any>>,
-	ExportBundles: Promise<Record<string, any>>,
-	ExportBoosterPacks: Promise<Record<string, any>>,
-	ExportBoosters: Promise<Record<string, any>>,
-	ExportImages: Promise<Record<string, any>>
+	exportResources: Promise<Record<string, any>>,
+	exportBundles: Promise<Record<string, any>>,
+	exportBoosterPacks: Promise<Record<string, any>>,
+	exportBoosters: Promise<Record<string, any>>,
+	exportImages: Promise<Record<string, any>>,
 ): Promise<HTMLDivElement>;
 
-function mongoMs(d: IMongoDate): number
-{
-	return parseInt(d.$date.$numberLong);
+function mongoMs(d: IMongoDate): number {
+	return Number.parseInt(d.$date.$numberLong, 10);
 }
 
-function formatTabDate(ms: number): string
-{
-	return new Date(ms).toLocaleDateString("en", { month: "short", day: "numeric" });
+function formatTabDate(ms: number): string {
+	return new Date(ms).toLocaleDateString('en', {month: 'short', day: 'numeric'});
 }
 
 /**
@@ -60,49 +58,47 @@ function formatTabDate(ms: number): string
  * Stores the activation timestamp on the button as data-activation for refresh identity.
  */
 function buildTab(
-	tabsEl: HTMLElement,
-	contentEl: HTMLElement,
+	tabsElement: HTMLElement,
+	contentElement: HTMLElement,
 	id: string,
 	label: string,
 	activationMs: number,
 	isActive: boolean,
-	buildContent: (paneBody: HTMLElement) => void
-): void
-{
+	buildContent: (paneBody: HTMLElement) => void,
+): void {
 	// Nav tab button
-	const li = document.createElement("li");
-	li.className = "nav-item";
-	li.setAttribute("role", "presentation");
+	const li = document.createElement('li');
+	li.className = 'nav-item';
+	li.setAttribute('role', 'presentation');
 
-	const btn = document.createElement("button");
-	btn.className = "nav-link" + (isActive ? " active" : "");
-	btn.id = id + "-tab";
-	btn.setAttribute("data-bs-toggle", "tab");
-	btn.setAttribute("data-bs-target", "#" + id);
-	btn.setAttribute("type", "button");
-	btn.setAttribute("role", "tab");
-	btn.setAttribute("data-activation", String(activationMs));
+	const btn = document.createElement('button');
+	btn.className = 'nav-link' + (isActive ? ' active' : '');
+	btn.id = id + '-tab';
+	btn.dataset.bsToggle = 'tab';
+	btn.dataset.bsTarget = '#' + id;
+	btn.setAttribute('type', 'button');
+	btn.setAttribute('role', 'tab');
+	btn.dataset.activation = String(activationMs);
 	btn.textContent = label;
-	li.appendChild(btn);
-	tabsEl.appendChild(li);
+	li.append(btn);
+	tabsElement.append(li);
 
 	// Tab pane
-	const pane = document.createElement("div");
-	pane.className = "tab-pane fade" + (isActive ? " show active" : "");
+	const pane = document.createElement('div');
+	pane.className = 'tab-pane fade' + (isActive ? ' show active' : '');
 	pane.id = id;
-	pane.setAttribute("role", "tabpanel");
+	pane.setAttribute('role', 'tabpanel');
 
 	buildContent(pane);
-	contentEl.appendChild(pane);
+	contentElement.append(pane);
 }
 
 /**
  * Returns the activation timestamp of the active tab button, or null if none is active.
  */
-function getActiveTabActivation(tabsEl: HTMLElement): string | null
-{
-	const active = tabsEl.querySelector(".nav-link.active");
-	return active ? active.getAttribute("data-activation") : null;
+function getActiveTabActivation(tabsElement: HTMLElement): string | undefined {
+	const active = tabsElement.querySelector<HTMLElement>('.nav-link.active');
+	return active ? active.dataset.activation : null;
 }
 
 /**
@@ -112,165 +108,150 @@ function getActiveTabActivation(tabsEl: HTMLElement): string | null
  * Directly manipulates classes instead of using Bootstrap's Tab JS API to avoid
  * stale cached instances from the previous render confusing Bootstrap's hide/show logic.
  */
-function restoreActiveTab(tabsEl: HTMLElement, activation: string): void
-{
-	const target = tabsEl.querySelector(`.nav-link[data-activation="${activation}"]`) as HTMLElement | null;
-	if (!target) return;
+function restoreActiveTab(tabsElement: HTMLElement, activation: string): void {
+	const target = tabsElement.querySelector<HTMLElement>(`.nav-link[data-activation="${activation}"]`);
+	if (!target) {
+		return;
+	}
 
 	// Deactivate whichever tab buildTab marked active (index 0 / current)
-	tabsEl.querySelector(".nav-link.active")?.classList.remove("active");
-	const contentEl = document.getElementById(tabsEl.id.replace(/-tabs$/, "-content"));
-	contentEl?.querySelector(".tab-pane.active")?.classList.remove("show", "active");
+	tabsElement.querySelector<HTMLElement>('.nav-link.active')?.classList.remove('active');
+	const contentElement = document.querySelector(`#${tabsElement.id.replace(/-tabs$/u, '-content')}`);
+	contentElement?.querySelector('.tab-pane.active')?.classList.remove('show', 'active');
 
 	// Activate the restored tab
-	target.classList.add("active");
-	const paneId = target.getAttribute("data-bs-target")!.slice(1);
-	document.getElementById(paneId)?.classList.add("show", "active");
+	target.classList.add('active');
+	const paneId = target.dataset.bsTarget.slice(1);
+	document.querySelector(`#${paneId}`)?.classList.add('show', 'active');
 }
 
 function renderConquestTabs(
-	tabsEl: HTMLElement,
-	contentEl: HTMLElement,
+	tabsElement: HTMLElement,
+	contentElement: HTMLElement,
 	conquests: any[],
 	conquestType: string,
 	variantKeyPrefix: string,
-	ExportMissionTypes: Record<string, { name: string }>,
+	exportMissionTypes: Record<string, {name: string}>,
 	dict: Record<string, string>,
 	osdict: Record<string, string>,
-	preserveActivation: string | null = null
-): void
-{
+	preserveActivation: string | undefined = null,
+): void {
 	const now = Date.now();
-	tabsEl.innerHTML = "";
-	contentEl.innerHTML = "";
+	tabsElement.innerHTML = '';
+	contentElement.innerHTML = '';
 
 	// There's usually only one entry per conquest type, but handle multiple for robustness
-	conquests.forEach((conquest, i) =>
-	{
+	for (const [i, conquest] of conquests.entries()) {
 		const activationMs = mongoMs(conquest.Activation);
 		const expiryMs = mongoMs(conquest.Expiry);
 		const isCurrent = activationMs <= now && now < expiryMs;
 		const label = formatTabDate(activationMs);
-		const id = conquestType.toLowerCase() + "-" + i;
+		const id = conquestType.toLowerCase() + '-' + i;
 
-		buildTab(tabsEl, contentEl, id, label, activationMs, isCurrent || i === 0, pane =>
-		{
-			const missions = transformConquestMissions(conquest, conquestType, ExportMissionTypes);
+		buildTab(tabsElement, contentElement, id, label, activationMs, isCurrent || i === 0, pane => {
+			const missions = transformConquestMissions(conquest, conquestType, exportMissionTypes);
 			const tbody = renderConquestMissions(missions, variantKeyPrefix, osdict, dict);
 
-			const missionsTable = document.createElement("table");
-			missionsTable.className = "table table-sm table-borderless table-hover mb-2";
-			missionsTable.appendChild(tbody);
-			pane.appendChild(missionsTable);
+			const missionsTable = document.createElement('table');
+			missionsTable.className = 'table table-sm table-borderless table-hover mb-2';
+			missionsTable.append(tbody);
+			pane.append(missionsTable);
 
 			const fvRow = renderConquestFrameVariables(conquest.Variables || [], osdict);
-			const fvTable = document.createElement("table");
-			fvTable.className = "table table-sm table-borderless mb-0";
-			fvTable.appendChild(fvRow);
-			pane.appendChild(fvTable);
+			const fvTable = document.createElement('table');
+			fvTable.className = 'table table-sm table-borderless mb-0';
+			fvTable.append(fvRow);
+			pane.append(fvTable);
 		});
-	});
+	}
 
-	if (preserveActivation !== null)
-	{
-		restoreActiveTab(tabsEl, preserveActivation);
+	if (preserveActivation !== null) {
+		restoreActiveTab(tabsElement, preserveActivation);
 	}
 }
 
 function renderDescentTabs(
-	tabsEl: HTMLElement,
-	contentEl: HTMLElement,
+	tabsElement: HTMLElement,
+	contentElement: HTMLElement,
 	descents: any[],
 	dict: Record<string, string>,
-	preserveActivation: string | null = null
-): void
-{
+	preserveActivation: string | undefined = null,
+): void {
 	const now = Date.now();
-	tabsEl.innerHTML = "";
-	contentEl.innerHTML = "";
+	tabsElement.innerHTML = '';
+	contentElement.innerHTML = '';
 
 	const activeIdx = descents.findIndex(d =>
-		mongoMs(d.Activation) <= now && now < mongoMs(d.Expiry)
-	);
+		mongoMs(d.Activation) <= now && now < mongoMs(d.Expiry));
 
-	descents.forEach((descent, i) =>
-	{
+	for (const [i, descent] of descents.entries()) {
 		const activationMs = mongoMs(descent.Activation);
 		const isActive = i === activeIdx || (activeIdx === -1 && i === 0);
 		const label = formatTabDate(activationMs);
-		const id = "descent-" + i;
+		const id = 'descent-' + i;
 
-		buildTab(tabsEl, contentEl, id, label, activationMs, isActive, pane =>
-		{
+		buildTab(tabsElement, contentElement, id, label, activationMs, isActive, pane => {
 			const tbody = renderDescentChallenges(descent, dict);
 
-			const table = document.createElement("table");
-			table.className = "table table-sm table-borderless table-hover descendia-challenges";
+			const table = document.createElement('table');
+			table.className = 'table table-sm table-borderless table-hover descendia-challenges';
 
 			// Header row
-			const thead = document.createElement("thead");
-			const headerRow = document.createElement("tr");
-			["#", "Type", "Challenge", "Arena", "Specs", "Auras"].forEach(text =>
-			{
-				const th = document.createElement("th");
+			const thead = document.createElement('thead');
+			const headerRow = document.createElement('tr');
+			for (const text of ['#', 'Type', 'Challenge', 'Arena', 'Specs', 'Auras']) {
+				const th = document.createElement('th');
 				th.textContent = text;
-				headerRow.appendChild(th);
-			});
-			thead.appendChild(headerRow);
-			table.appendChild(thead);
-			table.appendChild(tbody);
-			pane.appendChild(table);
-		});
-	});
+				headerRow.append(th);
+			}
 
-	if (preserveActivation !== null)
-	{
-		restoreActiveTab(tabsEl, preserveActivation);
+			thead.append(headerRow);
+			table.append(thead);
+			table.append(tbody);
+			pane.append(table);
+		});
+	}
+
+	if (preserveActivation !== null) {
+		restoreActiveTab(tabsElement, preserveActivation);
 	}
 }
 
 async function renderCalendarSeasonTabs(
-	tabsEl: HTMLElement,
-	contentEl: HTMLElement,
+	tabsElement: HTMLElement,
+	contentElement: HTMLElement,
 	seasons: any[],
-	ExportResources: Promise<Record<string, any>>,
-	ExportBundles: Promise<Record<string, any>>,
-	ExportBoosterPacks: Promise<Record<string, any>>,
-	ExportBoosters: Promise<Record<string, any>>,
-	ExportImages: Promise<Record<string, any>>,
-	preserveActivation: string | null = null
-): Promise<void>
-{
+	exportResources: Promise<Record<string, any>>,
+	exportBundles: Promise<Record<string, any>>,
+	exportBoosterPacks: Promise<Record<string, any>>,
+	exportBoosters: Promise<Record<string, any>>,
+	exportImages: Promise<Record<string, any>>,
+	preserveActivation: string | undefined = null,
+): Promise<void> {
 	const now = Date.now();
-	tabsEl.innerHTML = "";
-	contentEl.innerHTML = "";
+	tabsElement.innerHTML = '';
+	contentElement.innerHTML = '';
 
 	const activeIdx = seasons.findIndex(s =>
-		mongoMs(s.Activation) <= now && now < mongoMs(s.Expiry)
-	);
+		mongoMs(s.Activation) <= now && now < mongoMs(s.Expiry));
 
 	// Render all season panes in parallel (leverages caching in prepareCalendarSeasonData)
-	const seasonPanes = await Promise.all(
-		seasons.map(season => renderCalendarSeasonPane(season, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, ExportImages))
-	);
+	const seasonPanes = await Promise.all(seasons.map(async season => renderCalendarSeasonPane(season, exportResources, exportBundles, exportBoosterPacks, exportBoosters, exportImages)));
 
 	// Build tabs with the rendered content
-	seasons.forEach((season, i) =>
-	{
+	for (const [i, season] of seasons.entries()) {
 		const activationMs = mongoMs(season.Activation);
 		const isActive = i === activeIdx || (activeIdx === -1 && i === 0);
 		const label = getSeasonLabel(season.Season);
-		const id = "calendar-season-" + i;
+		const id = 'calendar-season-' + i;
 
-		buildTab(tabsEl, contentEl, id, label, activationMs, isActive, pane =>
-		{
-			pane.appendChild(seasonPanes[i]);
+		buildTab(tabsElement, contentElement, id, label, activationMs, isActive, pane => {
+			pane.append(seasonPanes[i]);
 		});
-	});
+	}
 
-	if (preserveActivation !== null)
-	{
-		restoreActiveTab(tabsEl, preserveActivation);
+	if (preserveActivation !== null) {
+		restoreActiveTab(tabsElement, preserveActivation);
 	}
 }
 
@@ -280,10 +261,9 @@ async function renderCalendarSeasonTabs(
  * proxy hops (up to 1 minute cache each) have had time to refresh.
  * If today is Sunday and it's before 23:02 UTC, returns today's target time.
  */
-function nextForecastPublishedSeconds(): number
-{
+function nextForecastPublishedSeconds(): number {
 	const now = new Date();
-	// getUTCDay(): 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+	// GetUTCDay(): 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 	const dayOfWeek = now.getUTCDay();
 	const daysUntilSunday = (7 - dayOfWeek) % 7;
 
@@ -291,12 +271,14 @@ function nextForecastPublishedSeconds(): number
 		now.getUTCFullYear(),
 		now.getUTCMonth(),
 		now.getUTCDate() + daysUntilSunday,
-		23, 2, 0, 0
+		23,
+		2,
+		0,
+		0,
 	));
 
 	// If it's Sunday but already past 23:02, go to next week
-	if (target.getTime() <= Date.now())
-	{
+	if (target.getTime() <= Date.now()) {
 		target.setUTCDate(target.getUTCDate() + 7);
 	}
 
@@ -306,112 +288,111 @@ function nextForecastPublishedSeconds(): number
 /**
  * Populates the weekly missions notice with a timer badge and local-time update text.
  */
-function initWeeklyMissionsNotice(): void
-{
-	const timerEl = document.getElementById("weekly-missions-timer");
-	if (!timerEl) return;
+function initWeeklyMissionsNotice(): void {
+	const timerElement = document.querySelector('#weekly-missions-timer');
+	if (!timerElement) {
+		return;
+	}
 
-	const badge = (window as any).createArbyCountdownBadge(nextForecastPublishedSeconds());
-	timerEl.appendChild(badge);
+	const badge = (globalThis as any).createArbyCountdownBadge(nextForecastPublishedSeconds());
+	timerElement.append(badge);
 }
 
-async function initWeeklyForecast(isRefresh: boolean = false): Promise<void>
-{
-	const labTabsEl           = document.getElementById("lab-conquest-tabs")!;
-	const hexTabsEl           = document.getElementById("hex-conquest-tabs")!;
-	const descentTabsEl       = document.getElementById("descendia-tabs")!;
-	const calendarSeasonTabsEl = document.getElementById("calendar-season-tabs");
+async function initWeeklyForecast(isRefresh = false): Promise<void> {
+	const labTabsElement = document.querySelector<HTMLElement>('#lab-conquest-tabs');
+	const hexTabsElement = document.querySelector<HTMLElement>('#hex-conquest-tabs');
+	const descentTabsElement = document.querySelector<HTMLElement>('#descendia-tabs');
+	const calendarSeasonTabsElement = document.querySelector<HTMLElement>('#calendar-season-tabs');
 
 	// Capture which tab the user is on before re-rendering (only meaningful on refresh)
-	const labActivation            = isRefresh ? getActiveTabActivation(labTabsEl)     : null;
-	const hexActivation            = isRefresh ? getActiveTabActivation(hexTabsEl)     : null;
-	const descentActivation        = isRefresh ? getActiveTabActivation(descentTabsEl) : null;
-	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsEl) ? getActiveTabActivation(calendarSeasonTabsEl) : null;
+	const labActivation = isRefresh ? getActiveTabActivation(labTabsElement) : null;
+	const hexActivation = isRefresh ? getActiveTabActivation(hexTabsElement) : null;
+	const descentActivation = isRefresh ? getActiveTabActivation(descentTabsElement) : null;
+	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsElement) ? getActiveTabActivation(calendarSeasonTabsElement) : null;
 
-	const [worldState, dict, osdict, ExportMissionTypes, ExportChallenges, ExportImages, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters] = await Promise.all([
-		(window as any).WarframeApiFrontProxyClient.fetchWorldState(),
+	const [worldState, dict, osdict, exportMissionTypes, exportChallenges, exportImages, exportResources, exportBundles, exportBoosterPacks, exportBoosters] = await Promise.all([
+		(globalThis as any).WarframeApiFrontProxyClient.fetchWorldState(),
 		getDictPromise(),
 		getOSDictPromise(),
-		fetch("warframe-public-export-plus/ExportMissionTypes.json").then(r => r.json()),
-		fetch("warframe-public-export-plus/ExportChallenges.json").then(r => r.json()),
-		fetch("warframe-public-export-plus/ExportImages.json").then(r => r.json()),
-		fetch("warframe-public-export-plus/ExportResources.json").then(r => r.json()),
-		fetch("warframe-public-export-plus/ExportBundles.json").then(r => r.json()),
-		fetch("warframe-public-export-plus/ExportBoosterPacks.json").then(r => r.json()),
-		fetch("warframe-public-export-plus/ExportBoosters.json").then(r => r.json()),
+		fetch('warframe-public-export-plus/ExportMissionTypes.json').then(async r => r.json()),
+		fetch('warframe-public-export-plus/ExportChallenges.json').then(async r => r.json()),
+		fetch('warframe-public-export-plus/ExportImages.json').then(async r => r.json()),
+		fetch('warframe-public-export-plus/ExportResources.json').then(async r => r.json()),
+		fetch('warframe-public-export-plus/ExportBundles.json').then(async r => r.json()),
+		fetch('warframe-public-export-plus/ExportBoosterPacks.json').then(async r => r.json()),
+		fetch('warframe-public-export-plus/ExportBoosters.json').then(async r => r.json()),
 	]);
 
 	// Set up globals needed by common.js setImageSource()
-	(window as any).ExportImages = ExportImages;
-	(window as any).ExportChallenges = ExportChallenges;
+	(globalThis as any).ExportImages = exportImages;
+	(globalThis as any).ExportChallenges = exportChallenges;
 
 	// Deep Archimedea (CT_LAB)
-	const labConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === "CT_LAB");
-	if (labConquests.length > 0)
-	{
+	const labConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_LAB');
+	if (labConquests.length > 0) {
 		renderConquestTabs(
-			labTabsEl,
-			document.getElementById("lab-conquest-content")!,
+			labTabsElement,
+			document.querySelector<HTMLElement>('#lab-conquest-content'),
 			labConquests,
-			"CT_LAB",
-			"/Lotus/Language/Conquest/MissionVariant_LabConquest_",
-			ExportMissionTypes,
+			'CT_LAB',
+			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
+			exportMissionTypes,
 			dict,
 			osdict,
-			labActivation
+			labActivation,
 		);
 	}
 
 	// Temporal Archimedea (CT_HEX)
-	const hexConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === "CT_HEX");
-	if (hexConquests.length > 0)
-	{
+	const hexConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_HEX');
+	if (hexConquests.length > 0) {
 		renderConquestTabs(
-			hexTabsEl,
-			document.getElementById("hex-conquest-content")!,
+			hexTabsElement,
+			document.querySelector<HTMLElement>('#hex-conquest-content'),
 			hexConquests,
-			"CT_HEX",
-			"/Lotus/Language/Conquest/MissionVariant_HexConquest_",
-			ExportMissionTypes,
+			'CT_HEX',
+			'/Lotus/Language/Conquest/MissionVariant_HexConquest_',
+			exportMissionTypes,
 			dict,
 			osdict,
-			hexActivation
+			hexActivation,
 		);
 	}
 
 	// Descendia
 	const descents = worldState.Descents ?? [];
-	if (descents.length > 0)
-	{
+	if (descents.length > 0) {
 		renderDescentTabs(
-			descentTabsEl,
-			document.getElementById("descendia-content")!,
+			descentTabsElement,
+			document.querySelector<HTMLElement>('#descendia-content'),
 			descents,
 			dict,
-			descentActivation
+			descentActivation,
 		);
 	}
 
 	// Calendar Seasons
 	const calendarSeasons = worldState.KnownCalendarSeasons ?? [];
-	if (calendarSeasonTabsEl && calendarSeasons.length > 0)
-	{
+	if (calendarSeasonTabsElement && calendarSeasons.length > 0) {
 		await renderCalendarSeasonTabs(
-			calendarSeasonTabsEl,
-			document.getElementById("calendar-season-content")!,
+			calendarSeasonTabsElement,
+			document.querySelector<HTMLElement>('#calendar-season-content'),
 			calendarSeasons,
-			Promise.resolve(ExportResources),
-			Promise.resolve(ExportBundles),
-			Promise.resolve(ExportBoosterPacks),
-			Promise.resolve(ExportBoosters),
-			Promise.resolve(ExportImages),
-			calendarSeasonActivation
+			Promise.resolve(exportResources),
+			Promise.resolve(exportBundles),
+			Promise.resolve(exportBoosterPacks),
+			Promise.resolve(exportBoosters),
+			Promise.resolve(exportImages),
+			calendarSeasonActivation,
 		);
 	}
 
 	// Schedule next refresh at 00:01 UTC
-	setTimeout(() => initWeeklyForecast(true).catch(console.error), nextForecastPublishedSeconds() * 1000 - Date.now());
+	setTimeout(() => {
+		void initWeeklyForecast(true).catch(console.error);
+	}, (nextForecastPublishedSeconds() * 1000) - Date.now());
 }
 
 initWeeklyMissionsNotice();
+// eslint-disable-next-line unicorn/prefer-top-level-await
 initWeeklyForecast().catch(console.error);

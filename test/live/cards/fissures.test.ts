@@ -1,163 +1,167 @@
-import { describe, test, expect } from 'vitest';
-import { loadMock } from '../../helpers/api-mocks';
-import { testCardFilters } from '../card-filters-factory';
+import {describe, test, expect} from 'vitest';
+import {loadMock} from '../../helpers/api-mocks';
+import {testCardFilters} from '../card-filters-factory';
 
 // Test generic card filter integration for Fissures card
 // This verifies: gear icon, accordion, checkboxes, localStorage persistence, auto-expand
 testCardFilters('fissures');
 
 describe('Void Fissures Card', () => {
-  test('renders fissure data from worldState', () => {
-    const worldState = loadMock('worldState.json');
+	test('renders fissure data from worldState', () => {
+		const worldState = loadMock('worldState.json');
 
-    expect(worldState.ActiveMissions).toBeDefined();
-    expect(Array.isArray(worldState.ActiveMissions)).toBe(true);
-    expect(worldState.ActiveMissions.length).toBeGreaterThan(0);
+		expect(worldState.ActiveMissions).toBeDefined();
+		expect(Array.isArray(worldState.ActiveMissions)).toBe(true);
+		expect(worldState.ActiveMissions.length).toBeGreaterThan(0);
 
-    expect(worldState.VoidStorms).toBeDefined();
-    expect(Array.isArray(worldState.VoidStorms)).toBe(true);
-    expect(worldState.VoidStorms.length).toBeGreaterThan(0);
-  });
+		expect(worldState.VoidStorms).toBeDefined();
+		expect(Array.isArray(worldState.VoidStorms)).toBe(true);
+		expect(worldState.VoidStorms.length).toBeGreaterThan(0);
+	});
 
-  test('fissures within each tier are sorted by expiry in chronological order', () => {
-    const worldState = loadMock('worldState.json');
+	test('fissures within each tier are sorted by expiry in chronological order', () => {
+		const worldState = loadMock('worldState.json');
 
-    // Combine ActiveMissions and VoidStorms into fissures array, mimicking live.ts logic
-    const fissures = [];
+		// Combine ActiveMissions and VoidStorms into fissures array, mimicking live.ts logic
+		const fissures = [];
 
-    for (const fissure of worldState.ActiveMissions) {
-      fissures.push({
-        Category: fissure.Hard ? 'sp-fissures' : 'fissures',
-        Hard: fissure.Hard,
-        Activation: fissure.Activation,
-        Expiry: fissure.Expiry,
-        Node: fissure.Node,
-        Modifier: fissure.Modifier,
-      });
-    }
+		for (const fissure of worldState.ActiveMissions) {
+			fissures.push({
+				Category: fissure.Hard ? 'sp-fissures' : 'fissures',
+				Hard: fissure.Hard,
+				Activation: fissure.Activation,
+				Expiry: fissure.Expiry,
+				Node: fissure.Node,
+				Modifier: fissure.Modifier,
+			});
+		}
 
-    for (const fissure of worldState.VoidStorms) {
-      fissures.push({
-        Category: 'rj-fissures',
-        Hard: false,
-        Activation: fissure.Activation,
-        Expiry: fissure.Expiry,
-        Node: fissure.Node,
-        Modifier: fissure.ActiveMissionTier,
-      });
-    }
+		for (const fissure of worldState.VoidStorms) {
+			fissures.push({
+				Category: 'rj-fissures',
+				Hard: false,
+				Activation: fissure.Activation,
+				Expiry: fissure.Expiry,
+				Node: fissure.Node,
+				Modifier: fissure.ActiveMissionTier,
+			});
+		}
 
-    // Sort by tier first, then by expiry within each tier (same logic as live.ts)
-    fissures.sort((a, b) => {
-      const tierDiff = a.Modifier.charCodeAt(5) - b.Modifier.charCodeAt(5);
-      if (tierDiff !== 0) return tierDiff;
-      return parseInt(a.Expiry.$date.$numberLong) - parseInt(b.Expiry.$date.$numberLong);
-    });
+		// Sort by tier first, then by expiry within each tier (same logic as live.ts)
+		fissures.sort((a, b) => {
+			const tierDiff = (a.Modifier.codePointAt(5) ?? 0) - (b.Modifier.codePointAt(5) ?? 0);
+			if (tierDiff !== 0) {
+				return tierDiff;
+			}
 
-    // Group by tier and Hard mode to verify chronological ordering
-    const tierGroups: Record<string, any[]> = {};
-    for (const fissure of fissures) {
-      const key = (fissure.Hard ? 'SP-' : '') + fissure.Modifier;
-      if (!tierGroups[key]) {
-        tierGroups[key] = [];
-      }
-      tierGroups[key].push(fissure);
-    }
+			return Number.parseInt(a.Expiry.$date.$numberLong, 10) - Number.parseInt(b.Expiry.$date.$numberLong, 10);
+		});
 
-    // Verify each tier group is sorted chronologically by expiry
-    for (const [tier, group] of Object.entries(tierGroups)) {
-      if (group.length <= 1) {
-        continue; // Single-item groups are trivially sorted
-      }
+		// Group by tier and Hard mode to verify chronological ordering
+		const tierGroups: Record<string, any[]> = {};
+		for (const fissure of fissures) {
+			const key = `${fissure.Hard ? 'SP-' : ''}${String(fissure.Modifier)}`;
+			tierGroups[key] ||= [];
 
-      const expiries = group.map(f => parseInt(f.Expiry.$date.$numberLong));
+			tierGroups[key].push(fissure);
+		}
 
-      // Check that each expiry is <= the next one (chronological order)
-      for (let i = 0; i < expiries.length - 1; i++) {
-        expect(expiries[i]).toBeLessThanOrEqual(expiries[i + 1]);
-      }
+		// Verify each tier group is sorted chronologically by expiry
+		for (const [tier, group] of Object.entries(tierGroups)) {
+			if (group.length <= 1) {
+				continue; // Single-item groups are trivially sorted
+			}
 
-      // Additional verification: compare with a sorted copy
-      const sortedExpiries = [...expiries].sort((a, b) => a - b);
-      expect(expiries).toEqual(sortedExpiries);
-    }
-  });
+			const expiries = group.map(f => Number.parseInt(f.Expiry.$date.$numberLong, 10));
 
-  test('identifies missions with unsorted expiries in mock data', () => {
-    const worldState = loadMock('worldState.json');
+			// Check that each expiry is <= the next one (chronological order)
+			for (let i = 0; i < expiries.length - 1; i++) {
+				expect(expiries[i]).toBeLessThanOrEqual(expiries[i + 1]);
+			}
 
-    // Group missions by tier WITHOUT sorting to see original order
-    const byTierAndMode: Record<string, string[]> = {};
+			// Additional verification: compare with a sorted copy
+			const sortedExpiries = expiries.toSorted((a, b) => a - b);
+			expect(expiries).toEqual(sortedExpiries);
+		}
+	});
 
-    worldState.ActiveMissions.forEach((m: any) => {
-      const key = (m.Hard ? 'SP-' : '') + m.Modifier;
-      if (!byTierAndMode[key]) byTierAndMode[key] = [];
-      byTierAndMode[key].push(m.Expiry.$date.$numberLong);
-    });
+	test('identifies missions with unsorted expiries in mock data', () => {
+		const worldState = loadMock('worldState.json');
 
-    worldState.VoidStorms.forEach((m: any) => {
-      const key = 'RJ-' + m.ActiveMissionTier;
-      if (!byTierAndMode[key]) byTierAndMode[key] = [];
-      byTierAndMode[key].push(m.Expiry.$date.$numberLong);
-    });
+		// Group missions by tier WITHOUT sorting to see original order
+		const byTierAndMode: Record<string, string[]> = {};
 
-    // Find at least one tier with unsorted missions
-    let foundUnsorted = false;
-    for (const [tier, expiries] of Object.entries(byTierAndMode)) {
-      if (expiries.length <= 1) continue;
+		for (const m of worldState.ActiveMissions as any[]) {
+			const key = `${m.Hard ? 'SP-' : ''}${String(m.Modifier)}`;
+			byTierAndMode[key] ||= [];
+			byTierAndMode[key].push(m.Expiry.$date.$numberLong);
+		}
 
-      const sorted = [...expiries].sort((a, b) => parseInt(a) - parseInt(b));
-      const alreadySorted = JSON.stringify(expiries) === JSON.stringify(sorted);
+		for (const m of worldState.VoidStorms as any[]) {
+			const key = `RJ-${String(m.ActiveMissionTier)}`;
+			byTierAndMode[key] ||= [];
+			byTierAndMode[key].push(m.Expiry.$date.$numberLong);
+		}
 
-      if (!alreadySorted) {
-        foundUnsorted = true;
-        // Verify specific tiers we know are unsorted from our analysis
-        if (tier === 'SP-VoidT2' || tier === 'SP-VoidT3' || tier === 'VoidT4' || tier === 'VoidT5') {
-          expect(alreadySorted).toBe(false);
-        }
-      }
-    }
+		// Find at least one tier with unsorted missions
+		let foundUnsorted = false;
+		for (const [tier, expiries] of Object.entries(byTierAndMode)) {
+			if (expiries.length <= 1) {
+				continue;
+			}
 
-    // Ensure the mock data actually has unsorted missions to test the sorting logic
-    expect(foundUnsorted).toBe(true);
-  });
+			const sorted = expiries.toSorted((a, b) => Number.parseInt(a, 10) - Number.parseInt(b, 10));
+			const alreadySorted = JSON.stringify(expiries) === JSON.stringify(sorted);
 
-  test('has correct tier labels', () => {
-    const worldState = loadMock('worldState.json');
+			if (!alreadySorted) {
+				foundUnsorted = true;
+				// Verify specific tiers we know are unsorted from our analysis
+				if (tier === 'SP-VoidT2' || tier === 'SP-VoidT3' || tier === 'VoidT4' || tier === 'VoidT5') {
+					expect(alreadySorted).toBe(false);
+				}
+			}
+		}
 
-    const fissureTiers = {
-      VoidT1: 'Lith',
-      VoidT2: 'Meso',
-      VoidT3: 'Neo',
-      VoidT4: 'Axi',
-      VoidT5: 'Requiem',
-      VoidT6: 'Omnia',
-    };
+		// Ensure the mock data actually has unsorted missions to test the sorting logic
+		expect(foundUnsorted).toBe(true);
+	});
 
-    // Check that all modifiers in mock data have corresponding tier labels
-    const allModifiers = new Set([
-      ...worldState.ActiveMissions.map((m: any) => m.Modifier),
-      ...worldState.VoidStorms.map((m: any) => m.ActiveMissionTier),
-    ]);
+	test('has correct tier labels', () => {
+		const worldState = loadMock('worldState.json');
 
-    for (const modifier of allModifiers) {
-      expect(fissureTiers).toHaveProperty(modifier);
-    }
-  });
+		const fissureTiers = {
+			VoidT1: 'Lith',
+			VoidT2: 'Meso',
+			VoidT3: 'Neo',
+			VoidT4: 'Axi',
+			VoidT5: 'Requiem',
+			VoidT6: 'Omnia',
+		};
 
-  test('separates normal, steel path, and void storms correctly', () => {
-    const worldState = loadMock('worldState.json');
+		// Check that all modifiers in mock data have corresponding tier labels
+		const allModifiers = new Set([
+			...worldState.ActiveMissions.map((m: any) => m.Modifier),
+			...worldState.VoidStorms.map((m: any) => m.ActiveMissionTier),
+		]);
 
-    const normalFissures = worldState.ActiveMissions.filter((m: any) => !m.Hard);
-    const steelPathFissures = worldState.ActiveMissions.filter((m: any) => m.Hard);
-    const voidStorms = worldState.VoidStorms;
+		for (const modifier of allModifiers) {
+			expect(fissureTiers).toHaveProperty(modifier);
+		}
+	});
 
-    expect(normalFissures.length).toBeGreaterThan(0);
-    expect(steelPathFissures.length).toBeGreaterThan(0);
-    expect(voidStorms.length).toBeGreaterThan(0);
+	test('separates normal, steel path, and void storms correctly', () => {
+		const worldState = loadMock('worldState.json');
 
-    // Verify they're mutually exclusive
-    expect(normalFissures.every((m: any) => !m.Hard)).toBe(true);
-    expect(steelPathFissures.every((m: any) => m.Hard)).toBe(true);
-  });
+		const normalFissures = worldState.ActiveMissions.filter((m: any) => !m.Hard);
+		const steelPathFissures = worldState.ActiveMissions.filter((m: any) => m.Hard);
+		const voidStorms = worldState.VoidStorms;
+
+		expect(normalFissures.length).toBeGreaterThan(0);
+		expect(steelPathFissures.length).toBeGreaterThan(0);
+		expect(voidStorms.length).toBeGreaterThan(0);
+
+		// Verify they're mutually exclusive
+		expect(normalFissures.every((m: any) => !m.Hard)).toBe(true);
+		expect(steelPathFissures.every((m: any) => m.Hard)).toBe(true);
+	});
 });

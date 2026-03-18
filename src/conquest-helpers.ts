@@ -4,40 +4,36 @@
  * These are used by both weekly-forecast.ts (via globals) to avoid duplicating logic.
  */
 
-
-export function conquestRiskTagToLoc(tag: string): string
-{
-	if (tag == "EMPBlackHole")
-	{
-		return "MagneticHounds";
+export function conquestRiskTagToLoc(tag: string): string {
+	if (tag === 'EMPBlackHole') {
+		return 'MagneticHounds';
 	}
+
 	return tag;
 }
 
-export function conquestVariableTagToLoc(tag: string): string
-{
-	if (tag == "DullBlades")
-	{
-		return "ComboCountChance";
+export function conquestVariableTagToLoc(tag: string): string {
+	if (tag === 'DullBlades') {
+		return 'ComboCountChance';
 	}
-	if (tag == "Undersupplied")
-	{
-		return "MaxAmmo";
+
+	if (tag === 'Undersupplied') {
+		return 'MaxAmmo';
 	}
+
 	return tag;
 }
 
-export function transformFrameVariable(desc: string, rawValue: string): string
-{
-	desc = desc.replaceAll(/<[^>]+>/g, "");
-	if (rawValue === "ShieldDelay")
-	{
-		return desc.split("|val|").join("500");
+export function transformFrameVariable(desc: string, rawValue: string): string {
+	desc = desc.replaceAll(/<[^>]+>/gu, '');
+	if (rawValue === 'ShieldDelay') {
+		return desc.split('|val|').join('500');
 	}
-	else if (rawValue === "TimeDilation")
-	{
-		return desc.split("|val|").join("50");
+
+	if (rawValue === 'TimeDilation') {
+		return desc.split('|val|').join('50');
 	}
+
 	return desc;
 }
 
@@ -48,39 +44,35 @@ export function transformFrameVariable(desc: string, rawValue: string): string
  * @param osdict     The OS dictionary (key → text)
  * @param descTransform  Optional transform for the tooltip description
  */
-export function createArchimedeaTooltipEl(
+export function createArchimedeaTooltipElement(
 	keyPrefix: string,
 	rawValue: string,
 	osdict: Record<string, string>,
-	descTransform?: (desc: string, rawValue: string) => string
-): HTMLElement | Text
-{
+	descTransform?: (desc: string, rawValue: string) => string,
+): HTMLElement | Text {
 	const key = keyPrefix + rawValue;
 	const text = osdict[key];
-	const desc = osdict[key + "_Desc"];
-	if (text && desc)
-	{
-		const abbr = document.createElement("abbr");
+	const desc = osdict[key + '_Desc'];
+	if (text && desc) {
+		const abbr = document.createElement('abbr');
 		abbr.textContent = text;
 		const finalDesc = descTransform ? descTransform(desc, rawValue) : desc;
-		abbr.setAttribute("data-bs-toggle", "tooltip");
-		abbr.setAttribute("data-bs-title", finalDesc);
-		new window.bootstrap.Tooltip(abbr);
+		abbr.dataset.bsToggle = 'tooltip';
+		abbr.dataset.bsTitle = finalDesc;
+		void new globalThis.bootstrap.Tooltip(abbr);
 		return abbr;
 	}
-	else if (text)
-	{
-		if (!desc)
-		{
-			console.warn("Missing osdict key:", key + "_Desc");
+
+	if (text) {
+		if (!desc) {
+			console.warn('Missing osdict key:', key + '_Desc');
 		}
+
 		return document.createTextNode(text);
 	}
-	else
-	{
-		console.warn("Missing osdict key:", key);
-		return document.createTextNode(rawValue);
-	}
+
+	console.warn('Missing osdict key:', key);
+	return document.createTextNode(rawValue);
 }
 
 /**
@@ -94,27 +86,31 @@ export function createArchimedeaTooltipEl(
 export function transformConquestMissions(
 	conquest: any,
 	conquestType: string,
-	ExportMissionTypes: Record<string, { name: string }>
-): IConquestMission[]
-{
+	exportMissionTypes: Record<string, {name: string}>,
+): IConquestMission[] {
 	const missions: IConquestMission[] = [];
-	for (const mission of conquest.Missions)
-	{
-		const hardDiff = mission.difficulties.find((d: any) => d.type === "CD_HARD")
-			|| mission.difficulties.reduce((a: any, b: any) => a.risks.length > b.risks.length ? a : b);
+	for (const mission of conquest.Missions) {
+		let hardDiff = mission.difficulties.find((d: any) => d.type === 'CD_HARD');
+		if (!hardDiff) {
+			for (const d of mission.difficulties) {
+				if (!hardDiff || d.risks.length > hardDiff.risks.length) {
+					hardDiff = d;
+				}
+			}
+		}
 
-		let type = ExportMissionTypes[mission.missionType].name.split("MissionName_")[1];
-		if (conquestType === "CT_LAB" && type === "Defense")
-		{
-			type = "DualDefense";
+		let type = exportMissionTypes[mission.missionType].name.split('MissionName_')[1];
+		if (conquestType === 'CT_LAB' && type === 'Defense') {
+			type = 'DualDefense';
 		}
 
 		missions.push({
-			type: type,
+			type,
 			variant: hardDiff.deviation,
-			conditions: hardDiff.risks
+			conditions: hardDiff.risks,
 		});
 	}
+
 	return missions;
 }
 
@@ -129,32 +125,33 @@ export function renderConquestMissions(
 	missions: IConquestMission[],
 	variantKeyPrefix: string,
 	osdict: Record<string, string>,
-	dict: Record<string, string>
-): HTMLTableSectionElement
-{
-	const tbody = document.createElement("tbody");
-	for (const mission of missions)
-	{
-		const tr = document.createElement("tr");
+	dict: Record<string, string>,
+): HTMLTableSectionElement {
+	const tbody = document.createElement('tbody');
+	for (const mission of missions) {
+		const tr = document.createElement('tr');
 		{
-			const th = document.createElement("th");
-			th.textContent = toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + mission.type] ?? mission.type);
-			tr.appendChild(th);
+			const th = document.createElement('th');
+			th.textContent = toTitleCase(dict['/Lotus/Language/Missions/MissionName_' + mission.type] ?? mission.type);
+			tr.append(th);
 		}
+
 		{
-			const td = document.createElement("td");
-			td.appendChild(createArchimedeaTooltipEl(variantKeyPrefix, mission.variant, osdict));
-			tr.appendChild(td);
+			const td = document.createElement('td');
+			td.append(createArchimedeaTooltipElement(variantKeyPrefix, mission.variant, osdict));
+			tr.append(td);
 		}
-		for (let i = 0; i != 2; ++i)
-		{
-			const td = document.createElement("td");
+
+		for (let i = 0; i !== 2; ++i) {
+			const td = document.createElement('td');
 			const canonicalCondition = conquestRiskTagToLoc(mission.conditions[i]);
-			td.appendChild(createArchimedeaTooltipEl("/Lotus/Language/Conquest/Condition_", canonicalCondition, osdict));
-			tr.appendChild(td);
+			td.append(createArchimedeaTooltipElement('/Lotus/Language/Conquest/Condition_', canonicalCondition, osdict));
+			tr.append(td);
 		}
-		tbody.appendChild(tr);
+
+		tbody.append(tr);
 	}
+
 	return tbody;
 }
 
@@ -165,30 +162,29 @@ export function renderConquestMissions(
  */
 export function renderConquestFrameVariables(
 	frameVariables: string[],
-	osdict: Record<string, string>
-): HTMLTableRowElement
-{
-	const tr = document.createElement("tr");
-	for (const fv of frameVariables)
-	{
-		const td = document.createElement("td");
+	osdict: Record<string, string>,
+): HTMLTableRowElement {
+	const tr = document.createElement('tr');
+	for (const fv of frameVariables) {
+		const td = document.createElement('td');
 		const canonicalPersonalMod = conquestVariableTagToLoc(fv);
-		td.appendChild(createArchimedeaTooltipEl(
-			"/Lotus/Language/Conquest/PersonalMod_",
+		td.append(createArchimedeaTooltipElement(
+			'/Lotus/Language/Conquest/PersonalMod_',
 			canonicalPersonalMod,
 			osdict,
-			transformFrameVariable
+			transformFrameVariable,
 		));
-		tr.appendChild(td);
+		tr.append(td);
 	}
+
 	return tr;
 }
 
 // Expose globally for use by weekly-forecast.ts and other non-module scripts
-(window as any).conquestRiskTagToLoc = conquestRiskTagToLoc;
-(window as any).conquestVariableTagToLoc = conquestVariableTagToLoc;
-(window as any).transformFrameVariable = transformFrameVariable;
-(window as any).createArchimedeaTooltipEl = createArchimedeaTooltipEl;
-(window as any).transformConquestMissions = transformConquestMissions;
-(window as any).renderConquestMissions = renderConquestMissions;
-(window as any).renderConquestFrameVariables = renderConquestFrameVariables;
+(globalThis as any).conquestRiskTagToLoc = conquestRiskTagToLoc;
+(globalThis as any).conquestVariableTagToLoc = conquestVariableTagToLoc;
+(globalThis as any).transformFrameVariable = transformFrameVariable;
+(globalThis as any).createArchimedeaTooltipElement = createArchimedeaTooltipElement;
+(globalThis as any).transformConquestMissions = transformConquestMissions;
+(globalThis as any).renderConquestMissions = renderConquestMissions;
+(globalThis as any).renderConquestFrameVariables = renderConquestFrameVariables;

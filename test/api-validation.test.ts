@@ -1,7 +1,9 @@
-import { describe, test, expect } from 'vitest';
-import * as fs from 'fs';
-import * as path from 'path';
-import { TEST_FRONT_PROXY_BASE_URL } from './helpers/test-constants';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import process from 'node:process';
+import {describe, test, expect} from 'vitest';
+import {TEST_FRONT_PROXY_BASE_URL} from './helpers/test-constants';
 
 /**
  * API Structure Validation Tests
@@ -24,69 +26,70 @@ import { TEST_FRONT_PROXY_BASE_URL } from './helpers/test-constants';
  */
 
 describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', () => {
-  if (process.env.API_VALIDATION !== '1') {
-    console.log('⏭️  Skipping API validation tests. Run with: npm run test:api-validation');
-  }
-  const mocksDir = path.join(__dirname, '__mocks__');
-  const frontProxyHeaders = {
-    'X-Warframe-API-Front-Proxy-Token': process.env.WARFRAME_API_FRONT_PROXY_TOKEN ?? '',
-    'Origin': 'http://localhost:60969',
-  };
+	if (process.env.API_VALIDATION !== '1') {
+		console.log('⏭️  Skipping API validation tests. Run with: npm run test:api-validation');
+	}
 
-  test('oracle.browse.wf/bounty-cycle matches mock structure', async () => {
-    const response = await fetch('https://oracle.browse.wf/bounty-cycle');
-    expect(response.ok).toBe(true);
+	const mocksDir = path.join(path.dirname(fileURLToPath(import.meta.url)), '__mocks__');
+	const frontProxyHeaders = {
+		'X-Warframe-API-Front-Proxy-Token': process.env.WARFRAME_API_FRONT_PROXY_TOKEN ?? '',
+		Origin: 'http://localhost:60969',
+	};
 
-    const realData = await response.json();
-    const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'bounty-cycle.json'), 'utf8'));
+	test('oracle.browse.wf/bounty-cycle matches mock structure', async () => {
+		const response = await fetch('https://oracle.browse.wf/bounty-cycle');
+		expect(response.ok).toBe(true);
 
-    // Validate top-level keys match
-    expect(Object.keys(realData).sort()).toEqual(Object.keys(mockData).sort());
+		const realData = await response.json();
+		const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'bounty-cycle.json'), 'utf8'));
 
-    // Validate critical fields
-    expect(typeof realData.expiry).toBe('number');
-    expect(typeof realData.bounties).toBe('object');
-  });
+		// Validate top-level keys match
+		expect(Object.keys(realData).toSorted()).toEqual(Object.keys(mockData).toSorted());
 
-  test('worldState mock matches front proxy structure', async () => {
-    const response = await fetch(`${TEST_FRONT_PROXY_BASE_URL}/worldState`, { headers: frontProxyHeaders });
-    expect(response.ok).toBe(true);
+		// Validate critical fields
+		expect(typeof realData.expiry).toBe('number');
+		expect(typeof realData.bounties).toBe('object');
+	});
 
-    const realData = await response.json();
-    const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'worldState.json'), 'utf8'));
+	test('worldState mock matches front proxy structure', async () => {
+		const response = await fetch(`${TEST_FRONT_PROXY_BASE_URL}/worldState`, {headers: frontProxyHeaders});
+		expect(response.ok).toBe(true);
 
-    // Validate top-level keys match
-    expect(Object.keys(realData).sort()).toEqual(Object.keys(mockData).sort());
+		const realData = await response.json();
+		const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'worldState.json'), 'utf8'));
 
-    // Validate critical arrays exist
-    expect(Array.isArray(realData.Events)).toBe(true);
-    expect(Array.isArray(realData.Goals)).toBe(true);
-    expect(Array.isArray(realData.Alerts)).toBe(true);
-    expect(Array.isArray(realData.SyndicateMissions)).toBe(true);
-    expect(Array.isArray(realData.Sorties)).toBe(true);
-    expect(Array.isArray(realData.Invasions)).toBe(true);
-    expect(Array.isArray(realData.FlashSales)).toBe(true);
-    expect(Array.isArray(realData.DailyDeals)).toBe(true);
+		// Validate top-level keys match
+		expect(Object.keys(realData).toSorted()).toEqual(Object.keys(mockData).toSorted());
 
-    // Validate timestamp exists
-    expect(typeof realData.Time).toBe('number');
-  });
+		// Validate critical arrays exist
+		expect(Array.isArray(realData.Events)).toBe(true);
+		expect(Array.isArray(realData.Goals)).toBe(true);
+		expect(Array.isArray(realData.Alerts)).toBe(true);
+		expect(Array.isArray(realData.SyndicateMissions)).toBe(true);
+		expect(Array.isArray(realData.Sorties)).toBe(true);
+		expect(Array.isArray(realData.Invasions)).toBe(true);
+		expect(Array.isArray(realData.FlashSales)).toBe(true);
+		expect(Array.isArray(realData.DailyDeals)).toBe(true);
 
-  test('oracle.browse.wf/redtext.json matches mock structure', async () => {
-    const response = await fetch('https://oracle.browse.wf/redtext.json');
-    expect(response.ok).toBe(true);
+		// Validate timestamp exists
+		expect(typeof realData.Time).toBe('number');
+	});
 
-    const realData = await response.json();
-    const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'redtext-empty.json'), 'utf8'));
+	test('oracle.browse.wf/redtext.json matches mock structure', async () => {
+		const response = await fetch('https://oracle.browse.wf/redtext.json');
+		expect(response.ok).toBe(true);
 
-    // Validate it's an array (may be empty)
-    expect(Array.isArray(realData)).toBe(true);
+		const realData = await response.json();
+		const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'redtext-empty.json'), 'utf8'));
 
-    // If we have data, validate element structure
-    if (realData.length > 0) {
-      const firstElement = realData[0];
-      expect(typeof firstElement.data).toBe('string');
-      expect(typeof firstElement.time).toBe('number');
-    }
-  });
+		// Validate it's an array (may be empty)
+		expect(Array.isArray(realData)).toBe(true);
+
+		// If we have data, validate element structure
+		if (realData.length > 0) {
+			const firstElement = realData[0];
+			expect(typeof firstElement.data).toBe('string');
+			expect(typeof firstElement.time).toBe('number');
+		}
+	});
 });

@@ -5,80 +5,81 @@
  * configured vs. unconfigured (the unconfigured path caused CI failures
  * because db is null and calling db.auth.getSession() throws).
  */
-import { describe, test, expect, beforeEach, vi } from 'vitest';
+import {
+	describe, test, expect, beforeEach, vi,
+} from 'vitest';
+import {isDatabaseConfigured} from '../../src/cloud-sync/database';
 
-const { mockGetSession } = vi.hoisted(() => ({ mockGetSession: vi.fn() }));
+const {mockGetSession} = vi.hoisted(() => ({mockGetSession: vi.fn()}));
 
 vi.mock('../../src/cloud-sync/database', () => ({
-  db: {
-    auth: {
-      getSession: mockGetSession,
-    },
-  },
-  isDatabaseConfigured: vi.fn(),
+	db: {
+		auth: {
+			getSession: mockGetSession,
+		},
+	},
+	isDatabaseConfigured: vi.fn(),
 }));
 
 vi.mock('../../src/cloud-sync/auth', () => ({
-  AuthService: {
-    getInstance: vi.fn(() => ({
-      initialize: vi.fn(),
-      isAuthenticated: vi.fn(() => false),
-      getCurrentUser: vi.fn(() => null),
-      getUserId: vi.fn(() => null),
-    })),
-  },
+	AuthService: {
+		getInstance: vi.fn(() => ({
+			initialize: vi.fn(),
+			isAuthenticated: vi.fn(() => false),
+			getCurrentUser: vi.fn(() => null),
+			getUserId: vi.fn(() => null),
+		})),
+	},
 }));
 
 vi.mock('../../src/cloud-sync/storage-sync', () => ({
-  StorageSyncService: {
-    getInstance: vi.fn(() => ({
-      flushPendingChanges: vi.fn(),
-      debouncedPush: vi.fn(),
-    })),
-  },
+	StorageSyncService: {
+		getInstance: vi.fn(() => ({
+			flushPendingChanges: vi.fn(),
+			debouncedPush: vi.fn(),
+		})),
+	},
 }));
 
-import { isDatabaseConfigured } from '../../src/cloud-sync/database';
-
 describe('__getSupabaseAccessToken', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    delete (window as any).__getSupabaseAccessToken;
-    // Re-import auth-init so its module-level side effects (which set
-    // __getSupabaseAccessToken on window) run with the current mock state.
-    vi.resetModules();
-  });
+	beforeEach(() => {
+		vi.clearAllMocks();
+		delete (globalThis as any).__getSupabaseAccessToken;
+		// Re-import auth-init so its module-level side effects (which set
+		// __getSupabaseAccessToken on window) run with the current mock state.
+		vi.resetModules();
+	});
 
-  test('returns null without calling db when database is not configured', async () => {
-    vi.mocked(isDatabaseConfigured).mockReturnValue(false);
+	test('returns null without calling db when database is not configured', async () => {
+		vi.mocked(isDatabaseConfigured).mockReturnValue(false);
 
-    await import('../../src/cloud-sync/auth-init');
+		await import('../../src/cloud-sync/auth-init');
 
-    const result = await (window as any).__getSupabaseAccessToken();
+		const result = await (globalThis as any).__getSupabaseAccessToken();
 
-    expect(result).toBeNull();
-    expect(mockGetSession).not.toHaveBeenCalled();
-  });
+		expect(result).toBeNull();
+		expect(mockGetSession).not.toHaveBeenCalled();
+	});
 
-  test('returns the access token from the session when database is configured', async () => {
-    vi.mocked(isDatabaseConfigured).mockReturnValue(true);
-    mockGetSession.mockResolvedValue({ data: { session: { access_token: 'jwt-abc' } } });
+	test('returns the access token from the session when database is configured', async () => {
+		vi.mocked(isDatabaseConfigured).mockReturnValue(true);
+		mockGetSession.mockResolvedValue({data: {session: {access_token: 'jwt-abc'}}});
 
-    await import('../../src/cloud-sync/auth-init');
+		await import('../../src/cloud-sync/auth-init');
 
-    const result = await (window as any).__getSupabaseAccessToken();
+		const result = await (globalThis as any).__getSupabaseAccessToken();
 
-    expect(result).toBe('jwt-abc');
-  });
+		expect(result).toBe('jwt-abc');
+	});
 
-  test('returns null when database is configured but there is no active session', async () => {
-    vi.mocked(isDatabaseConfigured).mockReturnValue(true);
-    mockGetSession.mockResolvedValue({ data: { session: null } });
+	test('returns null when database is configured but there is no active session', async () => {
+		vi.mocked(isDatabaseConfigured).mockReturnValue(true);
+		mockGetSession.mockResolvedValue({data: {session: null}});
 
-    await import('../../src/cloud-sync/auth-init');
+		await import('../../src/cloud-sync/auth-init');
 
-    const result = await (window as any).__getSupabaseAccessToken();
+		const result = await (globalThis as any).__getSupabaseAccessToken();
 
-    expect(result).toBeNull();
-  });
+		expect(result).toBeNull();
+	});
 });

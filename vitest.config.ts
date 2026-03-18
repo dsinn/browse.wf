@@ -105,6 +105,10 @@ export default defineConfig({
 	publicDir: false,
 	plugins: [phpPagesPlugin()],
 
+	optimizeDeps: {
+		exclude: ['typestripped'], // Only present after compilation
+	},
+
 	server: {
 		port: DEV_PORT,
 		watch: {

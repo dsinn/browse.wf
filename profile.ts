@@ -197,8 +197,10 @@ Promise.all([
 	const isRateLimited = useAutoFetch && msUntilAvailable > 0;
 	const showAutoFetchFlow = useAutoFetch && !isRateLimited;
 
-	// Show manual flow steps via CSS when not in auto-fetch flow
-	document.getElementById("steps")?.classList.toggle("manual-flow", !showAutoFetchFlow);
+	// Reveal steps and configure manual vs auto-fetch flow
+	const stepsEl = document.getElementById("steps");
+	stepsEl?.classList.remove("d-none");
+	stepsEl?.classList.toggle("manual-flow", !showAutoFetchFlow);
 
 	if (isRateLimited) {
 		showRateLimitNotice(storedNextFetch);

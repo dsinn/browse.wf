@@ -70,6 +70,8 @@ test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () 
 	test('completes full workflow with EE.log upload', async ({page}) => {
 		await page.goto('/profile.php');
 
+		await expect(page.locator('#steps')).toBeVisible();
+
 		// Verify initial state — account ID step not yet visible, platform not selected
 		await expect(page.locator('text=Provide your account ID')).toBeHidden();
 		await expect(page.locator('#step1-container')).not.toHaveClass(/complete/u);
@@ -99,6 +101,7 @@ test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () 
 	test('persists profile data in localStorage after EE.log auto-fetch', async ({page}) => {
 		await page.goto('/profile.php');
 
+		await expect(page.locator('#steps')).toBeVisible();
 		await page.selectOption('#platform-select', 'pc');
 
 		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');

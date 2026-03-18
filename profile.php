@@ -35,7 +35,7 @@
 		<div id="refresh-alert" class="alert alert-info d-none">
 			Showing cached profile data.
 		</div>
-		<ol id="steps" class="list-group list-group-numbered mb-3">
+		<ol id="steps" class="list-group list-group-numbered mb-3 d-none">
 			<li class="list-group-item" id="step1-container">
 				<span class="step-status me-2"></span>
 				<strong>Select your platform:</strong>

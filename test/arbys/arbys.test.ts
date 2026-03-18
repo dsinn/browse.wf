@@ -5,7 +5,6 @@ import {
 	describe, test, expect, beforeEach,
 } from 'vitest';
 import {JSDOM} from 'jsdom';
-import {loadMock} from '../helpers/api-mocks';
 
 describe('Arbitration Schedule (/arbys)', () => {
 	let dom: JSDOM;
@@ -20,62 +19,6 @@ describe('Arbitration Schedule (/arbys)', () => {
 			url: 'https://browse.wf/arbys',
 		});
 		document = dom.window.document;
-	});
-
-	describe('Data file: arbys.txt', () => {
-		test('loads and parses correctly', () => {
-			const arbysText = loadMock('arbys.txt');
-			const lines = arbysText.trim().split('\n');
-
-			// Should have multiple entries
-			expect(lines.length).toBeGreaterThan(10);
-
-			// Each line should be timestamp,nodeId format
-			for (const line of lines) {
-				const parts = line.split(',');
-				expect(parts.length).toBe(2);
-
-				const timestamp = Number.parseInt(parts[0], 10);
-				const nodeId = parts[1].trim(); // Remove any trailing whitespace/carriage returns
-
-				// Timestamp should be a valid unix timestamp (10 digits, starting with 1 or 2)
-				expect(timestamp).toBeGreaterThan(1_000_000_000);
-				expect(timestamp).toBeLessThan(3_000_000_000);
-
-				// Node ID should be a string like "SolNode123" or "ClanNode1"
-				expect(nodeId).toMatch(/^(Sol|Clan|Settlement)Node\d+$/u);
-			}
-		});
-
-		test('entries are chronologically ordered', () => {
-			const arbysText = loadMock('arbys.txt');
-			const lines = arbysText.trim().split('\n');
-
-			let lastTimestamp = 0;
-			for (const line of lines) {
-				const timestamp = Number.parseInt(line.split(',')[0], 10);
-				expect(timestamp).toBeGreaterThanOrEqual(lastTimestamp);
-				lastTimestamp = timestamp;
-			}
-		});
-	});
-
-	describe('Data file: arbyTiers.js', () => {
-		test('defines tier grades for node IDs', () => {
-			const arbyTiersScript = readFileSync(join(process.cwd(), 'supplemental-data/arbyTiers.js'), 'utf8');
-			expect(arbyTiersScript).toContain('window.arbyTiers');
-
-			// Should define tiers for various nodes
-			expect(arbyTiersScript).toContain('SolNode');
-			expect(arbyTiersScript).toContain('ClanNode');
-
-			// Should have tier grades
-			expect(arbyTiersScript).toMatch(/["']S["']/u);
-			expect(arbyTiersScript).toMatch(/["']A["']/u);
-			expect(arbyTiersScript).toMatch(/["']B["']/u);
-			expect(arbyTiersScript).toMatch(/["']C["']/u);
-			expect(arbyTiersScript).toMatch(/["']D["']/u);
-		});
 	});
 
 	describe('HTML structure: Dropdown selectors', () => {

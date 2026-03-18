@@ -2,26 +2,37 @@
 // Type-only import is safe (doesn't trigger module mode)
 import type {IRegion} from 'warframe-public-export-plus';
 
+let tilesetPrefixes: string[] | undefined;
+
+function getTilesetPrefixes(): string[] {
+	if (!tilesetPrefixes) {
+		const knownTilesets = [...new Set((Object.values((globalThis as any).ExportRegions as Record<string, IRegion>))
+			.map(n => n.tileset)
+			.filter(Boolean))];
+		// Sort longest-first so more specific prefixes (e.g. GrineerForestCaves) match before shorter ones (GrineerForest)
+		tilesetPrefixes = knownTilesets.sort((a, b) => b.length - a.length);
+	}
+
+	return tilesetPrefixes;
+}
+
 /**
- * Get tileset from a region node
- * Handles edge case for SolNode94 (Apollodorus) which lacks tileset data
+ * Get tileset from a region node.
+ * Falls back to inferring the tileset from levelOverride for nodes that lack tileset data,
+ * by matching the segment against prefixes derived from known tilesets in ExportRegions.
  * @param node - The region node from ExportRegions
- * @param regionKey - Optional region key (e.g., "SolNode94") for fallback logic
  */
-export function getTileset(node: IRegion, regionKey?: string): string | undefined {
-	// First check if node has tileset data
+export function getTileset(node: IRegion): string | undefined {
 	if (node.tileset) {
 		return node.tileset;
 	}
 
-	// Fallback for known nodes without tileset data
-	if (regionKey === 'SolNode94') {
-		return 'GrineerGalleonTileset';
-	}
-
-	// Log unexpected missing tileset data
-	if ((globalThis as any).logger && regionKey) {
-		(globalThis as any).logger.debug(`Node ${regionKey} is missing tileset data`);
+	if (node.levelOverride) {
+		const segment = node.levelOverride.split('/').pop();
+		const match = getTilesetPrefixes().find(t => segment.startsWith(t.split('Tileset')[0]));
+		if (match) {
+			return match;
+		}
 	}
 
 	return undefined;

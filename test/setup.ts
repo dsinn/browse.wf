@@ -1,7 +1,7 @@
 import process from 'node:process';
-import {beforeEach} from 'vitest';
+import {beforeAll, beforeEach} from 'vitest';
 import {loadFixture} from './helpers/fixture-loader';
-import {setupMockFetch} from './helpers/api-mocks';
+import {loadExportJson, setupMockFetch} from './helpers/api-mocks';
 import {freezeTime} from './helpers/time-helpers';
 
 // Mock global objects that live.ts expects
@@ -17,6 +17,20 @@ declare global {
 	};
 }
 
+beforeAll(() => {
+	if (process.env.API_VALIDATION) {
+		return;
+	}
+
+	globalThis.LIVE_VERSION = 0;
+	globalThis.dict = {};
+	globalThis.osdict = {};
+	globalThis.ExportRegions = loadExportJson('ExportRegions.json');
+	globalThis.ExportChallenges = loadExportJson('ExportChallenges.json');
+	globalThis.ExportMissionTypes = loadExportJson('ExportMissionTypes.json');
+	globalThis.ExportFactions = loadExportJson('ExportFactions.json');
+});
+
 beforeEach(() => {
 	// Skip setup for API validation tests (they need real fetch)
 	if (process.env.API_VALIDATION) {
@@ -31,13 +45,4 @@ beforeEach(() => {
 
 	// Freeze time for predictable tests
 	freezeTime();
-
-	// Mock window globals
-	globalThis.LIVE_VERSION = 0;
-	globalThis.dict = {};
-	globalThis.osdict = {};
-	globalThis.ExportRegions = {};
-	globalThis.ExportChallenges = {};
-	globalThis.ExportMissionTypes = {};
-	globalThis.ExportFactions = {};
 });

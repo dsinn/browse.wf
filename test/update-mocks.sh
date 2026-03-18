@@ -20,9 +20,6 @@ curl -s -H "X-Warframe-API-Front-Proxy-Token: $WARFRAME_API_FRONT_PROXY_TOKEN" \
   "$FRONT_PROXY_BASE_URL/worldState" > "$MOCKS_DIR/worldState.json"
 echo "✓ Updated worldState.json"
 
-curl -s "https://browse.wf/arbys.txt" > "$MOCKS_DIR/arbys.txt"
-echo "✓ Updated arbys.txt"
-
 curl -s "https://oracle.browse.wf/dicts/en.json" > "$MOCKS_DIR/dicts/en.json"
 echo "✓ Updated dicts/en.json"
 

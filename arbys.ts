@@ -187,7 +187,7 @@ function updateLog(): void
 		}
 
 		// Check tileset filter
-		const nodeTileset = (window as any).getTileset(node, arr[1]);
+		const nodeTileset = (window as any).getTileset(node);
 		if (nodeTileset) {
 			const tilesetCheckbox = document.getElementById(`filter-${nodeTileset}`) as HTMLInputElement | null;
 			if (tilesetCheckbox && !tilesetCheckbox.checked) {
@@ -301,7 +301,7 @@ function updateLog(): void
 			}
 		}
 		{
-			const nodeTileset = (window as any).getTileset(node, arr[1]);
+			const nodeTileset = (window as any).getTileset(node);
 			if (nodeTileset) {
 				const tr = document.getElementById(`next-${nodeTileset}`);
 				if (tr.children[1].innerHTML == "N/A") {

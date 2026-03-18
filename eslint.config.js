@@ -50,6 +50,8 @@ const config = [
 			'@typescript-eslint/no-unsafe-type-assertion': 'off',
 			// Build tooling (esbuild/Vitest) resolves extensionless imports; explicit .js not needed
 			'import-x/extensions': 'off',
+			// Array#toSorted() requires ES2023 but tsconfig targets ES2021
+			'unicorn/no-array-sort': 'off',
 			// Allow SCREAMING_SNAKE_CASE for module-level constants; disable for object properties
 			// since Warframe API uses PascalCase keys that can't be renamed
 			'@typescript-eslint/naming-convention': [

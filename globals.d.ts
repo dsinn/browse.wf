@@ -207,7 +207,7 @@ declare global {
 
 	// Src/tileset-helpers.ts
 	var formatTileset: ((tileset: string | undefined) => string) | undefined;
-	var getTileset: ((node: IRegion, regionKey?: string) => string | undefined) | undefined;
+	var getTileset: ((node: IRegion) => string | undefined) | undefined;
 
 	// Src/warframe-api-proxy-client.ts
 	var WarframeApiFrontProxyClient: {

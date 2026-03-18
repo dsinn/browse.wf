@@ -206,6 +206,11 @@ test.describe('Live Page (/live)', () => {
 
 			expect(whatText).toBeTruthy();
 			expect(whereText).toBeTruthy();
+
+			// Node name should have a tileset tooltip
+			const abbr = arbyWhere.locator('abbr');
+			await expect(abbr).toBeVisible();
+			expect(await abbr.getAttribute('data-bs-title')).toBe('Corpus Ship');
 		});
 
 		test('Darvo deal card displays item information', async ({page}) => {

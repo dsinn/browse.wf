@@ -23,41 +23,26 @@ describe('tileset-helpers', () => {
 			expect(getTileset(node as IRegion)).toBe('GrineerAsteroidTileset');
 		});
 
-		it('should return hardcoded tileset for SolNode94', () => {
-			const node: Partial<IRegion> = {
-				// SolNode94 (Apollodorus) lacks tileset data
-				name: '/Lotus/Language/Locations/SolNode94',
-				systemName: '/Lotus/Language/Systems/SolSystem94',
-				systemIndex: 0,
-				nodeType: 0,
-				masteryReq: 0,
-				missionType: 'MT_DEFENSE',
-				missionIndex: 0,
-				missionName: '/Lotus/Language/Missions/MissionName_Defense',
-				minEnemyLevel: 15,
-				maxEnemyLevel: 25,
-				masteryExp: 0,
-			};
-
-			expect(getTileset(node as IRegion, 'SolNode94')).toBe('GrineerGalleonTileset');
+		it('every node in ExportRegions with a tileset returns that tileset unchanged', () => {
+			const regions: Record<string, IRegion> = (globalThis as any).ExportRegions;
+			for (const [key, node] of Object.entries(regions)) {
+				if (node.tileset) {
+					expect(getTileset(node), `${key} should return its own tileset`).toBe(node.tileset);
+				}
+			}
 		});
 
-		it('should return undefined for nodes without tileset and no fallback', () => {
-			const node: Partial<IRegion> = {
-				name: '/Lotus/Language/Locations/SolNode99',
-				systemName: '/Lotus/Language/Systems/SolSystem99',
-				systemIndex: 0,
-				nodeType: 0,
-				masteryReq: 0,
-				missionType: 'MT_SURVIVAL',
-				missionIndex: 0,
-				missionName: '/Lotus/Language/Missions/MissionName_Survival',
-				minEnemyLevel: 1,
-				maxEnemyLevel: 3,
-				masteryExp: 0,
-			};
-
-			expect(getTileset(node as IRegion, 'SolNode99')).toBeUndefined();
+		it('every inferred tileset for nodes without tileset data is a known tileset', () => {
+			const regions: Record<string, IRegion> = (globalThis as any).ExportRegions;
+			const knownTilesets = new Set(Object.values(regions).map(n => n.tileset).filter(Boolean));
+			for (const [key, node] of Object.entries(regions)) {
+				if (!node.tileset) {
+					const inferred = getTileset(node);
+					if (inferred !== undefined) {
+						expect(knownTilesets, `${key} inferred tileset "${inferred}" should be a known tileset`).toContain(inferred);
+					}
+				}
+			}
 		});
 	});
 

@@ -38,7 +38,7 @@ export function setupMockFetch() {
 		'https://oracle.browse.wf/min': null, // No longer used
 		'https://oracle.browse.wf/invasions': null, // No longer used; invasions come from worldState
 		'https://oracle.browse.wf/redtext.json': [], // Empty array for redtext (no red text in tests)
-		'https://browse.wf/arbys.txt': loadMock('arbys.txt'),
+		'http://localhost/arbys.txt': readFileSync(join(projectRoot, 'arbys.txt'), 'utf8'),
 	};
 
 	globalThis.fetch = vi.fn(async (url: string) => {

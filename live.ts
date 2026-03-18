@@ -466,7 +466,10 @@ async function updateArbyLocalised()
 
 	setDatum("arby-header", osdict["/Lotus/Language/Menu/AlertHardMode"], window.arby_expiry);
 	document.getElementById("arby-what").textContent = toTitleCase(dict[window.arby_node.missionName]) + " - " + dict[ExportFactions[window.arby_node.faction].name];
-	document.getElementById("arby-where").textContent = "@ " + dict[window.arby_node.name] + ", " + dict[window.arby_node.systemName];
+	const arbyWhereElem = document.createElement("abbr");
+	arbyWhereElem.textContent = `${dict[window.arby_node.name]}, ${dict[window.arby_node.systemName]}`;
+	addTooltip(arbyWhereElem, (window as any).formatTileset((window as any).getTileset(window.arby_node)));
+	document.getElementById("arby-where").replaceChildren(document.createTextNode("@ "), arbyWhereElem);
 }
 
 function updateArby()
@@ -521,7 +524,7 @@ async function updateIncursionsLocalised()
 			elms[i].appendChild(document.createTextNode(` (${100 + node.minEnemyLevel}-${100 + node.maxEnemyLevel}) @ `));
 			const locationAbbr = document.createElement("abbr");
 			locationAbbr.textContent = `${dict[node.name]}, ${dict[node.systemName]}`;
-			const incursionTileset = (window as any).getTileset(node, window.incursions_today[i]);
+			const incursionTileset = (window as any).getTileset(node);
 			const formattedIncursionTileset = (window as any).formatTileset(incursionTileset);
 			if (formattedIncursionTileset)
 			{

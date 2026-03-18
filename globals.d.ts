@@ -155,7 +155,10 @@ declare global {
 	// Src/conquest-helpers.ts
 	var conquestRiskTagToLoc: ((tag: string) => string) | undefined;
 	var conquestVariableTagToLoc: ((tag: string) => string) | undefined;
-	var createArchimedeaTooltipElement: ((keyPrefix: string, rawValue: string, osdict: Record<string, string>, descTransform?: (desc: string, rawValue: string) => string) => HTMLElement | Text) | undefined;
+	var createArchimedeaTooltipElement: ((
+		keyPrefix: string, rawValue: string, osdict: Record<string, string>,
+		descTransform?: (desc: string, rawValue: string) => string,
+	) => HTMLElement | Text) | undefined;
 	var renderConquestFrameVariables: ((frameVariables: string[], osdict: Record<string, string>) => HTMLTableRowElement) | undefined;
 	var renderConquestMissions: ((missions: IConquestMission[], variantKeyPrefix: string, osdict: Record<string, string>, dict: Record<string, string>) => HTMLTableSectionElement) | undefined;
 	var transformConquestMissions: ((conquest: any, conquestType: string, ExportMissionTypes: Record<string, {name: string}>) => IConquestMission[]) | undefined;

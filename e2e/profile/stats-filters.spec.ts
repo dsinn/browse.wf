@@ -11,6 +11,15 @@ const __dirname = path.dirname(__filename); // eslint-disable-line @typescript-e
 const proxyHost = new URL(TEST_FRONT_PROXY_BASE_URL).host;
 const profileData = JSON.parse(fs.readFileSync(path.join(__dirname, '../../test/profile/getProfileViewingData.html'), 'utf8'));
 
+function getVisibleRowStats(filter: string) {
+	const visible = [...document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')]
+		.filter(tr => getComputedStyle(tr).display !== 'none');
+	return {
+		visibleCount: visible.length,
+		mismatches: visible.filter(tr => tr.dataset.category !== filter).map(tr => tr.dataset.category),
+	};
+}
+
 async function simulateLoggedIn(page: any) {
 	await page.addInitScript(() => {
 		const original = window.dispatchEvent.bind(globalThis);
@@ -123,14 +132,7 @@ test.describe('Profile Stats Filters', () => {
 			await expect(firstBtn).not.toHaveClass(/active/u);
 
 			// All visible rows match the second filter
-			const {visibleCount, mismatches} = await page.evaluate((filter: string) => {
-				const visible = [...document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')]
-					.filter(tr => getComputedStyle(tr).display !== 'none');
-				return {
-					visibleCount: visible.length,
-					mismatches: visible.filter(tr => tr.dataset.category !== filter).map(tr => tr.dataset.category),
-				};
-			}, secondFilter);
+			const {visibleCount, mismatches} = await page.evaluate(getVisibleRowStats, secondFilter);
 			expect(visibleCount).toBeGreaterThan(0);
 			expect(mismatches).toEqual([]);
 		});

@@ -371,9 +371,35 @@ export async function main() {
 	const findResolved = sectionKey => _items => entries[sectionKey];
 
 	const descendia = entries.Descendia ? formatDescendia(worldState, dict, findResolved('Descendia'), showTimestamp) : null;
-	const calendar = entries['1999 Calendar'] ? formatCalendarSeason(worldState, dict, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, findResolved('1999 Calendar'), showTimestamp) : null;
-	const deepArchimedea = entries['Deep Archimedea'] ? formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', osdict, dict, ExportMissionTypes, findResolved('Deep Archimedea'), showTimestamp) : null;
-	const temporalArchimedea = entries['Temporal Archimedea'] ? formatConquest(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea', osdict, dict, ExportMissionTypes, findResolved('Temporal Archimedea'), showTimestamp) : null;
+	const calendar = entries['1999 Calendar']
+		? formatCalendarSeason(worldState, dict, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, findResolved('1999 Calendar'), showTimestamp)
+		: null;
+	const deepArchimedea = entries['Deep Archimedea']
+		? formatConquest(
+			worldState,
+			'CT_LAB',
+			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
+			'Deep Archimedea',
+			osdict,
+			dict,
+			ExportMissionTypes,
+			findResolved('Deep Archimedea'),
+			showTimestamp,
+		)
+		: null;
+	const temporalArchimedea = entries['Temporal Archimedea']
+		? formatConquest(
+			worldState,
+			'CT_HEX',
+			'/Lotus/Language/Conquest/MissionVariant_HexConquest_',
+			'Temporal Archimedea',
+			osdict,
+			dict,
+			ExportMissionTypes,
+			findResolved('Temporal Archimedea'),
+			showTimestamp,
+		)
+		: null;
 
 	// Try to combine both Archimedeas into one message; split if too long
 	const archimedeas = [deepArchimedea, temporalArchimedea].filter(Boolean);

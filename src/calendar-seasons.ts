@@ -88,7 +88,11 @@ export async function renderCalendarSeasonPane(
 	exportBoosters: Promise<Record<string, any>>,
 	exportImages: Promise<Record<string, any>>,
 ): Promise<HTMLDivElement> {
-	const {dict, exportChallenges, exportResources: resolvedResources, exportBundles: resolvedBundles, exportBoosterPacks: resolvedBoosterPacks, exportBoosters: resolvedBoosters} = await prepareCalendarSeasonData(
+	const {
+		dict, exportChallenges,
+		exportResources: resolvedResources, exportBundles: resolvedBundles,
+		exportBoosterPacks: resolvedBoosterPacks, exportBoosters: resolvedBoosters,
+	} = await prepareCalendarSeasonData(
 		exportResources,
 		exportBundles,
 		exportBoosterPacks,

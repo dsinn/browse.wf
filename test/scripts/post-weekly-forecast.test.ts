@@ -190,7 +190,17 @@ describe('formatConquest', () => {
 	test('uses provided find function (findClosest fallback)', () => {
 		const staleConquest = {...worldState.Conquests[0], Activation: mongoDate(MOCK_TIMESTAMP - (14 * DAY_MS)), Expiry: mongoDate(MOCK_TIMESTAMP - (7 * DAY_MS))};
 		const findClosestStub = (items: any[]) => items[0] ?? null;
-		const result = formatConquest({Conquests: [staleConquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', osdict, dict, ExportMissionTypes, findClosestStub, true);
+		const result = formatConquest(
+			{Conquests: [staleConquest]},
+			'CT_LAB',
+			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
+			'Deep Archimedea',
+			osdict,
+			dict,
+			ExportMissionTypes,
+			findClosestStub,
+			true,
+		);
 		expect(result).not.toBeNull();
 		expect(result).toMatch(/^## Deep Archimedea <t:\d+:D>$/mu);
 	});

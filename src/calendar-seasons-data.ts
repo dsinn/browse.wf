@@ -53,6 +53,26 @@ function lastSegment(path: string): string {
 	return path.split('/').pop() ?? path;
 }
 
+function resolveChallengeText(event: any, dict: Record<string, string>, exportChallenges: Record<string, any>): {text: string; iconPath?: string} {
+	const challengeData = exportChallenges[event.challenge];
+	if (!challengeData) {
+		return {text: camelToWords(lastSegment(event.challenge))};
+	}
+
+	const iconPath: string | undefined = challengeData.icon || undefined;
+	const desc = challengeData.description ? dict[challengeData.description] : null;
+	const count = challengeData.requiredCount;
+	if (desc && count) {
+		return {text: desc.replace('|COUNT|', String(count)), iconPath};
+	}
+
+	if (count) {
+		return {text: `${camelToWords(lastSegment(event.challenge))} \u00D7${String(count)}`, iconPath};
+	}
+
+	return {text: camelToWords(lastSegment(event.challenge)), iconPath};
+}
+
 /**
  * Builds itemNameMap from export data.
  * Keys are normalized (StoreItems prefix stripped).
@@ -110,22 +130,7 @@ export function resolveCalendarSeasonDays(
 
 			switch (event.type) {
 				case 'CET_CHALLENGE': {
-					const challengeData = exportChallenges[event.challenge];
-					if (challengeData) {
-						iconPath = challengeData.icon || undefined;
-						const desc = challengeData.description ? dict[challengeData.description] : null;
-						const count = challengeData.requiredCount;
-						if (desc && count) {
-							text = desc.replace('|COUNT|', String(count));
-						} else if (count) {
-							text = `${camelToWords(lastSegment(event.challenge))} \u00D7${String(count)}`;
-						} else {
-							text = camelToWords(lastSegment(event.challenge));
-						}
-					} else {
-						text = camelToWords(lastSegment(event.challenge));
-					}
-
+					({text, iconPath} = resolveChallengeText(event, dict, exportChallenges));
 					break;
 				}
 

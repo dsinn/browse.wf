@@ -318,18 +318,19 @@ export class StorageSyncService {
 							logger.debug(`⚡ Reconnected with recent heartbeat (${(timeSinceLastFreshMs / 1000).toFixed(1)}s ago) - skipping pull`);
 							// Recent heartbeat means connection was healthy - no need to pull
 							// This handles quick reconnects like JWT expiry (hourly)
-						} else {
-							logger.debug(`🔄 Reconnected${this.lastKnownFreshDataTimestamp ? ` with stale heartbeat (${(timeSinceLastFreshMs / 1000).toFixed(1)}s ago)` : ''} - pulling fresh data`);
-							// Stale heartbeat - pull to catch up on missed updates
-							// This handles device sleep, long network outages, etc.
-							if (!this.syncing) {
-								try {
-									this.syncing = true;
-									await this.pullFromDatabase(userId);
-									logger.log('☁️➡️💻 Synced data from cloud (reconnected)');
-								} finally {
-									this.syncing = false;
-								}
+							return;
+						}
+
+						logger.debug(`🔄 Reconnected${this.lastKnownFreshDataTimestamp ? ` with stale heartbeat (${(timeSinceLastFreshMs / 1000).toFixed(1)}s ago)` : ''} - pulling fresh data`);
+						// Stale heartbeat - pull to catch up on missed updates
+						// This handles device sleep, long network outages, etc.
+						if (!this.syncing) {
+							try {
+								this.syncing = true;
+								await this.pullFromDatabase(userId);
+								logger.log('☁️➡️💻 Synced data from cloud (reconnected)');
+							} finally {
+								this.syncing = false;
 							}
 						}
 					} else {

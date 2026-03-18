@@ -65,25 +65,19 @@ export function isInvasionRewardShown(itemType: string): boolean {
 	return (globalThis as any).isFilterEnabled('invasions', `reward-${invasionRewardFilterKey(itemType)}`);
 }
 
-export async function updateInvasions(): Promise<void> {
+export async function updateInvasions(
+	dictsPromise: Promise<any[]>,
+	exportRegionsPromise: Promise<Record<string, any>>,
+	exportImagesPromise: Promise<Record<string, any>>,
+): Promise<void> {
 	if (!globalThis.worldState?.Invasions) {
 		return;
 	}
 
-	// Await data dependencies in case this is called before they resolve
-	if ((globalThis as any).dicts_promise) {
-		await (globalThis as any).dicts_promise;
-	}
-
-	if ((globalThis as any).ExportRegions_promise) {
-		await (globalThis as any).ExportRegions_promise;
-	}
-
-	const {ExportRegions} = (globalThis as any);
-	const {dict} = (globalThis as any);
-	if (!ExportRegions || !dict) {
-		return;
-	}
+	const [[dict], ExportRegions] = await Promise.all([
+		dictsPromise,
+		exportRegionsPromise,
+	]);
 
 	// Build duplicate-detection map: node → earliest activation time
 	const nodeFirstActivation = new Map<string, number>();
@@ -157,6 +151,10 @@ export async function updateInvasions(): Promise<void> {
 				const th = document.createElement('th');
 				th.textContent = nodeLabel;
 				if (node.missionType === 'MT_ASSASSINATION') {
+					// Lazy-await: most invasions don't need ExportImages, so we defer until first assassination node.
+					// The promise is already in-flight; subsequent awaits in the same loop resolve instantly.
+					// eslint-disable-next-line no-await-in-loop
+					await exportImagesPromise;
 					const img = document.createElement('img');
 					img.className = 'invasion-boss-icon ms-1';
 					(globalThis as any).setImageSource(img, '/Lotus/Interface/Icons/Sigils/Phorid.png');

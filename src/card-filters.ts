@@ -37,7 +37,7 @@ export function refreshFilterStatus(elm: HTMLElement): void {
 /**
  * Initialize filter toggle functionality for all cards with [data-filter-toggle]
  */
-function initializeFilterToggles(): void {
+export function initializeFilterToggles(): void {
 	for (const elm of document.querySelectorAll<HTMLAnchorElement>('[data-filter-toggle]')) {
 		refreshFilterStatus(elm);
 		elm.addEventListener('click', () => {
@@ -88,7 +88,7 @@ function initializeFilterToggles(): void {
  * @param cardName - The name of the card (e.g., "news")
  * @param onFilterChange - Optional callback when filters change
  */
-function initializeCardFilters(cardName: string, onFilterChange?: () => void): void {
+export function initializeCardFilters(cardName: string, onFilterChange: () => void): void {
 	for (const checkbox of document.querySelectorAll<HTMLInputElement>(`#${cardName}-filters input[type=checkbox]`)) {
 		const {filterType} = checkbox.dataset;
 		const storageKey = `live.filter.${cardName}.${filterType}`;
@@ -146,67 +146,8 @@ export function isFilterEnabled(cardName: string, filterType: string): boolean {
 	return filterState !== '0';
 }
 
-/**
- * Initialize all card filter functionality
- * Call this after the DOM is loaded
- */
-export function initializeCardFiltersAll(): void {
-	initializeFilterToggles();
-
-	// Initialize News card filters
-	initializeCardFilters('news', () => {
-		if (globalThis.updateNewsTicker) {
-			globalThis.updateNewsTicker(true);
-		}
-	});
-
-	// Initialize Steel Path Incursions card filters
-	initializeCardFilters('incursions', () => {
-		if (globalThis.updateIncursionsLocalised) {
-			globalThis.updateIncursionsLocalised();
-		}
-	});
-
-	// Initialize Void Fissures card filters
-	initializeCardFilters('fissures', () => {
-		if (globalThis.updateFissures) {
-			globalThis.updateFissures(true);
-		}
-	});
-
-	// Initialize Steel Path Fissures card filters
-	initializeCardFilters('sp-fissures', () => {
-		if (globalThis.updateFissures) {
-			globalThis.updateFissures(true);
-		}
-	});
-
-	// Initialize Void Storms (Railjack) card filters
-	initializeCardFilters('rj-fissures', () => {
-		if (globalThis.updateFissures) {
-			globalThis.updateFissures(true);
-		}
-	});
-
-	// Initialize Weekly Missions card filters
-	initializeCardFilters('weekly-missions', () => {
-		if (globalThis.updateCircuitLocalised) {
-			globalThis.updateCircuitLocalised();
-		}
-	});
-
-	// Initialize Invasions card filters
-	initializeCardFilters('invasions', () => {
-		if (globalThis.updateInvasions) {
-			globalThis.updateInvasions();
-		}
-	});
-
-	// Future cards can be initialized here:
-	// initializeCardFilters("alerts", () => { updateAlerts(); });
-}
-
 // Expose functions globally for use by non-module scripts
 globalThis.refreshFilterStatus = refreshFilterStatus;
 globalThis.isFilterEnabled = isFilterEnabled;
-globalThis.initializeCardFiltersAll = initializeCardFiltersAll;
+globalThis.initializeCardFilters = initializeCardFilters;
+globalThis.initializeFilterToggles = initializeFilterToggles;

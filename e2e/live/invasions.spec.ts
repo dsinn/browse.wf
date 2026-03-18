@@ -10,10 +10,14 @@ test.describe('Live Page - Invasions Card', () => {
 	test.beforeEach(async ({page}) => {
 		await setupMockRoutes(page);
 		await page.goto('/live.php');
-		await waitForInvasionsTable(page);
+		await page.evaluate(() => {
+			localStorage.clear();
+		});
 	});
 
 	test('renders invasion rows end-to-end', async ({page}) => {
+		await page.goto('/live.php');
+		await waitForInvasionsTable(page);
 		expect(await page.locator('#invasions-table tbody tr:visible').count()).toBeGreaterThan(0);
 	});
 

@@ -47,11 +47,12 @@ declare function updateCalendarSeason(ExportResources: Promise<Record<string, an
 declare function updateDescendia(): void;
 
 // invasions.ts
-declare function updateInvasions(): Promise<void>;
+declare function updateInvasions(dictsPromise: Promise<any[]>, exportRegionsPromise: Promise<Record<string, any>>, exportImagesPromise: Promise<Record<string, any>>): Promise<void>;
 
 // card-filters.ts
 declare function isFilterEnabled(cardName: string, filterType: string): boolean;
-declare function initializeCardFiltersAll(): void;
+declare function initializeCardFilters(cardName: string, onFilterChange: () => void): void;
+declare function initializeFilterToggles(): void;
 
 // news-mark-read.ts
 declare function generateNewsItemKey(item: any): string;
@@ -935,7 +936,7 @@ function updateWorldStateLocalised()
 	updateAlerts();
 	updateGoals();
 	updateFissures();
-	updateInvasions();
+	updateInvasions(dicts_promise, ExportRegions_promise, ExportImages_promise);
 }
 
 function fetchWorldState(): Promise<void>
@@ -1939,7 +1940,14 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 	};
 });
 
-initializeCardFiltersAll();
+initializeFilterToggles();
+initializeCardFilters('news', () => updateNewsTicker(true));
+initializeCardFilters('incursions', () => updateIncursionsLocalised());
+initializeCardFilters('fissures', () => updateFissures(true));
+initializeCardFilters('sp-fissures', () => updateFissures(true));
+initializeCardFilters('rj-fissures', () => updateFissures(true));
+initializeCardFilters('weekly-missions', () => updateCircuitLocalised());
+initializeCardFilters('invasions', () => { void updateInvasions(dicts_promise, ExportRegions_promise, ExportImages_promise); });
 
 initializeMarkAsRead();
 initializeBountyFiltersAll();

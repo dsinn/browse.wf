@@ -144,7 +144,8 @@ declare global {
 
 	// Src/card-filters.ts
 	var getFilterValue: ((cardName: string, filterType: string, defaultValue: string) => string) | undefined;
-	var initializeCardFiltersAll: (() => void) | undefined;
+	var initializeCardFilters: ((cardName: string, onFilterChange: () => void) => void) | undefined;
+	var initializeFilterToggles: (() => void) | undefined;
 	var isFilterEnabled: ((cardName: string, filterType: string) => boolean) | undefined;
 	var redtext: string[] | undefined;
 	var refreshFilterStatus: ((elm: HTMLElement) => void) | undefined;

@@ -5,7 +5,7 @@ import {mockBootstrapTooltip} from '../../helpers/dom-helpers';
 import {loadMock, loadExportJson} from '../../helpers/api-mocks';
 import {testCardFilters} from '../card-filters-factory';
 import {isInvasionRewardShown, updateInvasions} from '../../../src/invasions';
-import {isFilterEnabled, initializeCardFiltersAll} from '../../../src/card-filters';
+import {isFilterEnabled} from '../../../src/card-filters';
 
 // Test card filter integration
 testCardFilters('invasions');
@@ -30,8 +30,8 @@ function setupInvasionsGlobals() {
 	mockBootstrapTooltip();
 
 	const ExportRegions = loadExportJson('ExportRegions.json');
-	(globalThis as any).ExportRegions = ExportRegions;
-	(globalThis as any).ExportRegions_promise = Promise.resolve(ExportRegions);
+	const exportRegionsPromise = Promise.resolve(ExportRegions);
+	const exportImagesPromise = Promise.resolve({});
 
 	// Minimal dict with just the node names used in tests
 	const dict: Record<string, string> = {
@@ -42,8 +42,7 @@ function setupInvasionsGlobals() {
 		'/Lotus/Language/Locations/Gradivus': 'Gradivus',
 		'/Lotus/Language/Locations/Mars': 'Mars',
 	};
-	(globalThis as any).dict = dict;
-	(globalThis as any).dicts_promise = Promise.resolve([dict, {}]);
+	const dictsPromise = Promise.resolve([dict, {}]);
 
 	// Stub getItemNamePromise to return the last path segment (e.g. "KarakWraithReceiver")
 	(globalThis as any).getItemNamePromise = async (itemType: string) =>
@@ -64,11 +63,16 @@ function setupInvasionsGlobals() {
 		span.dataset.oid = oid;
 		return span;
 	};
+
+	return {dictsPromise, exportRegionsPromise, exportImagesPromise};
 }
 
 describe('Invasions - updateInvasions DOM rendering', () => {
+	let callUpdateInvasions: () => Promise<void>;
+
 	beforeEach(() => {
-		setupInvasionsGlobals();
+		const {dictsPromise, exportRegionsPromise, exportImagesPromise} = setupInvasionsGlobals();
+		callUpdateInvasions = async () => updateInvasions(dictsPromise, exportRegionsPromise, exportImagesPromise);
 		// Set up the invasions-table element that updateInvasions writes into
 		const table = document.createElement('table');
 		table.id = 'invasions-table';
@@ -83,34 +87,34 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 	});
 
 	test('renders one visible row per invasion side (two rows per Corpus-vs-Grineer invasion)', async () => {
-		await updateInvasions();
+		await callUpdateInvasions();
 		// WorldState-invasions.json has 2 invasions, each with attacker + defender reward → 4 visible rows
 		const rows = document.querySelectorAll('#invasions-table tbody tr:not(.d-none)');
 		expect(rows.length).toBe(4);
 	});
 
 	test('attacker row contains progress bar and percentage', async () => {
-		await updateInvasions();
+		await callUpdateInvasions();
 		const firstRow = document.querySelector('#invasions-table tbody tr:not(.d-none)');
 		expect(firstRow.querySelector('.invasion-progress-container')).toBeTruthy();
 		expect(firstRow.querySelector('.invasion-percentage')).toBeTruthy();
 	});
 
 	test('defender row has invasion-defender-reward class and no progress bar', async () => {
-		await updateInvasions();
+		await callUpdateInvasions();
 		const defenderRow = document.querySelector('#invasions-table tbody tr.invasion-defender-reward');
 		expect(defenderRow).toBeTruthy();
 		expect(defenderRow.querySelector('.invasion-progress-container')).toBeNull();
 	});
 
 	test('attacker row contains a completion toggle', async () => {
-		await updateInvasions();
+		await callUpdateInvasions();
 		const firstRow = document.querySelector('#invasions-table tbody tr:not(.d-none):not(.invasion-defender-reward)');
 		expect(firstRow.querySelector('.completion-check')).toBeTruthy();
 	});
 
 	test('node label is rendered from ExportRegions + dict', async () => {
-		await updateInvasions();
+		await callUpdateInvasions();
 		// SolNode181 sorts first (lower percentage = 54.5% vs 72.2%)
 		const firstRow = document.querySelector('#invasions-table tbody tr:not(.d-none)');
 		expect(firstRow.querySelector('th')?.textContent).toContain('Adaro, Sedna');
@@ -118,7 +122,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 
 	test('when all invasions are completed, renders "no invasions" message', async () => {
 		globalThis.worldState.Invasions = globalThis.worldState.Invasions.map((inv: any) => ({...inv, Completed: true}));
-		await updateInvasions();
+		await callUpdateInvasions();
 		expect(document.querySelector('#invasions-table')?.textContent)
 			.toContain('No invasions match the current filters.');
 	});
@@ -137,13 +141,13 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 			AttackerReward: {countedItems: [{ItemType: '/Lotus/Types/Items/Research/ChemComponent', ItemCount: 3}]},
 			DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Items/Research/EnergyComponent', ItemCount: 3}]},
 		});
-		await updateInvasions();
+		await callUpdateInvasions();
 		const rows = document.querySelectorAll('#invasions-table tbody tr:not(.d-none)');
 		expect(rows.length).toBe(4); // Unchanged — completed invasion not rendered
 	});
 
 	test('invasions are sorted ascending by completion percentage', async () => {
-		await updateInvasions();
+		await callUpdateInvasions();
 		// SolNode181 (54.5%) should appear before SolNode217 (72.2%)
 		const headers = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none) th')]
 			.map(th => th.textContent);
@@ -165,7 +169,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 			AttackerReward: [],
 			DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Items/Research/BioComponent', ItemCount: 3}]},
 		}];
-		await updateInvasions();
+		await callUpdateInvasions();
 		const th = document.querySelector('#invasions-table tbody tr:not(.d-none) th');
 		expect(th?.textContent).toContain('💥');
 		const tooltipElement = th?.querySelector('[data-bs-title]');
@@ -188,7 +192,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 			AttackerReward: [],
 			DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Items/Research/BioComponent', ItemCount: 3}]},
 		}];
-		await updateInvasions();
+		await callUpdateInvasions();
 		const th = document.querySelector('#invasions-table tbody tr:not(.d-none) th');
 		const img = th?.querySelector('img.invasion-boss-icon');
 		expect(img).toBeTruthy();
@@ -198,7 +202,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 
 	test('reward text omits "1x" prefix when ItemCount is 1', async () => {
 		// WorldState-invasions.json has ItemCount: 1 for all rewards
-		await updateInvasions();
+		await callUpdateInvasions();
 		const rewardCells = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none) td:nth-child(3)')];
 		expect(rewardCells.length).toBeGreaterThan(0);
 		for (const td of rewardCells) {
@@ -219,7 +223,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 			AttackerReward: {countedItems: [{ItemType: '/Lotus/Types/Items/Research/EnergyComponent', ItemCount: 3}]},
 			DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Items/Research/ChemComponent', ItemCount: 3}]},
 		}];
-		await updateInvasions();
+		await callUpdateInvasions();
 		const rewardCells = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none) td:nth-child(3)')];
 		expect(rewardCells.length).toBeGreaterThan(0);
 		for (const td of rewardCells) {
@@ -231,7 +235,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 		localStorage.setItem('live.filter.invasions.reward-SnipetronVandal', '0');
 		localStorage.setItem('live.filter.invasions.reward-KarakWraith', '0');
 		localStorage.setItem('live.filter.invasions.reward-LatronWraith', '0');
-		await updateInvasions();
+		await callUpdateInvasions();
 		expect(document.querySelector('#invasions-table')?.textContent)
 			.toContain('No invasions match the current filters.');
 	});
@@ -239,7 +243,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 	test('defender-only visible row is promoted: no invasion-defender-reward class, has completion toggle', async () => {
 		// Hide SnipetronVandal (SolNode181 attacker) → its defender row (KarakWraith) gets promoted
 		localStorage.setItem('live.filter.invasions.reward-SnipetronVandal', '0');
-		await updateInvasions();
+		await callUpdateInvasions();
 		const rows = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none)')];
 		// SolNode181 should now have only one visible row, not marked as defender
 		const sol181Rows = rows.filter(r => r.querySelector('th')?.textContent?.includes('Adaro'));

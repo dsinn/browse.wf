@@ -8,11 +8,13 @@
  * Imports the REAL production code (src/card-filters.ts) to avoid test drift.
  */
 import {
-	describe, test, expect, beforeEach, afterEach,
+	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {loadFixture} from '../helpers/fixture-loader';
 import {mockBootstrapTooltip} from '../helpers/dom-helpers';
-import {initializeCardFiltersAll, isFilterEnabled, refreshFilterStatus} from '../../src/card-filters';
+import {
+	initializeFilterToggles, initializeCardFilters, isFilterEnabled, refreshFilterStatus,
+} from '../../src/card-filters';
 
 /**
  * Test factory function that tests generic card filter functionality for a specific card.
@@ -47,7 +49,8 @@ export function testCardFilters(cardName: string) {
 			};
 
 			// Initialize the card filters
-			initializeCardFiltersAll();
+			initializeFilterToggles();
+			initializeCardFilters(cardName, vi.fn<() => void>());
 		});
 
 		afterEach(() => {
@@ -222,7 +225,8 @@ export function testCardFilters(cardName: string) {
 				localStorage.setItem(`live.filter.${cardName}.${filterType}`, '0');
 
 				// Reinitialize
-				initializeCardFiltersAll();
+				initializeFilterToggles();
+				initializeCardFilters(cardName, vi.fn<() => void>());
 
 				const checkbox = panel?.querySelector<HTMLInputElement>('[data-filter-type]');
 				expect(checkbox?.checked).toBe(false);

@@ -42,8 +42,9 @@ interface IDailyDeal {
 declare let onLanguageUpdate: () => void;
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
+declare function fetchExport(name: string): Promise<any>;
 declare function toTitleCase(str: string): string;
-declare function updateCalendarSeason(ExportResources: Promise<Record<string, any>>, ExportBundles: Promise<Record<string, any>>, ExportBoosterPacks: Promise<Record<string, any>>, ExportBoosters: Promise<Record<string, any>>, ExportImages: Promise<Record<string, any>>): Promise<void>;
+declare function updateCalendarSeason(): Promise<void>;
 declare function updateDescendia(): void;
 
 // invasions.ts
@@ -202,17 +203,15 @@ const STALE_DATA_RETRY_MS = 5_000;
 const dict_promise = getDictPromise();
 const osdict_promise = getOSDictPromise();
 const dicts_promise = Promise.all([ dict_promise, osdict_promise ]);
-const ExportRegions_promise = fetch("warframe-public-export-plus/ExportRegions.json").then(res => res.json());
-const ExportChallenges_promise = fetch("warframe-public-export-plus/ExportChallenges.json").then(res => res.json());
-const ExportMissionTypes_promise = fetch("warframe-public-export-plus/ExportMissionTypes.json").then(res => res.json());
-const ExportFactions_promise = fetch("warframe-public-export-plus/ExportFactions.json").then(res => res.json());
-
-// Export files needed for calendar seasons (shared with weekly-forecast.ts)
-const ExportImages_promise = fetch("warframe-public-export-plus/ExportImages.json").then(res => res.json());
-const ExportResources_promise = fetch("warframe-public-export-plus/ExportResources.json").then(res => res.json());
-const ExportBundles_promise = fetch("warframe-public-export-plus/ExportBundles.json").then(res => res.json());
-const ExportBoosterPacks_promise = fetch("warframe-public-export-plus/ExportBoosterPacks.json").then(res => res.json());
-const ExportBoosters_promise = fetch("warframe-public-export-plus/ExportBoosters.json").then(res => res.json());
+const ExportRegions_promise = fetchExport("ExportRegions");
+const ExportChallenges_promise = fetchExport("ExportChallenges");
+const ExportMissionTypes_promise = fetchExport("ExportMissionTypes");
+const ExportFactions_promise = fetchExport("ExportFactions");
+const ExportImages_promise = fetchExport("ExportImages");
+const ExportResources_promise = fetchExport("ExportResources");
+const ExportBundles_promise = fetchExport("ExportBundles");
+const ExportBoosterPacks_promise = fetchExport("ExportBoosterPacks");
+const ExportBoosters_promise = fetchExport("ExportBoosters");
 
 let latestRenderedNewsTime = 0;
 let renderedAlertOids: Set<string> | undefined;
@@ -955,13 +954,7 @@ function initWorldStateCards(): void
 	updateDarvosDeal();
 	updateBaro();
 	updateWeekly();
-	updateCalendarSeason(
-		ExportResources_promise,
-		ExportBundles_promise,
-		ExportBoosterPacks_promise,
-		ExportBoosters_promise,
-		ExportImages_promise
-	);
+	updateCalendarSeason();
 	updateDescendia();
 }
 

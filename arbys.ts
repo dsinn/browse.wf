@@ -3,6 +3,7 @@ import type { IFaction, IRegion, TFaction } from "warframe-public-export-plus";
 // common.js
 declare let onLanguageUpdate: () => void;
 declare function getDictPromise(): Promise<Record<string, string>>;
+declare function fetchExport(name: string): Promise<Record<string, any>>;
 declare function toTitleCase(str: string): string;
 
 // arbyTiers.js
@@ -113,8 +114,8 @@ if (params.has("exclude"))
 
 Promise.all([
 	getDictPromise(),
-	fetch("warframe-public-export-plus/ExportFactions.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportRegions.json").then(res => res.json()),
+	fetchExport("ExportFactions"),
+	fetchExport("ExportRegions"),
 	fetch("arbys.txt").then(res => res.text())
 ]).then(([ dict, ExportFactions, ExportRegions, arbys ]) => {
 	(window as any).dict = dict;

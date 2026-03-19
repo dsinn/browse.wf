@@ -6,6 +6,7 @@ import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import process from 'node:process';
 import {vi} from 'vitest';
+import {exportCache} from '../../src/public-export-fetcher';
 import {validateTestRequest, isImageRequest, isBlockedDomain} from './domain-blocker';
 
 // Use project root to avoid issues with typestripped compiled output
@@ -41,8 +42,19 @@ export function setupMockFetch() {
 		'http://localhost/arbys.txt': readFileSync(join(projectRoot, 'arbys.txt'), 'utf8'),
 	};
 
+	// Clear the fetchExport cache so tests get a fresh fetch each time
+	exportCache.clear();
+
 	globalThis.fetch = vi.fn(async (url: string) => {
 		const urlString = url.toString();
+
+		// Serve warframe-public-export-plus JSON files from disk
+		const exportMatch = /warframe-public-export-plus\/(.+\.json)$/u.exec(urlString);
+		if (exportMatch) {
+			const data = loadExportJson(exportMatch[1]);
+			// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+			return {ok: true, status: 200, json: async () => data} as Response;
+		}
 
 		// First, check if we have a mock for this URL
 		const mockData = mocks[urlString as keyof typeof mocks];

@@ -3,6 +3,7 @@ import type { IPowersuit, IRecipe, IRelic, ISentinel, IWeapon, TMissionDeck } fr
 // common.js
 declare let onLanguageUpdate: () => void;
 declare function getDictPromise(): Promise<Record<string, string>>;
+declare function fetchExport(name: string): Promise<Record<string, any>>;
 
 // fetch + derived
 declare let dict: Record<string, string>;
@@ -23,12 +24,12 @@ const STATE_INROTATION = 2;
 
 Promise.all([
 	getDictPromise(),
-	fetch("warframe-public-export-plus/ExportRelics.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportRewards.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportRecipes.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportWeapons.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportWarframes.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportSentinels.json").then(res => res.json()),
+	fetchExport("ExportRelics"),
+	fetchExport("ExportRewards"),
+	fetchExport("ExportRecipes"),
+	fetchExport("ExportWeapons"),
+	fetchExport("ExportWarframes"),
+	fetchExport("ExportSentinels"),
 	fetch("https://raw.githubusercontent.com/calamity-inc/warframe-worldstate-history/senpai/worldState.json").then(res => res.json()),
 	]).then(function([ dict, ExportRelics, ExportRewards, ExportRecipes, ExportWeapons, ExportWarframes, ExportSentinels, worldState ])
 {

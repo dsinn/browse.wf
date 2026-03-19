@@ -17,6 +17,7 @@ interface IRewardSource {
 // common.js
 declare let onLanguageUpdate: () => void;
 declare function getDictPromise(): Promise<Record<string, string>>;
+declare function fetchExport(name: string): Promise<Record<string, any>>;
 declare function resolveTextIcons(text: string): string;
 declare function setImageSource(img: HTMLImageElement, icon: string): void;
 
@@ -90,23 +91,25 @@ if (params.has("q"))
 
 Promise.all([
 	getDictPromise(),
-	fetch("warframe-public-export-plus/ExportWarframes.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportWeapons.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportUpgrades.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportArcanes.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportResources.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportFlavour.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportCustoms.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportGear.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportSentinels.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportRewards.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportRegions.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportEnemies.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportRecipes.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportImages.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportTextIcons.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportRelics.json").then(res => res.json()),
-	fetch("warframe-public-export-plus/ExportAbilities.json").then(res => res.json()),
+	...[
+		"ExportWarframes",
+		"ExportWeapons",
+		"ExportUpgrades",
+		"ExportArcanes",
+		"ExportResources",
+		"ExportFlavour",
+		"ExportCustoms",
+		"ExportGear",
+		"ExportSentinels",
+		"ExportRewards",
+		"ExportRegions",
+		"ExportEnemies",
+		"ExportRecipes",
+		"ExportImages",
+		"ExportTextIcons",
+		"ExportRelics",
+		"ExportAbilities",
+	].map(name => fetchExport(name)),
 	fetch("supplemental-data/glyphs.json").then(res => res.json())
 	]).then(([
 		dict,

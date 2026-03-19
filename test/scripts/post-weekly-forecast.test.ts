@@ -7,13 +7,6 @@
  */
 import {describe, test, expect} from 'vitest';
 import {
-	ExportChallenges,
-	ExportResources,
-	ExportBundles,
-	ExportBoosterPacks,
-	ExportBoosters,
-} from 'warframe-public-export-plus';
-import {
 	formatConquest,
 	formatDescendia,
 	formatCalendarSeason,
@@ -188,26 +181,26 @@ describe('formatConquest', () => {
 
 describe('formatDescendia', () => {
 	test('returns null when Descents is empty', () => {
-		expect(formatDescendia({Descents: []}, {})).toBeNull();
+		expect(formatDescendia({Descents: []})).toBeNull();
 	});
 
 	test('returns null when Descents is absent', () => {
-		expect(formatDescendia({}, {})).toBeNull();
+		expect(formatDescendia({})).toBeNull();
 	});
 
 	test('formats header as ## Descendia with no timestamp', () => {
-		const result = formatDescendia(worldState, {});
+		const result = formatDescendia(worldState);
 		expect(result).toMatch(/^## Descendia$/mu);
 	});
 
 	test('renders one line per challenge', () => {
-		const result = formatDescendia(worldState, {});
+		const result = formatDescendia(worldState);
 		const challengeLines = result.split('\n').slice(1); // Skip header
 		expect(challengeLines).toHaveLength(worldState.Descents[0].Challenges.length);
 	});
 
 	test('each challenge line has index · bold type · challenge text', () => {
-		const result = formatDescendia(worldState, {});
+		const result = formatDescendia(worldState);
 		const lines = result.split('\n').slice(1);
 		for (const line of lines) {
 			// Index. arena [__]**Type** · challenge[__]
@@ -216,7 +209,7 @@ describe('formatDescendia', () => {
 	});
 
 	test('DT_PROTOFRAME challenge lines are underlined', () => {
-		const result = formatDescendia(worldState, {});
+		const result = formatDescendia(worldState);
 		const lines = result.split('\n').slice(1);
 		// Indices 7, 14, 21 are DT_PROTOFRAME in the mock (0-based: 6, 13, 20)
 		const protoLines = lines.filter((_, i) => [6, 13, 20].includes(i));
@@ -226,7 +219,7 @@ describe('formatDescendia', () => {
 	});
 
 	test('non-protoframe lines are not underlined', () => {
-		const result = formatDescendia(worldState, {});
+		const result = formatDescendia(worldState);
 		const lines = result.split('\n').slice(1);
 		const nonProtoLines = lines.filter((_, i) => ![6, 13, 20].includes(i));
 		for (const line of nonProtoLines) {
@@ -246,32 +239,13 @@ describe('formatDescendia', () => {
 				Auras: [],
 			}],
 		};
-		const result = formatDescendia({Descents: [descent]}, {});
+		const result = formatDescendia({Descents: [descent]});
 		expect(result).toContain('**Some Type**');
 		expect(result).not.toContain('DT_');
 	});
 
-	test('uses dict translation for challenge name when available', () => {
-		const descent = {
-			...worldState.Descents[0],
-			Challenges: [{
-				Index: 1,
-				Type: 'DT_EXTERMINATE',
-				Challenge: 'MySpecialChallenge',
-				Level: '/path/ArenaAvocado.level',
-				Specs: [],
-				Auras: [],
-			}],
-		};
-		const result = formatDescendia(
-			{Descents: [descent]},
-			{MySpecialChallenge: 'Translated Challenge'},
-		);
-		expect(result).toContain('Translated Challenge');
-	});
-
 	test('falls back to camelToWords of last path segment when challenge not in dict', () => {
-		const result = formatDescendia(worldState, {});
+		const result = formatDescendia(worldState);
 		// The fallback converts the last path segment to words — verify no raw paths appear
 		const lines = result.split('\n').slice(1);
 		for (const line of lines) {
@@ -291,7 +265,7 @@ describe('formatDescendia', () => {
 				Auras: [],
 			}],
 		};
-		const result = formatDescendia({Descents: [descentWithKnownArena]}, {});
+		const result = formatDescendia({Descents: [descentWithKnownArena]});
 		expect(result).toContain('🥑');
 	});
 
@@ -307,7 +281,7 @@ describe('formatDescendia', () => {
 				Auras: [],
 			}],
 		};
-		const result = formatDescendia({Descents: [descentWithUnknownArena]}, {});
+		const result = formatDescendia({Descents: [descentWithUnknownArena]});
 		expect(result).toContain('ArenaUnknownFruit');
 	});
 
@@ -323,69 +297,47 @@ describe('formatDescendia', () => {
 				Auras: [],
 			}],
 		};
-		const result = formatDescendia({Descents: [descentWithEmpty]}, {});
+		const result = formatDescendia({Descents: [descentWithEmpty]});
 		const challengeLine = result.split('\n')[1];
 		// Only one · between type and challenge name; no trailing ·
 		expect((challengeLine.match(/ · /gu) ?? []).length).toBe(1);
 		expect(challengeLine).not.toContain('-');
 	});
 
-	test('joins multiple specs with comma', () => {
-		const descent = {
-			...worldState.Descents[0],
-			Challenges: [{
-				Index: 1,
-				Type: 'Normal',
-				Challenge: '/Lotus/Types/Challenge/Generic',
-				Level: '/path/ArenaAvocado.level',
-				Specs: ['/Lotus/Spec/Alpha', '/Lotus/Spec/Beta'],
-				Auras: [],
-			}],
-		};
-		const dictWithSpecs = {
-			'/Lotus/Spec/Alpha': 'Alpha',
-			'/Lotus/Spec/Beta': 'Beta',
-		};
-		const result = formatDescendia({Descents: [descent]}, dictWithSpecs);
-		expect(result).toContain('Alpha, Beta');
-	});
-
 	test('includes Discord timestamp in heading when showTimestamp is true', () => {
-		const result = formatDescendia(worldState, {}, undefined, true);
+		const result = formatDescendia(worldState, undefined, true);
 		expect(result).toMatch(/^## Descendia <t:\d+:D>$/mu);
 	});
 
 	test('omits timestamp from heading by default', () => {
-		const result = formatDescendia(worldState, {});
+		const result = formatDescendia(worldState);
 		expect(result).toMatch(/^## Descendia$/mu);
 	});
 });
 
 describe('formatCalendarSeason', () => {
 	test('returns null when KnownCalendarSeasons is empty', () => {
-		const result = formatCalendarSeason({KnownCalendarSeasons: []}, {}, {}, {}, {}, {}, {});
-		expect(result).toBeNull();
+		expect(formatCalendarSeason({KnownCalendarSeasons: []})).toBeNull();
 	});
 
 	test('returns null when KnownCalendarSeasons is absent', () => {
-		const result = formatCalendarSeason({}, {}, {}, {}, {}, {}, {});
-		expect(result).toBeNull();
+		expect(formatCalendarSeason({})).toBeNull();
 	});
 
 	test('formats header with season label, no timestamp', () => {
-		const result = formatCalendarSeason(worldState, {}, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters);
+		const result = formatCalendarSeason(worldState);
 		// WorldState mock has CST_FALL
 		expect(result).toMatch(/^## 1999 Calendar: 🍁 Autumn$/mu);
 	});
 
 	test('uses raw season key as fallback when not in SEASON_LABELS', () => {
 		const season = {...worldState.KnownCalendarSeasons[0], Season: 'CST_UNKNOWN'};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, {}, {}, {}, {}, {}, {});
+		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
 		expect(result).toContain('CST_UNKNOWN');
 	});
 
 	test('renders CET_CHALLENGE lines with 📋 prefix and bold date', () => {
-		const result = formatCalendarSeason(worldState, {}, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters);
+		const result = formatCalendarSeason(worldState);
 		const challengeLines = result.split('\n').filter(l => l.includes('📋'));
 		expect(challengeLines.length).toBeGreaterThan(0);
 		for (const line of challengeLines) {
@@ -394,7 +346,7 @@ describe('formatCalendarSeason', () => {
 	});
 
 	test('renders CET_REWARD lines with 🎁 prefix and bold date', () => {
-		const result = formatCalendarSeason(worldState, {}, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters);
+		const result = formatCalendarSeason(worldState);
 		const rewardLines = result.split('\n').filter(l => l.startsWith('🎁'));
 		expect(rewardLines.length).toBeGreaterThan(0);
 		for (const line of rewardLines) {
@@ -410,7 +362,7 @@ describe('formatCalendarSeason', () => {
 				events: [{type: 'CET_UPGRADE', upgrade: '/Lotus/Upgrades/SomeUpgrade/SpeedBoost'}],
 			}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, {}, {}, {}, {}, {}, {});
+		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
 		expect(result).toMatch(/^🔧 \*\*.+\*\* .+/mu);
 		expect(result).toContain('Speed Boost');
 	});
@@ -426,7 +378,7 @@ describe('formatCalendarSeason', () => {
 				],
 			}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, {}, {}, {}, {}, {}, {});
+		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
 		const rewardLines = result.split('\n').filter(l => l.startsWith('🎁'));
 		expect(rewardLines).toHaveLength(1);
 		expect(rewardLines[0]).toContain(' · ');
@@ -443,7 +395,7 @@ describe('formatCalendarSeason', () => {
 				],
 			}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, {}, {}, {}, {}, {}, {});
+		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
 		const upgradeLines = result.split('\n').filter(l => l.startsWith('🔧'));
 		expect(upgradeLines).toHaveLength(1);
 		expect(upgradeLines[0]).toContain(' · ');
@@ -460,34 +412,9 @@ describe('formatCalendarSeason', () => {
 				],
 			}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, {}, {}, {}, {}, {}, {});
+		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
 		const eventLines = result.split('\n').slice(1);
 		expect(eventLines).toHaveLength(2);
-	});
-
-	test('challenge with desc+count substitutes |COUNT|', () => {
-		const challengeKey = '/Lotus/Types/Challenges/Weekly/SomeChallenge';
-		const customChallenges = {
-			[challengeKey]: {description: '/desc/key', requiredCount: 5, icon: ''},
-		};
-		const customDict = {'/desc/key': 'Kill |COUNT| Enemies'};
-		const season = {
-			...worldState.KnownCalendarSeasons[0],
-			Days: [{day: 3, events: [{type: 'CET_CHALLENGE', challenge: challengeKey}]}],
-		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, customDict, customChallenges, {}, {}, {}, {});
-		expect(result).toContain('Kill 5 Enemies');
-	});
-
-	test('challenge with count but no desc falls back to camelToWords + count', () => {
-		const challengeKey = '/Lotus/Types/Challenges/WeeklyKillEnemies';
-		const customChallenges = {[challengeKey]: {requiredCount: 10, icon: ''}};
-		const season = {
-			...worldState.KnownCalendarSeasons[0],
-			Days: [{day: 3, events: [{type: 'CET_CHALLENGE', challenge: challengeKey}]}],
-		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, {}, customChallenges, {}, {}, {}, {});
-		expect(result).toContain('Weekly Kill Enemies ×10');
 	});
 
 	test('challenge not in ExportChallenges falls back to camelToWords of path segment', () => {
@@ -495,33 +422,8 @@ describe('formatCalendarSeason', () => {
 			...worldState.KnownCalendarSeasons[0],
 			Days: [{day: 3, events: [{type: 'CET_CHALLENGE', challenge: '/Lotus/Types/Challenges/SomeUnknownChallenge'}]}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, {}, {}, {}, {}, {}, {});
+		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
 		expect(result).toContain('Some Unknown Challenge');
-	});
-
-	test('reward name resolved via item name map and dict', () => {
-		const rewardPath = '/Lotus/StoreItems/Types/Items/MiscItems/FieldronSample';
-		const customResources = {[rewardPath]: {name: '/name/fieldron', icon: ''}};
-		const customDict = {'/name/fieldron': 'Fieldron Sample'};
-		const season = {
-			...worldState.KnownCalendarSeasons[0],
-			Days: [{day: 7, events: [{type: 'CET_REWARD', reward: rewardPath}]}],
-		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, customDict, {}, customResources, {}, {}, {});
-		expect(result).toContain('Fieldron Sample');
-	});
-
-	test('reward name strips markup tags like <SHARD_GREEN_SIMPLE>', () => {
-		const rewardPath = '/Lotus/StoreItems/Types/Items/Shard';
-		const customResources = {[rewardPath]: {name: '/name/shard', icon: ''}};
-		const customDict = {'/name/shard': '<SHARD_GREEN_SIMPLE> Emerald Archon Shard'};
-		const season = {
-			...worldState.KnownCalendarSeasons[0],
-			Days: [{day: 7, events: [{type: 'CET_REWARD', reward: rewardPath}]}],
-		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, customDict, {}, customResources, {}, {}, {});
-		expect(result).not.toContain('<SHARD_GREEN_SIMPLE>');
-		expect(result).toContain('Emerald Archon Shard');
 	});
 
 	test('reward falls back to camelToWords of path segment when not in item maps', () => {
@@ -529,7 +431,7 @@ describe('formatCalendarSeason', () => {
 			...worldState.KnownCalendarSeasons[0],
 			Days: [{day: 7, events: [{type: 'CET_REWARD', reward: '/Lotus/Types/Items/SomeWeirdReward'}]}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, {}, {}, {}, {}, {}, {});
+		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
 		expect(result).toContain('Some Weird Reward');
 	});
 
@@ -541,19 +443,19 @@ describe('formatCalendarSeason', () => {
 				{day: 2, events: [{type: 'CET_UPGRADE', upgrade: '/Lotus/Upgrades/SpeedBoost'}]},
 			],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]}, {}, {}, {}, {}, {}, {});
+		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
 		const lines = result.split('\n');
 		// Only one event line (header + 1 event = 2 lines total)
 		expect(lines).toHaveLength(2);
 	});
 
 	test('includes Discord timestamp in heading when showTimestamp is true', () => {
-		const result = formatCalendarSeason(worldState, {}, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, undefined, true);
+		const result = formatCalendarSeason(worldState, undefined, true);
 		expect(result).toMatch(/^## 1999 Calendar: .+ <t:\d+:D>$/mu);
 	});
 
 	test('omits timestamp from heading by default', () => {
-		const result = formatCalendarSeason(worldState, {}, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters);
+		const result = formatCalendarSeason(worldState);
 		expect(result).toMatch(/^## 1999 Calendar: .+$/mu);
 		expect(result).not.toMatch(/<t:\d+:D>/u);
 	});

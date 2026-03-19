@@ -8,6 +8,7 @@
  *   - common.js                (getDictPromise, getOSDictPromise, toTitleCase)
  */
 
+declare function fetchExport(name: string): Promise<any>;
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
 
@@ -38,11 +39,12 @@ declare function getSeasonLabel(season: string): string;
 
 declare function renderCalendarSeasonPane(
 	season: any,
-	exportResources: Promise<Record<string, any>>,
-	exportBundles: Promise<Record<string, any>>,
-	exportBoosterPacks: Promise<Record<string, any>>,
-	exportBoosters: Promise<Record<string, any>>,
-	exportImages: Promise<Record<string, any>>,
+	dict: Record<string, string>,
+	exportChallenges: Record<string, any>,
+	exportResources: Record<string, any>,
+	exportBundles: Record<string, any>,
+	exportBoosterPacks: Record<string, any>,
+	exportBoosters: Record<string, any>,
 ): Promise<HTMLDivElement>;
 
 function mongoMs(d: IMongoDate): number {
@@ -221,11 +223,11 @@ async function renderCalendarSeasonTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
 	seasons: any[],
-	exportResources: Promise<Record<string, any>>,
-	exportBundles: Promise<Record<string, any>>,
-	exportBoosterPacks: Promise<Record<string, any>>,
-	exportBoosters: Promise<Record<string, any>>,
-	exportImages: Promise<Record<string, any>>,
+	exportResources: Record<string, any>,
+	exportBundles: Record<string, any>,
+	exportBoosterPacks: Record<string, any>,
+	exportBoosters: Record<string, any>,
+	exportImages: Record<string, any>,
 	preserveActivation: string | undefined = null,
 ): Promise<void> {
 	const now = Date.now();
@@ -235,8 +237,15 @@ async function renderCalendarSeasonTabs(
 	const activeIdx = seasons.findIndex(s =>
 		mongoMs(s.Activation) <= now && now < mongoMs(s.Expiry));
 
-	// Render all season panes in parallel (leverages caching in prepareCalendarSeasonData)
-	const seasonPanes = await Promise.all(seasons.map(async season => renderCalendarSeasonPane(season, exportResources, exportBundles, exportBoosterPacks, exportBoosters, exportImages)));
+	const dict = await getDictPromise();
+
+	// Required for common.js' setImageSource
+	(globalThis as any).ExportImages = exportImages;
+
+	const exportChallenges = (globalThis as any).ExportChallenges ?? {};
+
+	// Render all season panes in parallel
+	const seasonPanes = await Promise.all(seasons.map(async season => renderCalendarSeasonPane(season, dict, exportChallenges, exportResources, exportBundles, exportBoosterPacks, exportBoosters)));
 
 	// Build tabs with the rendered content
 	for (const [i, season] of seasons.entries()) {
@@ -310,18 +319,21 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	const descentActivation = isRefresh ? getActiveTabActivation(descentTabsElement) : null;
 	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsElement) ? getActiveTabActivation(calendarSeasonTabsElement) : null;
 
-	const [worldState, dict, osdict, exportMissionTypes, exportChallenges, exportImages, exportResources, exportBundles, exportBoosterPacks, exportBoosters] = await Promise.all([
+	const [worldState, dict, osdict, ...exportValues] = await Promise.all([
 		(globalThis as any).WarframeApiFrontProxyClient.fetchWorldState(),
 		getDictPromise(),
 		getOSDictPromise(),
-		fetch('warframe-public-export-plus/ExportMissionTypes.json').then(async r => r.json()),
-		fetch('warframe-public-export-plus/ExportChallenges.json').then(async r => r.json()),
-		fetch('warframe-public-export-plus/ExportImages.json').then(async r => r.json()),
-		fetch('warframe-public-export-plus/ExportResources.json').then(async r => r.json()),
-		fetch('warframe-public-export-plus/ExportBundles.json').then(async r => r.json()),
-		fetch('warframe-public-export-plus/ExportBoosterPacks.json').then(async r => r.json()),
-		fetch('warframe-public-export-plus/ExportBoosters.json').then(async r => r.json()),
+		...[
+			'ExportMissionTypes',
+			'ExportChallenges',
+			'ExportImages',
+			'ExportResources',
+			'ExportBundles',
+			'ExportBoosterPacks',
+			'ExportBoosters',
+		].map(async name => fetchExport(name)),
 	]);
+	const [exportMissionTypes, exportChallenges, exportImages, exportResources, exportBundles, exportBoosterPacks, exportBoosters] = exportValues;
 
 	// Set up globals needed by common.js setImageSource()
 	(globalThis as any).ExportImages = exportImages;
@@ -378,11 +390,11 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 			calendarSeasonTabsElement,
 			document.querySelector<HTMLElement>('#calendar-season-content'),
 			calendarSeasons,
-			Promise.resolve(exportResources),
-			Promise.resolve(exportBundles),
-			Promise.resolve(exportBoosterPacks),
-			Promise.resolve(exportBoosters),
-			Promise.resolve(exportImages),
+			exportResources,
+			exportBundles,
+			exportBoosterPacks,
+			exportBoosters,
+			exportImages,
 			calendarSeasonActivation,
 		);
 	}

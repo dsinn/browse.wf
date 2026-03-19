@@ -135,7 +135,7 @@ export function formatConquest(worldState, conquestType, variantKeyPrefix, secti
 	return lines.join('\n');
 }
 
-export function formatDescendia(worldState, dict, find = findWeekly, showTimestamp = false) {
+export function formatDescendia(worldState, find = findWeekly, showTimestamp = false) {
 	const next = find(worldState.Descents ?? []);
 	if (!next) {
 		return null;
@@ -146,7 +146,7 @@ export function formatDescendia(worldState, dict, find = findWeekly, showTimesta
 		: '## Descendia';
 	const lines = [heading];
 
-	for (const row of resolveDescentChallenges(next, dict)) {
+	for (const row of resolveDescentChallenges(next, dictEn)) {
 		const arena = row.arenaEmoji ?? row.arenaFallback;
 		const parts = [row.challenge];
 		if (row.specs.length > 0) {
@@ -165,7 +165,7 @@ export function formatDescendia(worldState, dict, find = findWeekly, showTimesta
 	return lines.join('\n');
 }
 
-export function formatCalendarSeason(worldState, dict, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, find = findWeekly, showTimestamp = false) {
+export function formatCalendarSeason(worldState, find = findWeekly, showTimestamp = false) {
 	const next = find(worldState.KnownCalendarSeasons ?? []);
 	if (!next) {
 		return null;
@@ -177,7 +177,7 @@ export function formatCalendarSeason(worldState, dict, ExportChallenges, ExportR
 		: `## 1999 Calendar: ${seasonLabel}`;
 	const lines = [heading];
 
-	for (const dayData of resolveCalendarSeasonDays(next, dict, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters)) {
+	for (const dayData of resolveCalendarSeasonDays(next, dictEn, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters)) {
 		// Group consecutive events by (type, dateStr) — rewards and upgrades on the same day merge into one line
 		let groupEmoji = null;
 		let groupDate = null;
@@ -287,12 +287,12 @@ function resolveEntries(worldState, force) {
 	return entries;
 }
 
-function buildSections(worldState, entries, showTimestamp, dict) {
+function buildSections(worldState, entries, showTimestamp) {
 	const findResolved = sectionKey => _items => entries[sectionKey];
 
-	const descendia = entries.Descendia ? formatDescendia(worldState, dict, findResolved('Descendia'), showTimestamp) : null;
+	const descendia = entries.Descendia ? formatDescendia(worldState, findResolved('Descendia'), showTimestamp) : null;
 	const calendar = entries['1999 Calendar']
-		? formatCalendarSeason(worldState, dict, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters, findResolved('1999 Calendar'), showTimestamp)
+		? formatCalendarSeason(worldState, findResolved('1999 Calendar'), showTimestamp)
 		: null;
 	const deepArchimedea = entries['Deep Archimedea']
 		? formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', findResolved('Deep Archimedea'), showTimestamp)
@@ -331,7 +331,6 @@ export async function main() {
 	console.log('Fetching data...');
 
 	const worldState = await fetchWorldState();
-	const dict = dictEn;
 
 	// Resolve which entry each section will use before formatting.
 	// Missing weekly entries fall back to closest when --force is active.
@@ -344,7 +343,7 @@ export async function main() {
 	const showTimestamp = !allSame;
 	const headerTs = allSame ? foundActivations[0] : null;
 
-	const sections = buildSections(worldState, entries, showTimestamp, dict);
+	const sections = buildSections(worldState, entries, showTimestamp);
 
 	if (sections.length === 0) {
 		console.log('No forecast data available. Nothing posted.');

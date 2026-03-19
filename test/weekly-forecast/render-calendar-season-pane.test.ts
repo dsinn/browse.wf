@@ -7,8 +7,9 @@ import {
 	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {loadMock, loadExportJson} from '../helpers/api-mocks';
-import {renderCalendarSeasonPane, updateCalendarSeason} from '../../src/calendar-seasons';
+import {renderCalendarSeasonPane} from '../../src/calendar-seasons';
 import {getSeasonLabel} from '../../src/calendar-seasons-data';
+import {updateCalendarSeason} from '../../src/live/calendar-seasons';
 // Load real export data from warframe-public-export-plus (at module level)
 const worldState = loadMock('worldState.json');
 const dict = loadExportJson('dict.en.json');
@@ -33,14 +34,8 @@ beforeEach(() => {
 describe('renderCalendarSeasonPane', () => {
 	const season = worldState.KnownCalendarSeasons[0]; // CST_FALL
 
-	// Default export promises using real data (as array for spreading into function calls)
-	const defaultExportPromises = [
-		Promise.resolve(ExportResources),
-		Promise.resolve(ExportBundles),
-		Promise.resolve(ExportBoosterPacks),
-		Promise.resolve(ExportBoosters),
-		Promise.resolve(ExportImages),
-	] as const;
+	// Helper to call renderCalendarSeasonPane with default real export data
+	const renderPane = async (s: any) => renderCalendarSeasonPane(s, dict, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters);
 
 	// Helpers to navigate the DOM structure semantically (without relying on CSS classes)
 	const getFirstDayRow = (pane: HTMLDivElement) => pane.children[0] as HTMLElement;
@@ -54,12 +49,12 @@ describe('renderCalendarSeasonPane', () => {
 
 	describe('Return value', () => {
 		test('returns a <div> element', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			expect(pane.nodeName).toBe('DIV');
 		});
 
 		test('returned div contains day rows', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			expect(pane.children.length).toBeGreaterThan(0);
 		});
 	});
@@ -67,7 +62,7 @@ describe('renderCalendarSeasonPane', () => {
 	describe('Day filtering', () => {
 		test('days with no events are not rendered', async () => {
 			// Mock data has days 306 and 307 with empty events arrays
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const dateTexts = [...pane.querySelectorAll('.calendar-season-date')].map(element => element.textContent);
 
 			// Nov 2 = day 306, Nov 3 = day 307 (1999 calendar)
@@ -76,34 +71,34 @@ describe('renderCalendarSeasonPane', () => {
 		});
 
 		test('days with at least one event produce a row element', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			// Season has 15 days with events
 			expect(pane.children.length).toBe(15);
 		});
 
 		test('number of row elements matches number of days with events', async () => {
 			const daysWithEvents = season.Days.filter((d: any) => d.events.length > 0);
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			expect(pane.children.length).toBe(daysWithEvents.length);
 		});
 	});
 
 	describe('Day row structure', () => {
 		test('each day row has two columns (date and events)', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const firstRow = pane.children[0];
 			expect(firstRow.children.length).toBe(2);
 		});
 
 		test('date column is first child and has calendar-season-date class', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const firstRow = pane.children[0];
 			const dateCol = firstRow.children[0];
 			expect(dateCol.classList.contains('calendar-season-date')).toBe(true);
 		});
 
 		test('events column is second child', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const firstRow = pane.children[0];
 			const eventsCol = firstRow.children[1];
 			expect(eventsCol).toBeTruthy();
@@ -113,7 +108,7 @@ describe('renderCalendarSeasonPane', () => {
 
 	describe('Date formatting', () => {
 		test('day 279 formats to "Oct 6" (1999 calendar)', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const firstDate = pane.querySelector('.calendar-season-date');
 			// First day in mock data is day 279
 			expect(firstDate?.textContent).toMatch(/Oct 6$/u);
@@ -124,7 +119,7 @@ describe('renderCalendarSeasonPane', () => {
 				...season,
 				Days: [{day: 1, events: [{type: 'CET_UPGRADE', upgrade: '/Lotus/Upgrades/Test'}]}],
 			};
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const dateCol = pane.querySelector('.calendar-season-date');
 			expect(dateCol?.textContent).toMatch(/Jan 1$/u);
 		});
@@ -134,7 +129,7 @@ describe('renderCalendarSeasonPane', () => {
 				...season,
 				Days: [{day: 365, events: [{type: 'CET_UPGRADE', upgrade: '/Lotus/Upgrades/Test'}]}],
 			};
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const dateCol = pane.querySelector('.calendar-season-date');
 			expect(dateCol?.textContent).toMatch(/Dec 31$/u);
 		});
@@ -143,7 +138,7 @@ describe('renderCalendarSeasonPane', () => {
 			const testDay = 279;
 			const expectedDate = new Date(1999, 0, testDay).toLocaleDateString('en', {month: 'short', day: 'numeric'});
 
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const firstDate = pane.querySelector('.calendar-season-date');
 			expect(firstDate?.textContent).toContain(expectedDate);
 		});
@@ -151,7 +146,7 @@ describe('renderCalendarSeasonPane', () => {
 
 	describe('Date column emoji prefix', () => {
 		test('CET_CHALLENGE day shows a prefix in date column', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const firstDate = pane.querySelector('.calendar-season-date');
 			// First day (279) has CET_CHALLENGE
 			expect(firstDate?.textContent).toMatch(/^📋\s/u);
@@ -162,7 +157,7 @@ describe('renderCalendarSeasonPane', () => {
 				...season,
 				Days: [{day: 1, events: [{type: 'CET_REWARD', reward: '/Lotus/StoreItems/Test'}]}],
 			};
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const dateCol = pane.querySelector('.calendar-season-date');
 			expect(dateCol?.textContent).toMatch(/^🎁\s/u);
 		});
@@ -172,13 +167,13 @@ describe('renderCalendarSeasonPane', () => {
 				...season,
 				Days: [{day: 1, events: [{type: 'CET_UPGRADE', upgrade: '/Lotus/Upgrades/Test'}]}],
 			};
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const dateCol = pane.querySelector('.calendar-season-date');
 			expect(dateCol?.textContent).toMatch(/^🔧\s/u);
 		});
 
 		test('emoji is followed by a space and then the formatted date', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const firstDate = pane.querySelector('.calendar-season-date');
 			// Should be "📋 Oct 6"
 			expect(firstDate?.textContent).toMatch(/^📋 [A-Z][a-z]{2} \d{1,2}$/u);
@@ -187,7 +182,7 @@ describe('renderCalendarSeasonPane', () => {
 
 	describe('Challenge events (CET_CHALLENGE)', () => {
 		test('renders an icon image', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const firstRow = getFirstDayRow(pane);
 			const eventsCol = getEventsColumn(firstRow);
 			const img = eventsCol.querySelector('img');
@@ -196,7 +191,7 @@ describe('renderCalendarSeasonPane', () => {
 		});
 
 		test('description text uses dict lookup and replaces |COUNT| with requiredCount', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const firstRow = getFirstDayRow(pane);
 			const eventsCol = getEventsColumn(firstRow);
 			const span = eventsCol.querySelector('span');
@@ -222,7 +217,7 @@ describe('renderCalendarSeasonPane', () => {
 				Days: [{day: 1, events: [{type: 'CET_CHALLENGE', challenge: testChallenge}]}],
 			};
 
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const span = getEventsColumn(getFirstDayRow(pane)).querySelector('span');
 
 			// Should fall back to camelToWords("CalendarKillEnemiesEasy") + "×250"
@@ -231,7 +226,7 @@ describe('renderCalendarSeasonPane', () => {
 		});
 
 		test('does NOT render challengeData.name', async () => {
-			const pane = await renderCalendarSeasonPane(season, ...defaultExportPromises);
+			const pane = await renderPane(season);
 			const firstRow = getFirstDayRow(pane);
 			const eventsCol = getEventsColumn(firstRow);
 			const text = eventsCol.textContent;
@@ -246,7 +241,7 @@ describe('renderCalendarSeasonPane', () => {
 				Days: [{day: 1, events: [{type: 'CET_CHALLENGE', challenge: '/Lotus/Types/Challenges/MissingChallenge'}]}],
 			};
 
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const span = getEventsColumn(getFirstDayRow(pane)).querySelector('span');
 
 			// Should show camelToWords("MissingChallenge")
@@ -261,7 +256,7 @@ describe('renderCalendarSeasonPane', () => {
 				Days: [{day: 1, events: [{type: 'CET_REWARD', reward: '/Lotus/StoreItems/Types/Items/MiscItems/WeaponUtilityUnlocker'}]}],
 			};
 
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const img = getEventsColumn(getFirstDayRow(pane)).querySelector('img');
 
 			expect(img).toBeTruthy();
@@ -273,7 +268,7 @@ describe('renderCalendarSeasonPane', () => {
 				Days: [{day: 1, events: [{type: 'CET_REWARD', reward: '/Lotus/StoreItems/Unknown'}]}],
 			};
 
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const img = getEventsColumn(getFirstDayRow(pane)).querySelector('img');
 
 			expect(img).toBeFalsy();
@@ -285,7 +280,7 @@ describe('renderCalendarSeasonPane', () => {
 				Days: [{day: 1, events: [{type: 'CET_REWARD', reward: '/Lotus/StoreItems/Types/Items/MiscItems/WeaponUtilityUnlocker'}]}],
 			};
 
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const span = getEventsColumn(getFirstDayRow(pane)).querySelector('span');
 
 			// Real name from dict.en.json
@@ -298,7 +293,7 @@ describe('renderCalendarSeasonPane', () => {
 				Days: [{day: 1, events: [{type: 'CET_REWARD', reward: '/Lotus/StoreItems/SomeRewardItem'}]}],
 			};
 
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const span = getEventsColumn(getFirstDayRow(pane)).querySelector('span');
 
 			expect(span?.textContent).toContain('Some Reward Item');
@@ -319,7 +314,7 @@ describe('renderCalendarSeasonPane', () => {
 				Days: season.Days.filter((d: any) => d.day === 281),
 			};
 
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const img = getEventsColumn(getFirstDayRow(pane)).querySelector('img');
 
 			// Should find the icon using normalized path
@@ -334,7 +329,7 @@ describe('renderCalendarSeasonPane', () => {
 				Days: season.Days.filter((d: any) => d.day === 297), // Has CET_UPGRADE events
 			};
 
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const eventRows = getEventsColumn(getFirstDayRow(pane)).children;
 
 			// First upgrade event should have sparkles
@@ -347,7 +342,7 @@ describe('renderCalendarSeasonPane', () => {
 				Days: season.Days.filter((d: any) => d.day === 297), // Has upgrade "GasChanceToPrimaryAndSecondary"
 			};
 
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const eventRows = getEventsColumn(getFirstDayRow(pane)).children;
 
 			expect(eventRows[0].textContent).toContain('Gas Chance To Primary And Secondary');
@@ -359,7 +354,7 @@ describe('renderCalendarSeasonPane', () => {
 				Days: season.Days.filter((d: any) => d.day === 297),
 			};
 
-			const pane = await renderCalendarSeasonPane(testSeason, ...defaultExportPromises);
+			const pane = await renderPane(testSeason);
 			const eventRows = getEventsColumn(getFirstDayRow(pane)).children;
 			const img = eventRows[0].querySelector('img');
 
@@ -371,14 +366,6 @@ describe('renderCalendarSeasonPane', () => {
 describe('updateCalendarSeason', () => {
 	const activeSeason = worldState.KnownCalendarSeasons[0];
 	const activeSeasonExpiry = Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10);
-
-	const defaultExportPromises = [
-		Promise.resolve(ExportResources),
-		Promise.resolve(ExportBundles),
-		Promise.resolve(ExportBoosterPacks),
-		Promise.resolve(ExportBoosters),
-		Promise.resolve(ExportImages),
-	] as const;
 
 	beforeEach(() => {
 		(globalThis as any).getDictPromise = async () => dict;
@@ -397,7 +384,7 @@ describe('updateCalendarSeason', () => {
 	});
 
 	test('calls createExpiryBadge with the active season expiry', async () => {
-		await updateCalendarSeason(...defaultExportPromises);
+		await updateCalendarSeason();
 		expect((globalThis as any).createExpiryBadge).toHaveBeenCalledWith(activeSeasonExpiry);
 	});
 });

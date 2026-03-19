@@ -41,8 +41,36 @@ export function createInvasionProgressBar(wsInvasion: InvasionData, percentage: 
 	return container;
 }
 
-function sortInvasions(invasions: InvasionData[]): InvasionData[] {
-	return [...invasions].sort((a, b) => calculatePercentage(a) - calculatePercentage(b));
+function getDuplicateInvasionOids(invasions: InvasionData[]): Set<string> {
+	const nodeFirstOid = new Map<string, {oid: string; t: number}>();
+	const duplicates = new Set<string>();
+	for (const inv of invasions) {
+		const t = Number.parseInt(inv.Activation.$date.$numberLong, 10);
+		const cur = nodeFirstOid.get(inv.Node);
+		if (cur === undefined || t < cur.t) {
+			if (cur !== undefined) {
+				duplicates.add(cur.oid);
+			}
+
+			nodeFirstOid.set(inv.Node, {oid: inv._id.$oid, t});
+		} else {
+			duplicates.add(inv._id.$oid);
+		}
+	}
+
+	return duplicates;
+}
+
+function sortInvasions(invasions: InvasionData[], duplicates: Set<string>, percentages: Map<string, number>): InvasionData[] {
+	return invasions.sort((a, b) => {
+		const aIsDuplicate = duplicates.has(a._id.$oid);
+		const bIsDuplicate = duplicates.has(b._id.$oid);
+		if (aIsDuplicate !== bIsDuplicate) {
+			return aIsDuplicate ? 1 : -1;
+		}
+
+		return percentages.get(a._id.$oid) - percentages.get(b._id.$oid);
+	});
 }
 
 // Derive the invasion reward filter key from an ItemType path.
@@ -65,12 +93,18 @@ export function isInvasionRewardShown(itemType: string): boolean {
 	return (globalThis as any).isFilterEnabled('invasions', `reward-${invasionRewardFilterKey(itemType)}`);
 }
 
-function buildPercentageCell(percentage: number): HTMLTableCellElement {
+function buildPercentageCell(percentage: number, isDuplicate: boolean, nodeLabel: string): HTMLTableCellElement {
 	const td = document.createElement('td');
 	td.className = 'text-end';
 	const span = document.createElement('span');
-	span.className = 'invasion-percentage';
-	span.textContent = `${percentage.toFixed(1)}%`;
+	if (isDuplicate) {
+		span.textContent = '⏳';
+		(globalThis as any).addTooltip(span, `Will unlock after the first ${nodeLabel} invasion is completed.`);
+	} else {
+		span.className = 'invasion-percentage';
+		span.textContent = `${percentage.toFixed(1)}%`;
+	}
+
 	td.append(span);
 	return td;
 }
@@ -81,14 +115,9 @@ async function buildRewardCell(item: {ItemType: string; ItemCount: number}): Pro
 	return td;
 }
 
-function buildToggleCell(invasion: InvasionData, isDuplicate: boolean, nodeLabel: string): HTMLTableCellElement {
+function buildToggleCell(invasion: InvasionData, isDuplicate: boolean): HTMLTableCellElement {
 	const td = document.createElement('td');
-	if (isDuplicate) {
-		const span = document.createElement('span');
-		span.textContent = '⏳';
-		(globalThis as any).addTooltip(span, `Will unlock after the first ${nodeLabel} invasion is completed.`);
-		td.append(span);
-	} else {
+	if (!isDuplicate) {
 		td.append((globalThis as any).createCompletionToggle(invasion._id.$oid));
 	}
 
@@ -158,9 +187,9 @@ async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowE
 
 		// Th: node name + special mission icon + progress bar
 		tr.append(buildInvasionHeading(invasion, node, nodeLabel, percentage));
-		tr.append(buildPercentageCell(percentage));
+		tr.append(buildPercentageCell(percentage, isDuplicate, nodeLabel));
 		tr.append(await buildRewardCell(row1Item));
-		tr.append(buildToggleCell(invasion, isDuplicate, nodeLabel));
+		tr.append(buildToggleCell(invasion, isDuplicate));
 
 		rows.push(tr);
 	} else if (!row1Visible && row1Item) {
@@ -203,28 +232,17 @@ export async function updateInvasions(): Promise<void> {
 	]);
 	(globalThis as any).ExportImages = exportImages;
 
-	// Build duplicate-detection map: node → earliest activation time
-	const nodeFirstActivation = new Map<string, number>();
-	for (const inv of globalThis.worldState.Invasions) {
-		if (inv.Completed) {
-			continue;
-		}
-
-		const t = Number.parseInt(inv.Activation.$date.$numberLong, 10);
-		const cur = nodeFirstActivation.get(inv.Node);
-		if (cur === undefined || t < cur) {
-			nodeFirstActivation.set(inv.Node, t);
-		}
-	}
-
-	const sorted = sortInvasions(globalThis.worldState.Invasions.filter((inv: InvasionData) => !inv.Completed));
+	const activeInvasions = globalThis.worldState.Invasions.filter((inv: InvasionData) => !inv.Completed);
+	const duplicates = getDuplicateInvasionOids(activeInvasions);
+	const percentages = new Map<string, number>(activeInvasions.map((inv: InvasionData) => [inv._id.$oid, calculatePercentage(inv)]));
+	const sorted = sortInvasions(activeInvasions, duplicates, percentages);
 
 	const tbody = document.createElement('tbody');
 	let anyVisible = false;
 
 	for (const invasion of sorted) {
-		const percentage = calculatePercentage(invasion);
-		const isDuplicate = Number.parseInt(invasion.Activation.$date.$numberLong, 10) > nodeFirstActivation.get(invasion.Node);
+		const percentage = percentages.get(invasion._id.$oid);
+		const isDuplicate = duplicates.has(invasion._id.$oid);
 
 		const attackerItems = Array.isArray(invasion.AttackerReward)
 			? invasion.AttackerReward

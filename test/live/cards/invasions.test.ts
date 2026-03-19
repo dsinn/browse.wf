@@ -139,6 +139,17 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 		expect(adaro).toBeLessThan(orias);
 	});
 
+	test('duplicate-node invasion sorts last, shows hourglass instead of percentage, and has empty toggle cell', async () => {
+		// In the mock data, there are two invasions at 100% but only one of them is a duplicate.
+		globalThis.worldState = loadMock('worldState-duplicate-invasion-node.json');
+		await callUpdateInvasions();
+		const lastRow = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none):not(.invasion-defender-reward)')]
+			.at(-1);
+		expect(lastRow.querySelector('td:nth-child(2)').textContent).toContain('⏳');
+		expect(lastRow.querySelector('.invasion-percentage')).toBeNull();
+		expect(lastRow.querySelector('.completion-check')).toBeNull();
+	});
+
 	test('SolNode65 (Gradivus) shows 💥 emoji with Sabotage tooltip in node header', async () => {
 		globalThis.worldState.Invasions = [{
 			_id: {$oid: '6974e8fee68ad4bc31ce5f49'},

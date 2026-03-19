@@ -731,7 +731,7 @@
       "Faction": "FC_INFESTATION",
       "DefenderFaction": "FC_GRINEER",
       "Node": "SolNode106",
-      "Count": -14010,
+      "Count": 0,
       "Goal": 30000,
       "LocTag": "/Lotus/Language/Menu/InfestedInvasionGeneric",
       "Completed": false,

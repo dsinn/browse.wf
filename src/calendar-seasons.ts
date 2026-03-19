@@ -5,6 +5,7 @@
 
 import {formatSeasonDay, resolveCalendarSeasonDays} from './calendar-seasons-data.js';
 
+declare function getDictPromise(): Promise<Record<string, string>>;
 declare function setImageSource(img: HTMLImageElement, path: string): void;
 
 function makeIcon(iconPath: string): HTMLImageElement {
@@ -21,16 +22,9 @@ function makeIcon(iconPath: string): HTMLImageElement {
  * Renders the content pane for a single calendar season.
  * Returns a div containing day rows for each day with events.
  */
-export async function renderCalendarSeasonPane(
-	season: any,
-	dict: Record<string, string>,
-	exportChallenges: Record<string, any>,
-	exportResources: Record<string, any>,
-	exportBundles: Record<string, any>,
-	exportBoosterPacks: Record<string, any>,
-	exportBoosters: Record<string, any>,
-): Promise<HTMLDivElement> {
-	const resolvedDays = resolveCalendarSeasonDays(season, dict, exportChallenges, exportResources, exportBundles, exportBoosterPacks, exportBoosters);
+export async function renderCalendarSeasonPane(season: any): Promise<HTMLDivElement> {
+	const dict = await getDictPromise();
+	const resolvedDays = await resolveCalendarSeasonDays(season, dict);
 
 	const container = document.createElement('div');
 

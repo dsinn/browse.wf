@@ -2,7 +2,7 @@ import {
 	describe, test, expect, beforeEach, afterEach,
 } from 'vitest';
 import {mockBootstrapTooltip} from '../../helpers/dom-helpers';
-import {loadMock, loadExportJson} from '../../helpers/api-mocks';
+import {loadMock} from '../../helpers/api-mocks';
 import {testCardFilters} from '../card-filters-factory';
 import {isInvasionRewardShown, updateInvasions} from '../../../src/invasions';
 import {isFilterEnabled} from '../../../src/card-filters';
@@ -29,21 +29,6 @@ describe('Invasions - Filter Panel DOM Structure', () => {
 function setupInvasionsGlobals() {
 	mockBootstrapTooltip();
 
-	const ExportRegions = loadExportJson('ExportRegions.json');
-	const exportRegionsPromise = Promise.resolve(ExportRegions);
-	const exportImagesPromise = Promise.resolve({});
-
-	// Minimal dict with just the node names used in tests
-	const dict: Record<string, string> = {
-		'/Lotus/Language/Locations/Adaro': 'Adaro',
-		'/Lotus/Language/Locations/Sedna': 'Sedna',
-		'/Lotus/Language/Locations/Orias': 'Orias',
-		'/Lotus/Language/Locations/Europa': 'Europa',
-		'/Lotus/Language/Locations/Gradivus': 'Gradivus',
-		'/Lotus/Language/Locations/Mars': 'Mars',
-	};
-	const dictsPromise = Promise.resolve([dict, {}]);
-
 	// Stub getItemNamePromise to return the last path segment (e.g. "KarakWraithReceiver")
 	(globalThis as any).getItemNamePromise = async (itemType: string) =>
 		itemType.replace(/^.*\//u, '');
@@ -63,16 +48,14 @@ function setupInvasionsGlobals() {
 		span.dataset.oid = oid;
 		return span;
 	};
-
-	return {dictsPromise, exportRegionsPromise, exportImagesPromise};
 }
 
 describe('Invasions - updateInvasions DOM rendering', () => {
 	let callUpdateInvasions: () => Promise<void>;
 
 	beforeEach(() => {
-		const {dictsPromise, exportRegionsPromise, exportImagesPromise} = setupInvasionsGlobals();
-		callUpdateInvasions = async () => updateInvasions(dictsPromise, exportRegionsPromise, exportImagesPromise);
+		setupInvasionsGlobals();
+		callUpdateInvasions = async () => updateInvasions();
 		// Set up the invasions-table element that updateInvasions writes into
 		const table = document.createElement('table');
 		table.id = 'invasions-table';

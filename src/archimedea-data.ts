@@ -1,11 +1,13 @@
 /**
- * Pure data transformation layer for Deep Archimedea (CT_LAB) and Temporal Archimedea (CT_HEX).
- * No DOM dependencies — usable in both browser and Node.js environments.
+ * Data transformation layer for Deep Archimedea (CT_LAB) and Temporal Archimedea (CT_HEX).
+ * Usable in both browser and Node.js environments.
  *
  * Consumed by:
  *   - src/archimedea.ts                (planned: browser DOM rendering, via globals)
  *   - scripts/post-weekly-forecast.js  (Node.js, via compiled archimedea-data.js)
  */
+
+import {fetchExport} from './public-export-fetcher.js';
 
 const CONQUEST_RISK_REMAP: Record<string, string> = {EMPBlackHole: 'MagneticHounds'};
 const CONQUEST_VARIABLE_REMAP: Record<string, string> = {DullBlades: 'ComboCountChance', Undersupplied: 'MaxAmmo'};
@@ -60,14 +62,14 @@ function findHardDifficulty(mission: any): any {
  * Resolves a raw Conquest object into display-ready data.
  * Returns resolved mission rows and frame variable rows, with all text lookups applied.
  */
-export function resolveConquest(
+export async function resolveConquest(
 	conquest: any,
 	conquestType: string,
 	variantKeyPrefix: string,
-	exportMissionTypes: Record<string, {name: string}>,
 	osdict: Record<string, string>,
 	dict: Record<string, string>,
-): IResolvedConquest {
+): Promise<IResolvedConquest> {
+	const exportMissionTypes: Record<string, {name: string}> = await fetchExport('ExportMissionTypes');
 	const missions: IResolvedConquestMission[] = [];
 
 	for (const mission of conquest.Missions) {

@@ -7,7 +7,7 @@ import {
 	describe, test, expect, beforeEach, afterEach,
 } from 'vitest';
 import {mockBootstrapTooltip} from '../helpers/dom-helpers';
-import {loadMock, loadExportJson} from '../helpers/api-mocks';
+import {loadMock} from '../helpers/api-mocks';
 import {
 	conquestRiskTagToLoc, conquestVariableTagToLoc, transformFrameVariable, createArchimedeaTooltipElement, transformConquestMissions, renderConquestMissions, renderConquestFrameVariables,
 } from '../../src/conquest-helpers';
@@ -130,11 +130,10 @@ describe('createArchimedeaTooltipElement', () => {
 
 describe('transformConquestMissions', () => {
 	const worldState = loadMock('worldState.json');
-	const ExportMissionTypes = loadExportJson('ExportMissionTypes.json');
 
-	test('transforms CT_LAB conquest missions correctly', () => {
+	test('transforms CT_LAB conquest missions correctly', async () => {
 		const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-		const missions = transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
+		const missions = await transformConquestMissions(conquest, 'CT_LAB');
 
 		expect(Array.isArray(missions)).toBe(true);
 		expect(missions.length).toBe(3);
@@ -148,33 +147,33 @@ describe('transformConquestMissions', () => {
 		}
 	});
 
-	test('transforms CT_HEX conquest missions correctly', () => {
+	test('transforms CT_HEX conquest missions correctly', async () => {
 		const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_HEX');
-		const missions = transformConquestMissions(conquest, 'CT_HEX', ExportMissionTypes);
+		const missions = await transformConquestMissions(conquest, 'CT_HEX');
 
 		expect(missions.length).toBe(3);
 	});
 
-	test('transforms Defense to DualDefense for CT_LAB', () => {
+	test('transforms Defense to DualDefense for CT_LAB', async () => {
 		const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-		const missions = transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
+		const missions = await transformConquestMissions(conquest, 'CT_LAB');
 
 		// Mock data has a Defense mission (MT_DEFENSE); CT_LAB must rename it to DualDefense
 		expect(missions.some((m: any) => m.type === 'Defense')).toBe(false);
 		expect(missions.some((m: any) => m.type === 'DualDefense')).toBe(true);
 	});
 
-	test('does NOT transform Defense to DualDefense for CT_HEX', () => {
+	test('does NOT transform Defense to DualDefense for CT_HEX', async () => {
 		const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_HEX');
-		const missions = transformConquestMissions(conquest, 'CT_HEX', ExportMissionTypes);
+		const missions = await transformConquestMissions(conquest, 'CT_HEX');
 
 		const hasDualDefense = missions.some((m: any) => m.type === 'DualDefense');
 		expect(hasDualDefense).toBe(false);
 	});
 
-	test('selects CD_HARD difficulty when available', () => {
+	test('selects CD_HARD difficulty when available', async () => {
 		const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-		const missions = transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
+		const missions = await transformConquestMissions(conquest, 'CT_LAB');
 
 		// Verify each mission's conditions match CD_HARD's risks (not CD_NORMAL's)
 		for (const [i, m] of (missions as any[]).entries()) {
@@ -187,31 +186,25 @@ describe('transformConquestMissions', () => {
 
 describe('renderConquestMissions', () => {
 	const worldState = loadMock('worldState.json');
-	const ExportMissionTypes = loadExportJson('ExportMissionTypes.json');
-	const osdict = loadMock('dicts/en.json');
 
-	test('returns a <tbody> with one row per mission', () => {
+	test('returns a <tbody> with one row per mission', async () => {
 		const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-		const missions = transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
-		const tbody = renderConquestMissions(
+		const missions = await transformConquestMissions(conquest, 'CT_LAB');
+		const tbody = await renderConquestMissions(
 			missions,
 			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
-			osdict,
-			{},
 		);
 
 		expect(tbody.nodeName).toBe('TBODY');
 		expect(tbody.querySelectorAll('tr').length).toBe(3);
 	});
 
-	test('each row has th (type) + 3 td (variant + 2 conditions)', () => {
+	test('each row has th (type) + 3 td (variant + 2 conditions)', async () => {
 		const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-		const missions = transformConquestMissions(conquest, 'CT_LAB', ExportMissionTypes);
-		const tbody = renderConquestMissions(
+		const missions = await transformConquestMissions(conquest, 'CT_LAB');
+		const tbody = await renderConquestMissions(
 			missions,
 			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
-			osdict,
-			{},
 		);
 
 		for (const tr of tbody.querySelectorAll('tr')) {
@@ -223,21 +216,17 @@ describe('renderConquestMissions', () => {
 
 describe('renderConquestFrameVariables', () => {
 	const worldState = loadMock('worldState.json');
-	const osdict = loadMock('dicts/en.json');
 
-	test('returns a <tr> with one <td> per frame variable', () => {
+	test('returns a <tr> with one <td> per frame variable', async () => {
 		const conquest = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-		const tr = renderConquestFrameVariables(
-			conquest.Variables,
-			osdict,
-		);
+		const tr = await renderConquestFrameVariables(conquest.Variables);
 
 		expect(tr.nodeName).toBe('TR');
 		expect(tr.querySelectorAll('td').length).toBe(conquest.Variables.length);
 	});
 
-	test('handles empty frame variables array', () => {
-		const tr = renderConquestFrameVariables([], osdict);
+	test('handles empty frame variables array', async () => {
+		const tr = await renderConquestFrameVariables([]);
 		expect(tr.querySelectorAll('td').length).toBe(0);
 	});
 });

@@ -34,28 +34,28 @@ const worldState = {
 };
 
 describe('formatConquest', () => {
-	test('returns null when no conquests of the given type exist', () => {
-		const result = formatConquest({Conquests: []}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+	test('returns null when no conquests of the given type exist', async () => {
+		const result = await formatConquest({Conquests: []}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		expect(result).toBeNull();
 	});
 
-	test('returns null when Conquests is absent', () => {
-		const result = formatConquest({}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+	test('returns null when Conquests is absent', async () => {
+		const result = await formatConquest({}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		expect(result).toBeNull();
 	});
 
-	test('formats Deep Archimedea header with section title only', () => {
-		const result = formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+	test('formats Deep Archimedea header with section title only', async () => {
+		const result = await formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		expect(result).toMatch(/^## Deep Archimedea$/mu);
 	});
 
-	test('formats Temporal Archimedea header', () => {
-		const result = formatConquest(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea');
+	test('formats Temporal Archimedea header', async () => {
+		const result = await formatConquest(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea');
 		expect(result).toMatch(/^## Temporal Archimedea$/mu);
 	});
 
-	test('each mission renders with bold type name, then bullet lines for deviation and conditions', () => {
-		const result = formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+	test('each mission renders with bold type name, then bullet lines for deviation and conditions', async () => {
+		const result = await formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		const lines = result.split('\n');
 		// Should have at least one bold mission type line
 		expect(lines.some(l => /^\*\*.+\*\*$/u.test(l))).toBe(true);
@@ -63,19 +63,19 @@ describe('formatConquest', () => {
 		expect(lines.some(l => l.startsWith('- **'))).toBe(true);
 	});
 
-	test('mission type name is Title Case', () => {
-		const result = formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+	test('mission type name is Title Case', async () => {
+		const result = await formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		// Dict_en returns ALLCAPS — should be converted to Title Case
 		expect(result).not.toMatch(/\*\*[A-Z]{3,}\*\*/u);
 	});
 
-	test('uses CD_HARD difficulty when present', () => {
-		const result = formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+	test('uses CD_HARD difficulty when present', async () => {
+		const result = await formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		// CD_HARD for first mission has deviation FragileNodes → "Unified Purpose" in dicts/en.json
 		expect(result).toContain('Unified Purpose');
 	});
 
-	test('remaps EMPBlackHole condition to MagneticHounds', () => {
+	test('remaps EMPBlackHole condition to MagneticHounds', async () => {
 		const conquest = {
 			...worldState.Conquests[0],
 			Missions: [{
@@ -88,59 +88,59 @@ describe('formatConquest', () => {
 			}],
 			Variables: [],
 		};
-		const result = formatConquest({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatConquest({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		// EMPBlackHole remaps to MagneticHounds, which displays as "Alluring Arcocanids" in en.json
 		expect(result).toContain('Alluring Arcocanids');
 		expect(result).not.toContain('EMPBlackHole');
 	});
 
-	test('Defense mission type becomes DualDefense (Mirror Defense) for CT_LAB', () => {
+	test('Defense mission type becomes DualDefense (Mirror Defense) for CT_LAB', async () => {
 		const defenseMission = {
 			missionType: 'MT_DEFENSE',
 			difficulties: [{type: 'CD_HARD', deviation: 'FragileNodes', risks: ['PointBlank', 'ExplosiveCrawlers']}],
 		};
 		const conquest = {...worldState.Conquests[0], Missions: [defenseMission], Variables: []};
-		const result = formatConquest({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatConquest({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		// DualDefense maps to "Mirror Defense" in the real dict
 		expect(result).toContain('Mirror Defense');
 		expect(result).not.toContain('**Defense**');
 	});
 
-	test('Defense mission type stays Defense for CT_HEX', () => {
+	test('Defense mission type stays Defense for CT_HEX', async () => {
 		const defenseMission = {
 			missionType: 'MT_DEFENSE',
 			difficulties: [{type: 'CD_HARD', deviation: 'FragileNodes', risks: ['PointBlank', 'ExplosiveCrawlers']}],
 		};
 		const conquest = {...worldState.Conquests[1], Missions: [defenseMission], Variables: []};
-		const result = formatConquest({Conquests: [conquest]}, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea');
+		const result = await formatConquest({Conquests: [conquest]}, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea');
 		expect(result).toContain('Defense');
 		expect(result).not.toContain('Mirror Defense');
 	});
 
-	test('renders Frame Variables heading when Variables are present', () => {
-		const result = formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+	test('renders Frame Variables heading when Variables are present', async () => {
+		const result = await formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		expect(result).toContain('> **Frame Variables**');
 	});
 
-	test('each frame variable renders as a bullet with bold name: description', () => {
-		const result = formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+	test('each frame variable renders as a bullet with bold name: description', async () => {
+		const result = await formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		// ShieldDelay → "> - **Lethargic Shields**: Shield recharge delay increased 500%."
 		expect(result).toMatch(/^> - \*\*Lethargic Shields\*\*: .+500/mu);
 	});
 
-	test('frame variable falls back to raw tag when missing from osdict', () => {
+	test('frame variable falls back to raw tag when missing from osdict', async () => {
 		const conquest = {...worldState.Conquests[0], Variables: ['UnknownModTag']};
-		const result = formatConquest({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatConquest({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		expect(result).toContain('UnknownModTag');
 	});
 
-	test('omits frame variables line when Variables is empty', () => {
+	test('omits frame variables line when Variables is empty', async () => {
 		const conquest = {...worldState.Conquests[0], Variables: []};
-		const result = formatConquest({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatConquest({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		expect(result).not.toContain('Frame Variables');
 	});
 
-	test('falls back to raw variant tag when missing from osdict', () => {
+	test('falls back to raw variant tag when missing from osdict', async () => {
 		const conquest = {
 			...worldState.Conquests[0],
 			Missions: [{
@@ -149,24 +149,24 @@ describe('formatConquest', () => {
 			}],
 			Variables: [],
 		};
-		const result = formatConquest({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatConquest({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		expect(result).toContain('UnknownVariant');
 	});
 
-	test('includes Discord timestamp in heading when showTimestamp is true', () => {
-		const result = formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', undefined, true);
+	test('includes Discord timestamp in heading when showTimestamp is true', async () => {
+		const result = await formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', undefined, true);
 		expect(result).toMatch(/^## Deep Archimedea <t:\d+:D>$/mu);
 	});
 
-	test('omits timestamp from heading by default', () => {
-		const result = formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+	test('omits timestamp from heading by default', async () => {
+		const result = await formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
 		expect(result).toMatch(/^## Deep Archimedea$/mu);
 	});
 
-	test('uses provided find function (findClosest fallback)', () => {
+	test('uses provided find function (findClosest fallback)', async () => {
 		const staleConquest = {...worldState.Conquests[0], Activation: mongoDate(MOCK_TIMESTAMP - (14 * DAY_MS)), Expiry: mongoDate(MOCK_TIMESTAMP - (7 * DAY_MS))};
 		const findClosestStub = (items: any[]) => items[0] ?? null;
-		const result = formatConquest(
+		const result = await formatConquest(
 			{Conquests: [staleConquest]},
 			'CT_LAB',
 			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
@@ -180,27 +180,27 @@ describe('formatConquest', () => {
 });
 
 describe('formatDescendia', () => {
-	test('returns null when Descents is empty', () => {
-		expect(formatDescendia({Descents: []})).toBeNull();
+	test('returns null when Descents is empty', async () => {
+		expect(await formatDescendia({Descents: []})).toBeNull();
 	});
 
-	test('returns null when Descents is absent', () => {
-		expect(formatDescendia({})).toBeNull();
+	test('returns null when Descents is absent', async () => {
+		expect(await formatDescendia({})).toBeNull();
 	});
 
-	test('formats header as ## Descendia with no timestamp', () => {
-		const result = formatDescendia(worldState);
+	test('formats header as ## Descendia with no timestamp', async () => {
+		const result = await formatDescendia(worldState);
 		expect(result).toMatch(/^## Descendia$/mu);
 	});
 
-	test('renders one line per challenge', () => {
-		const result = formatDescendia(worldState);
+	test('renders one line per challenge', async () => {
+		const result = await formatDescendia(worldState);
 		const challengeLines = result.split('\n').slice(1); // Skip header
 		expect(challengeLines).toHaveLength(worldState.Descents[0].Challenges.length);
 	});
 
-	test('each challenge line has index · bold type · challenge text', () => {
-		const result = formatDescendia(worldState);
+	test('each challenge line has index · bold type · challenge text', async () => {
+		const result = await formatDescendia(worldState);
 		const lines = result.split('\n').slice(1);
 		for (const line of lines) {
 			// Index. arena [__]**Type** · challenge[__]
@@ -208,8 +208,8 @@ describe('formatDescendia', () => {
 		}
 	});
 
-	test('DT_PROTOFRAME challenge lines are underlined', () => {
-		const result = formatDescendia(worldState);
+	test('DT_PROTOFRAME challenge lines are underlined', async () => {
+		const result = await formatDescendia(worldState);
 		const lines = result.split('\n').slice(1);
 		// Indices 7, 14, 21 are DT_PROTOFRAME in the mock (0-based: 6, 13, 20)
 		const protoLines = lines.filter((_, i) => [6, 13, 20].includes(i));
@@ -218,8 +218,8 @@ describe('formatDescendia', () => {
 		}
 	});
 
-	test('non-protoframe lines are not underlined', () => {
-		const result = formatDescendia(worldState);
+	test('non-protoframe lines are not underlined', async () => {
+		const result = await formatDescendia(worldState);
 		const lines = result.split('\n').slice(1);
 		const nonProtoLines = lines.filter((_, i) => ![6, 13, 20].includes(i));
 		for (const line of nonProtoLines) {
@@ -227,7 +227,7 @@ describe('formatDescendia', () => {
 		}
 	});
 
-	test('type label is Title Case with DT_ prefix and underscores removed', () => {
+	test('type label is Title Case with DT_ prefix and underscores removed', async () => {
 		const descent = {
 			...worldState.Descents[0],
 			Challenges: [{
@@ -239,13 +239,13 @@ describe('formatDescendia', () => {
 				Auras: [],
 			}],
 		};
-		const result = formatDescendia({Descents: [descent]});
+		const result = await formatDescendia({Descents: [descent]});
 		expect(result).toContain('**Some Type**');
 		expect(result).not.toContain('DT_');
 	});
 
-	test('falls back to camelToWords of last path segment when challenge not in dict', () => {
-		const result = formatDescendia(worldState);
+	test('falls back to camelToWords of last path segment when challenge not in dict', async () => {
+		const result = await formatDescendia(worldState);
 		// The fallback converts the last path segment to words — verify no raw paths appear
 		const lines = result.split('\n').slice(1);
 		for (const line of lines) {
@@ -253,7 +253,7 @@ describe('formatDescendia', () => {
 		}
 	});
 
-	test('maps known arena keys to emoji', () => {
+	test('maps known arena keys to emoji', async () => {
 		const descentWithKnownArena = {
 			...worldState.Descents[0],
 			Challenges: [{
@@ -265,11 +265,11 @@ describe('formatDescendia', () => {
 				Auras: [],
 			}],
 		};
-		const result = formatDescendia({Descents: [descentWithKnownArena]});
+		const result = await formatDescendia({Descents: [descentWithKnownArena]});
 		expect(result).toContain('🥑');
 	});
 
-	test('falls back to arena key when not in emoji map', () => {
+	test('falls back to arena key when not in emoji map', async () => {
 		const descentWithUnknownArena = {
 			...worldState.Descents[0],
 			Challenges: [{
@@ -281,11 +281,11 @@ describe('formatDescendia', () => {
 				Auras: [],
 			}],
 		};
-		const result = formatDescendia({Descents: [descentWithUnknownArena]});
+		const result = await formatDescendia({Descents: [descentWithUnknownArena]});
 		expect(result).toContain('ArenaUnknownFruit');
 	});
 
-	test('omits extra separators when specs and auras are empty', () => {
+	test('omits extra separators when specs and auras are empty', async () => {
 		const descentWithEmpty = {
 			...worldState.Descents[0],
 			Challenges: [{
@@ -297,47 +297,47 @@ describe('formatDescendia', () => {
 				Auras: [],
 			}],
 		};
-		const result = formatDescendia({Descents: [descentWithEmpty]});
+		const result = await formatDescendia({Descents: [descentWithEmpty]});
 		const challengeLine = result.split('\n')[1];
 		// Only one · between type and challenge name; no trailing ·
 		expect((challengeLine.match(/ · /gu) ?? []).length).toBe(1);
 		expect(challengeLine).not.toContain('-');
 	});
 
-	test('includes Discord timestamp in heading when showTimestamp is true', () => {
-		const result = formatDescendia(worldState, undefined, true);
+	test('includes Discord timestamp in heading when showTimestamp is true', async () => {
+		const result = await formatDescendia(worldState, undefined, true);
 		expect(result).toMatch(/^## Descendia <t:\d+:D>$/mu);
 	});
 
-	test('omits timestamp from heading by default', () => {
-		const result = formatDescendia(worldState);
+	test('omits timestamp from heading by default', async () => {
+		const result = await formatDescendia(worldState);
 		expect(result).toMatch(/^## Descendia$/mu);
 	});
 });
 
 describe('formatCalendarSeason', () => {
-	test('returns null when KnownCalendarSeasons is empty', () => {
-		expect(formatCalendarSeason({KnownCalendarSeasons: []})).toBeNull();
+	test('returns null when KnownCalendarSeasons is empty', async () => {
+		expect(await formatCalendarSeason({KnownCalendarSeasons: []})).toBeNull();
 	});
 
-	test('returns null when KnownCalendarSeasons is absent', () => {
-		expect(formatCalendarSeason({})).toBeNull();
+	test('returns null when KnownCalendarSeasons is absent', async () => {
+		expect(await formatCalendarSeason({})).toBeNull();
 	});
 
-	test('formats header with season label, no timestamp', () => {
-		const result = formatCalendarSeason(worldState);
+	test('formats header with season label, no timestamp', async () => {
+		const result = await formatCalendarSeason(worldState);
 		// WorldState mock has CST_FALL
 		expect(result).toMatch(/^## 1999 Calendar: 🍁 Autumn$/mu);
 	});
 
-	test('uses raw season key as fallback when not in SEASON_LABELS', () => {
+	test('uses raw season key as fallback when not in SEASON_LABELS', async () => {
 		const season = {...worldState.KnownCalendarSeasons[0], Season: 'CST_UNKNOWN'};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
+		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
 		expect(result).toContain('CST_UNKNOWN');
 	});
 
-	test('renders CET_CHALLENGE lines with 📋 prefix and bold date', () => {
-		const result = formatCalendarSeason(worldState);
+	test('renders CET_CHALLENGE lines with 📋 prefix and bold date', async () => {
+		const result = await formatCalendarSeason(worldState);
 		const challengeLines = result.split('\n').filter(l => l.includes('📋'));
 		expect(challengeLines.length).toBeGreaterThan(0);
 		for (const line of challengeLines) {
@@ -345,8 +345,8 @@ describe('formatCalendarSeason', () => {
 		}
 	});
 
-	test('renders CET_REWARD lines with 🎁 prefix and bold date', () => {
-		const result = formatCalendarSeason(worldState);
+	test('renders CET_REWARD lines with 🎁 prefix and bold date', async () => {
+		const result = await formatCalendarSeason(worldState);
 		const rewardLines = result.split('\n').filter(l => l.startsWith('🎁'));
 		expect(rewardLines.length).toBeGreaterThan(0);
 		for (const line of rewardLines) {
@@ -354,7 +354,7 @@ describe('formatCalendarSeason', () => {
 		}
 	});
 
-	test('renders CET_UPGRADE lines with 🔧 prefix and bold date', () => {
+	test('renders CET_UPGRADE lines with 🔧 prefix and bold date', async () => {
 		const season = {
 			...worldState.KnownCalendarSeasons[0],
 			Days: [{
@@ -362,12 +362,12 @@ describe('formatCalendarSeason', () => {
 				events: [{type: 'CET_UPGRADE', upgrade: '/Lotus/Upgrades/SomeUpgrade/SpeedBoost'}],
 			}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
+		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
 		expect(result).toMatch(/^🔧 \*\*.+\*\* .+/mu);
 		expect(result).toContain('Speed Boost');
 	});
 
-	test('groups consecutive CET_REWARD events on the same day into a single middot-separated line', () => {
+	test('groups consecutive CET_REWARD events on the same day into a single middot-separated line', async () => {
 		const season = {
 			...worldState.KnownCalendarSeasons[0],
 			Days: [{
@@ -378,13 +378,13 @@ describe('formatCalendarSeason', () => {
 				],
 			}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
+		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
 		const rewardLines = result.split('\n').filter(l => l.startsWith('🎁'));
 		expect(rewardLines).toHaveLength(1);
 		expect(rewardLines[0]).toContain(' · ');
 	});
 
-	test('groups consecutive CET_UPGRADE events on the same day into a single middot-separated line', () => {
+	test('groups consecutive CET_UPGRADE events on the same day into a single middot-separated line', async () => {
 		const season = {
 			...worldState.KnownCalendarSeasons[0],
 			Days: [{
@@ -395,13 +395,13 @@ describe('formatCalendarSeason', () => {
 				],
 			}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
+		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
 		const upgradeLines = result.split('\n').filter(l => l.startsWith('🔧'));
 		expect(upgradeLines).toHaveLength(1);
 		expect(upgradeLines[0]).toContain(' · ');
 	});
 
-	test('does not group CET_REWARD and CET_UPGRADE events together', () => {
+	test('does not group CET_REWARD and CET_UPGRADE events together', async () => {
 		const season = {
 			...worldState.KnownCalendarSeasons[0],
 			Days: [{
@@ -412,30 +412,30 @@ describe('formatCalendarSeason', () => {
 				],
 			}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
+		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
 		const eventLines = result.split('\n').slice(1);
 		expect(eventLines).toHaveLength(2);
 	});
 
-	test('challenge not in ExportChallenges falls back to camelToWords of path segment', () => {
+	test('challenge not in ExportChallenges falls back to camelToWords of path segment', async () => {
 		const season = {
 			...worldState.KnownCalendarSeasons[0],
 			Days: [{day: 3, events: [{type: 'CET_CHALLENGE', challenge: '/Lotus/Types/Challenges/SomeUnknownChallenge'}]}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
+		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
 		expect(result).toContain('Some Unknown Challenge');
 	});
 
-	test('reward falls back to camelToWords of path segment when not in item maps', () => {
+	test('reward falls back to camelToWords of path segment when not in item maps', async () => {
 		const season = {
 			...worldState.KnownCalendarSeasons[0],
 			Days: [{day: 7, events: [{type: 'CET_REWARD', reward: '/Lotus/Types/Items/SomeWeirdReward'}]}],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
+		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
 		expect(result).toContain('Some Weird Reward');
 	});
 
-	test('skips days with no events', () => {
+	test('skips days with no events', async () => {
 		const season = {
 			...worldState.KnownCalendarSeasons[0],
 			Days: [
@@ -443,36 +443,36 @@ describe('formatCalendarSeason', () => {
 				{day: 2, events: [{type: 'CET_UPGRADE', upgrade: '/Lotus/Upgrades/SpeedBoost'}]},
 			],
 		};
-		const result = formatCalendarSeason({KnownCalendarSeasons: [season]});
+		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
 		const lines = result.split('\n');
 		// Only one event line (header + 1 event = 2 lines total)
 		expect(lines).toHaveLength(2);
 	});
 
-	test('includes Discord timestamp in heading when showTimestamp is true', () => {
-		const result = formatCalendarSeason(worldState, undefined, true);
+	test('includes Discord timestamp in heading when showTimestamp is true', async () => {
+		const result = await formatCalendarSeason(worldState, undefined, true);
 		expect(result).toMatch(/^## 1999 Calendar: .+ <t:\d+:D>$/mu);
 	});
 
-	test('omits timestamp from heading by default', () => {
-		const result = formatCalendarSeason(worldState);
+	test('omits timestamp from heading by default', async () => {
+		const result = await formatCalendarSeason(worldState);
 		expect(result).toMatch(/^## 1999 Calendar: .+$/mu);
 		expect(result).not.toMatch(/<t:\d+:D>/u);
 	});
 });
 
 describe('chunkMessage', () => {
-	test('returns single chunk when first fits within limit', () => {
+	test('returns single chunk when first fits within limit', async () => {
 		const chunks = chunkMessage('hello', [], 2000);
 		expect(chunks).toEqual(['hello']);
 	});
 
-	test('includes rest sections as separate chunks', () => {
+	test('includes rest sections as separate chunks', async () => {
 		const chunks = chunkMessage('first', ['second', 'third'], 2000);
 		expect(chunks).toEqual(['first', 'second', 'third']);
 	});
 
-	test('splits a message that exceeds the limit at line boundaries', () => {
+	test('splits a message that exceeds the limit at line boundaries', async () => {
 		const longLine = 'x'.repeat(100);
 		const lines = Array.from({length: 25}, (_, i) => `line${i}: ${longLine}`);
 		const first = lines.join('\n'); // ~2600 chars
@@ -486,7 +486,7 @@ describe('chunkMessage', () => {
 		expect(chunks.join('\n')).toBe(first);
 	});
 
-	test('splits oversized rest sections too', () => {
+	test('splits oversized rest sections too', async () => {
 		const longSection = Array.from({length: 30}, (_, i) => `> line ${i}: ${'y'.repeat(80)}`).join('\n');
 		const chunks = chunkMessage('short first', [longSection], 200);
 		expect(chunks[0]).toBe('short first');
@@ -495,7 +495,7 @@ describe('chunkMessage', () => {
 		}
 	});
 
-	test('uses default limit of 2000', () => {
+	test('uses default limit of 2000', async () => {
 		const short = 'hello';
 		expect(chunkMessage(short, [])).toEqual([short]);
 	});

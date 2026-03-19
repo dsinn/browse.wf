@@ -12,23 +12,9 @@ declare function fetchExport(name: string): Promise<any>;
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
 
-declare function transformConquestMissions(
-	conquest: any,
-	conquestType: string,
-	exportMissionTypes: Record<string, {name: string}>,
-): IConquestMission[];
-
-declare function renderConquestMissions(
-	missions: IConquestMission[],
-	variantKeyPrefix: string,
-	osdict: Record<string, string>,
-	dict: Record<string, string>,
-): HTMLTableSectionElement;
-
-declare function renderConquestFrameVariables(
-	frameVariables: string[],
-	osdict: Record<string, string>,
-): HTMLTableRowElement;
+declare function transformConquestMissions(conquest: any, conquestType: string): Promise<IConquestMission[]>;
+declare function renderConquestMissions(missions: IConquestMission[], variantKeyPrefix: string): Promise<HTMLTableSectionElement>;
+declare function renderConquestFrameVariables(frameVariables: string[]): Promise<HTMLTableRowElement>;
 
 declare function renderDescentChallenges(
 	descent: any,
@@ -37,15 +23,7 @@ declare function renderDescentChallenges(
 
 declare function getSeasonLabel(season: string): string;
 
-declare function renderCalendarSeasonPane(
-	season: any,
-	dict: Record<string, string>,
-	exportChallenges: Record<string, any>,
-	exportResources: Record<string, any>,
-	exportBundles: Record<string, any>,
-	exportBoosterPacks: Record<string, any>,
-	exportBoosters: Record<string, any>,
-): Promise<HTMLDivElement>;
+declare function renderCalendarSeasonPane(season: any): Promise<HTMLDivElement>;
 
 function mongoMs(d: IMongoDate): number {
 	return Number.parseInt(d.$date.$numberLong, 10);
@@ -127,20 +105,27 @@ function restoreActiveTab(tabsElement: HTMLElement, activation: string): void {
 	document.querySelector(`#${paneId}`)?.classList.add('show', 'active');
 }
 
-function renderConquestTabs(
+async function renderConquestTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
 	conquests: any[],
 	conquestType: string,
 	variantKeyPrefix: string,
-	exportMissionTypes: Record<string, {name: string}>,
-	dict: Record<string, string>,
-	osdict: Record<string, string>,
 	preserveActivation: string | undefined = null,
-): void {
+): Promise<void> {
 	const now = Date.now();
 	tabsElement.innerHTML = '';
 	contentElement.innerHTML = '';
+
+	// Pre-render all pane contents in parallel
+	const paneContents = await Promise.all(conquests.map(async conquest => {
+		const missions = await transformConquestMissions(conquest, conquestType);
+		const [tbody, fvRow] = await Promise.all([
+			renderConquestMissions(missions, variantKeyPrefix),
+			renderConquestFrameVariables(conquest.Variables || []),
+		]);
+		return {tbody, fvRow};
+	}));
 
 	// There's usually only one entry per conquest type, but handle multiple for robustness
 	for (const [i, conquest] of conquests.entries()) {
@@ -151,15 +136,13 @@ function renderConquestTabs(
 		const id = conquestType.toLowerCase() + '-' + i;
 
 		buildTab(tabsElement, contentElement, id, label, activationMs, isCurrent || i === 0, pane => {
-			const missions = transformConquestMissions(conquest, conquestType, exportMissionTypes);
-			const tbody = renderConquestMissions(missions, variantKeyPrefix, osdict, dict);
+			const {tbody, fvRow} = paneContents[i];
 
 			const missionsTable = document.createElement('table');
 			missionsTable.className = 'table table-sm table-borderless table-hover mb-2';
 			missionsTable.append(tbody);
 			pane.append(missionsTable);
 
-			const fvRow = renderConquestFrameVariables(conquest.Variables || [], osdict);
 			const fvTable = document.createElement('table');
 			fvTable.className = 'table table-sm table-borderless mb-0';
 			fvTable.append(fvRow);
@@ -172,16 +155,17 @@ function renderConquestTabs(
 	}
 }
 
-function renderDescentTabs(
+async function renderDescentTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
 	descents: any[],
-	dict: Record<string, string>,
 	preserveActivation: string | undefined = null,
-): void {
+): Promise<void> {
 	const now = Date.now();
 	tabsElement.innerHTML = '';
 	contentElement.innerHTML = '';
+
+	const dict = await getDictPromise();
 
 	const activeIdx = descents.findIndex(d =>
 		mongoMs(d.Activation) <= now && now < mongoMs(d.Expiry));
@@ -223,11 +207,6 @@ async function renderCalendarSeasonTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
 	seasons: any[],
-	exportResources: Record<string, any>,
-	exportBundles: Record<string, any>,
-	exportBoosterPacks: Record<string, any>,
-	exportBoosters: Record<string, any>,
-	exportImages: Record<string, any>,
 	preserveActivation: string | undefined = null,
 ): Promise<void> {
 	const now = Date.now();
@@ -237,15 +216,11 @@ async function renderCalendarSeasonTabs(
 	const activeIdx = seasons.findIndex(s =>
 		mongoMs(s.Activation) <= now && now < mongoMs(s.Expiry));
 
-	const dict = await getDictPromise();
-
-	// Required for common.js' setImageSource
-	(globalThis as any).ExportImages = exportImages;
-
-	const exportChallenges = (globalThis as any).ExportChallenges ?? {};
+	// Required for common.js' setImageSource, must be set before renderCalendarSeasonPane runs
+	(globalThis as any).ExportImages = await fetchExport('ExportImages');
 
 	// Render all season panes in parallel
-	const seasonPanes = await Promise.all(seasons.map(async season => renderCalendarSeasonPane(season, dict, exportChallenges, exportResources, exportBundles, exportBoosterPacks, exportBoosters)));
+	const seasonPanes = await Promise.all(seasons.map(async season => renderCalendarSeasonPane(season)));
 
 	// Build tabs with the rendered content
 	for (const [i, season] of seasons.entries()) {
@@ -319,38 +294,17 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	const descentActivation = isRefresh ? getActiveTabActivation(descentTabsElement) : null;
 	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsElement) ? getActiveTabActivation(calendarSeasonTabsElement) : null;
 
-	const [worldState, dict, osdict, ...exportValues] = await Promise.all([
-		(globalThis as any).WarframeApiFrontProxyClient.fetchWorldState(),
-		getDictPromise(),
-		getOSDictPromise(),
-		...[
-			'ExportMissionTypes',
-			'ExportChallenges',
-			'ExportImages',
-			'ExportResources',
-			'ExportBundles',
-			'ExportBoosterPacks',
-			'ExportBoosters',
-		].map(async name => fetchExport(name)),
-	]);
-	const [exportMissionTypes, exportChallenges, exportImages, exportResources, exportBundles, exportBoosterPacks, exportBoosters] = exportValues;
-
-	// Set up globals needed by common.js setImageSource()
-	(globalThis as any).ExportImages = exportImages;
-	(globalThis as any).ExportChallenges = exportChallenges;
+	const worldState = await (globalThis as any).WarframeApiFrontProxyClient.fetchWorldState();
 
 	// Deep Archimedea (CT_LAB)
 	const labConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_LAB');
 	if (labConquests.length > 0) {
-		renderConquestTabs(
+		await renderConquestTabs(
 			labTabsElement,
 			document.querySelector<HTMLElement>('#lab-conquest-content'),
 			labConquests,
 			'CT_LAB',
 			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
-			exportMissionTypes,
-			dict,
-			osdict,
 			labActivation,
 		);
 	}
@@ -358,15 +312,12 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	// Temporal Archimedea (CT_HEX)
 	const hexConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_HEX');
 	if (hexConquests.length > 0) {
-		renderConquestTabs(
+		await renderConquestTabs(
 			hexTabsElement,
 			document.querySelector<HTMLElement>('#hex-conquest-content'),
 			hexConquests,
 			'CT_HEX',
 			'/Lotus/Language/Conquest/MissionVariant_HexConquest_',
-			exportMissionTypes,
-			dict,
-			osdict,
 			hexActivation,
 		);
 	}
@@ -374,11 +325,10 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	// Descendia
 	const descents = worldState.Descents ?? [];
 	if (descents.length > 0) {
-		renderDescentTabs(
+		await renderDescentTabs(
 			descentTabsElement,
 			document.querySelector<HTMLElement>('#descendia-content'),
 			descents,
-			dict,
 			descentActivation,
 		);
 	}
@@ -390,11 +340,6 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 			calendarSeasonTabsElement,
 			document.querySelector<HTMLElement>('#calendar-season-content'),
 			calendarSeasons,
-			exportResources,
-			exportBundles,
-			exportBoosterPacks,
-			exportBoosters,
-			exportImages,
 			calendarSeasonActivation,
 		);
 	}

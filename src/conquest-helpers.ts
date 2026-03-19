@@ -4,6 +4,10 @@
  * These are used by both weekly-forecast.ts (via globals) to avoid duplicating logic.
  */
 
+declare function fetchExport(name: string): Promise<any>;
+declare function getDictPromise(): Promise<Record<string, string>>;
+declare function getOSDictPromise(): Promise<Record<string, string>>;
+
 export function conquestRiskTagToLoc(tag: string): string {
 	if (tag === 'EMPBlackHole') {
 		return 'MagneticHounds';
@@ -83,11 +87,11 @@ export function createArchimedeaTooltipElement(
  * @param conquestType     "CT_LAB" or "CT_HEX"
  * @param ExportMissionTypes  The ExportMissionTypes lookup table
  */
-export function transformConquestMissions(
+export async function transformConquestMissions(
 	conquest: any,
 	conquestType: string,
-	exportMissionTypes: Record<string, {name: string}>,
-): IConquestMission[] {
+): Promise<IConquestMission[]> {
+	const exportMissionTypes: Record<string, {name: string}> = await fetchExport('ExportMissionTypes');
 	const missions: IConquestMission[] = [];
 	for (const mission of conquest.Missions) {
 		let hardDiff = mission.difficulties.find((d: any) => d.type === 'CD_HARD');
@@ -121,12 +125,11 @@ export function transformConquestMissions(
  * @param osdict       The OS dictionary
  * @param dict         The main dictionary (for mission type names)
  */
-export function renderConquestMissions(
+export async function renderConquestMissions(
 	missions: IConquestMission[],
 	variantKeyPrefix: string,
-	osdict: Record<string, string>,
-	dict: Record<string, string>,
-): HTMLTableSectionElement {
+): Promise<HTMLTableSectionElement> {
+	const [dict, osdict] = await Promise.all([getDictPromise(), getOSDictPromise()]);
 	const tbody = document.createElement('tbody');
 	for (const mission of missions) {
 		const tr = document.createElement('tr');
@@ -160,10 +163,8 @@ export function renderConquestMissions(
  * @param frameVariables  string[] of variable tags (e.g. "ShieldDelay")
  * @param osdict          The OS dictionary
  */
-export function renderConquestFrameVariables(
-	frameVariables: string[],
-	osdict: Record<string, string>,
-): HTMLTableRowElement {
+export async function renderConquestFrameVariables(frameVariables: string[]): Promise<HTMLTableRowElement> {
+	const osdict = await getOSDictPromise();
 	const tr = document.createElement('tr');
 	for (const fv of frameVariables) {
 		const td = document.createElement('td');

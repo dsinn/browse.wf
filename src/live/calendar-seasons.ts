@@ -10,7 +10,6 @@
 import {fetchExport} from '../public-export-fetcher.js';
 import {renderCalendarSeasonPane} from '../calendar-seasons.js';
 
-declare function getDictPromise(): Promise<Record<string, string>>;
 declare function createExpiryBadge(expiryMs: number): Node;
 declare function createCompletionToggle(oid: string): Node;
 
@@ -38,18 +37,8 @@ export async function updateCalendarSeason(): Promise<void> {
 		return;
 	}
 
-	const [dict, exportResources, exportBundles, exportBoosterPacks, exportBoosters, exportImages] = await Promise.all([
-		getDictPromise(),
-		fetchExport('ExportResources'),
-		fetchExport('ExportBundles'),
-		fetchExport('ExportBoosterPacks'),
-		fetchExport('ExportBoosters'),
-		fetchExport('ExportImages'),
-	]);
-
-	// Required for common.js' setImageSource
-	(globalThis as any).ExportImages = exportImages;
-	const exportChallenges = (globalThis as any).ExportChallenges ?? {};
+	// Required for common.js' setImageSource, must be set before renderCalendarSeasonPane runs
+	(globalThis as any).ExportImages = await fetchExport('ExportImages');
 
 	// Inject expiry badge into header
 	const expirySpan = document.querySelector('#calendar-season-expiry');
@@ -69,7 +58,7 @@ export async function updateCalendarSeason(): Promise<void> {
 	const body = document.querySelector('#calendar-season-body');
 	if (body) {
 		body.innerHTML = '';
-		body.append(await renderCalendarSeasonPane(activeSeason, dict, exportChallenges, exportResources, exportBundles, exportBoosterPacks, exportBoosters));
+		body.append(await renderCalendarSeasonPane(activeSeason));
 	}
 }
 

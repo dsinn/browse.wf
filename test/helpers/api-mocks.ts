@@ -30,7 +30,8 @@ export function loadExportJson(filename: string): any {
 }
 
 /**
- * Sets up mock fetch responses for all oracle.browse.wf endpoints
+ * Sets up mock fetch responses for oracle.browse.wf endpoints and installs a
+ * fetchExport global shim that loads warframe-public-export-plus files directly from disk.
  */
 export function setupMockFetch() {
 	const mocks = {
@@ -44,6 +45,11 @@ export function setupMockFetch() {
 
 	// Clear the fetchExport cache so tests get a fresh fetch each time
 	exportCache.clear();
+
+	// Shim fetchExport, getDictPromise, and getOSDictPromise to load directly from disk
+	(globalThis as any).fetchExport = async (name: string) => loadExportJson(`${name}.json`);
+	(globalThis as any).getDictPromise = async () => loadExportJson('dict.en.json');
+	(globalThis as any).getOSDictPromise = async () => loadMock('dicts/en.json');
 
 	globalThis.fetch = vi.fn(async (url: string) => {
 		const urlString = url.toString();

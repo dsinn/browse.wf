@@ -14,15 +14,7 @@
 
 import {createRequire} from 'node:module';
 import process from 'node:process';
-import {
-	dict_en as dictEn,
-	ExportMissionTypes,
-	ExportChallenges,
-	ExportResources,
-	ExportBundles,
-	ExportBoosterPacks,
-	ExportBoosters,
-} from 'warframe-public-export-plus';
+import {dict_en as dictEn} from 'warframe-public-export-plus';
 import {resolveCalendarSeasonDays, getSeasonLabel} from '../typestripped/src/calendar-seasons-data.js';
 import {resolveDescentChallenges} from '../typestripped/src/descendia-data.js';
 // eslint-disable-next-line import-x/order
@@ -98,14 +90,14 @@ function toTitleCase(s) {
 
 // Conquest (Deep / Temporal Archimedea)
 
-export function formatConquest(worldState, conquestType, variantKeyPrefix, sectionTitle, find = findWeekly, showTimestamp = false) {
+export async function formatConquest(worldState, conquestType, variantKeyPrefix, sectionTitle, find = findWeekly, showTimestamp = false) {
 	const conquests = (worldState.Conquests ?? []).filter(c => c.Type === conquestType);
 	const next = find(conquests);
 	if (!next) {
 		return null;
 	}
 
-	const {missions, frameVariables} = resolveConquest(next, conquestType, variantKeyPrefix, ExportMissionTypes, osdict, dictEn);
+	const {missions, frameVariables} = await resolveConquest(next, conquestType, variantKeyPrefix, osdict, dictEn);
 
 	const heading = showTimestamp
 		? `## ${sectionTitle} ${discordTimestamp(mongoMs(next.Activation))}`
@@ -135,7 +127,7 @@ export function formatConquest(worldState, conquestType, variantKeyPrefix, secti
 	return lines.join('\n');
 }
 
-export function formatDescendia(worldState, find = findWeekly, showTimestamp = false) {
+export async function formatDescendia(worldState, find = findWeekly, showTimestamp = false) {
 	const next = find(worldState.Descents ?? []);
 	if (!next) {
 		return null;
@@ -165,7 +157,7 @@ export function formatDescendia(worldState, find = findWeekly, showTimestamp = f
 	return lines.join('\n');
 }
 
-export function formatCalendarSeason(worldState, find = findWeekly, showTimestamp = false) {
+export async function formatCalendarSeason(worldState, find = findWeekly, showTimestamp = false) {
 	const next = find(worldState.KnownCalendarSeasons ?? []);
 	if (!next) {
 		return null;
@@ -177,7 +169,7 @@ export function formatCalendarSeason(worldState, find = findWeekly, showTimestam
 		: `## 1999 Calendar: ${seasonLabel}`;
 	const lines = [heading];
 
-	for (const dayData of resolveCalendarSeasonDays(next, dictEn, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters)) {
+	for (const dayData of await resolveCalendarSeasonDays(next, dictEn)) {
 		// Group consecutive events by (type, dateStr) — rewards and upgrades on the same day merge into one line
 		let groupEmoji = null;
 		let groupDate = null;
@@ -287,19 +279,23 @@ function resolveEntries(worldState, force) {
 	return entries;
 }
 
-function buildSections(worldState, entries, showTimestamp) {
+async function buildSections(worldState, entries, showTimestamp) {
 	const findResolved = sectionKey => _items => entries[sectionKey];
 
-	const descendia = entries.Descendia ? formatDescendia(worldState, findResolved('Descendia'), showTimestamp) : null;
-	const calendar = entries['1999 Calendar']
-		? formatCalendarSeason(worldState, findResolved('1999 Calendar'), showTimestamp)
-		: null;
-	const deepArchimedea = entries['Deep Archimedea']
-		? formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', findResolved('Deep Archimedea'), showTimestamp)
-		: null;
-	const temporalArchimedea = entries['Temporal Archimedea']
-		? formatConquest(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea', findResolved('Temporal Archimedea'), showTimestamp)
-		: null;
+	const [descendia, calendar, deepArchimedea, temporalArchimedea] = await Promise.all([
+		entries.Descendia
+			? formatDescendia(worldState, findResolved('Descendia'), showTimestamp)
+			: null,
+		entries['1999 Calendar']
+			? formatCalendarSeason(worldState, findResolved('1999 Calendar'), showTimestamp)
+			: null,
+		entries['Deep Archimedea']
+			? formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', findResolved('Deep Archimedea'), showTimestamp)
+			: null,
+		entries['Temporal Archimedea']
+			? formatConquest(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea', findResolved('Temporal Archimedea'), showTimestamp)
+			: null,
+	]);
 
 	// Try to combine both Archimedeas into one message; split if too long
 	const archimedeas = [deepArchimedea, temporalArchimedea].filter(Boolean);

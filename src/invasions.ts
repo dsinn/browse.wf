@@ -95,13 +95,10 @@ function buildToggleCell(invasion: InvasionData, isDuplicate: boolean, nodeLabel
 	return td;
 }
 
-async function buildInvasionHeading(invasion: InvasionData, node: any, nodeLabel: string, percentage: number, exportImagesPromise: Promise<Record<string, any>>): Promise<HTMLTableCellElement> {
+function buildInvasionHeading(invasion: InvasionData, node: any, nodeLabel: string, percentage: number): HTMLTableCellElement {
 	const th = document.createElement('th');
 	th.textContent = nodeLabel;
 	if (node.missionType === 'MT_ASSASSINATION') {
-		// Lazy-await: most invasions don't need ExportImages, so we defer until first assassination node.
-		// The promise is already in-flight; subsequent awaits in the same loop resolve instantly.
-		await exportImagesPromise;
 		const img = document.createElement('img');
 		img.className = 'invasion-boss-icon ms-1';
 		(globalThis as any).setImageSource(img, '/Lotus/Interface/Icons/Sigils/Phorid.png');
@@ -128,11 +125,10 @@ type InvasionRowContext = {
 	defenderItem: {ItemType: string; ItemCount: number} | undefined;
 	attackerVisible: boolean;
 	defenderVisible: boolean;
-	exportImagesPromise: Promise<Record<string, any>>;
 };
 
 async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowElement[]> {
-	const {invasion, percentage, isDuplicate, node, nodeLabel, attackerItem, defenderItem, attackerVisible, defenderVisible, exportImagesPromise} = ctx;
+	const {invasion, percentage, isDuplicate, node, nodeLabel, attackerItem, defenderItem, attackerVisible, defenderVisible} = ctx;
 	const rows: HTMLTableRowElement[] = [];
 
 	// Both hidden → render a hidden placeholder row for pruneStaleOids
@@ -161,7 +157,7 @@ async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowE
 		}
 
 		// Th: node name + special mission icon + progress bar
-		tr.append(await buildInvasionHeading(invasion, node, nodeLabel, percentage, exportImagesPromise));
+		tr.append(buildInvasionHeading(invasion, node, nodeLabel, percentage));
 		tr.append(buildPercentageCell(percentage));
 		tr.append(await buildRewardCell(row1Item));
 		tr.append(buildToggleCell(invasion, isDuplicate, nodeLabel));
@@ -195,19 +191,17 @@ async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowE
 	return rows;
 }
 
-export async function updateInvasions(
-	dictsPromise: Promise<any[]>,
-	exportRegionsPromise: Promise<Record<string, any>>,
-	exportImagesPromise: Promise<Record<string, any>>,
-): Promise<void> {
+export async function updateInvasions(): Promise<void> {
 	if (!globalThis.worldState?.Invasions) {
 		return;
 	}
 
-	const [[dict], ExportRegions] = await Promise.all([
-		dictsPromise,
-		exportRegionsPromise,
+	const [[dict], ExportRegions, exportImages] = await Promise.all([
+		Promise.all([(globalThis as any).getDictPromise(), (globalThis as any).getOSDictPromise()]),
+		(globalThis as any).fetchExport('ExportRegions'),
+		(globalThis as any).fetchExport('ExportImages'),
 	]);
+	(globalThis as any).ExportImages = exportImages;
 
 	// Build duplicate-detection map: node → earliest activation time
 	const nodeFirstActivation = new Map<string, number>();
@@ -254,7 +248,7 @@ export async function updateInvasions(
 		// eslint-disable-next-line no-await-in-loop
 		const rows = await buildInvasionRows({
 			invasion, percentage, isDuplicate, node, nodeLabel,
-			attackerItem, defenderItem, attackerVisible, defenderVisible, exportImagesPromise,
+			attackerItem, defenderItem, attackerVisible, defenderVisible,
 		});
 		tbody.append(...rows);
 	}

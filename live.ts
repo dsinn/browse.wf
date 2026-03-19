@@ -48,7 +48,7 @@ declare function updateCalendarSeason(): Promise<void>;
 declare function updateDescendia(): void;
 
 // invasions.ts
-declare function updateInvasions(dictsPromise: Promise<any[]>, exportRegionsPromise: Promise<Record<string, any>>, exportImagesPromise: Promise<Record<string, any>>): Promise<void>;
+declare function updateInvasions(): Promise<void>;
 
 // card-filters.ts
 declare function isFilterEnabled(cardName: string, filterType: string): boolean;
@@ -935,7 +935,7 @@ function updateWorldStateLocalised()
 	updateAlerts();
 	updateGoals();
 	updateFissures();
-	updateInvasions(dicts_promise, ExportRegions_promise, ExportImages_promise);
+	updateInvasions();
 }
 
 function fetchWorldState(): Promise<void>
@@ -1940,7 +1940,7 @@ initializeCardFilters('fissures', () => updateFissures(true));
 initializeCardFilters('sp-fissures', () => updateFissures(true));
 initializeCardFilters('rj-fissures', () => updateFissures(true));
 initializeCardFilters('weekly-missions', () => updateCircuitLocalised());
-initializeCardFilters('invasions', () => { void updateInvasions(dicts_promise, ExportRegions_promise, ExportImages_promise); });
+initializeCardFilters('invasions', () => { void updateInvasions(); });
 
 initializeMarkAsRead();
 initializeBountyFiltersAll();

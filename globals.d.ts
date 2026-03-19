@@ -136,7 +136,6 @@ declare global {
 
 	// Src/calendar-seasons-data.ts
 	var SEASON_LABELS: Record<string, string> | undefined;
-	var buildItemMaps: ((challenges: Record<string, any>, ...rest: any[]) => any) | undefined;
 	var camelToWords: ((s: string) => string) | undefined;
 	var formatSeasonDay: ((day: number) => string) | undefined;
 	var getSeasonLabel: ((season: string) => string) | undefined;

@@ -10,18 +10,12 @@ import {loadMock, loadExportJson} from '../helpers/api-mocks';
 import {renderCalendarSeasonPane} from '../../src/calendar-seasons';
 import {getSeasonLabel} from '../../src/calendar-seasons-data';
 import {updateCalendarSeason} from '../../src/live/calendar-seasons';
-// Load real export data from warframe-public-export-plus (at module level)
+
 const worldState = loadMock('worldState.json');
-const dict = loadExportJson('dict.en.json');
 const ExportChallenges = loadExportJson('ExportChallenges.json');
 const ExportImages = loadExportJson('ExportImages.json');
-const ExportResources = loadExportJson('ExportResources.json');
-const ExportBundles = loadExportJson('ExportBundles.json');
-const ExportBoosterPacks = loadExportJson('ExportBoosterPacks.json');
-const ExportBoosters = loadExportJson('ExportBoosters.json');
 
 beforeEach(() => {
-	// Set up globals needed by calendar-seasons.js
 	(globalThis as any).ExportImages = ExportImages;
 
 	// Minimal stub for setImageSource (defined in common.js but not on window)
@@ -34,16 +28,13 @@ beforeEach(() => {
 describe('renderCalendarSeasonPane', () => {
 	const season = worldState.KnownCalendarSeasons[0]; // CST_FALL
 
-	// Helper to call renderCalendarSeasonPane with default real export data
-	const renderPane = async (s: any) => renderCalendarSeasonPane(s, dict, ExportChallenges, ExportResources, ExportBundles, ExportBoosterPacks, ExportBoosters);
+	const renderPane = async (s: any) => renderCalendarSeasonPane(s);
 
 	// Helpers to navigate the DOM structure semantically (without relying on CSS classes)
 	const getFirstDayRow = (pane: HTMLDivElement) => pane.children[0] as HTMLElement;
 	const getEventsColumn = (row: HTMLElement) => row.children[1] as HTMLElement;
 
-	// Mock getDictPromise globally
 	beforeEach(() => {
-		(globalThis as any).getDictPromise = async () => dict;
 		(globalThis as any).ExportChallenges = ExportChallenges;
 	});
 
@@ -202,16 +193,8 @@ describe('renderCalendarSeasonPane', () => {
 			expect(span?.textContent).toContain('Enemies');
 		});
 
-		test('falls back to camelToWords(path tail) + count when desc is missing from dict but count exists', async () => {
+		test('resolves challenge with description and count from ExportChallenges', async () => {
 			const testChallenge = '/Lotus/Types/Challenges/Calendar1999/CalendarKillEnemiesEasy';
-
-			// Add to ExportChallenges but with a desc key that doesn't exist in dict
-			ExportChallenges[testChallenge] = {
-				icon: '/Lotus/Interface/Icons/Challenges/TestIcon.png',
-				description: '/Lotus/Language/Challenges/NonExistentKey',
-				requiredCount: 250,
-			};
-
 			const testSeason = {
 				...season,
 				Days: [{day: 1, events: [{type: 'CET_CHALLENGE', challenge: testChallenge}]}],
@@ -220,9 +203,7 @@ describe('renderCalendarSeasonPane', () => {
 			const pane = await renderPane(testSeason);
 			const span = getEventsColumn(getFirstDayRow(pane)).querySelector('span');
 
-			// Should fall back to camelToWords("CalendarKillEnemiesEasy") + "×250"
-			expect(span?.textContent).toContain('Calendar Kill Enemies Easy');
-			expect(span?.textContent).toContain('\u00D7250');
+			expect(span?.textContent).toContain('Kill 250 Enemies');
 		});
 
 		test('does NOT render challengeData.name', async () => {
@@ -368,7 +349,6 @@ describe('updateCalendarSeason', () => {
 	const activeSeasonExpiry = Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10);
 
 	beforeEach(() => {
-		(globalThis as any).getDictPromise = async () => dict;
 		(globalThis as any).ExportChallenges = ExportChallenges;
 		(globalThis as any).worldState = worldState;
 		(globalThis as any).createCompletionToggle = vi.fn(() => document.createTextNode(''));
@@ -376,7 +356,6 @@ describe('updateCalendarSeason', () => {
 	});
 
 	afterEach(() => {
-		delete (globalThis as any).getDictPromise;
 		delete (globalThis as any).ExportChallenges;
 		delete (globalThis as any).worldState;
 		delete (globalThis as any).createCompletionToggle;

@@ -827,9 +827,22 @@ function renderProfile(): void
 						text.textContent = "Standing: " + (standing - minStanding).toLocaleString();
 						if (minStanding != 0)
 						{
+							text.textContent += `\u00a0/ ${(title.maxStanding - title.minStanding).toLocaleString()}`
 							text.textContent += " (" + standing.toLocaleString() + " in total)";
 						}
+						else if (tag == "LibrarySyndicate")
+						{
+							text.textContent += `\u00a0/ ${(125_000).toLocaleString()}`;
+						}
 						body.appendChild(text);
+						if (title)
+						{
+							(window as any).appendSyndicateProgressBar(body, tag, standing, level, title);
+						}
+						else if (tag == "LibrarySyndicate")
+						{
+							(window as any).appendSyndicateProgressBar(body, tag, standing, level, { minStanding: 0, maxStanding: 125_000 });
+						}
 					}
 					row.appendChild(body);
 				}

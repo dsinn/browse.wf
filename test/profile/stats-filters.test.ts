@@ -5,7 +5,7 @@ import {loadCommonJsFunctions, mockBootstrapTooltip} from '../helpers/dom-helper
 import {loadExportJson} from '../helpers/api-mocks';
 import {
 	EQUIPMENT_CATEGORIES, ENEMY_FACTIONS, getEquipmentCategoryLabel, getEnemyFactionLabel, initStatsFilterBar,
-} from '../../src/profile-stats-filters';
+} from '../../src/profile/stats-filters';
 
 const ExportImages = loadExportJson('ExportImages.json');
 

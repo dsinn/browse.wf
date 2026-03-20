@@ -5,7 +5,7 @@
  * the same CDN lookup as setImageSource() in common.js.
  */
 
-import {addTooltip} from './tooltip.js';
+import {addTooltip} from '../tooltip.js';
 
 /** Maps productCategory values (from ExportWeapons/ExportWarframes/ExportSentinels) to display metadata. */
 export const EQUIPMENT_CATEGORIES: Record<string, {label: string; icon: string}> = {

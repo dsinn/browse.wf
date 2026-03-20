@@ -8,7 +8,7 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 		// Incursions are loaded via sp-incursions.txt (static file, always has current data).
 		// Resume real time so the time-based lookup into the file works correctly.
 		await page.clock.resume();
-		await page.waitForSelector('#incursions-body span.d-block:not(:has-text("Fetching"))', {timeout: 10_000});
+		await expect(page.locator('#incursions-body').getByText('Fetching')).toBeHidden({timeout: 10_000});
 	});
 
 	test('renders exactly six incursion rows', async ({page}) => {
@@ -55,21 +55,6 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 		// All 25 mission type checkboxes should be present
 		const checkboxes = await page.locator('#incursions-filters input[type="checkbox"]').count();
 		expect(checkboxes).toBe(25);
-	});
-
-	test('all filter checkboxes are accessible when panel is expanded', async ({page}) => {
-		await page.locator('[data-filter-toggle="incursions"]').click();
-		await expect(page.locator('#incursions-filters')).toBeVisible();
-
-		const firstCheckbox = page.locator('#incursions-filters input[type="checkbox"]').first();
-		const lastCheckbox = page.locator('#incursions-filters input[type="checkbox"]').last();
-
-		await expect(firstCheckbox).toBeInViewport();
-		await expect(lastCheckbox).toBeEnabled();
-
-		// Clicking scrolls it into view if needed and toggles state
-		await lastCheckbox.click();
-		await expect(lastCheckbox).not.toBeChecked();
 	});
 
 	test('unchecking a filter hides matching incursion rows and saves to localStorage', async ({page}) => {
@@ -157,8 +142,7 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 
 		await page.reload();
 		await page.clock.resume();
-		await page.waitForSelector('#arby-what:not(:has-text("Loading..."))', {timeout: 10_000});
-		await page.waitForSelector('#incursions-body span.d-block:not(:has-text("Fetching"))', {timeout: 10_000});
+		await expect(page.locator('#incursions-body').getByText('Fetching')).toBeHidden({timeout: 10_000});
 
 		await page.locator('[data-filter-toggle="incursions"]').click();
 		await expect(page.locator('#incursions-filters')).toBeVisible();

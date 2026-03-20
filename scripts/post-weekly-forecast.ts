@@ -12,23 +12,21 @@
  *   WARFRAME_API_FRONT_PROXY_TOKEN     — auth token for the proxy
  */
 
-import {createRequire} from 'node:module';
 import process from 'node:process';
 import {dict_en as dictEn} from 'warframe-public-export-plus';
-import {resolveCalendarSeasonDays, getSeasonLabel} from '../typestripped/src/calendar-seasons-data.js';
-import {resolveDescentChallenges} from '../typestripped/src/descendia-data.js';
-// eslint-disable-next-line import-x/order
-import {resolveConquest} from '../typestripped/src/archimedea-data.js';
+import {resolveCalendarSeasonDays, getSeasonLabel} from '../src/calendar-seasons-data.js';
+import {resolveDescentChallenges} from '../src/descendia-data.js';
+import {resolveConquest} from '../src/archimedea-data.js';
+import osdict from '../test/__mocks__/dicts/en.json' with {type: 'json'};
 
-const require = createRequire(import.meta.url);
-const osdict = require('../test/__mocks__/dicts/en.json');
+type AnyRecord = Record<string, any>;
 
 const PROXY_BASE_URL
 	= process.env.WARFRAME_API_FRONT_PROXY_BASE_URL
 		|| 'https://warframe-api-front-proxy.dsinn69.workers.dev';
 const PROXY_TOKEN = process.env.WARFRAME_API_FRONT_PROXY_TOKEN || '';
 
-async function fetchJson(url, options = {}) {
+async function fetchJson(url: string, options: RequestInit = {}) {
 	const response = await fetch(url, options);
 	if (!response.ok) {
 		throw new Error(`HTTP ${response.status} for ${url}`);
@@ -38,7 +36,7 @@ async function fetchJson(url, options = {}) {
 }
 
 async function fetchWorldState() {
-	const headers = {
+	const headers: Record<string, string> = {
 		Origin: 'http://localhost',
 	};
 	if (PROXY_TOKEN) {
@@ -48,25 +46,25 @@ async function fetchWorldState() {
 	return fetchJson(`${PROXY_BASE_URL}/worldState`, {headers});
 }
 
-function mongoMs(d) {
+function mongoMs(d: AnyRecord) {
 	return Number.parseInt(d.$date.$numberLong, 10);
 }
 
 const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 // Returns the entry whose Activation is in the future and within one week, or null.
-function findWeekly(items) {
+function findWeekly(items: AnyRecord[]) {
 	const now = Date.now();
 	return items.find(x => {
 		const ms = mongoMs(x.Activation);
 		return ms > now && ms <= now + ONE_WEEK_MS;
-	}) ?? null;
+	});
 }
 
 // Returns the entry with Activation closest to now (used as --force fallback).
-function findClosest(items) {
+function findClosest(items: AnyRecord[]) {
 	if (items.length === 0) {
-		return null;
+		return undefined;
 	}
 
 	const now = Date.now();
@@ -80,18 +78,18 @@ function findClosest(items) {
 	return best;
 }
 
-function discordTimestamp(ms) {
+function discordTimestamp(ms: number) {
 	return `<t:${Math.floor(ms / 1000)}:D>`;
 }
 
-function toTitleCase(s) {
-	return s.replaceAll(/\w+/gu, w => w[0].toUpperCase() + w.slice(1).toLowerCase());
+function toTitleCase(s: string) {
+	return s.replaceAll(/\w+/gu, (w: string) => w[0].toUpperCase() + w.slice(1).toLowerCase());
 }
 
 // Conquest (Deep / Temporal Archimedea)
 
-export async function formatConquest(worldState, conquestType, variantKeyPrefix, sectionTitle, find = findWeekly, showTimestamp = false) {
-	const conquests = (worldState.Conquests ?? []).filter(c => c.Type === conquestType);
+export async function formatConquest(worldState: AnyRecord, conquestType: string, variantKeyPrefix: string, sectionTitle: string, find = findWeekly, showTimestamp = false) {
+	const conquests = (worldState.Conquests ?? []).filter((c: AnyRecord) => c.Type === conquestType);
 	const next = find(conquests);
 	if (!next) {
 		return null;
@@ -127,7 +125,7 @@ export async function formatConquest(worldState, conquestType, variantKeyPrefix,
 	return lines.join('\n');
 }
 
-export async function formatDescendia(worldState, find = findWeekly, showTimestamp = false) {
+export async function formatDescendia(worldState: AnyRecord, find = findWeekly, showTimestamp = false) {
 	const next = find(worldState.Descents ?? []);
 	if (!next) {
 		return null;
@@ -138,7 +136,7 @@ export async function formatDescendia(worldState, find = findWeekly, showTimesta
 		: '## Descendia';
 	const lines = [heading];
 
-	for (const row of resolveDescentChallenges(next, dictEn)) {
+	for (const row of resolveDescentChallenges(next as any, dictEn)) {
 		const arena = row.arenaEmoji ?? row.arenaFallback;
 		const parts = [row.challenge];
 		if (row.specs.length > 0) {
@@ -157,7 +155,7 @@ export async function formatDescendia(worldState, find = findWeekly, showTimesta
 	return lines.join('\n');
 }
 
-export async function formatCalendarSeason(worldState, find = findWeekly, showTimestamp = false) {
+export async function formatCalendarSeason(worldState: AnyRecord, find = findWeekly, showTimestamp = false) {
 	const next = find(worldState.KnownCalendarSeasons ?? []);
 	if (!next) {
 		return null;
@@ -171,10 +169,10 @@ export async function formatCalendarSeason(worldState, find = findWeekly, showTi
 
 	for (const dayData of await resolveCalendarSeasonDays(next, dictEn)) {
 		// Group consecutive events by (type, dateStr) — rewards and upgrades on the same day merge into one line
-		let groupEmoji = null;
-		let groupDate = null;
-		let groupType = null;
-		let groupTexts = [];
+		let groupEmoji: string | undefined;
+		let groupDate: string | undefined;
+		let groupType: string | undefined;
+		let groupTexts: string[] = [];
 		const flushGroup = () => {
 			if (groupTexts.length > 0) {
 				lines.push(`${groupEmoji} **${groupDate}** ${groupTexts.join(' · ')}`);
@@ -200,7 +198,7 @@ export async function formatCalendarSeason(worldState, find = findWeekly, showTi
 	return lines.join('\n');
 }
 
-async function postToDiscord(content, webhookUrl) {
+async function postToDiscord(content: string, webhookUrl: string) {
 	const response = await fetch(webhookUrl, {
 		method: 'POST',
 		headers: {'Content-Type': 'application/json'},
@@ -215,7 +213,7 @@ async function postToDiscord(content, webhookUrl) {
 // Produces an array of Discord messages. The first section is included in the
 // first message; remaining sections each get their own message (already split
 // by the caller). Each message is further line-split if it exceeds 2000 chars.
-export function chunkMessage(first, rest, limit = 2000) {
+export function chunkMessage(first: string, rest: string[], limit = 2000) {
 	const messages = [first, ...rest];
 	const chunks = [];
 	for (const message of messages) {
@@ -246,15 +244,15 @@ export function chunkMessage(first, rest, limit = 2000) {
 	return chunks;
 }
 
-function resolveEntries(worldState, force) {
-	const entries = {
+function resolveEntries(worldState: AnyRecord, force: boolean) {
+	const entries: Record<string, AnyRecord | undefined> = {
 		Descendia: findWeekly(worldState.Descents ?? []),
 		'1999 Calendar': findWeekly(worldState.KnownCalendarSeasons ?? []),
-		'Deep Archimedea': findWeekly((worldState.Conquests ?? []).filter(c => c.Type === 'CT_LAB')),
-		'Temporal Archimedea': findWeekly((worldState.Conquests ?? []).filter(c => c.Type === 'CT_HEX')),
+		'Deep Archimedea': findWeekly((worldState.Conquests ?? []).filter((c: AnyRecord) => c.Type === 'CT_LAB')),
+		'Temporal Archimedea': findWeekly((worldState.Conquests ?? []).filter((c: AnyRecord) => c.Type === 'CT_HEX')),
 	};
 
-	const missing = Object.keys(entries).filter(k => entries[k] === null);
+	const missing = Object.keys(entries).filter(k => entries[k] === undefined);
 	if (missing.length > 0) {
 		const message = `No upcoming entry (within one week) found for: ${missing.join(', ')}`;
 		if (!force) {
@@ -265,11 +263,11 @@ function resolveEntries(worldState, force) {
 		}
 
 		console.warn(`Warning: ${message}`);
-		const fallbackItems = {
+		const fallbackItems: Record<string, AnyRecord[]> = {
 			Descendia: worldState.Descents ?? [],
 			'1999 Calendar': worldState.KnownCalendarSeasons ?? [],
-			'Deep Archimedea': (worldState.Conquests ?? []).filter(c => c.Type === 'CT_LAB'),
-			'Temporal Archimedea': (worldState.Conquests ?? []).filter(c => c.Type === 'CT_HEX'),
+			'Deep Archimedea': (worldState.Conquests ?? []).filter((c: AnyRecord) => c.Type === 'CT_LAB'),
+			'Temporal Archimedea': (worldState.Conquests ?? []).filter((c: AnyRecord) => c.Type === 'CT_HEX'),
 		};
 		for (const key of missing) {
 			entries[key] = findClosest(fallbackItems[key]);
@@ -279,8 +277,8 @@ function resolveEntries(worldState, force) {
 	return entries;
 }
 
-async function buildSections(worldState, entries, showTimestamp) {
-	const findResolved = sectionKey => _items => entries[sectionKey];
+async function buildSections(worldState: AnyRecord, entries: Record<string, AnyRecord | undefined>, showTimestamp: boolean) {
+	const findResolved = (sectionKey: string) => (_items: AnyRecord[]) => entries[sectionKey];
 
 	const [descendia, calendar, deepArchimedea, temporalArchimedea] = await Promise.all([
 		entries.Descendia
@@ -334,12 +332,12 @@ export async function main() {
 
 	// If all found entries share the same activation, show the timestamp once at the top.
 	// Otherwise each section heading carries its own timestamp.
-	const foundActivations = Object.values(entries).filter(Boolean).map(x => mongoMs(x.Activation));
+	const foundActivations = Object.values(entries).filter(Boolean).map(x => mongoMs(x!.Activation));
 	const allSame = foundActivations.length > 0 && foundActivations.every(ms => ms === foundActivations[0]);
 	const showTimestamp = !allSame;
 	const headerTs = allSame ? foundActivations[0] : null;
 
-	const sections = buildSections(worldState, entries, showTimestamp);
+	const sections = await buildSections(worldState, entries, showTimestamp);
 
 	if (sections.length === 0) {
 		console.log('No forecast data available. Nothing posted.');
@@ -349,7 +347,7 @@ export async function main() {
 	const header = headerTs
 		? `# Weekly Forecast ${discordTimestamp(headerTs)}\n\n`
 		: '# Weekly Forecast\n\n';
-	const chunks = chunkMessage(header + sections[0], sections.slice(1));
+	const chunks = chunkMessage(header + sections[0]!, sections.slice(1) as string[]);
 
 	if (dryRun) {
 		for (const [i, chunk] of chunks.entries()) {
@@ -366,7 +364,7 @@ export async function main() {
 	console.log(`Posting ${chunks.length} message(s) to Discord...`);
 	for (const chunk of chunks) {
 		// eslint-disable-next-line no-await-in-loop
-		await postToDiscord(chunk, process.env.WEEKLY_FORECAST_DISCORD_WEBHOOK_URL);
+		await postToDiscord(chunk, process.env.WEEKLY_FORECAST_DISCORD_WEBHOOK_URL!);
 	}
 
 	console.log('Done.');
@@ -375,7 +373,7 @@ export async function main() {
 // Only run when executed directly (not when imported by tests)
 if (process.argv[1] === new URL(import.meta.url).pathname) {
 	// eslint-disable-next-line unicorn/prefer-top-level-await
-	main().catch(error => {
+	main().catch((error: unknown) => {
 		console.error(error);
 		// eslint-disable-next-line unicorn/no-process-exit
 		process.exit(1);

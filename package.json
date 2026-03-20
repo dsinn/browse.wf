@@ -16,7 +16,7 @@
     "typecheck": "tsc && tsc -p tsconfig.lint.json",
     "compile": "npm run typecheck && node esbuild.config.js",
     "build": "node build-gh-pages.js",
-    "post-weekly-forecast": "node --env-file-if-exists=.env scripts/post-weekly-forecast.js"
+    "post-weekly-forecast": "tsc && node --env-file-if-exists=.env typestripped/scripts/post-weekly-forecast.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

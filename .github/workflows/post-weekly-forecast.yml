@@ -26,7 +26,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npx tsc
       - name: Post weekly forecast to Discord
         run: npm run post-weekly-forecast -- ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.force && '--force' || '' }}
         env:

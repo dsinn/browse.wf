@@ -140,7 +140,7 @@ export default defineConfig({
 		exclude: ['**/dist/**', '**/e2e/**', '**/node_modules/**', '**/typestripped/**'],
 		coverage: {
 			provider: 'v8',
-			reporter: ['text', 'json-summary'],
+			reporter: ['text', 'json-summary', 'json'],
 			include: ['src/**/*.ts'],
 			exclude: ['**/*.d.ts'],
 		},

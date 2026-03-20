@@ -393,7 +393,14 @@ function updateBountyCycleLocalised()
 			}
 			if (window.bountyCycle.bounties[syndicateTag][i].ally)
 			{
-				rows[i].querySelector(".ally").textContent = allyNames[window.bountyCycle.bounties[syndicateTag][i].ally];
+				const allyName = allyNames[window.bountyCycle.bounties[syndicateTag][i].ally];
+				const allyCell = rows[i].querySelector(".ally");
+				const allyImg = document.createElement("img");
+				allyImg.className = "ally-icon";
+				setImageSource(allyImg, `/Lotus/Interface/Icons/Player/${allyName}PixelGlyph.png`);
+				addTooltip(allyImg, allyName);
+				allyCell.innerHTML = "";
+				allyCell.appendChild(allyImg);
 			}
 			const challenge = ExportChallenges[window.bountyCycle.bounties[syndicateTag][i].challenge];
 			const span = document.createElement("span");
@@ -434,6 +441,7 @@ function updateBountyCycle()
 		await dicts_promise;
 		await ExportRegions_promise;
 		await ExportChallenges_promise;
+		await ExportImages_promise;
 		document.getElementById("bounty-rot").textContent = bountyCycle.rot;
 		document.getElementById("vault-rot").textContent = bountyCycle.vaultRot;
 		updateBountyCycleLocalised();

@@ -26,6 +26,7 @@
 		.notif-bell-disabled {
 			filter: grayscale(100%);
 		}
+		.ally-icon { height: 1lh; width: auto; }
 	</style>
 </head>
 <body data-bs-theme="dark">

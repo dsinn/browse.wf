@@ -138,5 +138,11 @@ export default defineConfig({
 		globalSetup: ['./test/global-setup.ts'],
 		include: ['test/**/*.{test,spec}.{ts,tsx}'],
 		exclude: ['**/dist/**', '**/e2e/**', '**/node_modules/**', '**/typestripped/**'],
+		coverage: {
+			provider: 'v8',
+			reporter: ['text', 'json-summary'],
+			include: ['src/**/*.ts'],
+			exclude: ['**/*.d.ts'],
+		},
 	},
 });

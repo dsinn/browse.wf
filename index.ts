@@ -80,11 +80,11 @@ if (params.has("q"))
 {
 	if (this.value == "")
 	{
-		history.replaceState({}, undefined, "/");
+		history.replaceState({}, undefined, ".");
 	}
 	else
 	{
-		history.replaceState({}, undefined, "/#q=" + encodeURIComponent(this.value));
+		history.replaceState({}, undefined, ".#q=" + encodeURIComponent(this.value));
 	}
 	document.getElementById("results-status").textContent = "Sorry, data is still downloading. Your query will be processed ASAP.";
 };
@@ -204,13 +204,13 @@ Promise.all([
 	{
 		if (this.value == "")
 		{
-			history.replaceState({}, undefined, "/");
+			history.replaceState({}, undefined, ".");
 			document.getElementById("results-status").textContent = "It's like a search engine, but for space ninjas.";
 			document.getElementById("results").innerHTML = "";
 		}
 		else
 		{
-			history.replaceState({}, undefined, "/#q=" + encodeURIComponent(this.value));
+			history.replaceState({}, undefined, ".#q=" + encodeURIComponent(this.value));
 			doQuery(this.value);
 		}
 	};

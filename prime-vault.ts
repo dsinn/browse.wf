@@ -153,7 +153,7 @@ function updateList()
 		{
 			const a = document.createElement("a");
 			a.textContent = "(browse.wf)";
-			a.href = "/#q=" + encodeURIComponent(item.key);
+			a.href = ".#q=" + encodeURIComponent(item.key);
 			a.target = "_blank";
 			li.appendChild(a);
 		}

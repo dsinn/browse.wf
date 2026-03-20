@@ -109,7 +109,7 @@
 			.forEach(([uniqueName, item]) =>
 			{
 				const glyph = document.createElement("a");
-				glyph.href = "/#q=" + encodeURIComponent(uniqueName);
+				glyph.href = ".#q=" + encodeURIComponent(uniqueName);
 				glyph.target = "_blank";
 				glyph.className = "glyph";
 				{

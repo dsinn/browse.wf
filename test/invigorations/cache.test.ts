@@ -1,9 +1,10 @@
 import {
-	describe, test, expect, beforeEach, vi,
+	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {
 	getWeekIndex, loadCache, saveToCache, preFillForm, showResults, showHistory,
 } from '../../src/invigorations';
+import {registerSyncHandler} from '../../src/cloud-sync/trigger';
 import {
 	ENTRY_MAG_VOLT_EXCALIBUR,
 	ENTRY_RHINO_FROST_LOKI_PEEK,
@@ -110,6 +111,10 @@ describe('saveToCache()', () => {
 		localStorage.clear();
 	});
 
+	afterEach(() => {
+		registerSyncHandler(vi.fn<() => void>());
+	});
+
 	test('peek=false saves at currentWeek', () => {
 		saveToCache(ENTRY_MAG_VOLT_EXCALIBUR.request, ENTRY_MAG_VOLT_EXCALIBUR.response);
 		const cache = loadCache();
@@ -141,12 +146,11 @@ describe('saveToCache()', () => {
 		expect(cache[CURRENT_WEEK]).toBeDefined();
 	});
 
-	test('calls triggerCloudSync if available', () => {
-		const mockSync = vi.fn();
-		(globalThis as any).triggerCloudSync = mockSync;
+	test('calls triggerCloudSync', () => {
+		const mockSync = vi.fn<() => void>();
+		registerSyncHandler(mockSync);
 		saveToCache(ENTRY_MAG_VOLT_EXCALIBUR.request, ENTRY_MAG_VOLT_EXCALIBUR.response);
 		expect(mockSync).toHaveBeenCalledOnce();
-		delete (globalThis as any).triggerCloudSync;
 	});
 });
 

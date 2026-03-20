@@ -8,6 +8,8 @@
  * with non-module scripts.
  */
 
+import {triggerCloudSync} from './cloud-sync/trigger.js';
+
 /**
  * Refresh the visual state of a filter gear icon based on panel open/closed state
  */
@@ -67,7 +69,7 @@ export function initializeFilterToggles(): void {
 						(globalThis as any).refreshCollapseStatus?.(collapseToggle);
 
 						// Trigger cloud sync if available
-						(globalThis as any).triggerCloudSync?.();
+						triggerCloudSync();
 					}
 				}
 
@@ -102,7 +104,7 @@ export function initializeCardFilters(cardName: string, onFilterChange: () => vo
 			}
 
 			// Trigger cloud sync if available
-			(globalThis as any).triggerCloudSync?.();
+			triggerCloudSync();
 
 			// Special case: if enabling danger filter and redtext not loaded, fetch it
 			if (cardName === 'news' && filterType === 'danger' && checkbox.checked && !(globalThis as any).redtext) {

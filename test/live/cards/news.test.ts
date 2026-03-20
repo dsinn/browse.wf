@@ -74,17 +74,8 @@ describe('News Card - Mark as Read Module', () => {
 		// Clear localStorage before each test
 		localStorage.clear();
 
-		// Mock triggerCloudSync (used for triggering syncs)
-		(globalThis as any).triggerCloudSync = () => {
-			// No-op stub for tests
-		};
-
 		// Initialize the module
 		initializeMarkAsRead();
-	});
-
-	afterEach(() => {
-		delete (globalThis as any).triggerCloudSync;
 	});
 
 	describe('generateNewsItemKey', () => {

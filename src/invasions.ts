@@ -1,5 +1,8 @@
 // Invasion helper functions for calculating progress, sorting, and creating UI elements
 
+import {isFilterEnabled} from './card-filters.js';
+import {addTooltip} from './tooltip.js';
+
 type InvasionData = {
 	_id: {$oid: string};
 	Node: string;
@@ -90,7 +93,7 @@ function invasionRewardFilterKey(itemType: string): string {
 }
 
 export function isInvasionRewardShown(itemType: string): boolean {
-	return (globalThis as any).isFilterEnabled('invasions', `reward-${invasionRewardFilterKey(itemType)}`);
+	return isFilterEnabled('invasions', `reward-${invasionRewardFilterKey(itemType)}`);
 }
 
 function buildPercentageCell(percentage: number, isDuplicate: boolean, nodeLabel: string): HTMLTableCellElement {
@@ -99,7 +102,7 @@ function buildPercentageCell(percentage: number, isDuplicate: boolean, nodeLabel
 	const span = document.createElement('span');
 	if (isDuplicate) {
 		span.textContent = '⏳';
-		(globalThis as any).addTooltip(span, `Will unlock after the first ${nodeLabel} invasion is completed.`);
+		addTooltip(span, `Will unlock after the first ${nodeLabel} invasion is completed.`);
 	} else {
 		span.className = 'invasion-percentage';
 		span.textContent = `${percentage.toFixed(1)}%`;
@@ -131,12 +134,12 @@ function buildInvasionHeading(invasion: InvasionData, node: any, nodeLabel: stri
 		const img = document.createElement('img');
 		img.className = 'invasion-boss-icon ms-1';
 		(globalThis as any).setImageSource(img, '/Lotus/Interface/Icons/Sigils/Phorid.png');
-		(globalThis as any).addTooltip(img, 'Assassination (Phorid)');
+		addTooltip(img, 'Assassination (Phorid)');
 		th.append(img);
 	} else if (invasion.Node === 'SolNode65') {
 		const span = document.createElement('span');
 		span.textContent = ' 💥';
-		(globalThis as any).addTooltip(span, 'Sabotage');
+		addTooltip(span, 'Sabotage');
 		th.append(span);
 	}
 

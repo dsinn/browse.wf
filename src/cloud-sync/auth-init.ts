@@ -8,6 +8,7 @@
 import {AuthService} from './auth.js';
 import {StorageSyncService} from './storage-sync.js';
 import {db, isDatabaseConfigured} from './database.js';
+import {registerSyncHandler} from './trigger.js';
 
 // Initialize auth on page load
 async function initializeAuth() {
@@ -181,21 +182,14 @@ function showToast(message: string): void {
 	}
 }
 
-/**
- * Trigger cloud sync after localStorage changes
- * This is exposed globally so non-module code can trigger syncs
- */
-function triggerCloudSync() {
+// Wire triggerCloudSync (exported by trigger.ts, also exposed globally there) to the real handler
+registerSyncHandler(() => {
 	const userId = AuthService.getInstance().getUserId();
 	if (userId) {
-		// Trigger debounced push
 		const syncService = StorageSyncService.getInstance();
 		(syncService as any).debouncedPush(userId);
 	}
-}
-
-// Expose globally for non-module code
-(globalThis as any).triggerCloudSync = triggerCloudSync;
+});
 
 /**
  * Get the current Supabase access token for use by non-module scripts (e.g. warframe-api-proxy-client.ts)

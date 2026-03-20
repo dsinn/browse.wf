@@ -8,6 +8,8 @@
  * with non-module scripts.
  */
 
+import {triggerCloudSync} from './cloud-sync/trigger.js';
+
 const SYNDICATE_TAGS = [
 	'ZarimanSyndicate',
 	'EntratiLabSyndicate',
@@ -54,10 +56,8 @@ function initializeBountyFilters(): void {
 		select.addEventListener('change', () => {
 			localStorage.setItem(storageKey, select.value);
 
-			// Trigger cloud sync if available
-			if ((globalThis as any).triggerCloudSync) {
-				(globalThis as any).triggerCloudSync();
-			}
+			// Trigger cloud sync
+			triggerCloudSync();
 
 			// Re-render bounties
 			if ((globalThis as any).updateBountyCycleLocalised) {

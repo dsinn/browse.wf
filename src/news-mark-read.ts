@@ -4,6 +4,8 @@
  * Excludes red text (danger) items - only applies to primary/success
  */
 
+import {triggerCloudSync} from './cloud-sync/trigger.js';
+
 type NewsItem = {
 	type: 'danger' | 'primary' | 'success';
 	data: string;
@@ -48,10 +50,8 @@ export function markNewsItemAsRead(key: string, element: HTMLElement): void {
 		readItems.push(key);
 		saveReadItems(readItems);
 
-		// Trigger cloud sync (use global function)
-		if ((globalThis as any).triggerCloudSync) {
-			(globalThis as any).triggerCloudSync();
-		}
+		// Trigger cloud sync
+		triggerCloudSync();
 	}
 
 	// Update UI - add read class
@@ -93,10 +93,8 @@ export function markAllNewsAsRead(): void {
 	if (hasChanges) {
 		saveReadItems(readItems);
 
-		// Trigger cloud sync (use global function)
-		if ((globalThis as any).triggerCloudSync) {
-			(globalThis as any).triggerCloudSync();
-		}
+		// Trigger cloud sync
+		triggerCloudSync();
 	}
 }
 

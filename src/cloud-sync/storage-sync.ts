@@ -5,6 +5,9 @@
  * Implements 5-second debouncing for efficient batching of rapid changes.
  */
 
+import {refreshFilterStatus} from '../card-filters.js';
+import {initializeBountyFiltersAll} from '../bounty-filters.js';
+import {pruneStaleNewsRead} from '../news-mark-read.js';
 import {logger} from '../logger.js';
 import {db, isDatabaseConfigured} from './database.js';
 import {AuthService} from './auth.js';
@@ -152,9 +155,7 @@ export class StorageSyncService {
 		this.pruneStaleOids();
 
 		// Prune stale news read items if news card is present
-		if ((globalThis as any).pruneStaleNewsRead) {
-			(globalThis as any).pruneStaleNewsRead();
-		}
+		pruneStaleNewsRead();
 
 		const data = this.localStorageToData();
 
@@ -613,11 +614,9 @@ export class StorageSyncService {
 			}
 		}
 
-		// Refresh filter states using existing function
-		if ((globalThis as any).refreshFilterStatus) {
-			for (const elm of document.querySelectorAll<HTMLElement>('[data-filter-toggle]')) {
-				(globalThis as any).refreshFilterStatus(elm);
-			}
+		// Refresh filter states
+		for (const elm of document.querySelectorAll<HTMLElement>('[data-filter-toggle]')) {
+			refreshFilterStatus(elm);
 		}
 
 		// Refresh filter checkboxes
@@ -635,9 +634,7 @@ export class StorageSyncService {
 		}
 
 		// Refresh bounty filter dropdowns
-		if ((globalThis as any).initializeBountyFiltersAll) {
-			(globalThis as any).initializeBountyFiltersAll();
-		}
+		initializeBountyFiltersAll();
 
 		// Refresh card content to apply filters
 		if ((globalThis as any).updateNewsTicker) {

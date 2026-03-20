@@ -1,3 +1,5 @@
+import {triggerCloudSync} from './cloud-sync/trigger.js';
+
 type InvigorationRequest = {
 	n: string;
 	s: string[];
@@ -101,7 +103,7 @@ export function saveToCache(request: InvigorationRequest, response: Invigoration
 	}
 
 	localStorage.setItem('invigorations.cache', JSON.stringify(prunedCache));
-	(globalThis as any).triggerCloudSync?.();
+	triggerCloudSync();
 }
 
 export function showHistory(currentWeek: number, cache: InvigorationCache): void {

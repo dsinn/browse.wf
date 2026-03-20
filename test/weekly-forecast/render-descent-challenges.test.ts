@@ -68,10 +68,10 @@ describe('renderDescentChallenges', () => {
 		// All arenas in the mock data are known, so every arena cell should have a <span>
 		for (const tr of tbody.querySelectorAll('tr')) {
 			const arenaCell = tr.querySelectorAll('td')[3];
-			const span = arenaCell.querySelector('span');
+			const span = arenaCell.querySelector<HTMLElement>('span');
 			expect(span).not.toBeNull();
-			expect(span.dataset.bsToggle).toBe('tooltip');
-			expect(span.dataset.bsTitle).toBeTruthy();
+			expect(span!.dataset.bsToggle).toBe('tooltip');
+			expect(span!.dataset.bsTitle).toBeTruthy();
 		}
 	});
 
@@ -80,7 +80,7 @@ describe('renderDescentChallenges', () => {
 		const tbody = renderDescentChallenges(descent, dict);
 
 		for (const tr of tbody.querySelectorAll('tr')) {
-			const title = tr.querySelectorAll('td')[3].querySelector('span').dataset.bsTitle;
+			const title = tr.querySelectorAll('td')[3].querySelector<HTMLElement>('span')!.dataset.bsTitle;
 			expect(title).not.toContain('/');
 			expect(title).not.toMatch(/\.level$/iu);
 		}
@@ -97,7 +97,7 @@ describe('renderDescentChallenges', () => {
 			}],
 		};
 		const tbody = renderDescentChallenges(unknownDescent, {});
-		const arenaCell = tbody.querySelector('tr').querySelectorAll('td')[3];
+		const arenaCell = tbody.querySelector('tr')!.querySelectorAll('td')[3];
 		expect(arenaCell.querySelector('span')).toBeNull();
 		expect(arenaCell.textContent).toBe('ArenaUnknownXYZ');
 	});

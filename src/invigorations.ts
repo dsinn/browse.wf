@@ -50,9 +50,20 @@ export function populateInvigorationGrid(prefix: string, response: InvigorationR
 	for (let i = 0; i < response.suits.length; i++) {
 		const suitData = baseSuitTypes[displaySuits[i]];
 		// Fall back to untranslated response in case of new content
-		document.querySelector(`#${prefix}-suit-${i}`).textContent = suitData ? dict[suitData.name] : displaySuits[i];
-		document.querySelector(`#${prefix}-off-${i}`).textContent = invigorationNames[response.offensiveUpgrades[i]] || response.offensiveUpgrades[i];
-		document.querySelector(`#${prefix}-def-${i}`).textContent = invigorationNames[response.defensiveUpgrades[i]] || response.defensiveUpgrades[i];
+		const suitElement = document.querySelector(`#${prefix}-suit-${i}`);
+		const offElement = document.querySelector(`#${prefix}-off-${i}`);
+		const defElement = document.querySelector(`#${prefix}-def-${i}`);
+		if (suitElement) {
+			suitElement.textContent = suitData ? dict[suitData.name] : displaySuits[i];
+		}
+
+		if (offElement) {
+			offElement.textContent = invigorationNames[response.offensiveUpgrades[i]] || response.offensiveUpgrades[i];
+		}
+
+		if (defElement) {
+			defElement.textContent = invigorationNames[response.defensiveUpgrades[i]] || response.defensiveUpgrades[i];
+		}
 	}
 }
 
@@ -61,9 +72,15 @@ export function preFillForm(username: string, peek: boolean, suits: string[]): v
 	const peekCheckbox = document.querySelector<HTMLInputElement>('#peek');
 	const suitSelects = document.querySelectorAll<HTMLSelectElement>('.suit-select');
 
-	usernameInput.value = username;
-	peekCheckbox.checked = peek;
-	peekCheckbox.dispatchEvent(new Event('change'));
+	if (usernameInput) {
+		usernameInput.value = username;
+	}
+
+	if (peekCheckbox) {
+		peekCheckbox.checked = peek;
+		peekCheckbox.dispatchEvent(new Event('change'));
+	}
+
 	for (const [i, suit] of suits.entries()) {
 		suitSelects[i].value = suit;
 	}
@@ -84,9 +101,7 @@ export function saveToCache(request: InvigorationRequest, response: Invigoration
 	}
 
 	localStorage.setItem('invigorations.cache', JSON.stringify(prunedCache));
-	if ((globalThis as any).triggerCloudSync) {
-		(globalThis as any).triggerCloudSync();
-	}
+	(globalThis as any).triggerCloudSync?.();
 }
 
 export function showHistory(currentWeek: number, cache: InvigorationCache): void {
@@ -99,37 +114,40 @@ export function showHistory(currentWeek: number, cache: InvigorationCache): void
 	const lastWeekDiv = document.querySelector('#history-last-week');
 
 	if (!currentData && !lastWeekData) {
-		historyDiv.classList.add('d-none');
+		historyDiv?.classList.add('d-none');
 		return;
 	}
 
-	historyDiv.classList.remove('d-none');
+	historyDiv?.classList.remove('d-none');
 
 	if (currentData) {
 		// Prefer next week's request suits: they represent what the user confirmed as this week's offerings
 		const thisWeekSuits = nextWeekData ? nextWeekData.request.s : undefined;
 		populateInvigorationGrid('this-week', currentData.response, thisWeekSuits);
-		thisWeekDiv.classList.remove('d-none');
+		thisWeekDiv?.classList.remove('d-none');
 	} else {
-		thisWeekDiv.classList.add('d-none');
+		thisWeekDiv?.classList.add('d-none');
 	}
 
 	if (lastWeekData) {
 		// Prefer current week's request suits: they represent what the user confirmed as last week's offerings
 		const lastWeekSuits = currentData ? currentData.request.s : undefined;
 		populateInvigorationGrid('last-week', lastWeekData.response, lastWeekSuits);
-		lastWeekDiv.classList.remove('d-none');
+		lastWeekDiv?.classList.remove('d-none');
 	} else {
-		lastWeekDiv.classList.add('d-none');
+		lastWeekDiv?.classList.add('d-none');
 	}
 }
 
 export function showResults(response: InvigorationResponse, request: InvigorationRequest): void {
 	const resultsDiv = document.querySelector('#results');
-	resultsDiv.classList.remove('d-none');
+	resultsDiv?.classList.remove('d-none');
 
 	// Update heading
-	(document.querySelector('#results h4')).textContent = request.p ? 'Next Week\'s Offerings' : 'Current Offerings';
+	const heading = document.querySelector('#results h4');
+	if (heading) {
+		heading.textContent = request.p ? 'Next Week\'s Offerings' : 'Current Offerings';
+	}
 
 	// Update explainer text
 	for (const x of document.querySelectorAll('.explainer')) {
@@ -137,11 +155,11 @@ export function showResults(response: InvigorationResponse, request: Invigoratio
 	}
 
 	if (request.s.length !== response.suits.length) {
-		document.querySelector('#explain-noprev').classList.remove('d-none');
+		document.querySelector('#explain-noprev')?.classList.remove('d-none');
 	} else if (request.p) {
-		document.querySelector('#explain-peek').classList.remove('d-none');
+		document.querySelector('#explain-peek')?.classList.remove('d-none');
 	} else {
-		document.querySelector('#explain-current').classList.remove('d-none');
+		document.querySelector('#explain-current')?.classList.remove('d-none');
 	}
 
 	for (const x of document.querySelectorAll('#results b')) {

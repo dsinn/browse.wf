@@ -61,7 +61,7 @@ function formatArbyCountdown(timestamp: number): string {
  * Schedules the next update for a countdown badge based on when the display text will change
  */
 function scheduleArbyUpdate(elm: HTMLElement): void {
-	const timestamp = Number.parseInt(elm.dataset.arbyTimestamp, 10);
+	const timestamp = Number.parseInt(elm.dataset.arbyTimestamp ?? '', 10);
 	const deltaSeconds = timestamp - Math.floor(Date.now() / 1000);
 
 	if (deltaSeconds <= 0) {
@@ -89,7 +89,7 @@ function scheduleArbyUpdate(elm: HTMLElement): void {
 	} else {
 		// Showing minutes + seconds: use setInterval for regular 1-second updates
 		const intervalId = setInterval(() => {
-			const ts = Number.parseInt(elm.dataset.arbyTimestamp, 10);
+			const ts = Number.parseInt(elm.dataset.arbyTimestamp ?? '', 10);
 			const delta = ts - Math.floor(Date.now() / 1000);
 
 			if (delta <= 0) {

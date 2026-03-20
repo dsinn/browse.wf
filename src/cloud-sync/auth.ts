@@ -40,7 +40,7 @@ export class AuthService {
 
 	private static instance: AuthService;
 
-	private currentUser: User | undefined = null;
+	private currentUser: User | undefined;
 	private initialSyncComplete = false;
 
 	private constructor() {
@@ -54,11 +54,11 @@ export class AuthService {
 
 		// Check current session
 		const {data: {user}} = await db.auth.getUser();
-		this.currentUser = user;
+		this.currentUser = user ?? undefined;
 
 		// Listen for auth changes
-		db.auth.onAuthStateChange((event, session) => {
-			this.currentUser = session?.user ?? null;
+		db.auth.onAuthStateChange((event: string, session: any) => {
+			this.currentUser = session?.user ?? undefined;
 			void this.handleAuthChange(event, session);
 		});
 	}
@@ -107,25 +107,15 @@ export class AuthService {
 	}
 
 	isAuthenticated(): boolean {
-		return this.currentUser !== null;
+		return this.currentUser !== undefined;
 	}
 
 	getUserId(): string | undefined {
-		if (!this.currentUser) {
-			return null;
-		}
-
-		// Return Supabase UUID (secure, immutable)
-		return this.currentUser.id;
+		return this.currentUser?.id;
 	}
 
 	getDiscordUserId(): string | undefined {
-		if (!this.currentUser) {
-			return null;
-		}
-
-		// Discord User ID is in user_metadata.provider_id (for display only, not security)
-		return this.currentUser.user_metadata?.provider_id || null;
+		return this.currentUser?.user_metadata?.provider_id || undefined;
 	}
 
 	private async handleAuthChange(event: string, session: any) {

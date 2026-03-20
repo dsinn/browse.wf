@@ -60,7 +60,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 		const table = document.createElement('table');
 		table.id = 'invasions-table';
 		document.body.append(table);
-		globalThis.worldState = loadMock('worldState-invasions.json');
+		(globalThis as any).worldState = loadMock('worldState-invasions.json');
 	});
 
 	afterEach(() => {
@@ -79,32 +79,32 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 	test('attacker row contains progress bar and percentage', async () => {
 		await callUpdateInvasions();
 		const firstRow = document.querySelector('#invasions-table tbody tr:not(.d-none)');
-		expect(firstRow.querySelector('.invasion-progress-container')).toBeTruthy();
-		expect(firstRow.querySelector('.invasion-percentage')).toBeTruthy();
+		expect(firstRow!.querySelector('.invasion-progress-container')).toBeTruthy();
+		expect(firstRow!.querySelector('.invasion-percentage')).toBeTruthy();
 	});
 
 	test('defender row has invasion-defender-reward class and no progress bar', async () => {
 		await callUpdateInvasions();
 		const defenderRow = document.querySelector('#invasions-table tbody tr.invasion-defender-reward');
 		expect(defenderRow).toBeTruthy();
-		expect(defenderRow.querySelector('.invasion-progress-container')).toBeNull();
+		expect(defenderRow!.querySelector('.invasion-progress-container')).toBeNull();
 	});
 
 	test('attacker row contains a completion toggle', async () => {
 		await callUpdateInvasions();
 		const firstRow = document.querySelector('#invasions-table tbody tr:not(.d-none):not(.invasion-defender-reward)');
-		expect(firstRow.querySelector('.completion-check')).toBeTruthy();
+		expect(firstRow!.querySelector('.completion-check')).toBeTruthy();
 	});
 
 	test('node label is rendered from ExportRegions + dict', async () => {
 		await callUpdateInvasions();
 		// SolNode181 sorts first (lower percentage = 54.5% vs 72.2%)
 		const firstRow = document.querySelector('#invasions-table tbody tr:not(.d-none)');
-		expect(firstRow.querySelector('th')?.textContent).toContain('Adaro, Sedna');
+		expect(firstRow!.querySelector('th')?.textContent).toContain('Adaro, Sedna');
 	});
 
 	test('when all invasions are completed, renders "no invasions" message', async () => {
-		globalThis.worldState.Invasions = globalThis.worldState.Invasions.map((inv: any) => ({...inv, Completed: true}));
+		(globalThis as any).worldState.Invasions = (globalThis as any).worldState.Invasions.map((inv: any) => ({...inv, Completed: true}));
 		await callUpdateInvasions();
 		expect(document.querySelector('#invasions-table')?.textContent)
 			.toContain('No invasions match the current filters.');
@@ -112,7 +112,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 
 	test('completed invasions are not rendered', async () => {
 		// Add a completed invasion to worldState — it should be ignored
-		globalThis.worldState.Invasions.push({
+		(globalThis as any).worldState.Invasions.push({
 			_id: {$oid: 'aabbccddeeff001122334455'},
 			Node: 'SolNode38',
 			Completed: true,
@@ -141,17 +141,18 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 
 	test('duplicate-node invasion sorts last, shows hourglass instead of percentage, and has empty toggle cell', async () => {
 		// In the mock data, there are two invasions at 100% but only one of them is a duplicate.
-		globalThis.worldState = loadMock('worldState-duplicate-invasion-node.json');
+		(globalThis as any).worldState = loadMock('worldState-duplicate-invasion-node.json');
 		await callUpdateInvasions();
-		const lastRow = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none):not(.invasion-defender-reward)')]
-			.at(-1);
-		expect(lastRow.querySelector('td:nth-child(2)').textContent).toContain('⏳');
+		const allDupRows = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none):not(.invasion-defender-reward)')];
+		const lastRow = allDupRows.at(-1)!;
+		expect(lastRow).toBeDefined();
+		expect(lastRow.querySelector('td:nth-child(2)')!.textContent).toContain('⏳');
 		expect(lastRow.querySelector('.invasion-percentage')).toBeNull();
 		expect(lastRow.querySelector('.completion-check')).toBeNull();
 	});
 
 	test('SolNode65 (Gradivus) shows 💥 emoji with Sabotage tooltip in node header', async () => {
-		globalThis.worldState.Invasions = [{
+		(globalThis as any).worldState.Invasions = [{
 			_id: {$oid: '6974e8fee68ad4bc31ce5f49'},
 			Node: 'SolNode65',
 			Completed: false,
@@ -167,14 +168,14 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 		const th = document.querySelector('#invasions-table tbody tr:not(.d-none) th');
 		expect(th?.textContent).toContain('💥');
 		const tooltipElement = th?.querySelector('[data-bs-title]');
-		expect(tooltipElement?.dataset.bsTitle).toBe('Sabotage');
+		expect((tooltipElement as HTMLElement)?.dataset.bsTitle).toBe('Sabotage');
 	});
 
 	test('Assassination invasion shows Phorid sigil icon with tooltip in node header', async () => {
 		// Add dict entries needed for an assassination node (e.g. SolNode144 = Exta, Ceres)
 		(globalThis as any).dict['/Lotus/Language/Locations/Exta'] = 'Exta';
 		(globalThis as any).dict['/Lotus/Language/Locations/Ceres'] = 'Ceres';
-		globalThis.worldState.Invasions = [{
+		(globalThis as any).worldState.Invasions = [{
 			_id: {$oid: 'aabbccddeeff001122334455'},
 			Node: 'SolNode144',
 			Completed: false,
@@ -188,10 +189,10 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 		}];
 		await callUpdateInvasions();
 		const th = document.querySelector('#invasions-table tbody tr:not(.d-none) th');
-		const img = th?.querySelector('img.invasion-boss-icon');
+		const img = th?.querySelector<HTMLImageElement>('img.invasion-boss-icon');
 		expect(img).toBeTruthy();
-		expect(img.src).toContain('Phorid');
-		expect(img.dataset.bsTitle).toBe('Assassination (Phorid)');
+		expect(img!.src).toContain('Phorid');
+		expect(img!.dataset.bsTitle).toBe('Assassination (Phorid)');
 	});
 
 	test('reward text omits "1x" prefix when ItemCount is 1', async () => {
@@ -205,7 +206,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 	});
 
 	test('reward text shows count prefix when ItemCount is greater than 1', async () => {
-		globalThis.worldState.Invasions = [{
+		(globalThis as any).worldState.Invasions = [{
 			_id: {$oid: 'aabbccddeeff001122334456'},
 			Node: 'SolNode181',
 			Completed: false,

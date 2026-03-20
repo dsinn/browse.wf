@@ -349,7 +349,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 				if (text !== 'N/A') {
 					const timestamp = await dateCell.getAttribute('data-timestamp');
 					expect(timestamp).toBeTruthy();
-					expect(Number.parseInt(timestamp, 10)).toBeGreaterThan(0);
+					expect(Number.parseInt(timestamp!, 10)).toBeGreaterThan(0);
 					foundTimestamp = true;
 					break;
 				}
@@ -432,7 +432,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		test('defaults to 24 hours on mobile devices', async ({page, context}) => {
 			// Simulate mobile user agent
 			await context.close();
-			const mobileContext = await page.context().browser().newContext({
+			const mobileContext = await page.context().browser()!.newContext({
 				userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15',
 				viewport: {width: 375, height: 667},
 				hasTouch: true,
@@ -484,9 +484,9 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 				// Should match patterns like "5d 23h", "23h 45m", "45m 32s", or "Started"
 				const isTwoUnitFormat
-					= /^\d+d \d+h$/u.test(text) // Days + hours
-						|| /^\d+h \d+m$/u.test(text) // Hours + minutes
-						|| /^\d+m \d+s$/u.test(text) // Minutes + seconds
+					= /^\d+d \d+h$/u.test(text!) // Days + hours
+						|| /^\d+h \d+m$/u.test(text!) // Hours + minutes
+						|| /^\d+m \d+s$/u.test(text!) // Minutes + seconds
 						|| text === 'Started'; // Past event
 
 				expect(isTwoUnitFormat, `Badge text "${text}" should be in two-unit format`).toBe(true);
@@ -534,7 +534,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 				if (badgeExists) {
 					const text = await badge.textContent();
 					// Current event should show "Started" or be very close to starting
-					expect(text === 'Started' || /0m [0-5]\d+s/u.test(text)).toBe(true);
+					expect(text === 'Started' || /0m [0-5]\d+s/u.test(text!)).toBe(true);
 				}
 			}
 		});
@@ -546,7 +546,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 				const timestamp = await badge.getAttribute('data-arby-timestamp');
 				expect(timestamp).toBeTruthy();
 
-				const ts = Number.parseInt(timestamp, 10);
+				const ts = Number.parseInt(timestamp!, 10);
 				expect(ts).toBeGreaterThan(1_000_000_000); // Valid unix timestamp
 				expect(ts).toBeLessThan(3_000_000_000);
 			}
@@ -570,7 +570,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			// Check that badges still have valid format (including "Started" for current event)
 			const firstBadge = page.locator('#log [data-arby-timestamp]').first();
 			const text = await firstBadge.textContent();
-			expect(text === 'Started' || /\d+[dhms]/u.test(text)).toBe(true);
+			expect(text === 'Started' || /\d+[dhms]/u.test(text!)).toBe(true);
 		});
 
 		test('dropdown changes preserve timer badges', async ({page}) => {
@@ -673,7 +673,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			const savedSettings = await page.evaluate(() => localStorage.getItem('arbys.settings'));
 
 			expect(savedSettings).toBeTruthy();
-			const settings = JSON.parse(savedSettings);
+			const settings = JSON.parse(savedSettings!);
 			expect(settings.select_days).toBe('7');
 			expect(settings.filters.MT_DEFENSE).toBe(false);
 		});

@@ -71,7 +71,7 @@ test.describe('Fissures (/live)', () => {
 			await firstMissionTypeCheckbox.uncheck();
 
 			// Tier heading should still exist (possibly on a different row)
-			const headingAfterFilter = page.locator('#fissures-table tbody tr th').filter({hasText: tierText});
+			const headingAfterFilter = page.locator('#fissures-table tbody tr th').filter({hasText: tierText!});
 			await expect(headingAfterFilter).toBeVisible();
 
 			// Should have fewer rows after filtering
@@ -105,14 +105,14 @@ test.describe('Fissures (/live)', () => {
 				Omnia: 'VoidT6',
 			};
 
-			const tierCheckboxId = `#filter-fissures-${tierMap[tierText]}`;
+			const tierCheckboxId = `#filter-fissures-${tierMap[tierText!]}`;
 			const tierCheckbox = page.locator(tierCheckboxId);
 
 			// Uncheck the tier
 			await tierCheckbox.uncheck();
 
 			// Heading should no longer be visible
-			const headingAfter = page.locator('#fissures-table tbody tr th').filter({hasText: tierText});
+			const headingAfter = page.locator('#fissures-table tbody tr th').filter({hasText: tierText!});
 			await expect(headingAfter).toHaveCount(0);
 		});
 

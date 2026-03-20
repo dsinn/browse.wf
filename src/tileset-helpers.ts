@@ -8,7 +8,7 @@ function getTilesetPrefixes(): string[] {
 	if (!tilesetPrefixes) {
 		const knownTilesets = [...new Set((Object.values((globalThis as any).ExportRegions as Record<string, IRegion>))
 			.map(n => n.tileset)
-			.filter(Boolean))];
+			.filter((t): t is string => t !== undefined))];
 		// Sort longest-first so more specific prefixes (e.g. GrineerForestCaves) match before shorter ones (GrineerForest)
 		tilesetPrefixes = knownTilesets.sort((a, b) => b.length - a.length);
 	}
@@ -28,7 +28,7 @@ export function getTileset(node: IRegion): string | undefined {
 	}
 
 	if (node.levelOverride) {
-		const segment = node.levelOverride.split('/').pop();
+		const segment = node.levelOverride.split('/').pop() ?? '';
 		const match = getTilesetPrefixes().find(t => segment.startsWith(t.split('Tileset')[0]));
 		if (match) {
 			return match;

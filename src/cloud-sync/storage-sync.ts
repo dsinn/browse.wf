@@ -87,15 +87,15 @@ export class StorageSyncService {
 	} // Minimum interval between visibility-triggered pulls
 
 	private syncing = false;
-	private pushTimer: ReturnType<typeof setTimeout> | undefined = null;
-	private realtimeChannel: any = null;
+	private pushTimer: ReturnType<typeof setTimeout> | undefined;
+	private realtimeChannel: any;
 	private justPushed = false; // Track when we just pushed to avoid pulling our own update
-	private justPushedTimeout: ReturnType<typeof setTimeout> | undefined = null; // Timeout for clearing justPushed flag
+	private justPushedTimeout: ReturnType<typeof setTimeout> | undefined; // Timeout for clearing justPushed flag
 	private hasSubscribedBefore = false; // Track initial subscription
 	private reconnectAttempts = 0; // Track reconnection attempts for exponential backoff
-	private reconnectTimer: ReturnType<typeof setTimeout> | undefined = null; // Timer for reconnection attempts
-	private currentUserId: string | undefined = null; // Track current user UUID for reconnection
-	private lastKnownFreshDataTimestamp: number | undefined = null; // Track when local data was last known fresh
+	private reconnectTimer: ReturnType<typeof setTimeout> | undefined; // Timer for reconnection attempts
+	private currentUserId: string | undefined; // Track current user UUID for reconnection
+	private lastKnownFreshDataTimestamp: number | undefined; // Track when local data was last known fresh
 
 	private constructor() {
 		if (isDatabaseConfigured()) {
@@ -161,7 +161,7 @@ export class StorageSyncService {
 		this.justPushed = true;
 
 		// Clear any existing timeout to prevent race condition with multiple pushes
-		if (this.justPushedTimeout !== null) {
+		if (this.justPushedTimeout !== undefined) {
 			clearTimeout(this.justPushedTimeout);
 		}
 
@@ -180,13 +180,13 @@ export class StorageSyncService {
 			// Clear flag after push completes + 5 second buffer to ignore our own real-time update
 			this.justPushedTimeout = globalThis.setTimeout(() => {
 				this.justPushed = false;
-				this.justPushedTimeout = null;
+				this.justPushedTimeout = undefined;
 			}, 5000);
 		} catch (error) {
 			this.justPushed = false;
-			if (this.justPushedTimeout !== null) {
+			if (this.justPushedTimeout !== undefined) {
 				clearTimeout(this.justPushedTimeout);
-				this.justPushedTimeout = null;
+				this.justPushedTimeout = undefined;
 			}
 
 			throw error;
@@ -236,9 +236,9 @@ export class StorageSyncService {
    * Flush pending changes immediately (called on logout or page unload)
    */
 	async flushPendingChanges() {
-		if (this.pushTimer !== null) {
+		if (this.pushTimer !== undefined) {
 			clearTimeout(this.pushTimer);
-			this.pushTimer = null;
+			this.pushTimer = undefined;
 
 			const userId = AuthService.getInstance().getUserId();
 			if (userId) {
@@ -274,7 +274,7 @@ export class StorageSyncService {
 				schema: 'public',
 				table: 'user_data',
 				filter: `user_id=eq.${userId}`,
-			}, async payload => {
+			}, async (_payload: any) => {
 				// Skip if this update was triggered by our own push
 				if (this.justPushed) {
 					return;
@@ -292,7 +292,7 @@ export class StorageSyncService {
 					}
 				}
 			})
-			.subscribe(async status => {
+			.subscribe(async (status: string) => {
 				logger.debug('📡 WebSocket status:', status, '| hasSubscribedBefore:', this.hasSubscribedBefore, '| reconnectAttempts:', this.reconnectAttempts);
 
 				// When WebSocket reconnects after sleep/network loss, pull fresh data
@@ -303,9 +303,9 @@ export class StorageSyncService {
 					}
 
 					this.reconnectAttempts = 0;
-					if (this.reconnectTimer !== null) {
+					if (this.reconnectTimer !== undefined) {
 						clearTimeout(this.reconnectTimer);
-						this.reconnectTimer = null;
+						this.reconnectTimer = undefined;
 					}
 
 					if (this.hasSubscribedBefore) {
@@ -351,19 +351,19 @@ export class StorageSyncService {
    */
 	unsubscribeFromRealtimeUpdates() {
 		// Clear reconnection timer
-		if (this.reconnectTimer !== null) {
+		if (this.reconnectTimer !== undefined) {
 			clearTimeout(this.reconnectTimer);
-			this.reconnectTimer = null;
+			this.reconnectTimer = undefined;
 		}
 
 		// Reset reconnection state
 		this.reconnectAttempts = 0;
-		this.currentUserId = null;
-		this.lastKnownFreshDataTimestamp = null;
+		this.currentUserId = undefined;
+		this.lastKnownFreshDataTimestamp = undefined;
 
 		if (this.realtimeChannel) {
 			this.realtimeChannel.unsubscribe();
-			this.realtimeChannel = null;
+			this.realtimeChannel = undefined;
 		}
 	}
 
@@ -461,13 +461,13 @@ export class StorageSyncService {
    */
 	private debouncedPush(userId: string) {
 		// Clear existing timer if user makes another change
-		if (this.pushTimer !== null) {
+		if (this.pushTimer !== undefined) {
 			clearTimeout(this.pushTimer);
 		}
 
 		// Start new 5-second timer
 		this.pushTimer = globalThis.setTimeout(() => {
-			this.pushTimer = null;
+			this.pushTimer = undefined;
 			void (async () => {
 				try {
 					await this.pushToDatabase(userId);
@@ -535,9 +535,9 @@ export class StorageSyncService {
    */
 	private attemptReconnect() {
 		// Clear any existing reconnect timer
-		if (this.reconnectTimer !== null) {
+		if (this.reconnectTimer !== undefined) {
 			clearTimeout(this.reconnectTimer);
-			this.reconnectTimer = null;
+			this.reconnectTimer = undefined;
 		}
 
 		// Exponential backoff: 1.875s, 3.75s, 7.5s, 15s, 30s, 60s, 120s, 240s, then cap at 5 minutes
@@ -564,7 +564,7 @@ export class StorageSyncService {
 		}
 
 		this.reconnectTimer = globalThis.setTimeout(() => {
-			this.reconnectTimer = null;
+			this.reconnectTimer = undefined;
 			void (async () => {
 				if (this.currentUserId) {
 					logger.debug('🔌 Attempting to reestablish WebSocket connection...');

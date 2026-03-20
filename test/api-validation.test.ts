@@ -44,7 +44,7 @@ describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', 
 		const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'bounty-cycle.json'), 'utf8'));
 
 		// Validate top-level keys match
-		expect(Object.keys(realData).toSorted()).toEqual(Object.keys(mockData).toSorted());
+		expect(Object.keys(realData).sort()).toEqual(Object.keys(mockData).sort());
 
 		// Validate critical fields
 		expect(typeof realData.expiry).toBe('number');
@@ -59,7 +59,7 @@ describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', 
 		const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'worldState.json'), 'utf8'));
 
 		// Validate top-level keys match
-		expect(Object.keys(realData).toSorted()).toEqual(Object.keys(mockData).toSorted());
+		expect(Object.keys(realData).sort()).toEqual(Object.keys(mockData).sort());
 
 		// Validate critical arrays exist
 		expect(Array.isArray(realData.Events)).toBe(true);

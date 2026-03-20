@@ -33,7 +33,7 @@ export function elementExists(id: string): boolean {
 export function mockBootstrapTooltip() {
 	const tooltipInstances = new Map<HTMLElement, any>();
 
-	globalThis.bootstrap = {
+	(globalThis as any).bootstrap = {
 		Tooltip: class MockTooltip {
 			static getInstance(element: HTMLElement) {
 				return tooltipInstances.get(element);

@@ -30,7 +30,7 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
 		// Wait for warframe data to load (indicated by dropdown options being populated)
 		await page.waitForFunction(() => {
 			const select = document.querySelector('.suit-select');
-			return select && select.options.length > 1;
+			return select && (select as HTMLSelectElement).options.length > 1;
 		}, {timeout: 30_000});
 
 		// Derive CURRENT_WEEK from production code — if the offset formula changes, this follows automatically
@@ -79,7 +79,7 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
 		await page.reload();
 		await page.waitForFunction(() => {
 			const select = document.querySelector('.suit-select');
-			return select && select.options.length > 1;
+			return select && (select as HTMLSelectElement).options.length > 1;
 		}, {timeout: 30_000});
 
 		// Verify alert is visible
@@ -139,7 +139,7 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
 		await page.reload();
 		await page.waitForFunction(() => {
 			const select = document.querySelector('.suit-select');
-			return select && select.options.length > 1;
+			return select && (select as HTMLSelectElement).options.length > 1;
 		}, {timeout: 30_000});
 
 		// The key behavior: cache alert should NOT be shown when inventory exists
@@ -169,7 +169,7 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
 		await page.reload();
 		await page.waitForFunction(() => {
 			const select = document.querySelector('.suit-select');
-			return select && select.options.length > 1;
+			return select && (select as HTMLSelectElement).options.length > 1;
 		}, {timeout: 30_000});
 
 		const selects = page.locator('.suit-select');

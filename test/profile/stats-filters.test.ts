@@ -78,8 +78,8 @@ describe('profile-stats-filters', () => {
 
 		it('Infested bucket covers both Infestation and Infested strings', () => {
 			const infested = ENEMY_FACTIONS.find((f: any) => f.label === 'Infested');
-			expect(infested.factions).toContain('Infestation');
-			expect(infested.factions).toContain('Infested');
+			expect(infested!.factions).toContain('Infestation');
+			expect(infested!.factions).toContain('Infested');
 		});
 	});
 
@@ -113,9 +113,9 @@ describe('profile-stats-filters', () => {
 			expect(getEquipmentCategoryLabel('Melee')).toBe('Melee');
 		});
 
-		it('returns null for an unknown productCategory', () => {
-			expect(getEquipmentCategoryLabel('Unknown')).toBeNull();
-			expect(getEquipmentCategoryLabel('')).toBeNull();
+		it('returns undefined for an unknown productCategory', () => {
+			expect(getEquipmentCategoryLabel('Unknown')).toBeUndefined();
+			expect(getEquipmentCategoryLabel('')).toBeUndefined();
 		});
 	});
 
@@ -131,9 +131,9 @@ describe('profile-stats-filters', () => {
 			expect(getEnemyFactionLabel('MITW')).toBe('Murmur');
 		});
 
-		it('returns null for an unknown faction string', () => {
-			expect(getEnemyFactionLabel('Unknown')).toBeNull();
-			expect(getEnemyFactionLabel('')).toBeNull();
+		it('returns undefined for an unknown faction string', () => {
+			expect(getEnemyFactionLabel('Unknown')).toBeUndefined();
+			expect(getEnemyFactionLabel('')).toBeUndefined();
 		});
 	});
 
@@ -171,7 +171,7 @@ describe('profile-stats-filters', () => {
 		it('"All" button starts active', () => {
 			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
 			const allBtn = filterBar.querySelector('button');
-			expect(allBtn.classList.contains('active')).toBe(true);
+			expect(allBtn!.classList.contains('active')).toBe(true);
 		});
 
 		it('every button has a Bootstrap tooltip', () => {
@@ -194,51 +194,51 @@ describe('profile-stats-filters', () => {
 		it('renders an img for entries with an icon', () => {
 			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
-			expect(alphaBtn.querySelector('img')).toBeTruthy();
+			expect(alphaBtn!.querySelector('img')).toBeTruthy();
 		});
 
 		it('renders a text span for entries with no icon', () => {
 			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
 			const betaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Beta"]');
-			expect(betaBtn.querySelector('span')).toBeTruthy();
-			expect(betaBtn.querySelector('img')).toBeNull();
+			expect(betaBtn!.querySelector('span')).toBeTruthy();
+			expect(betaBtn!.querySelector('img')).toBeNull();
 		});
 
 		it('clicking a filter button sets data-filter on tbody and marks button active', () => {
 			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
-			alphaBtn.click();
+			alphaBtn!.click();
 			expect(tbody.dataset.filter).toBe('Alpha');
-			expect(alphaBtn.classList.contains('active')).toBe(true);
+			expect(alphaBtn!.classList.contains('active')).toBe(true);
 		});
 
 		it('clicking the active filter button again resets to "All"', () => {
 			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
-			alphaBtn.click();
-			alphaBtn.click();
+			alphaBtn!.click();
+			alphaBtn!.click();
 			expect(tbody.dataset.filter).toBeUndefined();
 			const allBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter=""]');
-			expect(allBtn.classList.contains('active')).toBe(true);
+			expect(allBtn!.classList.contains('active')).toBe(true);
 		});
 
 		it('clicking "All" clears the filter', () => {
 			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
 			const allBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter=""]');
-			alphaBtn.click();
+			alphaBtn!.click();
 			expect(tbody.dataset.filter).toBe('Alpha');
-			allBtn.click();
+			allBtn!.click();
 			expect(tbody.dataset.filter).toBeUndefined();
-			expect(allBtn.classList.contains('active')).toBe(true);
+			expect(allBtn!.classList.contains('active')).toBe(true);
 		});
 
 		it('only one button is active at a time', () => {
 			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
 			const gammaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Gamma"]');
-			alphaBtn.click();
-			gammaBtn.click();
+			alphaBtn!.click();
+			gammaBtn!.click();
 			const activeButtons = filterBar.querySelectorAll('button.active');
 			expect(activeButtons).toHaveLength(1);
 			expect((activeButtons[0] as HTMLButtonElement).dataset.filter).toBe('Gamma');
@@ -250,7 +250,7 @@ describe('profile-stats-filters', () => {
 				onFilter();
 			});
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
-			alphaBtn.click();
+			alphaBtn!.click();
 			expect(onFilter).toHaveBeenCalledTimes(1);
 		});
 
@@ -261,16 +261,16 @@ describe('profile-stats-filters', () => {
 			});
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
 			const allBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter=""]');
-			alphaBtn.click();
+			alphaBtn!.click();
 			onFilter.mockClear();
-			allBtn.click();
+			allBtn!.click();
 			expect(onFilter).toHaveBeenCalledTimes(1);
 		});
 
 		it('does not throw when onFilter is omitted', () => {
 			expect(() => {
 				initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha']));
-				filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]').click();
+				filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]')!.click();
 			}).not.toThrow();
 		});
 	});

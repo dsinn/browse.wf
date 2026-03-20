@@ -195,12 +195,12 @@ function triggerCloudSync() {
 }
 
 // Expose globally for non-module code
-globalThis.triggerCloudSync = triggerCloudSync;
+(globalThis as any).triggerCloudSync = triggerCloudSync;
 
 /**
  * Get the current Supabase access token for use by non-module scripts (e.g. warframe-api-proxy-client.ts)
  */
-globalThis.__getSupabaseAccessToken = async () => {
+(globalThis as any).__getSupabaseAccessToken = async () => {
 	if (!isDatabaseConfigured()) {
 		return null;
 	}

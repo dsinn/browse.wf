@@ -33,31 +33,31 @@ describe('Bounty Filters', () => {
 
 	describe('Dropdown Initialization', () => {
 		test('dropdowns default to Min Tier 1 (show all)', () => {
-			const holdfast = document.querySelector('#bounty-filter-ZarimanSyndicate');
-			const cavia = document.querySelector('#bounty-filter-EntratiLabSyndicate');
-			const hex = document.querySelector('#bounty-filter-HexSyndicate');
+			const holdfast = document.querySelector<HTMLSelectElement>('#bounty-filter-ZarimanSyndicate');
+			const cavia = document.querySelector<HTMLSelectElement>('#bounty-filter-EntratiLabSyndicate');
+			const hex = document.querySelector<HTMLSelectElement>('#bounty-filter-HexSyndicate');
 
-			expect(holdfast.value).toBe('1');
-			expect(cavia.value).toBe('1');
-			expect(hex.value).toBe('1');
+			expect(holdfast!.value).toBe('1');
+			expect(cavia!.value).toBe('1');
+			expect(hex!.value).toBe('1');
 		});
 	});
 
 	describe('localStorage Persistence', () => {
 		test('changing dropdown saves to localStorage', () => {
-			const dropdown = document.querySelector('#bounty-filter-ZarimanSyndicate');
+			const dropdown = document.querySelector<HTMLSelectElement>('#bounty-filter-ZarimanSyndicate');
 
-			dropdown.value = '3';
-			dropdown.dispatchEvent(new Event('change'));
+			dropdown!.value = '3';
+			dropdown!.dispatchEvent(new Event('change'));
 
 			expect(localStorage.getItem('live.filter.bounties.ZarimanSyndicate')).toBe('3');
 		});
 
 		test('setting Hide option saves to localStorage', () => {
-			const dropdown = document.querySelector('#bounty-filter-HexSyndicate');
+			const dropdown = document.querySelector<HTMLSelectElement>('#bounty-filter-HexSyndicate');
 
-			dropdown.value = '-1';
-			dropdown.dispatchEvent(new Event('change'));
+			dropdown!.value = '-1';
+			dropdown!.dispatchEvent(new Event('change'));
 
 			expect(localStorage.getItem('live.filter.bounties.HexSyndicate')).toBe('-1');
 		});
@@ -69,23 +69,23 @@ describe('Bounty Filters', () => {
 			// Reinitialize
 			initializeBountyFiltersAll();
 
-			const dropdown = document.querySelector('#bounty-filter-EntratiLabSyndicate');
-			expect(dropdown.value).toBe('4');
+			const dropdown = document.querySelector<HTMLSelectElement>('#bounty-filter-EntratiLabSyndicate');
+			expect(dropdown!.value).toBe('4');
 		});
 
 		test('all three syndicates persist independently', () => {
-			const holdfast = document.querySelector('#bounty-filter-ZarimanSyndicate');
-			const cavia = document.querySelector('#bounty-filter-EntratiLabSyndicate');
-			const hex = document.querySelector('#bounty-filter-HexSyndicate');
+			const holdfast = document.querySelector<HTMLSelectElement>('#bounty-filter-ZarimanSyndicate');
+			const cavia = document.querySelector<HTMLSelectElement>('#bounty-filter-EntratiLabSyndicate');
+			const hex = document.querySelector<HTMLSelectElement>('#bounty-filter-HexSyndicate');
 
-			holdfast.value = '2';
-			holdfast.dispatchEvent(new Event('change'));
+			holdfast!.value = '2';
+			holdfast!.dispatchEvent(new Event('change'));
 
-			cavia.value = '5';
-			cavia.dispatchEvent(new Event('change'));
+			cavia!.value = '5';
+			cavia!.dispatchEvent(new Event('change'));
 
-			hex.value = '-1';
-			hex.dispatchEvent(new Event('change'));
+			hex!.value = '-1';
+			hex!.dispatchEvent(new Event('change'));
 
 			expect(localStorage.getItem('live.filter.bounties.ZarimanSyndicate')).toBe('2');
 			expect(localStorage.getItem('live.filter.bounties.EntratiLabSyndicate')).toBe('5');

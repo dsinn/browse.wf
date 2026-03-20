@@ -46,7 +46,7 @@ export const ENEMY_FACTIONS: Array<{label: string; icon: string; factions: strin
 
 /** Returns the display label for a productCategory, or null if unrecognised. */
 export function getEquipmentCategoryLabel(productCategory: string): string | undefined {
-	return EQUIPMENT_CATEGORIES[productCategory]?.label ?? null;
+	return EQUIPMENT_CATEGORIES[productCategory]?.label;
 }
 
 /** Returns the faction bucket label for an avatar faction string, or null if unrecognised. */
@@ -57,7 +57,7 @@ export function getEnemyFactionLabel(faction: string): string | undefined {
 		}
 	}
 
-	return null;
+	return undefined;
 }
 
 /**

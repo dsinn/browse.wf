@@ -23,10 +23,10 @@ describe('Arbitration Schedule (/arbys)', () => {
 
 	describe('HTML structure: Dropdown selectors', () => {
 		test('days selector has all expected options', () => {
-			const select = document.querySelector('#select-days');
+			const select = document.querySelector<HTMLSelectElement>('#select-days');
 			expect(select).toBeTruthy();
 
-			const values = [...select.options].map(opt => opt.value);
+			const values = [...select!.options].map(opt => opt.value);
 			expect(values).toContain('1'); // 24 hours
 			expect(values).toContain('7'); // 7 days
 			expect(values).toContain('14'); // 14 days (default)
@@ -37,25 +37,25 @@ describe('Arbitration Schedule (/arbys)', () => {
 		});
 
 		test('days selector defaults to 14 days', () => {
-			const select = document.querySelector('#select-days');
-			const defaultOption = [...select.options].find(opt => opt.selected);
+			const select = document.querySelector<HTMLSelectElement>('#select-days');
+			const defaultOption = [...select!.options].find(opt => opt.selected);
 			expect(defaultOption?.value).toBe('14');
 		});
 
 		test('timezone selector has local and UTC options', () => {
-			const select = document.querySelector('#select-tz');
+			const select = document.querySelector<HTMLSelectElement>('#select-tz');
 			expect(select).toBeTruthy();
 
-			const values = [...select.options].map(opt => opt.value);
+			const values = [...select!.options].map(opt => opt.value);
 			expect(values).toContain('local');
 			expect(values).toContain('zulu');
 		});
 
 		test('hour format selector has all three formats', () => {
-			const select = document.querySelector('#select-hourfmt');
+			const select = document.querySelector<HTMLSelectElement>('#select-hourfmt');
 			expect(select).toBeTruthy();
 
-			const values = [...select.options].map(opt => opt.value);
+			const values = [...select!.options].map(opt => opt.value);
 			expect(values).toContain('mil'); // Military time
 			expect(values).toContain('24'); // 24-hour time
 			expect(values).toContain('12'); // 12-hour time
@@ -81,8 +81,8 @@ describe('Arbitration Schedule (/arbys)', () => {
 			for (const type of missionTypes) {
 				const checkbox = document.querySelector<HTMLInputElement>(`#filter-${type}`);
 				expect(checkbox, `filter-${type} should exist`).toBeTruthy();
-				expect(checkbox.type).toBe('checkbox');
-				expect(checkbox.checked).toBe(true); // All checked by default
+				expect(checkbox!.type).toBe('checkbox');
+				expect(checkbox!.checked).toBe(true); // All checked by default
 			}
 		});
 
@@ -92,8 +92,8 @@ describe('Arbitration Schedule (/arbys)', () => {
 			for (const tier of tiers) {
 				const checkbox = document.querySelector<HTMLInputElement>(`#filter-tier-${tier}`);
 				expect(checkbox, `filter-tier-${tier} should exist`).toBeTruthy();
-				expect(checkbox.type).toBe('checkbox');
-				expect(checkbox.checked).toBe(true);
+				expect(checkbox!.type).toBe('checkbox');
+				expect(checkbox!.checked).toBe(true);
 			}
 		});
 
@@ -103,8 +103,8 @@ describe('Arbitration Schedule (/arbys)', () => {
 			for (const faction of factions) {
 				const checkbox = document.querySelector<HTMLInputElement>(`#filter-${faction}`);
 				expect(checkbox, `filter-${faction} should exist`).toBeTruthy();
-				expect(checkbox.type).toBe('checkbox');
-				expect(checkbox.checked).toBe(true);
+				expect(checkbox!.type).toBe('checkbox');
+				expect(checkbox!.checked).toBe(true);
 			}
 		});
 
@@ -207,42 +207,42 @@ describe('Arbitration Schedule (/arbys)', () => {
 		test('supports days parameter in URL structure', () => {
 			// The arbys.ts code reads from URLSearchParams(location.hash.replace("#", ""))
 			// This test verifies the selects have the right structure to be set programmatically
-			const select = document.querySelector('#select-days');
+			const select = document.querySelector<HTMLSelectElement>('#select-days');
 
 			// Should be able to set these values programmatically
-			select.value = '7';
-			expect(select.value).toBe('7');
+			select!.value = '7';
+			expect(select!.value).toBe('7');
 
-			select.value = '90';
-			expect(select.value).toBe('90');
+			select!.value = '90';
+			expect(select!.value).toBe('90');
 		});
 
 		test('supports tz parameter in URL structure', () => {
-			const select = document.querySelector('#select-tz');
+			const select = document.querySelector<HTMLSelectElement>('#select-tz');
 
-			select.value = 'zulu';
-			expect(select.value).toBe('zulu');
+			select!.value = 'zulu';
+			expect(select!.value).toBe('zulu');
 
-			select.value = 'local';
-			expect(select.value).toBe('local');
+			select!.value = 'local';
+			expect(select!.value).toBe('local');
 		});
 
 		test('supports hourfmt parameter in URL structure', () => {
-			const select = document.querySelector('#select-hourfmt');
+			const select = document.querySelector<HTMLSelectElement>('#select-hourfmt');
 
-			select.value = '12';
-			expect(select.value).toBe('12');
+			select!.value = '12';
+			expect(select!.value).toBe('12');
 
-			select.value = '24';
-			expect(select.value).toBe('24');
+			select!.value = '24';
+			expect(select!.value).toBe('24');
 		});
 
 		test('checkboxes can be unchecked programmatically for exclude parameter', () => {
-			const checkbox = document.querySelector('#filter-MT_SURVIVAL');
+			const checkbox = document.querySelector<HTMLInputElement>('#filter-MT_SURVIVAL');
 
-			expect(checkbox.checked).toBe(true);
-			checkbox.checked = false;
-			expect(checkbox.checked).toBe(false);
+			expect(checkbox!.checked).toBe(true);
+			checkbox!.checked = false;
+			expect(checkbox!.checked).toBe(false);
 		});
 	});
 
@@ -272,8 +272,8 @@ describe('Arbitration Schedule (/arbys)', () => {
 			for (const tileset of tilesets) {
 				const checkbox = document.querySelector<HTMLInputElement>(`#filter-${tileset}`);
 				expect(checkbox, `filter-${tileset} should exist`).toBeTruthy();
-				expect(checkbox.type).toBe('checkbox');
-				expect(checkbox.checked).toBe(true); // All checked by default
+				expect(checkbox!.type).toBe('checkbox');
+				expect(checkbox!.checked).toBe(true); // All checked by default
 			}
 		});
 
@@ -300,18 +300,18 @@ describe('Arbitration Schedule (/arbys)', () => {
 
 	describe('HTML structure: Save/Load buttons', () => {
 		test('Save settings button exists', () => {
-			const btn = document.querySelector('#btn-save-settings');
+			const btn = document.querySelector<HTMLButtonElement>('#btn-save-settings');
 			expect(btn, 'Save settings button should exist').toBeTruthy();
-			expect(btn.tagName).toBe('BUTTON');
-			expect(btn.textContent).toContain('Save settings');
+			expect(btn!.tagName).toBe('BUTTON');
+			expect(btn!.textContent).toContain('Save settings');
 		});
 
 		test('Load settings button exists and starts disabled', () => {
-			const btn = document.querySelector('#btn-load-settings');
+			const btn = document.querySelector<HTMLButtonElement>('#btn-load-settings');
 			expect(btn, 'Load settings button should exist').toBeTruthy();
-			expect(btn.tagName).toBe('BUTTON');
-			expect(btn.textContent).toContain('Restore settings');
-			expect(btn.disabled, 'Load button should start disabled').toBe(true);
+			expect(btn!.tagName).toBe('BUTTON');
+			expect(btn!.textContent).toContain('Restore settings');
+			expect(btn!.disabled, 'Load button should start disabled').toBe(true);
 		});
 	});
 });

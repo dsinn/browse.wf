@@ -6,10 +6,10 @@
  */
 import {execSync} from 'node:child_process';
 import process from 'node:process';
-import chokidar from 'chokidar';
+import chokidar, {type FSWatcher} from 'chokidar';
 
-let watcher: chokidar.FSWatcher | undefined = null;
-let regenerationTimer: NodeJS.Timeout | undefined = null;
+let watcher: FSWatcher | undefined;
+let regenerationTimer: NodeJS.Timeout | undefined;
 let isRegenerating = false;
 
 /**
@@ -58,7 +58,7 @@ export async function setup() {
 			ignoreInitial: true,
 		});
 
-		watcher.on('change', file => {
+		watcher.on('change', (file: any) => {
 			console.log(`\n📝 PHP file changed: ${file}`);
 
 			// Debounce: wait 300ms for multiple changes

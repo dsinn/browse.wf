@@ -245,7 +245,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
 
 		expect(result.status).toBe(429);
 		expect(result.data).toBeNull();
-		expect(result.nextFetchAvailableAt).toBeNull();
+		expect(result.nextFetchAvailableAt).toBeUndefined();
 	});
 
 	it('converts Retry-After HTTP date to epoch ms as nextFetchAvailableAt on 429', async () => {

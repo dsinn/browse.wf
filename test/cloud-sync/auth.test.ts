@@ -244,7 +244,7 @@ describe('AuthService', () => {
 		});
 
 		test('should return null when not authenticated', () => {
-			expect(authService.getCurrentUser()).toBeNull();
+			expect(authService.getCurrentUser()).toBeUndefined();
 		});
 	});
 
@@ -296,7 +296,7 @@ describe('AuthService', () => {
 		});
 
 		test('should return null when not authenticated', () => {
-			expect(authService.getDiscordUserId()).toBeNull();
+			expect(authService.getDiscordUserId()).toBeUndefined();
 		});
 
 		test('should return null when provider_id missing', async () => {
@@ -316,7 +316,7 @@ describe('AuthService', () => {
 
 			await authService.initialize();
 
-			expect(authService.getDiscordUserId()).toBeNull();
+			expect(authService.getDiscordUserId()).toBeUndefined();
 		});
 	});
 });

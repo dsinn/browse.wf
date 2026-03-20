@@ -3,7 +3,7 @@
  * Resets at midnight UTC, matching the Steel Path Incursions timer.
  */
 
-let dailyResetTimer: ReturnType<typeof setTimeout> | undefined = null;
+let dailyResetTimer: ReturnType<typeof setTimeout> | undefined;
 
 export function updateBountyCheckboxes(): void {
 	// LastDailyReset in seconds since epoch at start of UTC day — matches incursions_expiry calculation
@@ -38,7 +38,7 @@ export function updateBountyCheckboxes(): void {
 	if (!dailyResetTimer) {
 		const nextDailyReset = (lastDailyReset + 86_400) * 1000;
 		dailyResetTimer = setTimeout(() => {
-			dailyResetTimer = null;
+			dailyResetTimer = undefined;
 			updateBountyCheckboxes();
 		}, nextDailyReset - Date.now());
 	}

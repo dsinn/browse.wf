@@ -1,5 +1,10 @@
 {
   "extends": "./tsconfig.json",
-"include": ["*.d.ts", "*.config.ts", "src/**/*", "test/**/*", "e2e/**/*", "helpers/**/*", "scripts/**/*"],
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "lib": ["es2023", "dom"]
+  },
+  "include": ["*.d.ts", "*.config.ts", "src/**/*", "test/**/*", "e2e/**/*", "helpers/**/*", "scripts/**/*"],
   "exclude": ["dist/**/*"]
 }

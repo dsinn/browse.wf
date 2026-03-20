@@ -45,7 +45,7 @@ export function testCardFilters(cardName: string) {
 			(globalThis as any).refreshCollapseStatus = function (elm: HTMLElement) {
 				const cardName = elm.dataset.collapseToggle;
 				const engaged = localStorage.getItem(`live.collapse.${cardName}`);
-				elm.classList.toggle('engaged', engaged);
+				elm.classList.toggle('engaged', engaged !== null);
 			};
 
 			// Initialize the card filters
@@ -55,28 +55,28 @@ export function testCardFilters(cardName: string) {
 
 		afterEach(() => {
 			localStorage.clear();
-			delete globalThis.bootstrap;
+			(globalThis as any).bootstrap = undefined;
 		});
 
 		describe('Gear Icon', () => {
 			test('gear icon exists in card header', () => {
-				const gearIcon = document.querySelector(`[data-filter-toggle="${cardName}"]`);
+				const gearIcon = document.querySelector<HTMLElement>(`[data-filter-toggle="${cardName}"]`);
 				expect(gearIcon).toBeTruthy();
 			});
 
 			test('gear icon starts in disabled (grayscale) state', () => {
-				const gearIcon = document.querySelector(`[data-filter-toggle="${cardName}"]`);
+				const gearIcon = document.querySelector<HTMLElement>(`[data-filter-toggle="${cardName}"]`);
 				expect(gearIcon).toBeTruthy();
 
 				// The refreshFilterStatus function should have been called during init
-				const span = gearIcon.querySelector('span');
+				const span = gearIcon!.querySelector('span');
 				expect(span?.classList.contains('filter-gear-disabled')).toBe(true);
 				expect(span?.classList.contains('filter-gear-enabled')).toBe(false);
 			});
 
 			test('gear icon has tooltip "Widget settings"', () => {
-				const gearIcon = document.querySelector(`[data-filter-toggle="${cardName}"]`);
-				const span = gearIcon.querySelector('span');
+				const gearIcon = document.querySelector<HTMLElement>(`[data-filter-toggle="${cardName}"]`);
+				const span = gearIcon!.querySelector('span');
 
 				expect(span?.dataset.bsTitle).toBe('Widget settings');
 			});
@@ -86,25 +86,25 @@ export function testCardFilters(cardName: string) {
 			test('filter panel exists and is hidden by default', () => {
 				const panel = document.querySelector(`#${cardName}-filters`);
 				expect(panel).toBeTruthy();
-				expect(panel?.style.display).toBe('none');
+				expect((panel as HTMLElement)?.style.display).toBe('none');
 				expect(panel?.classList.contains('show')).toBe(false);
 			});
 
 			test('clicking gear icon opens filter panel', () => {
-				const gearIcon = document.querySelector(`[data-filter-toggle="${cardName}"]`);
+				const gearIcon = document.querySelector<HTMLElement>(`[data-filter-toggle="${cardName}"]`);
 				const panel = document.querySelector(`#${cardName}-filters`);
 
 				// Click to open
-				gearIcon.click();
+				gearIcon!.click();
 
-				expect(panel?.style.display).toBe('grid');
+				expect((panel as HTMLElement)?.style.display).toBe('grid');
 				expect(panel?.classList.contains('show')).toBe(true);
 			});
 
 			test('clicking gear icon again closes filter panel but keeps card expanded', () => {
-				const gearIcon = document.querySelector(`[data-filter-toggle="${cardName}"]`);
+				const gearIcon = document.querySelector<HTMLElement>(`[data-filter-toggle="${cardName}"]`);
 				const panel = document.querySelector(`#${cardName}-filters`);
-				const collapseToggle = document.querySelector(`[data-collapse-toggle="${cardName}"]`);
+				const collapseToggle = document.querySelector<HTMLElement>(`[data-collapse-toggle="${cardName}"]`);
 
 				// Start with collapsed card
 				localStorage.setItem(`live.collapse.${cardName}`, '1');
@@ -112,27 +112,27 @@ export function testCardFilters(cardName: string) {
 					(globalThis as any).refreshCollapseStatus(collapseToggle);
 				}
 
-				expect(collapseToggle.classList.contains('engaged')).toBe(true);
+				expect(collapseToggle!.classList.contains('engaged')).toBe(true);
 
 				// Click to open - card should auto-expand
-				gearIcon.click();
+				gearIcon!.click();
 				expect(panel?.classList.contains('show')).toBe(true);
-				expect(collapseToggle.classList.contains('engaged')).toBe(false);
+				expect(collapseToggle!.classList.contains('engaged')).toBe(false);
 
 				// Click to close - card should stay expanded
-				gearIcon.click();
+				gearIcon!.click();
 				expect(panel?.classList.contains('show')).toBe(false);
-				expect(collapseToggle.classList.contains('engaged')).toBe(false);
+				expect(collapseToggle!.classList.contains('engaged')).toBe(false);
 			});
 
 			test('gear icon changes to enabled (blue) state when panel opens', () => {
-				const gearIcon = document.querySelector(`[data-filter-toggle="${cardName}"]`);
+				const gearIcon = document.querySelector<HTMLElement>(`[data-filter-toggle="${cardName}"]`);
 
 				// Click to open
-				gearIcon.click();
+				gearIcon!.click();
 
 				// Query for span again after refresh
-				const span = gearIcon.querySelector('span');
+				const span = gearIcon!.querySelector('span');
 
 				expect(span?.classList.contains('filter-gear-enabled')).toBe(true);
 				expect(span?.classList.contains('filter-gear-disabled')).toBe(false);
@@ -141,8 +141,8 @@ export function testCardFilters(cardName: string) {
 
 		describe('Auto-Expand Collapsed Card', () => {
 			test('opening filter panel expands collapsed card', () => {
-				const collapseToggle = document.querySelector(`[data-collapse-toggle="${cardName}"]`);
-				const gearIcon = document.querySelector(`[data-filter-toggle="${cardName}"]`);
+				const collapseToggle = document.querySelector<HTMLElement>(`[data-collapse-toggle="${cardName}"]`);
+				const gearIcon = document.querySelector<HTMLElement>(`[data-filter-toggle="${cardName}"]`);
 
 				// First, collapse the card
 				localStorage.setItem(`live.collapse.${cardName}`, '1');
@@ -150,13 +150,13 @@ export function testCardFilters(cardName: string) {
 					(globalThis as any).refreshCollapseStatus(collapseToggle);
 				}
 
-				expect(collapseToggle.classList.contains('engaged')).toBe(true);
+				expect(collapseToggle!.classList.contains('engaged')).toBe(true);
 
 				// Now open the filter panel
-				gearIcon.click();
+				gearIcon!.click();
 
 				// Card should be expanded
-				expect(collapseToggle.classList.contains('engaged')).toBe(false);
+				expect(collapseToggle!.classList.contains('engaged')).toBe(false);
 				expect(localStorage.getItem(`live.collapse.${cardName}`)).toBeNull();
 			});
 		});
@@ -167,7 +167,7 @@ export function testCardFilters(cardName: string) {
 				const checkboxes = panel?.querySelectorAll('[data-filter-type]');
 
 				expect(checkboxes).toBeTruthy();
-				expect(checkboxes.length).toBeGreaterThan(0);
+				expect(checkboxes!.length).toBeGreaterThan(0);
 			});
 
 			test('checkboxes are checked by default', () => {
@@ -190,8 +190,8 @@ export function testCardFilters(cardName: string) {
 				expect(filterType).toBeTruthy();
 
 				// Uncheck the checkbox
-				checkbox.checked = false;
-				checkbox.dispatchEvent(new Event('change'));
+				checkbox!.checked = false;
+				checkbox!.dispatchEvent(new Event('change'));
 
 				expect(localStorage.getItem(`live.filter.${cardName}.${filterType}`)).toBe('0');
 			});
@@ -204,12 +204,12 @@ export function testCardFilters(cardName: string) {
 				expect(checkbox).toBeTruthy();
 
 				// Uncheck first
-				checkbox.checked = false;
-				checkbox.dispatchEvent(new Event('change'));
+				checkbox!.checked = false;
+				checkbox!.dispatchEvent(new Event('change'));
 
 				// Then check again
-				checkbox.checked = true;
-				checkbox.dispatchEvent(new Event('change'));
+				checkbox!.checked = true;
+				checkbox!.dispatchEvent(new Event('change'));
 
 				expect(localStorage.getItem(`live.filter.${cardName}.${filterType}`)).toBe('1');
 			});

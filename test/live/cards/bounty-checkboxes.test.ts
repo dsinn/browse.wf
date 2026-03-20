@@ -50,11 +50,11 @@ describe('Bounty Checkboxes', () => {
 	test('re-running updateBountyCheckboxes does not duplicate the checkbox span', () => {
 		updateBountyCheckboxes();
 		const heading = document.querySelector('#EntratiLabSyndicate-name');
-		expect(heading.querySelectorAll('#EntratiLabSyndicate-check').length).toBe(1);
+		expect(heading!.querySelectorAll('#EntratiLabSyndicate-check').length).toBe(1);
 	});
 
 	test('silently skips missing headings', () => {
-		document.querySelector('#EntratiLabSyndicate-name').remove();
+		document.querySelector('#EntratiLabSyndicate-name')!.remove();
 		expect(() => {
 			updateBountyCheckboxes();
 		}).not.toThrow();

@@ -10,13 +10,6 @@ import {mockBootstrapTooltip, getById} from '../helpers/dom-helpers';
 
 // Import the functions we're testing by loading the common.js file
 // Note: In a real scenario, we'd extract these into a module, but for now we'll test via DOM
-declare global {
-	type Window = {
-		bootstrap?: any;
-		updateNavbarPinAppearance?: () => void;
-		toggleNavbarFixed?: () => void;
-	};
-}
 
 describe('Navbar Pin Toggle', () => {
 	beforeEach(() => {
@@ -34,22 +27,22 @@ describe('Navbar Pin Toggle', () => {
 
 	afterEach(() => {
 		localStorage.clear();
-		delete globalThis.bootstrap;
-		delete globalThis.updateNavbarPinAppearance;
-		delete globalThis.toggleNavbarFixed;
+		(globalThis as any).bootstrap = undefined;
+		(globalThis as any).updateNavbarPinAppearance = undefined;
+		(globalThis as any).toggleNavbarFixed = undefined;
 	});
 
 	describe('Initial State', () => {
 		test('navbar should be fixed by default', () => {
 			const navbar = getById('main-navbar');
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			expect(navbar.classList.contains('fixed-top')).toBe(true);
 		});
 
 		test('spacer should have height when fixed', () => {
 			const spacer = getById('navbar-spacer');
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			expect(spacer.style.height).toBe('56px');
 		});
@@ -57,14 +50,14 @@ describe('Navbar Pin Toggle', () => {
 		test('pin icons should not have unfixed class by default', () => {
 			const pinMobile = getById('navbar-pin-mobile');
 			const pinDesktop = getById('navbar-pin-desktop');
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			expect(pinMobile.classList.contains('navbar-pin-unfixed')).toBe(false);
 			expect(pinDesktop.classList.contains('navbar-pin-unfixed')).toBe(false);
 		});
 
 		test('tooltip should show "Unfix navbar from the top" when fixed', () => {
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			const pinMobile = getById('navbar-pin-mobile');
 			const pinDesktop = getById('navbar-pin-desktop');
@@ -77,48 +70,48 @@ describe('Navbar Pin Toggle', () => {
 	describe('Toggle Functionality', () => {
 		test('clicking pin should toggle fixed state', () => {
 			const navbar = getById('main-navbar');
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			// Initially fixed
 			expect(navbar.classList.contains('fixed-top')).toBe(true);
 
 			// Toggle to unfixed
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(navbar.classList.contains('fixed-top')).toBe(false);
 
 			// Toggle back to fixed
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(navbar.classList.contains('fixed-top')).toBe(true);
 		});
 
 		test('toggling should update spacer height', () => {
 			const spacer = getById('navbar-spacer');
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			// Initially 56px
 			expect(spacer.style.height).toBe('56px');
 
 			// Toggle to unfixed - should be 0 or 0px (browser normalizes it)
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(spacer.style.height).toMatch(/^0(px)?$/u);
 
 			// Toggle back - should be 56px
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(spacer.style.height).toBe('56px');
 		});
 
 		test('toggling should store preference in localStorage', () => {
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			// Initially no localStorage entry
 			expect(localStorage.getItem('navbar.unfixed')).toBe(null);
 
 			// Toggle to unfixed
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(localStorage.getItem('navbar.unfixed')).toBe('1');
 
 			// Toggle back to fixed
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(localStorage.getItem('navbar.unfixed')).toBe(null);
 		});
 	});
@@ -128,10 +121,10 @@ describe('Navbar Pin Toggle', () => {
 			const pinMobile = getById('navbar-pin-mobile');
 			const pinDesktop = getById('navbar-pin-desktop');
 
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 			expect(pinMobile.classList.contains('navbar-pin-unfixed')).toBe(false);
 
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(pinMobile.classList.contains('navbar-pin-unfixed')).toBe(true);
 			expect(pinDesktop.classList.contains('navbar-pin-unfixed')).toBe(true);
 		});
@@ -139,7 +132,7 @@ describe('Navbar Pin Toggle', () => {
 		test('pin icons should remove unfixed class when navbar is fixed', () => {
 			// Start unfixed
 			localStorage.setItem('navbar.unfixed', '1');
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			const pinMobile = getById('navbar-pin-mobile');
 			const pinDesktop = getById('navbar-pin-desktop');
@@ -148,14 +141,14 @@ describe('Navbar Pin Toggle', () => {
 			expect(pinDesktop.classList.contains('navbar-pin-unfixed')).toBe(true);
 
 			// Toggle to fixed
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(pinMobile.classList.contains('navbar-pin-unfixed')).toBe(false);
 			expect(pinDesktop.classList.contains('navbar-pin-unfixed')).toBe(false);
 		});
 
 		test('navbar should have fixed-top class when fixed', () => {
 			const navbar = getById('main-navbar');
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			expect(navbar.classList.contains('fixed-top')).toBe(true);
 		});
@@ -163,17 +156,17 @@ describe('Navbar Pin Toggle', () => {
 		test('navbar should not have fixed-top class when unfixed', () => {
 			const navbar = getById('main-navbar');
 
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(navbar.classList.contains('fixed-top')).toBe(false);
 		});
 	});
 
 	describe('Tooltip Text Updates', () => {
 		test('tooltip text should change to "Fix navbar to the top" when unfixed', () => {
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			// Toggle to unfixed
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 
 			const pinMobile = getById('navbar-pin-mobile');
 			const pinDesktop = getById('navbar-pin-desktop');
@@ -185,10 +178,10 @@ describe('Navbar Pin Toggle', () => {
 		test('tooltip text should change to "Unfix navbar from the top" when fixed', () => {
 			// Start unfixed
 			localStorage.setItem('navbar.unfixed', '1');
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			// Toggle to fixed
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 
 			const pinMobile = getById('navbar-pin-mobile');
 			const pinDesktop = getById('navbar-pin-desktop');
@@ -198,23 +191,23 @@ describe('Navbar Pin Toggle', () => {
 		});
 
 		test('Bootstrap tooltips should be recreated on toggle', () => {
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			const pinMobile = getById('navbar-pin-mobile');
 			const pinDesktop = getById('navbar-pin-desktop');
 
 			// Get initial tooltip instances
-			const initialMobileTooltip = globalThis.bootstrap.Tooltip.getInstance(pinMobile);
-			const initialDesktopTooltip = globalThis.bootstrap.Tooltip.getInstance(pinDesktop);
+			const initialMobileTooltip = (globalThis as any).bootstrap.Tooltip.getInstance(pinMobile);
+			const initialDesktopTooltip = (globalThis as any).bootstrap.Tooltip.getInstance(pinDesktop);
 
 			expect(initialMobileTooltip).toBeDefined();
 			expect(initialDesktopTooltip).toBeDefined();
 
 			// Toggle - should dispose old and create new tooltips
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 
-			const newMobileTooltip = globalThis.bootstrap.Tooltip.getInstance(pinMobile);
-			const newDesktopTooltip = globalThis.bootstrap.Tooltip.getInstance(pinDesktop);
+			const newMobileTooltip = (globalThis as any).bootstrap.Tooltip.getInstance(pinMobile);
+			const newDesktopTooltip = (globalThis as any).bootstrap.Tooltip.getInstance(pinDesktop);
 
 			// New instances should exist
 			expect(newMobileTooltip).toBeDefined();
@@ -228,7 +221,7 @@ describe('Navbar Pin Toggle', () => {
 			localStorage.setItem('navbar.unfixed', '1');
 
 			// Initialize
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			const navbar = getById('main-navbar');
 			expect(navbar.classList.contains('fixed-top')).toBe(false);
@@ -239,7 +232,7 @@ describe('Navbar Pin Toggle', () => {
 			expect(localStorage.getItem('navbar.unfixed')).toBe(null);
 
 			// Initialize
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			const navbar = getById('main-navbar');
 			expect(navbar.classList.contains('fixed-top')).toBe(true);
@@ -247,13 +240,13 @@ describe('Navbar Pin Toggle', () => {
 
 		test('localStorage state should persist across multiple initializations', () => {
 			// Set to unfixed
-			globalThis.updateNavbarPinAppearance();
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).updateNavbarPinAppearance();
+			(globalThis as any).toggleNavbarFixed();
 
 			expect(localStorage.getItem('navbar.unfixed')).toBe('1');
 
 			// Simulate page reload by re-initializing
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			const navbar = getById('main-navbar');
 			expect(navbar.classList.contains('fixed-top')).toBe(false);
@@ -273,20 +266,20 @@ describe('Navbar Pin Toggle', () => {
 			const pinMobile = getById('navbar-pin-mobile');
 			const pinDesktop = getById('navbar-pin-desktop');
 
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			// Initially fixed - neither has unfixed class
 			expect(pinMobile.classList.contains('navbar-pin-unfixed')).toBe(false);
 			expect(pinDesktop.classList.contains('navbar-pin-unfixed')).toBe(false);
 
 			// Toggle to unfixed - both should have unfixed class
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(pinMobile.classList.contains('navbar-pin-unfixed')).toBe(true);
 			expect(pinDesktop.classList.contains('navbar-pin-unfixed')).toBe(true);
 		});
 
 		test('both icons should have same tooltip text', () => {
-			globalThis.updateNavbarPinAppearance();
+			(globalThis as any).updateNavbarPinAppearance();
 
 			const pinMobile = getById('navbar-pin-mobile');
 			const pinDesktop = getById('navbar-pin-desktop');
@@ -294,7 +287,7 @@ describe('Navbar Pin Toggle', () => {
 			expect(pinMobile.dataset.bsTitle).toBe(pinDesktop.dataset.bsTitle);
 
 			// Toggle and check again
-			globalThis.toggleNavbarFixed();
+			(globalThis as any).toggleNavbarFixed();
 			expect(pinMobile.dataset.bsTitle).toBe(pinDesktop.dataset.bsTitle);
 		});
 	});
@@ -306,12 +299,12 @@ describe('Navbar Pin Toggle', () => {
  */
 function loadNavbarFunctions() {
 	// Recreate the functions from common.js
-	globalThis.updateNavbarPinAppearance = function () {
+	(globalThis as any).updateNavbarPinAppearance = function () {
 		const isFixed = !localStorage.getItem('navbar.unfixed');
-		const navbar = document.querySelector('#main-navbar');
-		const spacer = document.querySelector('#navbar-spacer');
-		const pinMobile = document.querySelector('#navbar-pin-mobile');
-		const pinDesktop = document.querySelector('#navbar-pin-desktop');
+		const navbar = document.querySelector<HTMLElement>('#main-navbar');
+		const spacer = document.querySelector<HTMLElement>('#navbar-spacer');
+		const pinMobile = document.querySelector<HTMLElement>('#navbar-pin-mobile');
+		const pinDesktop = document.querySelector<HTMLElement>('#navbar-pin-desktop');
 
 		if (!navbar || !spacer || !pinMobile || !pinDesktop) {
 			return;
@@ -332,32 +325,32 @@ function loadNavbarFunctions() {
 		}
 
 		// Update tooltips if Bootstrap is loaded
-		if (globalThis.bootstrap?.Tooltip) {
-			const tooltipMobile = globalThis.bootstrap.Tooltip.getInstance(pinMobile);
+		if ((globalThis as any).bootstrap?.Tooltip) {
+			const tooltipMobile = (globalThis as any).bootstrap.Tooltip.getInstance(pinMobile);
 			if (tooltipMobile) {
 				tooltipMobile.dispose();
 			}
 
 			pinMobile.dataset.bsTitle = tooltipText;
-			void new globalThis.bootstrap.Tooltip(pinMobile);
+			void new (globalThis as any).bootstrap.Tooltip(pinMobile);
 
-			const tooltipDesktop = globalThis.bootstrap.Tooltip.getInstance(pinDesktop);
+			const tooltipDesktop = (globalThis as any).bootstrap.Tooltip.getInstance(pinDesktop);
 			if (tooltipDesktop) {
 				tooltipDesktop.dispose();
 			}
 
 			pinDesktop.dataset.bsTitle = tooltipText;
-			void new globalThis.bootstrap.Tooltip(pinDesktop);
+			void new (globalThis as any).bootstrap.Tooltip(pinDesktop);
 		}
 	};
 
-	globalThis.toggleNavbarFixed = function () {
+	(globalThis as any).toggleNavbarFixed = function () {
 		if (localStorage.getItem('navbar.unfixed')) {
 			localStorage.removeItem('navbar.unfixed');
 		} else {
 			localStorage.setItem('navbar.unfixed', '1');
 		}
 
-		globalThis.updateNavbarPinAppearance();
+		(globalThis as any).updateNavbarPinAppearance();
 	};
 }

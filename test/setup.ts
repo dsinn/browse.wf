@@ -4,31 +4,18 @@ import {loadFixture} from './helpers/fixture-loader';
 import {loadExportJson, setupMockFetch} from './helpers/api-mocks';
 import {freezeTime} from './helpers/time-helpers';
 
-// Mock global objects that live.ts expects
-declare global {
-	type Window = {
-		LIVE_VERSION: number;
-		dict: Record<string, string>;
-		osdict: Record<string, string>;
-		ExportRegions: any;
-		ExportChallenges: any;
-		ExportMissionTypes: any;
-		ExportFactions: any;
-	};
-}
-
 beforeAll(() => {
 	if (process.env.API_VALIDATION) {
 		return;
 	}
 
-	globalThis.LIVE_VERSION = 0;
-	globalThis.dict = {};
-	globalThis.osdict = {};
-	globalThis.ExportRegions = loadExportJson('ExportRegions.json');
-	globalThis.ExportChallenges = loadExportJson('ExportChallenges.json');
-	globalThis.ExportMissionTypes = loadExportJson('ExportMissionTypes.json');
-	globalThis.ExportFactions = loadExportJson('ExportFactions.json');
+	(globalThis as any).LIVE_VERSION = 0;
+	(globalThis as any).dict = {};
+	(globalThis as any).osdict = {};
+	(globalThis as any).ExportRegions = loadExportJson('ExportRegions.json');
+	(globalThis as any).ExportChallenges = loadExportJson('ExportChallenges.json');
+	(globalThis as any).ExportMissionTypes = loadExportJson('ExportMissionTypes.json');
+	(globalThis as any).ExportFactions = loadExportJson('ExportFactions.json');
 });
 
 beforeEach(() => {

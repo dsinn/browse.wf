@@ -171,7 +171,7 @@ describe('News Card - Mark as Read Module', () => {
 
 			const stored = localStorage.getItem('news_items_read');
 			expect(stored).toBeTruthy();
-			expect(JSON.parse(stored)).toEqual(['test-key|123']);
+			expect(JSON.parse(stored!)).toEqual(['test-key|123']);
 		});
 
 		test('adds news-read class to element', () => {
@@ -190,7 +190,7 @@ describe('News Card - Mark as Read Module', () => {
 			markNewsItemAsRead('test-key|123', element2);
 
 			const stored = localStorage.getItem('news_items_read');
-			expect(JSON.parse(stored)).toEqual(['test-key|123']);
+			expect(JSON.parse(stored!)).toEqual(['test-key|123']);
 		});
 
 		test('does not re-mark already read items', () => {
@@ -201,7 +201,7 @@ describe('News Card - Mark as Read Module', () => {
 			markNewsItemAsRead('test-key|123', element);
 
 			const stored = localStorage.getItem('news_items_read');
-			expect(JSON.parse(stored)).toEqual(['test-key|123']);
+			expect(JSON.parse(stored!)).toEqual(['test-key|123']);
 		});
 
 		test('appends to existing read items', () => {
@@ -212,7 +212,7 @@ describe('News Card - Mark as Read Module', () => {
 			markNewsItemAsRead('new-key|222', element);
 
 			const stored = localStorage.getItem('news_items_read');
-			expect(JSON.parse(stored)).toEqual(['existing-key|111', 'new-key|222']);
+			expect(JSON.parse(stored!)).toEqual(['existing-key|111', 'new-key|222']);
 		});
 	});
 
@@ -243,7 +243,7 @@ describe('News Card - Mark as Read Module', () => {
 
 			const stored = localStorage.getItem('news_items_read');
 			expect(stored).toBeTruthy();
-			const readItems = JSON.parse(stored);
+			const readItems = JSON.parse(stored!);
 			expect(readItems).toContain('primary-key|123');
 			expect(readItems).toContain('success-key|456');
 			expect(readItems.length).toBe(2);
@@ -278,7 +278,7 @@ describe('News Card - Mark as Read Module', () => {
 
 			const stored = localStorage.getItem('news_items_read');
 			expect(stored).toBeTruthy();
-			expect(JSON.parse(stored)).toEqual(['test-key|123']);
+			expect(JSON.parse(stored!)).toEqual(['test-key|123']);
 			expect(item.classList.contains('news-read')).toBe(true);
 		});
 	});
@@ -305,7 +305,7 @@ describe('News Card - Mark as Read Module', () => {
 
 			const stored = localStorage.getItem('news_items_read');
 			expect(stored).toBeTruthy();
-			expect(JSON.parse(stored)).toEqual(['current-key|222']);
+			expect(JSON.parse(stored!)).toEqual(['current-key|222']);
 		});
 
 		test('removes localStorage key when all items are stale', () => {
@@ -337,7 +337,7 @@ describe('News Card - Mark as Read Module', () => {
 			// Should NOT prune when DOM is empty (news hasn't loaded yet)
 			const stored = localStorage.getItem('news_items_read');
 			expect(stored).toBeTruthy();
-			expect(JSON.parse(stored)).toEqual(['key-1|111', 'key-2|222']);
+			expect(JSON.parse(stored!)).toEqual(['key-1|111', 'key-2|222']);
 		});
 
 		test('does nothing when news card not in DOM', () => {
@@ -353,7 +353,7 @@ describe('News Card - Mark as Read Module', () => {
 			// Should preserve data when card not present
 			const stored = localStorage.getItem('news_items_read');
 			expect(stored).toBeTruthy();
-			expect(JSON.parse(stored)).toEqual(['key-1|111']);
+			expect(JSON.parse(stored!)).toEqual(['key-1|111']);
 
 			// Restore DOM for other tests
 			newsParent?.append(newsBody);
@@ -385,7 +385,7 @@ describe('News Card - Mark as Read Module', () => {
 			const stored = localStorage.getItem('news_items_read');
 			expect(stored).toBeTruthy();
 
-			const parsed = JSON.parse(stored);
+			const parsed = JSON.parse(stored!);
 			expect(Array.isArray(parsed)).toBe(true);
 			expect(parsed.length).toBe(2);
 		});

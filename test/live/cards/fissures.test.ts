@@ -80,7 +80,7 @@ describe('Void Fissures Card', () => {
 			}
 
 			// Additional verification: compare with a sorted copy
-			const sortedExpiries = expiries.toSorted((a, b) => a - b);
+			const sortedExpiries = [...expiries].sort((a: number, b: number) => a - b);
 			expect(expiries).toEqual(sortedExpiries);
 		}
 	});
@@ -110,7 +110,7 @@ describe('Void Fissures Card', () => {
 				continue;
 			}
 
-			const sorted = expiries.toSorted((a, b) => Number.parseInt(a, 10) - Number.parseInt(b, 10));
+			const sorted = [...expiries].sort((a: string, b: string) => Number.parseInt(a, 10) - Number.parseInt(b, 10));
 			const alreadySorted = JSON.stringify(expiries) === JSON.stringify(sorted);
 
 			if (!alreadySorted) {

@@ -13,7 +13,8 @@
     "test:api-validation": "API_VALIDATION=1 vitest run test/api-validation.test.ts",
     "render-fixtures": "node test/helpers/render-php.js",
     "render-fixtures:watch": "node test/helpers/render-php.js --watch",
-    "compile": "tsc && node esbuild.config.js",
+    "typecheck": "tsc && tsc -p tsconfig.lint.json",
+    "compile": "npm run typecheck && node esbuild.config.js",
     "build": "node build-gh-pages.js",
     "post-weekly-forecast": "node --env-file-if-exists=.env scripts/post-weekly-forecast.js"
   },
@@ -21,6 +22,7 @@
     "@playwright/test": "^1.57.0",
     "@testing-library/dom": "^10.4.0",
     "@types/bootstrap": "^5.2.10",
+    "@types/jsdom": "^28.0.1",
     "@types/showdown": "^2.0.6",
     "@typescript-eslint/eslint-plugin": "^8.57.1",
     "@typescript-eslint/parser": "^8.57.1",

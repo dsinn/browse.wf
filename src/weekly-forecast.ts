@@ -78,7 +78,7 @@ function buildTab(
  */
 function getActiveTabActivation(tabsElement: HTMLElement): string | undefined {
 	const active = tabsElement.querySelector<HTMLElement>('.nav-link.active');
-	return active ? active.dataset.activation : null;
+	return active ? active.dataset.activation : undefined;
 }
 
 /**
@@ -101,7 +101,7 @@ function restoreActiveTab(tabsElement: HTMLElement, activation: string): void {
 
 	// Activate the restored tab
 	target.classList.add('active');
-	const paneId = target.dataset.bsTarget.slice(1);
+	const paneId = (target.dataset.bsTarget ?? '').slice(1);
 	document.querySelector(`#${paneId}`)?.classList.add('show', 'active');
 }
 
@@ -111,7 +111,7 @@ async function renderConquestTabs(
 	conquests: any[],
 	conquestType: string,
 	variantKeyPrefix: string,
-	preserveActivation: string | undefined = null,
+	preserveActivation: string | undefined = undefined,
 ): Promise<void> {
 	const now = Date.now();
 	tabsElement.innerHTML = '';
@@ -150,7 +150,7 @@ async function renderConquestTabs(
 		});
 	}
 
-	if (preserveActivation !== null) {
+	if (preserveActivation !== undefined) {
 		restoreActiveTab(tabsElement, preserveActivation);
 	}
 }
@@ -159,7 +159,7 @@ async function renderDescentTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
 	descents: any[],
-	preserveActivation: string | undefined = null,
+	preserveActivation: string | undefined = undefined,
 ): Promise<void> {
 	const now = Date.now();
 	tabsElement.innerHTML = '';
@@ -198,7 +198,7 @@ async function renderDescentTabs(
 		});
 	}
 
-	if (preserveActivation !== null) {
+	if (preserveActivation !== undefined) {
 		restoreActiveTab(tabsElement, preserveActivation);
 	}
 }
@@ -207,7 +207,7 @@ async function renderCalendarSeasonTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
 	seasons: any[],
-	preserveActivation: string | undefined = null,
+	preserveActivation: string | undefined = undefined,
 ): Promise<void> {
 	const now = Date.now();
 	tabsElement.innerHTML = '';
@@ -234,7 +234,7 @@ async function renderCalendarSeasonTabs(
 		});
 	}
 
-	if (preserveActivation !== null) {
+	if (preserveActivation !== undefined) {
 		restoreActiveTab(tabsElement, preserveActivation);
 	}
 }
@@ -289,19 +289,19 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	const calendarSeasonTabsElement = document.querySelector<HTMLElement>('#calendar-season-tabs');
 
 	// Capture which tab the user is on before re-rendering (only meaningful on refresh)
-	const labActivation = isRefresh ? getActiveTabActivation(labTabsElement) : null;
-	const hexActivation = isRefresh ? getActiveTabActivation(hexTabsElement) : null;
-	const descentActivation = isRefresh ? getActiveTabActivation(descentTabsElement) : null;
-	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsElement) ? getActiveTabActivation(calendarSeasonTabsElement) : null;
+	const labActivation = (isRefresh && labTabsElement) ? getActiveTabActivation(labTabsElement) : undefined;
+	const hexActivation = (isRefresh && hexTabsElement) ? getActiveTabActivation(hexTabsElement) : undefined;
+	const descentActivation = (isRefresh && descentTabsElement) ? getActiveTabActivation(descentTabsElement) : undefined;
+	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsElement) ? getActiveTabActivation(calendarSeasonTabsElement) : undefined;
 
 	const worldState = await (globalThis as any).WarframeApiFrontProxyClient.fetchWorldState();
 
 	// Deep Archimedea (CT_LAB)
 	const labConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_LAB');
-	if (labConquests.length > 0) {
+	if (labTabsElement && labConquests.length > 0) {
 		await renderConquestTabs(
 			labTabsElement,
-			document.querySelector<HTMLElement>('#lab-conquest-content'),
+			document.querySelector<HTMLElement>('#lab-conquest-content')!,
 			labConquests,
 			'CT_LAB',
 			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
@@ -311,10 +311,10 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 
 	// Temporal Archimedea (CT_HEX)
 	const hexConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_HEX');
-	if (hexConquests.length > 0) {
+	if (hexTabsElement && hexConquests.length > 0) {
 		await renderConquestTabs(
 			hexTabsElement,
-			document.querySelector<HTMLElement>('#hex-conquest-content'),
+			document.querySelector<HTMLElement>('#hex-conquest-content')!,
 			hexConquests,
 			'CT_HEX',
 			'/Lotus/Language/Conquest/MissionVariant_HexConquest_',
@@ -324,10 +324,10 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 
 	// Descendia
 	const descents = worldState.Descents ?? [];
-	if (descents.length > 0) {
+	if (descentTabsElement && descents.length > 0) {
 		await renderDescentTabs(
 			descentTabsElement,
-			document.querySelector<HTMLElement>('#descendia-content'),
+			document.querySelector<HTMLElement>('#descendia-content')!,
 			descents,
 			descentActivation,
 		);
@@ -338,7 +338,7 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	if (calendarSeasonTabsElement && calendarSeasons.length > 0) {
 		await renderCalendarSeasonTabs(
 			calendarSeasonTabsElement,
-			document.querySelector<HTMLElement>('#calendar-season-content'),
+			document.querySelector<HTMLElement>('#calendar-season-content')!,
 			calendarSeasons,
 			calendarSeasonActivation,
 		);

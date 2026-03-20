@@ -28,9 +28,9 @@ const nextWeek = (object: any) => ({
 });
 const worldState = {
 	...rawWorldState,
-	Descents: rawWorldState.Descents.map(x => nextWeek(x)),
-	Conquests: rawWorldState.Conquests.map(x => nextWeek(x)),
-	KnownCalendarSeasons: rawWorldState.KnownCalendarSeasons.map(x => nextWeek(x)),
+	Descents: rawWorldState.Descents.map((x: any) => nextWeek(x)),
+	Conquests: rawWorldState.Conquests.map((x: any) => nextWeek(x)),
+	KnownCalendarSeasons: rawWorldState.KnownCalendarSeasons.map((x: any) => nextWeek(x)),
 };
 
 describe('formatConquest', () => {
@@ -56,11 +56,11 @@ describe('formatConquest', () => {
 
 	test('each mission renders with bold type name, then bullet lines for deviation and conditions', async () => {
 		const result = await formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
-		const lines = result.split('\n');
+		const lines = result!.split('\n');
 		// Should have at least one bold mission type line
-		expect(lines.some(l => /^\*\*.+\*\*$/u.test(l))).toBe(true);
+		expect(lines.some((l: string) => /^\*\*.+\*\*$/u.test(l))).toBe(true);
 		// Deviation and conditions are bullet lines (not blockquoted)
-		expect(lines.some(l => l.startsWith('- **'))).toBe(true);
+		expect(lines.some((l: string) => l.startsWith('- **'))).toBe(true);
 	});
 
 	test('mission type name is Title Case', async () => {
@@ -195,13 +195,13 @@ describe('formatDescendia', () => {
 
 	test('renders one line per challenge', async () => {
 		const result = await formatDescendia(worldState);
-		const challengeLines = result.split('\n').slice(1); // Skip header
+		const challengeLines = result!.split('\n').slice(1); // Skip header
 		expect(challengeLines).toHaveLength(worldState.Descents[0].Challenges.length);
 	});
 
 	test('each challenge line has index · bold type · challenge text', async () => {
 		const result = await formatDescendia(worldState);
-		const lines = result.split('\n').slice(1);
+		const lines = result!.split('\n').slice(1);
 		for (const line of lines) {
 			// Index. arena [__]**Type** · challenge[__]
 			expect(line).toMatch(/^\d+\. .+ (?:__|)\*\*.+\*\* · /u);
@@ -210,9 +210,9 @@ describe('formatDescendia', () => {
 
 	test('DT_PROTOFRAME challenge lines are underlined', async () => {
 		const result = await formatDescendia(worldState);
-		const lines = result.split('\n').slice(1);
+		const lines = result!.split('\n').slice(1);
 		// Indices 7, 14, 21 are DT_PROTOFRAME in the mock (0-based: 6, 13, 20)
-		const protoLines = lines.filter((_, i) => [6, 13, 20].includes(i));
+		const protoLines = lines.filter((_: string, i: number) => [6, 13, 20].includes(i));
 		for (const line of protoLines) {
 			expect(line).toMatch(/^\d+\. .+ __\*\*.+\*\* · .*__$/u);
 		}
@@ -220,8 +220,8 @@ describe('formatDescendia', () => {
 
 	test('non-protoframe lines are not underlined', async () => {
 		const result = await formatDescendia(worldState);
-		const lines = result.split('\n').slice(1);
-		const nonProtoLines = lines.filter((_, i) => ![6, 13, 20].includes(i));
+		const lines = result!.split('\n').slice(1);
+		const nonProtoLines = lines.filter((_: string, i: number) => ![6, 13, 20].includes(i));
 		for (const line of nonProtoLines) {
 			expect(line).not.toContain('__');
 		}
@@ -247,7 +247,7 @@ describe('formatDescendia', () => {
 	test('falls back to camelToWords of last path segment when challenge not in dict', async () => {
 		const result = await formatDescendia(worldState);
 		// The fallback converts the last path segment to words — verify no raw paths appear
-		const lines = result.split('\n').slice(1);
+		const lines = result!.split('\n').slice(1);
 		for (const line of lines) {
 			expect(line).not.toMatch(/\/Lotus\//u);
 		}
@@ -298,7 +298,7 @@ describe('formatDescendia', () => {
 			}],
 		};
 		const result = await formatDescendia({Descents: [descentWithEmpty]});
-		const challengeLine = result.split('\n')[1];
+		const challengeLine = result!.split('\n')[1];
 		// Only one · between type and challenge name; no trailing ·
 		expect((challengeLine.match(/ · /gu) ?? []).length).toBe(1);
 		expect(challengeLine).not.toContain('-');
@@ -338,7 +338,7 @@ describe('formatCalendarSeason', () => {
 
 	test('renders CET_CHALLENGE lines with 📋 prefix and bold date', async () => {
 		const result = await formatCalendarSeason(worldState);
-		const challengeLines = result.split('\n').filter(l => l.includes('📋'));
+		const challengeLines = result!.split('\n').filter((l: string) => l.includes('📋'));
 		expect(challengeLines.length).toBeGreaterThan(0);
 		for (const line of challengeLines) {
 			expect(line).toMatch(/^📋 \*\*.+\*\* .+/u);
@@ -347,7 +347,7 @@ describe('formatCalendarSeason', () => {
 
 	test('renders CET_REWARD lines with 🎁 prefix and bold date', async () => {
 		const result = await formatCalendarSeason(worldState);
-		const rewardLines = result.split('\n').filter(l => l.startsWith('🎁'));
+		const rewardLines = result!.split('\n').filter((l: string) => l.startsWith('🎁'));
 		expect(rewardLines.length).toBeGreaterThan(0);
 		for (const line of rewardLines) {
 			expect(line).toMatch(/^🎁 \*\*.+\*\* .+/u);
@@ -379,7 +379,7 @@ describe('formatCalendarSeason', () => {
 			}],
 		};
 		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
-		const rewardLines = result.split('\n').filter(l => l.startsWith('🎁'));
+		const rewardLines = result!.split('\n').filter((l: string) => l.startsWith('🎁'));
 		expect(rewardLines).toHaveLength(1);
 		expect(rewardLines[0]).toContain(' · ');
 	});
@@ -396,7 +396,7 @@ describe('formatCalendarSeason', () => {
 			}],
 		};
 		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
-		const upgradeLines = result.split('\n').filter(l => l.startsWith('🔧'));
+		const upgradeLines = result!.split('\n').filter((l: string) => l.startsWith('🔧'));
 		expect(upgradeLines).toHaveLength(1);
 		expect(upgradeLines[0]).toContain(' · ');
 	});
@@ -413,7 +413,7 @@ describe('formatCalendarSeason', () => {
 			}],
 		};
 		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
-		const eventLines = result.split('\n').slice(1);
+		const eventLines = result!.split('\n').slice(1);
 		expect(eventLines).toHaveLength(2);
 	});
 
@@ -444,7 +444,7 @@ describe('formatCalendarSeason', () => {
 			],
 		};
 		const result = await formatCalendarSeason({KnownCalendarSeasons: [season]});
-		const lines = result.split('\n');
+		const lines = result!.split('\n');
 		// Only one event line (header + 1 event = 2 lines total)
 		expect(lines).toHaveLength(2);
 	});
@@ -474,7 +474,7 @@ describe('chunkMessage', () => {
 
 	test('splits a message that exceeds the limit at line boundaries', async () => {
 		const longLine = 'x'.repeat(100);
-		const lines = Array.from({length: 25}, (_, i) => `line${i}: ${longLine}`);
+		const lines = Array.from({length: 25}, (_: any, i: number) => `line${i}: ${longLine}`);
 		const first = lines.join('\n'); // ~2600 chars
 		const chunks = chunkMessage(first, [], 200);
 		expect(chunks.length).toBeGreaterThan(1);
@@ -487,7 +487,7 @@ describe('chunkMessage', () => {
 	});
 
 	test('splits oversized rest sections too', async () => {
-		const longSection = Array.from({length: 30}, (_, i) => `> line ${i}: ${'y'.repeat(80)}`).join('\n');
+		const longSection = Array.from({length: 30}, (_: any, i: number) => `> line ${i}: ${'y'.repeat(80)}`).join('\n');
 		const chunks = chunkMessage('short first', [longSection], 200);
 		expect(chunks[0]).toBe('short first');
 		for (const chunk of chunks) {

@@ -22,9 +22,7 @@ export function refreshFilterStatus(elm: HTMLElement): void {
 	span.className = isOpen ? 'filter-gear-enabled' : 'filter-gear-disabled';
 
 	// Add tooltip using existing addTooltip function
-	if (globalThis.addTooltip) {
-		globalThis.addTooltip(span, 'Widget settings');
-	}
+	(globalThis as any).addTooltip?.(span, 'Widget settings');
 
 	for (const x of elm.querySelectorAll('[data-bs-toggle=tooltip]')) {
 		globalThis.bootstrap?.Tooltip.getInstance(x)?.dispose();
@@ -66,14 +64,10 @@ export function initializeFilterToggles(): void {
 					const collapseToggle = document.querySelector<HTMLElement>(`[data-collapse-toggle="${cardName}"]`);
 					if (collapseToggle?.classList.contains('engaged')) {
 						localStorage.removeItem(`live.collapse.${cardName}`);
-						if (globalThis.refreshCollapseStatus) {
-							globalThis.refreshCollapseStatus(collapseToggle);
-						}
+						(globalThis as any).refreshCollapseStatus?.(collapseToggle);
 
 						// Trigger cloud sync if available
-						if (globalThis.triggerCloudSync) {
-							globalThis.triggerCloudSync();
-						}
+						(globalThis as any).triggerCloudSync?.();
 					}
 				}
 
@@ -108,19 +102,15 @@ export function initializeCardFilters(cardName: string, onFilterChange: () => vo
 			}
 
 			// Trigger cloud sync if available
-			if (globalThis.triggerCloudSync) {
-				globalThis.triggerCloudSync();
-			}
+			(globalThis as any).triggerCloudSync?.();
 
 			// Special case: if enabling danger filter and redtext not loaded, fetch it
-			if (cardName === 'news' && filterType === 'danger' && checkbox.checked && !globalThis.redtext) {
+			if (cardName === 'news' && filterType === 'danger' && checkbox.checked && !(globalThis as any).redtext) {
 				void fetch('https://oracle.browse.wf/redtext.json')
 					.then(async response => response.json())
-					.then(redtext => {
-						globalThis.redtext = redtext;
-						if (globalThis.updateNewsTicker) {
-							globalThis.updateNewsTicker();
-						}
+					.then(data => {
+						(globalThis as any).redtext = data;
+						(globalThis as any).updateNewsTicker?.();
 					});
 			}
 
@@ -147,7 +137,7 @@ export function isFilterEnabled(cardName: string, filterType: string): boolean {
 }
 
 // Expose functions globally for use by non-module scripts
-globalThis.refreshFilterStatus = refreshFilterStatus;
-globalThis.isFilterEnabled = isFilterEnabled;
-globalThis.initializeCardFilters = initializeCardFilters;
-globalThis.initializeFilterToggles = initializeFilterToggles;
+(globalThis as any).refreshFilterStatus = refreshFilterStatus;
+(globalThis as any).isFilterEnabled = isFilterEnabled;
+(globalThis as any).initializeCardFilters = initializeCardFilters;
+(globalThis as any).initializeFilterToggles = initializeFilterToggles;

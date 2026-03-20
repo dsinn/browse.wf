@@ -51,7 +51,7 @@ export function setupMockFetch() {
 	(globalThis as any).getDictPromise = async () => loadExportJson('dict.en.json');
 	(globalThis as any).getOSDictPromise = async () => loadMock('dicts/en.json');
 
-	globalThis.fetch = vi.fn(async (url: string) => {
+	globalThis.fetch = vi.fn(async (url: any) => {
 		const urlString = url.toString();
 
 		// Serve warframe-public-export-plus JSON files from disk
@@ -108,7 +108,7 @@ export function setupMockFetch() {
 export function mockEndpoint(url: string, data: any) {
 	const existingFetch = globalThis.fetch as any;
 
-	globalThis.fetch = vi.fn((requestUrl: string) => {
+	globalThis.fetch = vi.fn((requestUrl: any) => {
 		if (requestUrl === url) {
 			return Promise.resolve({
 				ok: true,
@@ -128,7 +128,7 @@ export function mockEndpoint(url: string, data: any) {
 export function mockEndpointError(url: string, statusCode = 500) {
 	const existingFetch = globalThis.fetch as any;
 
-	globalThis.fetch = vi.fn((requestUrl: string) => {
+	globalThis.fetch = vi.fn((requestUrl: any) => {
 		if (requestUrl === url) {
 			return Promise.resolve({
 				ok: false,
@@ -139,7 +139,7 @@ export function mockEndpointError(url: string, statusCode = 500) {
 				async text() {
 					throw new Error('API Error');
 				},
-			} as Response);
+			} as unknown as Response);
 		}
 
 		return existingFetch(requestUrl);

@@ -42,9 +42,9 @@ describe('Weekly Missions Card', () => {
 		const entries = card?.querySelectorAll('[data-mission]');
 
 		expect(entries).toBeTruthy();
-		expect(entries.length).toBe(6);
+		expect(entries!.length).toBe(6);
 
-		const missions = [...entries].map(entry => entry.dataset.mission);
+		const missions = [...entries!].map(entry => (entry as HTMLElement).dataset.mission);
 		expect(missions).toContain('clem');
 		expect(missions).toContain('maroo');
 		expect(missions).toContain('circuit-normal');

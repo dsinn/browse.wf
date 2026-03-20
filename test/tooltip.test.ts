@@ -10,7 +10,7 @@ describe('tooltip', () => {
 	});
 
 	afterEach(() => {
-		delete globalThis.bootstrap;
+		(globalThis as any).bootstrap = undefined;
 	});
 
 	it('exposes addTooltip globally', () => {

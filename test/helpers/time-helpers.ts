@@ -23,7 +23,7 @@ export function freezeTime(timestamp: number = MOCK_TIMESTAMP) {
 			if (args.length === 0) {
 				super(timestamp);
 			} else {
-				super(...args);
+				super(...(args as [any]));
 			}
 		}
 	} as any;

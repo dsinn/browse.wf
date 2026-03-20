@@ -24,7 +24,7 @@ const VALID_EXPORT_FILES = new Set(fs.readdirSync(EXPORT_PLUS_DIR)
 export async function mockExportData(page: Page, exportFiles: string[]): Promise<void> {
 	for (const exportFile of exportFiles) {
 		if (!VALID_EXPORT_FILES.has(exportFile)) {
-			throw new Error(`mockExportData: "${exportFile}" not found in warframe-public-export-plus. Valid files: ${[...VALID_EXPORT_FILES].toSorted().join(', ')}`);
+			throw new Error(`mockExportData: "${exportFile}" not found in warframe-public-export-plus. Valid files: ${[...VALID_EXPORT_FILES].slice().sort().join(', ')}`);
 		}
 
 		await page.route(`**/warframe-public-export-plus/${exportFile}.json`, route => {

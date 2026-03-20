@@ -9,7 +9,7 @@ async function rawRequest(path: string, includeAuth = false): Promise<Response> 
 	};
 	if (includeAuth) {
 		const getToken = (globalThis as any).__getSupabaseAccessToken;
-		const accessToken = getToken ? await getToken() : null;
+		const accessToken = getToken ? await getToken() : undefined;
 		if (accessToken) {
 			headers.Authorization = `Bearer ${accessToken}`;
 		}
@@ -20,7 +20,7 @@ async function rawRequest(path: string, includeAuth = false): Promise<Response> 
 
 async function request(path: string): Promise<any> {
 	const response = await rawRequest(path);
-	return response.ok ? response.json() : null;
+	return response.ok ? response.json() : undefined;
 }
 
 export const WarframeApiFrontProxyClient = {
@@ -35,13 +35,13 @@ export const WarframeApiFrontProxyClient = {
 		);
 		if (!response.ok) {
 			const retryAfter = response.headers.get('Retry-After');
-			const nextFetchAvailableAt = retryAfter ? new Date(retryAfter).getTime() : null;
+			const nextFetchAvailableAt = retryAfter ? new Date(retryAfter).getTime() : undefined;
 			return {status: response.status, data: null, nextFetchAvailableAt};
 		}
 
 		const json = await response.json();
 		// Worker wraps response: { nextFetchAvailableAt: <HTTP date>, profile: <upstream JSON> }
-		const nextFetchAvailableAt = json.nextFetchAvailableAt ? new Date(json.nextFetchAvailableAt).getTime() : null;
+		const nextFetchAvailableAt = json.nextFetchAvailableAt ? new Date(json.nextFetchAvailableAt).getTime() : undefined;
 		return {status: response.status, data: json.profile, nextFetchAvailableAt};
 	},
 };

@@ -66,7 +66,7 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 
 		const firstCheckbox = page.locator('#incursions-filters input[type="checkbox"]:checked').first();
 		const checkboxId = await firstCheckbox.getAttribute('id');
-		const filterType = checkboxId.replace('filter-incursions-', '');
+		const filterType = checkboxId!.replace('filter-incursions-', '');
 
 		await firstCheckbox.click();
 
@@ -130,7 +130,7 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 
 		const firstCheckbox = page.locator('#incursions-filters input[type="checkbox"]').first();
 		const checkboxId = await firstCheckbox.getAttribute('id');
-		const filterType = checkboxId.replace('filter-incursions-', '');
+		const filterType = checkboxId!.replace('filter-incursions-', '');
 		const localStorageKey = `live.filter.incursions.${filterType}`;
 
 		if (await firstCheckbox.isChecked()) {

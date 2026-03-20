@@ -26,7 +26,7 @@ const DEEP_ARCH = `labconquest-${EXPIRY_SUFFIX}`;
 const TEMP_ARCH = `hexconquest-${EXPIRY_SUFFIX}`;
 
 function elementFor(oid: string): HTMLElement {
-	return document.querySelector<HTMLElement>(`[data-oid="${oid}"]`);
+	return document.querySelector<HTMLElement>(`[data-oid="${oid}"]`)!;
 }
 
 function isChecked(oid: string): boolean {
@@ -61,9 +61,9 @@ beforeEach(() => {
 	(globalThis as any).isOidMarkedAsCompleted = (oid: string) => oidsCompleted.includes(oid);
 	(globalThis as any).setCompletionToggle = (element: HTMLAnchorElement, completed: boolean) => {
 		const {oid} = element.dataset;
-		const idx = oidsCompleted.indexOf(oid);
+		const idx = oidsCompleted.indexOf(oid!);
 		if (completed && idx === -1) {
-			oidsCompleted.push(oid);
+			oidsCompleted.push(oid!);
 		} else if (!completed && idx !== -1) {
 			oidsCompleted.splice(idx, 1);
 		}

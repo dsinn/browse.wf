@@ -161,26 +161,26 @@ describe('preFillForm()', () => {
 			<select class="suit-select"><option value="---">---</option><option value="SuitA">A</option><option value="SuitB">B</option><option value="SuitC">C</option></select>
 		`;
 		// Wire up onchange as the inline script would
-		document.querySelector('#peek').addEventListener('change', function (this: HTMLInputElement) {
-			document.querySelector('#input-header').textContent = this.checked ? 'Current Offerings' : 'Previous Offerings';
+		document.querySelector<HTMLInputElement>('#peek')!.addEventListener('change', function (this: HTMLInputElement) {
+			document.querySelector('#input-header')!.textContent = this.checked ? 'Current Offerings' : 'Previous Offerings';
 		});
 	});
 
 	test('sets username', () => {
 		preFillForm('MyUser', false, []);
-		expect((document.querySelector('#username')).value).toBe('MyUser');
+		expect(document.querySelector<HTMLInputElement>('#username')!.value).toBe('MyUser');
 	});
 
 	test('sets peek=true and updates header', () => {
 		preFillForm('u', true, []);
-		expect((document.querySelector('#peek')).checked).toBe(true);
-		expect(document.querySelector('#input-header').textContent).toBe('Current Offerings');
+		expect(document.querySelector<HTMLInputElement>('#peek')!.checked).toBe(true);
+		expect(document.querySelector('#input-header')!.textContent).toBe('Current Offerings');
 	});
 
 	test('sets peek=false and updates header', () => {
 		preFillForm('u', false, []);
-		expect((document.querySelector('#peek')).checked).toBe(false);
-		expect(document.querySelector('#input-header').textContent).toBe('Previous Offerings');
+		expect(document.querySelector<HTMLInputElement>('#peek')!.checked).toBe(false);
+		expect(document.querySelector('#input-header')!.textContent).toBe('Previous Offerings');
 	});
 
 	test('sets suit selects', () => {
@@ -207,17 +207,17 @@ describe('showResults()', () => {
 
 	test('shows results div', () => {
 		showResults(response, {n: 'TestUser', s: response.suits, p: false});
-		expect(document.querySelector('#results').classList.contains('d-none')).toBe(false);
+		expect(document.querySelector('#results')!.classList.contains('d-none')).toBe(false);
 	});
 
 	test('heading is "Current Offerings" when p=false', () => {
 		showResults(response, {n: 'TestUser', s: response.suits, p: false});
-		expect(document.querySelector('#results h4').textContent).toBe('Current Offerings');
+		expect(document.querySelector('#results h4')!.textContent).toBe('Current Offerings');
 	});
 
 	test('heading is "Next Week\'s Offerings" when p=true', () => {
 		showResults(response, {n: 'TestUser', s: response.suits, p: true});
-		expect(document.querySelector('#results h4').textContent).toBe('Next Week\'s Offerings');
+		expect(document.querySelector('#results h4')!.textContent).toBe('Next Week\'s Offerings');
 	});
 
 	test('week-rollover: p=false override shows "Current Offerings" not "Next Week\'s Offerings"', () => {
@@ -225,28 +225,28 @@ describe('showResults()', () => {
 		// Caller passes { ...request, p: false } to override before calling showResults.
 		const originalRequest = {n: 'TestUser', s: response.suits, p: true};
 		showResults(response, {...originalRequest, p: false});
-		expect(document.querySelector('#results h4').textContent).toBe('Current Offerings');
+		expect(document.querySelector('#results h4')!.textContent).toBe('Current Offerings');
 	});
 
 	test('shows explain-noprev when request suits length differs from response', () => {
 		showResults(response, {n: 'TestUser', s: [], p: false});
-		expect(document.querySelector('#explain-noprev').classList.contains('d-none')).toBe(false);
-		expect(document.querySelector('#explain-current').classList.contains('d-none')).toBe(true);
-		expect(document.querySelector('#explain-peek').classList.contains('d-none')).toBe(true);
+		expect(document.querySelector('#explain-noprev')!.classList.contains('d-none')).toBe(false);
+		expect(document.querySelector('#explain-current')!.classList.contains('d-none')).toBe(true);
+		expect(document.querySelector('#explain-peek')!.classList.contains('d-none')).toBe(true);
 	});
 
 	test('shows explain-current when p=false and suits match', () => {
 		showResults(response, {n: 'TestUser', s: response.suits, p: false});
-		expect(document.querySelector('#explain-noprev').classList.contains('d-none')).toBe(true);
-		expect(document.querySelector('#explain-current').classList.contains('d-none')).toBe(false);
-		expect(document.querySelector('#explain-peek').classList.contains('d-none')).toBe(true);
+		expect(document.querySelector('#explain-noprev')!.classList.contains('d-none')).toBe(true);
+		expect(document.querySelector('#explain-current')!.classList.contains('d-none')).toBe(false);
+		expect(document.querySelector('#explain-peek')!.classList.contains('d-none')).toBe(true);
 	});
 
 	test('shows explain-peek when p=true and suits match', () => {
 		showResults(response, {n: 'TestUser', s: response.suits, p: true});
-		expect(document.querySelector('#explain-noprev').classList.contains('d-none')).toBe(true);
-		expect(document.querySelector('#explain-current').classList.contains('d-none')).toBe(true);
-		expect(document.querySelector('#explain-peek').classList.contains('d-none')).toBe(false);
+		expect(document.querySelector('#explain-noprev')!.classList.contains('d-none')).toBe(true);
+		expect(document.querySelector('#explain-current')!.classList.contains('d-none')).toBe(true);
+		expect(document.querySelector('#explain-peek')!.classList.contains('d-none')).toBe(false);
 	});
 
 	test('sets username in all <b> elements', () => {
@@ -261,12 +261,12 @@ describe('showHistory()', () => {
 	beforeEach(makeHistoryDOM);
 
 	function suitText(prefix: string, i: number) {
-		return document.querySelector(`#${prefix}-suit-${i}`).textContent;
+		return document.querySelector(`#${prefix}-suit-${i}`)!.textContent;
 	}
 
 	test('hides history when no current or last-week data', () => {
 		showHistory(CURRENT_WEEK, {});
-		expect(document.querySelector('#history').classList.contains('d-none')).toBe(true);
+		expect(document.querySelector('#history')!.classList.contains('d-none')).toBe(true);
 	});
 
 	test('shows this-week and last-week sections when both present', () => {
@@ -275,16 +275,16 @@ describe('showHistory()', () => {
 			[CURRENT_WEEK]: ENTRY_RHINO_FROST_LOKI,
 		};
 		showHistory(CURRENT_WEEK, cache);
-		expect(document.querySelector('#history').classList.contains('d-none')).toBe(false);
-		expect(document.querySelector('#history-this-week').classList.contains('d-none')).toBe(false);
-		expect(document.querySelector('#history-last-week').classList.contains('d-none')).toBe(false);
+		expect(document.querySelector('#history')!.classList.contains('d-none')).toBe(false);
+		expect(document.querySelector('#history-this-week')!.classList.contains('d-none')).toBe(false);
+		expect(document.querySelector('#history-last-week')!.classList.contains('d-none')).toBe(false);
 	});
 
 	test('hides this-week section when no current data', () => {
 		const cache: InvigorationCache = {[CURRENT_WEEK - 1]: ENTRY_MAG_VOLT_EXCALIBUR};
 		showHistory(CURRENT_WEEK, cache);
-		expect(document.querySelector('#history-this-week').classList.contains('d-none')).toBe(true);
-		expect(document.querySelector('#history-last-week').classList.contains('d-none')).toBe(false);
+		expect(document.querySelector('#history-this-week')!.classList.contains('d-none')).toBe(true);
+		expect(document.querySelector('#history-last-week')!.classList.contains('d-none')).toBe(false);
 	});
 
 	test('this-week uses next-week request suits when available', () => {

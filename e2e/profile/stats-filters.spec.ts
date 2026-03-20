@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename); // eslint-disable-line @typescript-e
 const proxyHost = new URL(TEST_FRONT_PROXY_BASE_URL).host;
 const profileData = JSON.parse(fs.readFileSync(path.join(__dirname, '../../test/profile/getProfileViewingData.html'), 'utf8'));
 
-function getVisibleRowStats(filter: string) {
+function getVisibleRowStats(filter: string | undefined) {
 	const visible = [...document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')]
 		.filter(tr => getComputedStyle(tr).display !== 'none');
 	return {
@@ -132,7 +132,7 @@ test.describe('Profile Stats Filters', () => {
 			await expect(firstBtn).not.toHaveClass(/active/u);
 
 			// All visible rows match the second filter
-			const {visibleCount, mismatches} = await page.evaluate(getVisibleRowStats, secondFilter);
+			const {visibleCount, mismatches} = await page.evaluate(getVisibleRowStats, secondFilter ?? undefined);
 			expect(visibleCount).toBeGreaterThan(0);
 			expect(mismatches).toEqual([]);
 		});
@@ -307,11 +307,11 @@ test.describe('Profile Stats Filters', () => {
 
 			// All visible rows still match the filter
 			const equipMismatches = await page.evaluate(
-				(filter: string) =>
+				(filter: string | undefined) =>
 					[...document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')]
 						.filter(tr => getComputedStyle(tr).display !== 'none' && tr.dataset.category !== filter)
 						.map(tr => tr.dataset.category),
-				filterValue,
+				filterValue ?? undefined,
 			);
 			expect(equipMismatches).toEqual([]);
 		});
@@ -330,11 +330,11 @@ test.describe('Profile Stats Filters', () => {
 			await expect(page.locator('#enemy-stats tr:visible')).toHaveCount(filteredCount);
 
 			const enemyMismatches = await page.evaluate(
-				(filter: string) =>
+				(filter: string | undefined) =>
 					[...document.querySelectorAll<HTMLTableRowElement>('#enemy-stats tr')]
 						.filter(tr => getComputedStyle(tr).display !== 'none' && tr.dataset.category !== filter)
 						.map(tr => tr.dataset.category),
-				filterValue,
+				filterValue ?? undefined,
 			);
 			expect(enemyMismatches).toEqual([]);
 		});

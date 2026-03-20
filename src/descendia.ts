@@ -75,11 +75,11 @@ export function updateDescendia(): void {
 
 	void getDictPromise().then(dict => {
 		const table = document.querySelector('#descendia-table');
-		const existingTbody = table.querySelector('tbody');
-		if (existingTbody) {
-			existingTbody.remove();
+		if (!table) {
+			return;
 		}
 
+		table.querySelector('tbody')?.remove();
 		table.append(renderDescentChallenges(activeDescent, dict));
 	});
 }

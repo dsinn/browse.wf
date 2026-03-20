@@ -69,7 +69,7 @@ function sortInvasions(invasions: InvasionData[], duplicates: Set<string>, perce
 			return aIsDuplicate ? 1 : -1;
 		}
 
-		return percentages.get(a._id.$oid) - percentages.get(b._id.$oid);
+		return (percentages.get(a._id.$oid) ?? 0) - (percentages.get(b._id.$oid) ?? 0);
 	});
 }
 
@@ -221,7 +221,7 @@ async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowE
 }
 
 export async function updateInvasions(): Promise<void> {
-	if (!globalThis.worldState?.Invasions) {
+	if (!(globalThis as any).worldState?.Invasions) {
 		return;
 	}
 
@@ -232,7 +232,7 @@ export async function updateInvasions(): Promise<void> {
 	]);
 	(globalThis as any).ExportImages = exportImages;
 
-	const activeInvasions = globalThis.worldState.Invasions.filter((inv: InvasionData) => !inv.Completed);
+	const activeInvasions = ((globalThis as any).worldState as IWorldState).Invasions!.filter((inv: InvasionData) => !inv.Completed);
 	const duplicates = getDuplicateInvasionOids(activeInvasions);
 	const percentages = new Map<string, number>(activeInvasions.map((inv: InvasionData) => [inv._id.$oid, calculatePercentage(inv)]));
 	const sorted = sortInvasions(activeInvasions, duplicates, percentages);
@@ -265,7 +265,7 @@ export async function updateInvasions(): Promise<void> {
 
 		// eslint-disable-next-line no-await-in-loop
 		const rows = await buildInvasionRows({
-			invasion, percentage, isDuplicate, node, nodeLabel,
+			invasion, percentage: percentage ?? 0, isDuplicate, node, nodeLabel,
 			attackerItem, defenderItem, attackerVisible, defenderVisible,
 		});
 		tbody.append(...rows);
@@ -279,12 +279,15 @@ export async function updateInvasions(): Promise<void> {
 		tbody.append(tr);
 	}
 
-	for (const x of document.querySelector('#invasions-table').querySelectorAll('[data-bs-toggle=tooltip]')) {
-		(globalThis.bootstrap as any).Tooltip.getInstance(x).dispose();
-	}
+	const invasionsTable = document.querySelector('#invasions-table');
+	if (invasionsTable) {
+		for (const x of invasionsTable.querySelectorAll('[data-bs-toggle=tooltip]')) {
+			(globalThis.bootstrap as any).Tooltip.getInstance(x).dispose();
+		}
 
-	document.querySelector('#invasions-table').innerHTML = '';
-	document.querySelector('#invasions-table').append(tbody);
+		invasionsTable.innerHTML = '';
+		invasionsTable.append(tbody);
+	}
 }
 
 // Expose functions globally for non-module scripts

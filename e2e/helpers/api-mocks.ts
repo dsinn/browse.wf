@@ -39,7 +39,6 @@ export async function mockExportData(page: Page, exportFiles: string[]): Promise
 export async function reloadWithFrozenClock(page: Page, timestamp: number = MOCK_TIMESTAMP): Promise<void> {
 	await page.reload();
 	await page.clock.install({time: new Date(timestamp)});
-	await page.clock.pauseAt(new Date(timestamp));
 }
 
 /**
@@ -60,7 +59,6 @@ export async function setupMockRoutes(page: Page, options?: {worldStateFile?: st
 	if (options?.freezeTime !== false) {
 		const timeToFreeze = options?.frozenTime ?? MOCK_TIMESTAMP;
 		await page.clock.install({time: new Date(timeToFreeze)});
-		await page.clock.pauseAt(new Date(timeToFreeze));
 	}
 
 	const mocksDir = path.join(process.cwd(), 'test', '__mocks__');

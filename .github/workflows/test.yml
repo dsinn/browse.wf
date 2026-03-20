@@ -54,6 +54,7 @@ jobs:
           cache: npm
       - *setup-php
       - run: npm ci
+      - run: npm rebuild esbuild
       - name: Compile TypeScript
         run: npm run compile
       - name: Cache Playwright browsers

@@ -2,34 +2,26 @@
  * Weekly Forecast page — renders tabs for Deep Archimedea, Temporal Archimedea, and Descendia
  * across all available weeks from worldState.
  *
- * Uses globals exposed by:
- *   - src/conquest-helpers.ts  (transformConquestMissions, renderConquestMissions, renderConquestFrameVariables)
- *   - src/descendia.ts         (renderDescentChallenges)
- *   - common.js                (getDictPromise, getOSDictPromise, toTitleCase)
+ * Uses globals exposed by common.js:
+ *   - getDictPromise, getOSDictPromise
  */
 
-declare function fetchExport(name: string): Promise<any>;
+import {transformConquestMissions, renderConquestMissions, renderConquestFrameVariables} from './conquest-helpers.js';
+import {renderDescentChallenges} from './descendia.js';
+import {getSeasonLabel} from './calendar-seasons-data.js';
+import {renderCalendarSeasonPane} from './calendar-seasons.js';
+import {createArbyCountdownBadge} from './arbys-timer.js';
+import {WarframeApiFrontProxyClient} from './warframe-api-proxy-client.js';
+import {fetchExport} from './public-export-fetcher.js';
+
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
 
-declare function transformConquestMissions(conquest: any, conquestType: string): Promise<IConquestMission[]>;
-declare function renderConquestMissions(missions: IConquestMission[], variantKeyPrefix: string): Promise<HTMLTableSectionElement>;
-declare function renderConquestFrameVariables(frameVariables: string[]): Promise<HTMLTableRowElement>;
-
-declare function renderDescentChallenges(
-	descent: any,
-	dict: Record<string, string>,
-): HTMLTableSectionElement;
-
-declare function getSeasonLabel(season: string): string;
-
-declare function renderCalendarSeasonPane(season: any): Promise<HTMLDivElement>;
-
-function mongoMs(d: IMongoDate): number {
+export function mongoMs(d: IMongoDate): number {
 	return Number.parseInt(d.$date.$numberLong, 10);
 }
 
-function formatTabDate(ms: number): string {
+export function formatTabDate(ms: number): string {
 	return new Date(ms).toLocaleDateString('en', {month: 'short', day: 'numeric'});
 }
 
@@ -37,7 +29,7 @@ function formatTabDate(ms: number): string {
  * Builds a Bootstrap tab nav item and its corresponding tab pane.
  * Stores the activation timestamp on the button as data-activation for refresh identity.
  */
-function buildTab(
+export function buildTab(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
 	id: string,
@@ -76,7 +68,7 @@ function buildTab(
 /**
  * Returns the activation timestamp of the active tab button, or null if none is active.
  */
-function getActiveTabActivation(tabsElement: HTMLElement): string | undefined {
+export function getActiveTabActivation(tabsElement: HTMLElement): string | undefined {
 	const active = tabsElement.querySelector<HTMLElement>('.nav-link.active');
 	return active ? active.dataset.activation : undefined;
 }
@@ -88,7 +80,7 @@ function getActiveTabActivation(tabsElement: HTMLElement): string | undefined {
  * Directly manipulates classes instead of using Bootstrap's Tab JS API to avoid
  * stale cached instances from the previous render confusing Bootstrap's hide/show logic.
  */
-function restoreActiveTab(tabsElement: HTMLElement, activation: string): void {
+export function restoreActiveTab(tabsElement: HTMLElement, activation: string): void {
 	const target = tabsElement.querySelector<HTMLElement>(`.nav-link[data-activation="${activation}"]`);
 	if (!target) {
 		return;
@@ -245,7 +237,7 @@ async function renderCalendarSeasonTabs(
  * proxy hops (up to 1 minute cache each) have had time to refresh.
  * If today is Sunday and it's before 23:02 UTC, returns today's target time.
  */
-function nextForecastPublishedSeconds(): number {
+export function nextForecastPublishedSeconds(): number {
 	const now = new Date();
 	// GetUTCDay(): 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 	const dayOfWeek = now.getUTCDay();
@@ -278,7 +270,7 @@ function initWeeklyMissionsNotice(): void {
 		return;
 	}
 
-	const badge = (globalThis as any).createArbyCountdownBadge(nextForecastPublishedSeconds());
+	const badge = createArbyCountdownBadge(nextForecastPublishedSeconds());
 	timerElement.append(badge);
 }
 
@@ -294,7 +286,7 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	const descentActivation = (isRefresh && descentTabsElement) ? getActiveTabActivation(descentTabsElement) : undefined;
 	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsElement) ? getActiveTabActivation(calendarSeasonTabsElement) : undefined;
 
-	const worldState = await (globalThis as any).WarframeApiFrontProxyClient.fetchWorldState();
+	const worldState = await WarframeApiFrontProxyClient.fetchWorldState();
 
 	// Deep Archimedea (CT_LAB)
 	const labConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_LAB');

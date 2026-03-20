@@ -34,7 +34,7 @@ type IDescent = {
 export function updateDescendia(): void {
 	// WorldState must be available before calling this
 	if (!(globalThis as any).worldState?.Descents || (globalThis as any).worldState.Descents.length === 0) {
-		console.error('worldState.Descents not available for updateDescendia');
+		setTimeout(updateDescendia, 5000);
 		return;
 	}
 

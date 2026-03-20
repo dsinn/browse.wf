@@ -426,15 +426,18 @@ function updateBountyCycleLocalised()
 	}
 }
 
-function updateBountyCycle()
+function updateBountyCycle(retryMs = STALE_DATA_RETRY_MS)
 {
 	fetch("https://oracle.browse.wf/bounty-cycle").then(res => res.json()).then(async (bountyCycle: IBountyCycle) =>
 	{
+		if (bountyCycle.expiry <= Date.now())
+		{
+			throw new Error(`[${new Date().toISOString()}] Stale bounty cycle: expiry ${new Date(bountyCycle.expiry).toISOString()}`);
+		}
 		if (window.bountyCycle && window.bountyCycle.expiry != bountyCycle.expiry && localStorage.getItem("live.notif.bounties"))
 		{
 			sendNotification("New bounties are available.");
 		}
-		const stale = window.bountyCycle && window.bountyCycle.expiry == bountyCycle.expiry;
 		window.bountyCycle = bountyCycle;
 		window.bountyCycleExpiry = bountyCycle.expiry;
 		updateDayNightCycle();
@@ -445,12 +448,11 @@ function updateBountyCycle()
 		document.getElementById("bounty-rot").textContent = bountyCycle.rot;
 		document.getElementById("vault-rot").textContent = bountyCycle.vaultRot;
 		updateBountyCycleLocalised();
-		const nextFetch = stale ? (Date.now() + 240_000 + Math.random() * 120_000) : Math.max(Date.now(), bountyCycle.expiry);
-		setTimeout(updateBountyCycle, nextFetch - Date.now());
+		setTimeout(() => updateBountyCycle(STALE_DATA_RETRY_MS), bountyCycle.expiry - Date.now());
 	}).catch(e =>
 	{
 		console.error(e);
-		setTimeout(updateBountyCycle, STALE_DATA_RETRY_MS);
+		setTimeout(() => updateBountyCycle(Math.min(retryMs * 2, 240_000 + 120_000 * Math.random())), retryMs);
 	});
 }
 
@@ -737,7 +739,10 @@ function updateWeekly()
 		}
 
 		// Skip re-render if we're still in the same week
-		if (newWeeklyExpiry === weeklyExpiry) return;
+		if (newWeeklyExpiry <= Date.now()) {
+			setTimeout(updateWeekly, STALE_DATA_RETRY_MS);
+			return;
+		}
 
 		// New week detected: notify before updating
 		if (weeklyExpiry)
@@ -1091,7 +1096,7 @@ async function updateBaro()
 	const baroNext = window.worldState.VoidTraders[0].Manifest
 		? parseInt(window.worldState.VoidTraders[0].Expiry.$date.$numberLong)
 		: parseInt(window.worldState.VoidTraders[0].Activation.$date.$numberLong);
-	setTimeout(updateBaro, baroNext - Date.now());
+	setTimeout(updateBaro, baroNext > Date.now() ? baroNext - Date.now() : STALE_DATA_RETRY_MS);
 	document.querySelectorAll(".baro-where").forEach(x => x.textContent = dict[ExportRegions[window.worldState.VoidTraders[0].Node].name] + ", " + dict[ExportRegions[window.worldState.VoidTraders[0].Node].systemName]);
 	if (window.worldState.VoidTraders[0].Manifest)
 	{

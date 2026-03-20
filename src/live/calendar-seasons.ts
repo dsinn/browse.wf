@@ -16,6 +16,9 @@ declare function createCompletionToggle(oid: string): Node;
 export async function updateCalendarSeason(): Promise<void> {
 	const seasons: any[] = (globalThis as any).worldState?.KnownCalendarSeasons ?? [];
 	if (seasons.length === 0) {
+		setTimeout(() => {
+			void updateCalendarSeason();
+		}, 5000);
 		return;
 	}
 

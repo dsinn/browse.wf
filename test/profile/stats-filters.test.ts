@@ -40,10 +40,10 @@ describe('profile-stats-filters', () => {
 			}
 		});
 
-		it('every entry has a label string', () => {
+		it('every entry has a tooltip string', () => {
 			for (const [key, value] of Object.entries(EQUIPMENT_CATEGORIES) as Array<[string, any]>) {
-				expect(typeof value.label, key).toBe('string');
-				expect(value.label.length, key).toBeGreaterThan(0);
+				expect(typeof value.tooltip, key).toBe('string');
+				expect(value.tooltip.length, key).toBeGreaterThan(0);
 			}
 		});
 
@@ -60,9 +60,9 @@ describe('profile-stats-filters', () => {
 			expect(ENEMY_FACTIONS.length).toBeGreaterThan(0);
 		});
 
-		it('every entry has label, icon, and factions array', () => {
+		it('every entry has tooltip, icon, and factions array', () => {
 			for (const entry of ENEMY_FACTIONS) {
-				expect(typeof entry.label).toBe('string');
+				expect(typeof entry.tooltip).toBe('string');
 				expect(typeof entry.icon).toBe('string');
 				expect(Array.isArray(entry.factions)).toBe(true);
 				expect(entry.factions.length).toBeGreaterThan(0);
@@ -70,14 +70,14 @@ describe('profile-stats-filters', () => {
 		});
 
 		it('covers the main factions', () => {
-			const labels = ENEMY_FACTIONS.map((f: any) => f.label);
+			const tooltips = ENEMY_FACTIONS.map((f: any) => f.tooltip);
 			for (const expected of ['Grineer', 'Corpus', 'Infested', 'Orokin', 'Sentient', 'Narmer', 'Murmur']) {
-				expect(labels).toContain(expected);
+				expect(tooltips).toContain(expected);
 			}
 		});
 
 		it('Infested bucket covers both Infestation and Infested strings', () => {
-			const infested = ENEMY_FACTIONS.find((f: any) => f.label === 'Infested');
+			const infested = ENEMY_FACTIONS.find((f: any) => f.tooltip === 'Infested');
 			expect(infested!.factions).toContain('Infestation');
 			expect(infested!.factions).toContain('Infested');
 		});
@@ -100,7 +100,7 @@ describe('profile-stats-filters', () => {
 			for (const entry of ENEMY_FACTIONS) {
 				const img = document.createElement('img');
 				(globalThis as any).setImageSource(img, entry.icon);
-				expect(img.src, entry.label).not.toMatch(/^https:\/\/browse\.wf\//u);
+				expect(img.src, entry.tooltip).not.toMatch(/^https:\/\/browse\.wf\//u);
 			}
 		});
 	});
@@ -142,9 +142,9 @@ describe('profile-stats-filters', () => {
 		let tbody: HTMLElement;
 
 		const entries = [
-			{key: 'Alpha', label: 'Alpha Label', icon: '/Lotus/some/Alpha.png'},
-			{key: 'Beta', label: 'Beta Label', icon: ''},
-			{key: 'Gamma', label: 'Gamma Label', icon: '/Lotus/some/Gamma.png'},
+			{key: 'Alpha', tooltip: 'Alpha Label', icon: '/Lotus/some/Alpha.png'},
+			{key: 'Beta', tooltip: 'Beta Label', icon: ''},
+			{key: 'Gamma', tooltip: 'Gamma Label', icon: '/Lotus/some/Gamma.png'},
 		];
 
 		beforeEach(() => {

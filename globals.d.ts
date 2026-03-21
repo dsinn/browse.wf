@@ -196,8 +196,8 @@ declare global {
 	var pruneStaleNewsRead: (() => void) | undefined;
 
 	// Src/profile-stats-filters.ts
-	var ENEMY_FACTIONS: Array<{label: string; icon: string; factions: string[]}> | undefined;
-	var EQUIPMENT_CATEGORIES: Record<string, {label: string; icon: string}> | undefined;
+	var ENEMY_FACTIONS: Array<{tooltip: string; icon: string; factions: string[]}> | undefined;
+	var EQUIPMENT_CATEGORIES: Record<string, {tooltip: string; icon: string; displayText?: string}> | undefined;
 	var getEnemyFactionLabel: ((faction: string) => string | undefined) | undefined;
 	var getEquipmentCategoryLabel: ((productCategory: string) => string | undefined) | undefined;
 	var initStatsFilterBar: ((...args: any[]) => void) | undefined;

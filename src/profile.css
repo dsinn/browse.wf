@@ -1,3 +1,20 @@
+#missions table {
+    width: auto;
+}
+
+#missions tr :nth-child(2) {
+    text-align: right;
+}
+
+#missions tr :nth-child(3) {
+    text-align: center;
+}
+
+table:has(#equipment-stats) tr *:not(:nth-child(2)),
+table:has(#enemy-stats) tr *:not(:nth-child(2)) {
+    text-align: right;
+}
+
 #step1-container,
 #step2-container,
 #step3-auto-container,

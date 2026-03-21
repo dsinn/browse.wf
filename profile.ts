@@ -10,7 +10,7 @@ declare function getDictPromise(): Promise<Record<string, string>>;
 declare function fetchExport(name: string): Promise<Record<string, any>>;
 declare function toTitleCase(str: string): string;
 declare function setImageSource(img: HTMLImageElement, icon: string): void;
-declare function initStatsFilterBar(filterBar: HTMLElement, tbody: HTMLElement, entries: Array<{ key: string; label: string; icon: string }>, presentKeys: Set<string>, onFilter?: () => void): void;
+declare function initStatsFilterBar(filterBar: HTMLElement, tbody: HTMLElement, entries: Array<{ key: string; tooltip: string; icon: string; displayText?: string }>, presentKeys: Set<string>, onFilter?: () => void): void;
 
 // fetch
 declare let dict: Record<string, string>;
@@ -448,6 +448,8 @@ function fetchAndRenderProfile(platform: string, accountId: string, fromEELog: b
 
 		profileLoadedManually = true;
 		updateStepStatus("#step2-container", true);
+		updateStepStatus("#step3-auto-container", true);
+		(document.querySelector("#step3-auto-container button") as HTMLButtonElement).disabled = true;
 		updateDownloadLink();
 		localStorage.setItem(platformStorageKey, platform);
 		localStorage.setItem(accountIdStorageKey, accountId);
@@ -974,7 +976,7 @@ function renderProfile(): void
 		}
 		{
 			const td = document.createElement("td");
-			td.textContent = mission.Completes;
+			td.textContent = mission.Completes.toLocaleString();
 			tr.appendChild(td);
 		}
 		{
@@ -1154,7 +1156,7 @@ function renderProfile(): void
 
 	// Equipment filter bar + table
 	{
-		const EQUIPMENT_CATEGORIES: Record<string, { label: string; icon: string }> = (window as any).EQUIPMENT_CATEGORIES;
+		const EQUIPMENT_CATEGORIES: Record<string, { tooltip: string; icon: string; displayText?: string }> = (window as any).EQUIPMENT_CATEGORIES;
 		const equipmentFilterBar = document.getElementById("equipment-filter-bar");
 		const equipmentTbody = document.getElementById("equipment-stats");
 		equipmentTbody.innerHTML = "";
@@ -1201,7 +1203,7 @@ function renderProfile(): void
 				}
 				{
 					const td = document.createElement("td");
-					td.innerHTML = ((item.equipTime ?? 0) / 3600).toFixed(1);
+					td.innerHTML = ((item.equipTime ?? 0) / 3600).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 					tr.appendChild(td);
 				}
 				{
@@ -1229,7 +1231,7 @@ function renderProfile(): void
 			});
 		}
 
-		const equipmentEntries = Object.entries(EQUIPMENT_CATEGORIES).map(([key, { label, icon }]) => ({ key, label, icon }));
+		const equipmentEntries = Object.entries(EQUIPMENT_CATEGORIES).map(([key, { tooltip, icon, displayText }]) => ({ key, tooltip, icon, displayText }));
 		const { renumber: renumberEquipment, observer: equipmentObs } = makeRenumber(equipmentTbody, equipmentRankObserver);
 		equipmentRankObserver = equipmentObs;
 		initStatsFilterBar(equipmentFilterBar, equipmentTbody, equipmentEntries, presentCategories, renumberEquipment);
@@ -1238,7 +1240,7 @@ function renderProfile(): void
 
 	// Enemy filter bar + table
 	{
-		const ENEMY_FACTIONS: Array<{ label: string; icon: string; factions: string[] }> = (window as any).ENEMY_FACTIONS;
+		const ENEMY_FACTIONS: Array<{ tooltip: string; icon: string; factions: string[] }> = (window as any).ENEMY_FACTIONS;
 		const enemyFilterBar = document.getElementById("enemy-filter-bar");
 		const enemyTbody = document.getElementById("enemy-stats");
 		enemyTbody.innerHTML = "";
@@ -1256,7 +1258,7 @@ function renderProfile(): void
 					return;
 				}
 				const bucket = ENEMY_FACTIONS.find(f => f.factions.includes(type.faction));
-				const factionLabel = bucket ? bucket.label : "";
+				const factionLabel = bucket ? bucket.tooltip : "";
 				const tr = document.createElement("tr");
 				tr.dataset.category = factionLabel;
 				tr.appendChild(document.createElement("td")); // rank cell (populated by observer)
@@ -1304,7 +1306,7 @@ function renderProfile(): void
 			});
 		}
 
-		const enemyEntries = ENEMY_FACTIONS.map(({ label, icon }) => ({ key: label, label, icon }));
+		const enemyEntries = ENEMY_FACTIONS.map(({ tooltip, icon }) => ({ key: tooltip, tooltip, icon }));
 		const { renumber: renumberEnemy, observer: enemyObs } = makeRenumber(enemyTbody, enemyRankObserver);
 		enemyRankObserver = enemyObs;
 		initStatsFilterBar(enemyFilterBar, enemyTbody, enemyEntries, presentFactions, renumberEnemy);

@@ -38,19 +38,19 @@
 }
 
 .stats-filter-btn {
-	display: flex;
 	align-items: center;
-	gap: 5px;
-	padding: 3px 8px;
+	background: none;
 	border: 1px solid transparent;
 	border-bottom: 2px solid transparent;
 	border-radius: 4px;
-	background: none;
-	cursor: pointer;
-	font-size: 0.85em;
 	color: inherit;
-	white-space: nowrap;
+	cursor: pointer;
+	display: flex;
+	font-size: 0.85em;
+	gap: 5px;
+	padding: 3px 8px;
 	transition: border-color 0.15s;
+	white-space: nowrap;
 }
 
 .stats-filter-btn:hover {
@@ -70,10 +70,11 @@
 }
 
 .stats-filter-btn .filter-emoji {
+	color: var(--bs-primary);
 	font-size: 32px;
 	line-height: 32px;
-	width: 32px;
 	text-align: center;
+	width: 32px;
 }
 
 .stats-filter-btn img,

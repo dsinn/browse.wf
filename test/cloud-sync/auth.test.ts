@@ -6,7 +6,7 @@ import {
 	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {AuthService} from '../../src/cloud-sync/auth';
-import {db} from '../../src/cloud-sync/database';
+import {db, isDatabaseConfigured} from '../../src/cloud-sync/database';
 
 // Mock the database module
 vi.mock('../../src/cloud-sync/database', () => ({
@@ -25,7 +25,7 @@ vi.mock('../../src/cloud-sync/database', () => ({
 vi.mock('../../src/cloud-sync/storage-sync', () => ({
 	StorageSyncService: {
 		getInstance: vi.fn(() => ({
-			handleFirstLogin: vi.fn(),
+			handleLogin: vi.fn(),
 			flushPendingChanges: vi.fn(),
 			unsubscribeFromRealtimeUpdates: vi.fn(),
 		})),
@@ -274,6 +274,20 @@ describe('AuthService', () => {
 		});
 	});
 
+	describe('getUserId', () => {
+		test('should return user ID when authenticated', async () => {
+			const mockUser = {id: 'user-123', user_metadata: {}};
+			vi.mocked(db.auth.getUser).mockResolvedValue({data: {user: mockUser}, error: null} as any);
+			vi.mocked(db.auth.onAuthStateChange).mockReturnValue({data: {subscription: {}}} as any);
+			await authService.initialize();
+			expect(authService.getUserId()).toBe('user-123');
+		});
+
+		test('should return undefined when not authenticated', () => {
+			expect(authService.getUserId()).toBeUndefined();
+		});
+	});
+
 	describe('getDiscordUserId', () => {
 		test('should return Discord user ID from metadata', async () => {
 			const mockUser = {
@@ -317,6 +331,61 @@ describe('AuthService', () => {
 			await authService.initialize();
 
 			expect(authService.getDiscordUserId()).toBeUndefined();
+		});
+	});
+
+	describe('initialize — auth state change callback', () => {
+		test('should update currentUser and dispatch auth event when state changes', async () => {
+			vi.useFakeTimers();
+
+			const mockUser = {id: 'user-abc', user_metadata: {}};
+			vi.mocked(db.auth.getUser).mockResolvedValue({data: {user: null}, error: null} as any);
+
+			let capturedCallback: ((event: string, session: any) => void) | undefined;
+			vi.mocked(db.auth.onAuthStateChange).mockImplementation((cb: any) => {
+				capturedCallback = cb;
+				return {data: {subscription: {}}} as any;
+			});
+
+			await authService.initialize();
+
+			const events: string[] = [];
+			globalThis.addEventListener('auth-signed-in', () => {
+				events.push('auth-signed-in');
+			}, {once: true});
+
+			capturedCallback!('SIGNED_IN', {user: mockUser});
+			expect(authService.getCurrentUser()).toEqual(mockUser);
+
+			vi.advanceTimersByTime(0);
+			await vi.runAllTimersAsync();
+
+			expect(events).toContain('auth-signed-in');
+
+			vi.useRealTimers();
+		});
+	});
+
+	describe('initialize — database not configured', () => {
+		test('should return early without calling db when not configured', async () => {
+			vi.mocked(isDatabaseConfigured).mockReturnValueOnce(false);
+			await authService.initialize();
+			expect(db.auth.getUser).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('signInWithDiscord — database not configured', () => {
+		test('should throw when database is not configured', async () => {
+			vi.mocked(isDatabaseConfigured).mockReturnValueOnce(false);
+			await expect(authService.signInWithDiscord()).rejects.toThrow('Database not configured');
+		});
+	});
+
+	describe('signOut — database not configured', () => {
+		test('should return early without calling db when not configured', async () => {
+			vi.mocked(isDatabaseConfigured).mockReturnValueOnce(false);
+			await authService.signOut();
+			expect(db.auth.signOut).not.toHaveBeenCalled();
 		});
 	});
 });

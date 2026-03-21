@@ -50,6 +50,23 @@ if (document.readyState === 'loading') {
 	void initializeAuth();
 }
 
+// Coordinate initial sync on sign-in
+globalThis.addEventListener('auth-signed-in', () => {
+	void StorageSyncService.getInstance().handleLogin();
+});
+
+// Flush and unsubscribe on sign-out
+globalThis.addEventListener('auth-signed-out', () => {
+	void (async () => {
+		const syncService = StorageSyncService.getInstance();
+		const userId = AuthService.getInstance().getUserId();
+		if (userId) {
+			await syncService.flushPendingChanges();
+			syncService.unsubscribeFromRealtimeUpdates();
+		}
+	})();
+});
+
 // Listen for auth state changes (e.g., after sign out)
 globalThis.addEventListener('auth-state-changed', () => {
 	const authService = AuthService.getInstance();

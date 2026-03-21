@@ -25,6 +25,7 @@ import './descendia.js';
 import './invasions.js';
 import './invigorations.js';
 import './live/calendar-seasons.js';
+import './live/sync.js';
 import './news-mark-read.js';
 import './profile/stats-filters.js';
 import './profile/syndicate-addons.js';

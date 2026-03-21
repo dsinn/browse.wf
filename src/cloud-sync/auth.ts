@@ -2,30 +2,14 @@
  * Authentication service for cloud sync
  *
  * Handles Discord OAuth authentication and manages user session state.
+ * Dispatches the following events for other modules to react to:
  *
- * ## Cloud Sync Events
+ * - **'auth-signed-in'**: Emitted on SIGNED_IN and INITIAL_SESSION with a user.
+ *   detail: { userId: string }
  *
- * This module dispatches the following custom events to communicate cloud sync state:
+ * - **'auth-signed-out'**: Emitted on SIGNED_OUT.
  *
- * - **'cloud-sync-complete'**: Emitted when initial pull from database succeeds.
- *   Dispatched by: auth.ts (handleAuthChange)
- *   Listeners: profile.ts (waits for this before loading profile data)
- *
- * - **'cloud-sync-unavailable'**: Emitted when database is not configured (no Vite env vars).
- *   Dispatched by: auth-init.ts (initializeAuth)
- *   Listeners: profile.ts (falls back to default profile)
- *
- * - **'cloud-sync-unauthenticated'**: Emitted when user is not authenticated.
- *   Dispatched by: auth-init.ts (initializeAuth)
- *   Listeners: profile.ts (falls back to default profile)
- *
- * - **'cloud-sync-error'**: Emitted when initial pull from database fails.
- *   Dispatched by: auth.ts (handleAuthChange)
- *   Listeners: profile.ts (falls back to default profile)
- *
- * These events are used to coordinate profile loading with cloud sync initialization.
- * profile.ts waits for one of these events (or 3s timeout) before proceeding with
- * profile data initialization.
+ * - **'auth-state-changed'**: Emitted on SIGNED_OUT, for UI refresh.
  */
 
 import type {User} from '@supabase/supabase-js';
@@ -41,7 +25,6 @@ export class AuthService {
 	private static instance: AuthService;
 
 	private currentUser: User | undefined;
-	private initialSyncComplete = false;
 
 	private constructor() {
 		// Singleton — no initialization needed
@@ -57,9 +40,13 @@ export class AuthService {
 		this.currentUser = user ?? undefined;
 
 		// Listen for auth changes
+		// Note: per Supabase docs, async work must be deferred with setTimeout
+		// to avoid deadlocks with other Supabase operations
 		db.auth.onAuthStateChange((event: string, session: any) => {
 			this.currentUser = session?.user ?? undefined;
-			void this.handleAuthChange(event, session);
+			setTimeout(() => {
+				this.handleAuthChange(event, session);
+			}, 0);
 		});
 	}
 
@@ -118,33 +105,15 @@ export class AuthService {
 		return this.currentUser?.user_metadata?.provider_id || undefined;
 	}
 
-	private async handleAuthChange(event: string, session: any) {
+	private handleAuthChange(event: string, session: any) {
 		if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-			// Only perform initial sync once per session
-			if (!this.initialSyncComplete && session?.user) {
-				this.initialSyncComplete = true;
-				const {StorageSyncService} = await import('./storage-sync.js');
-				const syncService = StorageSyncService.getInstance();
-				try {
-					await syncService.handleFirstLogin();
-					globalThis.dispatchEvent(new CustomEvent('cloud-sync-complete'));
-				} catch (error) {
-					console.error('Cloud sync error:', error);
-					globalThis.dispatchEvent(new CustomEvent('cloud-sync-error', {detail: error}));
-				}
+			if (session?.user) {
+				globalThis.dispatchEvent(new CustomEvent('auth-signed-in', {
+					detail: {userId: session.user.id},
+				}));
 			}
 		} else if (event === 'SIGNED_OUT') {
-			this.initialSyncComplete = false;
-			if (this.currentUser) {
-				const {StorageSyncService} = await import('./storage-sync.js');
-				const syncService = StorageSyncService.getInstance();
-				// Flush any pending changes before logout
-				await syncService.flushPendingChanges();
-				// Unsubscribe from real-time updates
-				syncService.unsubscribeFromRealtimeUpdates();
-			}
-
-			// Dispatch event to update UI
+			globalThis.dispatchEvent(new CustomEvent('auth-signed-out'));
 			globalThis.dispatchEvent(new CustomEvent('auth-state-changed'));
 		}
 	}

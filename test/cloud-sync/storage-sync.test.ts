@@ -84,8 +84,9 @@ describe('StorageSyncService', () => {
 		};
 		vi.mocked(db.channel).mockReturnValue(mockChannel);
 
-		// Get singleton instance
+		// Get singleton instance and reset per-session state
 		service = StorageSyncService.getInstance();
+		(service as any).loginSyncComplete = false;
 	});
 
 	afterEach(() => {
@@ -102,13 +103,10 @@ describe('StorageSyncService', () => {
 			localStorage.setItem('live.notif.alert1', 'true');
 			localStorage.setItem('live.notif.alert2', 'true');
 			localStorage.setItem('live.collapse.section1', 'true');
-			localStorage.setItem('oids_completed', '["obj1", "obj2"]');
+			localStorage.setItem('oids_completed', '["obj1","obj2"]');
 
-			// Mock DOM elements with data-oid attributes (so pruneStaleOids doesn't remove them)
-			document.body.innerHTML = '<div data-oid="obj1"></div><div data-oid="obj2"></div>';
-
-			// Call private method via handleFirstLogin flow (which uses it internally)
-			// Since it's private, we test it indirectly through pushToDatabase
+			// Pruning happens via cloud-sync-before-push event (in src/live/sync.ts),
+			// not inside pushToDatabase. Here we verify the raw serialization.
 			mockFromChain.upsert.mockResolvedValue({error: null});
 
 			const userId = 'test-user-uuid';
@@ -144,7 +142,7 @@ describe('StorageSyncService', () => {
 			});
 		});
 
-		test('should handle malformed completions JSON', () => {
+		test('should include malformed completions JSON as-is (pruning is caller responsibility)', () => {
 			localStorage.setItem('lang', 'en');
 			localStorage.setItem('oids_completed', 'invalid-json');
 
@@ -152,8 +150,9 @@ describe('StorageSyncService', () => {
 
 			return (service as any).pushToDatabase('test-user-uuid').then(() => {
 				const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
-				// PruneStaleOids() removes invalid JSON from localStorage
-				expect(call.data.oids_completed).toBeUndefined();
+				// Pruning via cloud-sync-before-push event happens before pushToDatabase is called.
+				// storage-sync.ts serializes whatever is in localStorage at call time.
+				expect(call.data.oids_completed).toBe('invalid-json');
 			});
 		});
 
@@ -252,7 +251,7 @@ describe('StorageSyncService', () => {
 			expect(localStorage.getItem('sb-test-project-auth-token')).toBe('sensitive-auth-token-value');
 		});
 
-		test('should refresh UI after pulling data', async () => {
+		test('should dispatch cloud-sync-pulled after pulling data', async () => {
 			const userData: UserData = {
 				lang: 'en',
 			};
@@ -262,13 +261,18 @@ describe('StorageSyncService', () => {
 				error: null,
 			});
 
+			const events: string[] = [];
+			globalThis.addEventListener('cloud-sync-pulled', () => {
+				events.push('cloud-sync-pulled');
+			}, {once: true});
+
 			await (service as any).pullFromDatabase('test-user');
 
-			expect((globalThis as any).refreshAllCompletionToggles).toHaveBeenCalled();
+			expect(events).toContain('cloud-sync-pulled');
 		});
 	});
 
-	describe('handleFirstLogin', () => {
+	describe('handleLogin', () => {
 		test('should push to database on first login (no remote data)', async () => {
 			localStorage.setItem('lang', 'en');
 
@@ -279,7 +283,7 @@ describe('StorageSyncService', () => {
 
 			mockFromChain.upsert.mockResolvedValue({error: null});
 
-			await service.handleFirstLogin();
+			await service.handleLogin();
 
 			expect(mockFromChain.upsert).toHaveBeenCalled();
 			expect(db.channel).toHaveBeenCalled(); // Should subscribe to real-time
@@ -297,10 +301,15 @@ describe('StorageSyncService', () => {
 				error: null,
 			});
 
-			await service.handleFirstLogin();
+			const events: string[] = [];
+			globalThis.addEventListener('cloud-sync-pulled', () => {
+				events.push('cloud-sync-pulled');
+			}, {once: true});
+
+			await service.handleLogin();
 
 			expect(localStorage.getItem('lang')).toBe('fr');
-			expect((globalThis as any).refreshAllCompletionToggles).toHaveBeenCalled();
+			expect(events).toContain('cloud-sync-pulled');
 		});
 	});
 
@@ -463,7 +472,7 @@ describe('StorageSyncService', () => {
 			vi.useRealTimers();
 		});
 
-		test('should set justPushed flag in handleFirstLogin', async () => {
+		test('should set justPushed flag in handleLogin', async () => {
 			vi.useFakeTimers();
 
 			// First login - no remote data
@@ -473,7 +482,7 @@ describe('StorageSyncService', () => {
 			});
 			mockFromChain.upsert.mockResolvedValue({error: null});
 
-			await service.handleFirstLogin();
+			await service.handleLogin();
 
 			// Get WebSocket callback
 			const updateCallback = vi.mocked(mockChannel.on).mock.calls[0][2];
@@ -697,6 +706,35 @@ describe('StorageSyncService', () => {
 			expect(db.channel).toHaveBeenCalledTimes(initialCalls + 21);
 		});
 
+		test('should clear pending reconnect timer when SUBSCRIBED fires before timer', async () => {
+			vi.useFakeTimers();
+
+			vi.mocked(db.auth.refreshSession).mockResolvedValue({
+				data: {session: {access_token: 'tok'}},
+				error: null,
+			} as any);
+
+			service.subscribeToRealtimeUpdates('test-user-uuid');
+			const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+			// Trigger a failure — starts reconnect timer
+			await subscribeCallback('CLOSED');
+			expect((service as any).reconnectTimer).toBeDefined();
+
+			// SUBSCRIBED fires before the timer — should cancel it
+			(service as any).hasSubscribedBefore = true;
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 5000; // Recent
+			await subscribeCallback('SUBSCRIBED');
+
+			expect((service as any).reconnectTimer).toBeUndefined();
+
+			// Reset state leaked to singleton
+			(service as any).hasSubscribedBefore = false;
+			(service as any).reconnectAttempts = 0;
+
+			vi.useRealTimers();
+		});
+
 		test('should reset reconnect counter on successful connection', async () => {
 			vi.mocked(db.auth.refreshSession).mockResolvedValue({
 				data: {session: {access_token: 'mock-token'}},
@@ -728,6 +766,194 @@ describe('StorageSyncService', () => {
 			expect(db.channel).toHaveBeenCalledTimes(callsAfterSuccess + 1); // Reconnected with 1.875s delay!
 		});
 
+		test('should skip pull on SUBSCRIBED reconnect when heartbeat is recent', async () => {
+			vi.useFakeTimers();
+
+			// Simulate a prior subscription
+			(service as any).hasSubscribedBefore = true;
+			// Heartbeat was 5 seconds ago (within 10s threshold)
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 5000;
+
+			service.subscribeToRealtimeUpdates('test-user-uuid');
+			const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+			const selectCallsBefore: number = vi.mocked(mockFromChain.select).mock.calls.length;
+
+			// SUBSCRIBED after recent heartbeat — should skip pull
+			await subscribeCallback('SUBSCRIBED');
+
+			expect(mockFromChain.select).toHaveBeenCalledTimes(selectCallsBefore);
+
+			vi.useRealTimers();
+		});
+
+		test('should pull on SUBSCRIBED reconnect when heartbeat is stale', async () => {
+			vi.useFakeTimers();
+
+			(service as any).hasSubscribedBefore = true;
+			// Heartbeat was 20 seconds ago (beyond 10s threshold)
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 20_000;
+
+			mockFromChain.single.mockResolvedValue({
+				data: {data: {lang: 'fr'}},
+				error: null,
+			});
+
+			service.subscribeToRealtimeUpdates('test-user-uuid');
+			const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+			await subscribeCallback('SUBSCRIBED');
+
+			expect(mockFromChain.select).toHaveBeenCalled();
+
+			vi.useRealTimers();
+		});
+
+		test('should skip pull on SUBSCRIBED reconnect when syncing is in progress', async () => {
+			vi.useFakeTimers();
+
+			(service as any).hasSubscribedBefore = true;
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 20_000; // Stale
+			(service as any).syncing = true;
+
+			service.subscribeToRealtimeUpdates('test-user-uuid');
+			const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+			const selectCallsBefore: number = vi.mocked(mockFromChain.select).mock.calls.length;
+			await subscribeCallback('SUBSCRIBED');
+
+			expect(mockFromChain.select).toHaveBeenCalledTimes(selectCallsBefore);
+
+			(service as any).syncing = false;
+			vi.useRealTimers();
+		});
+
+		test('should skip pull on SUBSCRIBED reconnect when no heartbeat (first sub sets flag)', async () => {
+			// HasSubscribedBefore = false (default for new subscribe)
+			(service as any).hasSubscribedBefore = false;
+
+			service.subscribeToRealtimeUpdates('test-user-uuid');
+			const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+
+			const selectCallsBefore: number = vi.mocked(mockFromChain.select).mock.calls.length;
+			await subscribeCallback('SUBSCRIBED');
+
+			// First-ever SUBSCRIBED — no pull, just marks flag
+			expect(mockFromChain.select).toHaveBeenCalledTimes(selectCallsBefore);
+			expect((service as any).hasSubscribedBefore).toBe(true);
+		});
+
+		test('should skip remote update pull when syncing is already in progress', async () => {
+			service.subscribeToRealtimeUpdates('test-user-uuid');
+			const updateCallback = vi.mocked(mockChannel.on).mock.calls[0][2];
+
+			(service as any).syncing = true;
+
+			const selectCallsBefore: number = vi.mocked(mockFromChain.select).mock.calls.length;
+			await updateCallback({});
+
+			expect(mockFromChain.select).toHaveBeenCalledTimes(selectCallsBefore);
+
+			(service as any).syncing = false;
+		});
+
+		test('should handle session refresh failure gracefully during reconnect', async () => {
+			vi.useFakeTimers();
+
+			vi.mocked(db.auth.refreshSession).mockResolvedValue({
+				data: {session: null},
+				error: {message: 'token expired'},
+			} as any);
+
+			service.subscribeToRealtimeUpdates('test-user-uuid');
+			const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+			const initialCalls: number = vi.mocked(db.channel).mock.calls.length;
+
+			await subscribeCallback('CLOSED');
+			vi.advanceTimersByTime(1875);
+			await vi.runAllTimersAsync();
+
+			// Despite session refresh failure, should still attempt reconnect
+			expect(db.channel).toHaveBeenCalledTimes(initialCalls + 1);
+
+			vi.useRealTimers();
+		});
+
+		test('should handle session refresh exception gracefully during reconnect', async () => {
+			vi.useFakeTimers();
+
+			vi.mocked(db.auth.refreshSession).mockRejectedValue(new Error('network timeout'));
+
+			service.subscribeToRealtimeUpdates('test-user-uuid');
+			const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+			const initialCalls: number = vi.mocked(db.channel).mock.calls.length;
+
+			await subscribeCallback('CLOSED');
+			vi.advanceTimersByTime(1875);
+			await vi.runAllTimersAsync();
+
+			// Despite session refresh exception, should still attempt reconnect
+			expect(db.channel).toHaveBeenCalledTimes(initialCalls + 1);
+
+			vi.useRealTimers();
+		});
+
+		test('should not reconnect when currentUserId is unset (after unsubscribe)', async () => {
+			vi.useFakeTimers();
+
+			vi.mocked(db.auth.refreshSession).mockResolvedValue({
+				data: {session: {access_token: 'tok'}},
+				error: null,
+			} as any);
+
+			service.subscribeToRealtimeUpdates('test-user-uuid');
+			const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+			const initialCalls: number = vi.mocked(db.channel).mock.calls.length;
+
+			// Trigger failure then clear userId before timer fires
+			await subscribeCallback('CLOSED');
+			(service as any).currentUserId = undefined;
+
+			vi.advanceTimersByTime(1875);
+			await vi.runAllTimersAsync();
+
+			// Should not reconnect without a userId
+			expect(db.channel).toHaveBeenCalledTimes(initialCalls);
+
+			vi.useRealTimers();
+		});
+
+		test('should continue retrying on attempt 6 (60s delay)', async () => {
+			vi.useFakeTimers();
+
+			vi.mocked(db.auth.refreshSession).mockResolvedValue({
+				data: {session: {access_token: 'tok'}},
+				error: null,
+			} as any);
+
+			service.subscribeToRealtimeUpdates('test-user-uuid');
+			const subscribeCallback = vi.mocked(mockChannel.subscribe).mock.calls[0][0];
+			const initialCalls: number = vi.mocked(db.channel).mock.calls.length;
+
+			// Advance to attempt 6 (1.875 * 2^5 = 60s delay)
+			for (let i = 0; i < 5; i++) {
+				await subscribeCallback('CLOSED');
+				vi.advanceTimersByTime(Math.min(1875 * (2 ** i), 300_000));
+				await vi.runAllTimersAsync();
+			}
+
+			// Attempt 6 has 60s delay — verify it reconnects after 60s
+			await subscribeCallback('CLOSED');
+			vi.advanceTimersByTime(59_999); // Just before
+			expect(db.channel).toHaveBeenCalledTimes(initialCalls + 5); // Still waiting
+
+			vi.advanceTimersByTime(1); // Hit 60s
+			await vi.runAllTimersAsync();
+			expect(db.channel).toHaveBeenCalledTimes(initialCalls + 6); // Reconnected
+
+			vi.useRealTimers();
+		});
+
 		test('should clear reconnect timer on unsubscribe', async () => {
 			vi.mocked(db.auth.refreshSession).mockResolvedValue({
 				data: {session: {access_token: 'mock-token'}},
@@ -750,6 +976,125 @@ describe('StorageSyncService', () => {
 			// Should not attempt to reconnect
 			const channelCallCount = vi.mocked(db.channel).mock.calls.length;
 			expect(channelCallCount).toBe(1); // Only initial subscription
+		});
+	});
+
+	describe('pushToDatabase error handling', () => {
+		test('should clear justPushed flag and rethrow on upsert error', async () => {
+			mockFromChain.upsert.mockResolvedValue({error: {message: 'DB write failed'}});
+
+			await expect((service as any).pushToDatabase('test-user')).rejects.toThrow('DB write failed');
+			expect((service as any).justPushed).toBe(false);
+		});
+
+		test('should clear justPushed and justPushedTimeout when upsert rejects', async () => {
+			vi.useFakeTimers();
+
+			// First a successful push to start the timeout
+			mockFromChain.upsert.mockResolvedValue({error: null});
+			await (service as any).pushToDatabase('test-user');
+			expect((service as any).justPushed).toBe(true);
+			expect((service as any).justPushedTimeout).toBeDefined();
+
+			// Now fail a second push — existing timeout should be cleared too
+			mockFromChain.upsert.mockResolvedValue({error: {message: 'fail'}});
+			await expect((service as any).pushToDatabase('test-user')).rejects.toThrow();
+
+			expect((service as any).justPushed).toBe(false);
+			expect((service as any).justPushedTimeout).toBeUndefined();
+
+			vi.useRealTimers();
+		});
+
+		test('should dispatch cloud-sync-before-push before serializing', async () => {
+			mockFromChain.upsert.mockResolvedValue({error: null});
+
+			const events: string[] = [];
+			globalThis.addEventListener('cloud-sync-before-push', () => {
+				events.push('cloud-sync-before-push');
+			}, {once: true});
+
+			await (service as any).pushToDatabase('test-user');
+
+			expect(events).toContain('cloud-sync-before-push');
+		});
+	});
+
+	describe('pullFromDatabase edge cases', () => {
+		test('should throw when db returns an error', async () => {
+			mockFromChain.single.mockResolvedValue({
+				data: null,
+				error: {message: 'connection reset'},
+			});
+
+			await expect((service as any).pullFromDatabase('test-user')).rejects.toThrow('connection reset');
+		});
+
+		test('should do nothing when row is null (no data)', async () => {
+			mockFromChain.single.mockResolvedValue({data: null, error: null});
+
+			await (service as any).pullFromDatabase('test-user');
+
+			// No keys restored, no event dispatched
+			expect(localStorage.length).toBe(0);
+		});
+	});
+
+	describe('handleLogin edge cases', () => {
+		test('should throw and dispatch cloud-sync-error when userId is missing', async () => {
+			const {AuthService} = await import('../../src/cloud-sync/auth');
+			vi.mocked(AuthService.getInstance).mockReturnValueOnce({
+				getUserId: vi.fn(() => undefined),
+			} as any);
+
+			const events: string[] = [];
+			globalThis.addEventListener('cloud-sync-error', () => {
+				events.push('cloud-sync-error');
+			}, {once: true});
+
+			await service.handleLogin();
+
+			expect(events).toContain('cloud-sync-error');
+		});
+
+		test('should be a no-op when syncing is already in progress', async () => {
+			(service as any).syncing = true;
+
+			await service.handleLogin();
+
+			expect(mockFromChain.select).not.toHaveBeenCalled();
+
+			(service as any).syncing = false;
+		});
+
+		test('should dispatch cloud-sync-complete on successful first login push', async () => {
+			mockFromChain.single.mockResolvedValue({data: null, error: {code: 'PGRST116'}});
+			mockFromChain.upsert.mockResolvedValue({error: null});
+
+			const events: string[] = [];
+			globalThis.addEventListener('cloud-sync-complete', () => {
+				events.push('cloud-sync-complete');
+			}, {once: true});
+
+			await service.handleLogin();
+
+			expect(events).toContain('cloud-sync-complete');
+		});
+
+		test('should dispatch cloud-sync-error when push fails during first login', async () => {
+			mockFromChain.single.mockResolvedValue({data: null, error: {code: 'PGRST116'}});
+			mockFromChain.upsert.mockResolvedValue({error: {message: 'write failed'}});
+
+			const events: string[] = [];
+			globalThis.addEventListener('cloud-sync-error', () => {
+				events.push('cloud-sync-error');
+			}, {once: true});
+
+			await service.handleLogin();
+
+			expect(events).toContain('cloud-sync-error');
+			// `loginSyncComplete` stays false so a subsequent login attempt can retry
+			expect((service as any).loginSyncComplete).toBe(false);
 		});
 	});
 
@@ -777,6 +1122,181 @@ describe('StorageSyncService', () => {
 			await service.flushPendingChanges();
 
 			expect(mockFromChain.upsert).not.toHaveBeenCalled();
+		});
+
+		test('should not throw when push fails during flush', async () => {
+			mockFromChain.upsert.mockResolvedValue({error: {message: 'network error'}});
+
+			await service.saveWithFallback('test-key', 'test-value');
+
+			// Should not throw even when push fails
+			await expect(service.flushPendingChanges()).resolves.toBeUndefined();
+		});
+	});
+
+	describe('heartbeat', () => {
+		test('updates lastKnownFreshDataTimestamp when channel is joined', () => {
+			vi.useFakeTimers();
+
+			// Re-register heartbeat under fake timers (constructor ran before fake timers)
+			(service as any).realtimeChannel = {state: 'joined'};
+			(service as any).startHeartbeat();
+
+			vi.advanceTimersByTime(5000);
+
+			expect((service as any).lastKnownFreshDataTimestamp).toBeDefined();
+
+			vi.useRealTimers();
+		});
+
+		test('does not update lastKnownFreshDataTimestamp when channel is not joined', () => {
+			vi.useFakeTimers();
+
+			(service as any).realtimeChannel = {state: 'closed'};
+			(service as any).lastKnownFreshDataTimestamp = undefined;
+			(service as any).startHeartbeat();
+
+			vi.advanceTimersByTime(5000);
+
+			expect((service as any).lastKnownFreshDataTimestamp).toBeUndefined();
+
+			vi.useRealTimers();
+		});
+	});
+
+	describe('unsubscribeFromRealtimeUpdates edge cases', () => {
+		test('should be a no-op when no channel is set', () => {
+			(service as any).realtimeChannel = undefined;
+			(service as any).reconnectTimer = undefined;
+
+			// Should not throw
+			expect(() => {
+				service.unsubscribeFromRealtimeUpdates();
+			}).not.toThrow();
+		});
+
+		test('should reset loginSyncComplete, currentUserId, and lastKnownFreshDataTimestamp', () => {
+			(service as any).loginSyncComplete = true;
+			(service as any).currentUserId = 'some-user';
+			(service as any).lastKnownFreshDataTimestamp = 123_456;
+
+			service.unsubscribeFromRealtimeUpdates();
+
+			expect((service as any).loginSyncComplete).toBe(false);
+			expect((service as any).currentUserId).toBeUndefined();
+			expect((service as any).lastKnownFreshDataTimestamp).toBeUndefined();
+		});
+	});
+
+	describe('visibility pull fallback', () => {
+		async function triggerVisibilityChange(hidden: boolean) {
+			Object.defineProperty(document, 'hidden', {value: hidden, configurable: true});
+			document.dispatchEvent(new Event('visibilitychange'));
+			// Drain microtasks so the async IIFE inside the listener completes
+			await Promise.resolve();
+			await Promise.resolve();
+		}
+
+		afterEach(() => {
+			Object.defineProperty(document, 'hidden', {value: false, configurable: true});
+			(service as any).syncing = false;
+		});
+
+		test('should pull when tab becomes visible with unhealthy WebSocket and stale data', async () => {
+			(service as any).currentUserId = 'test-user';
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 120_000; // 2 minutes stale
+			(service as any).realtimeChannel = {state: 'closed'}; // Not 'joined'
+
+			mockFromChain.single.mockResolvedValue({
+				data: {data: {lang: 'de'}},
+				error: null,
+			});
+
+			await triggerVisibilityChange(false); // Become visible
+
+			expect(mockFromChain.select).toHaveBeenCalled();
+		});
+
+		test('should skip pull when tab is still hidden', async () => {
+			(service as any).currentUserId = 'test-user';
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 120_000;
+			(service as any).realtimeChannel = {state: 'closed'};
+
+			await triggerVisibilityChange(true); // Still hidden
+
+			expect(mockFromChain.select).not.toHaveBeenCalled();
+		});
+
+		test('should skip pull when WebSocket is healthy (joined)', async () => {
+			(service as any).currentUserId = 'test-user';
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 120_000;
+			(service as any).realtimeChannel = {state: 'joined'};
+
+			await triggerVisibilityChange(false);
+
+			expect(mockFromChain.select).not.toHaveBeenCalled();
+		});
+
+		test('should skip pull when no currentUserId', async () => {
+			(service as any).currentUserId = undefined;
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 120_000;
+			(service as any).realtimeChannel = {state: 'closed'};
+
+			await triggerVisibilityChange(false);
+
+			expect(mockFromChain.select).not.toHaveBeenCalled();
+		});
+
+		test('should skip pull when last pull was within throttle window (60s)', async () => {
+			(service as any).currentUserId = 'test-user';
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 30_000; // 30s ago (< 60s)
+			(service as any).realtimeChannel = {state: 'closed'};
+
+			await triggerVisibilityChange(false);
+
+			expect(mockFromChain.select).not.toHaveBeenCalled();
+		});
+
+		test('should skip pull when syncing is in progress', async () => {
+			(service as any).currentUserId = 'test-user';
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 120_000;
+			(service as any).realtimeChannel = {state: 'closed'};
+			(service as any).syncing = true;
+
+			await triggerVisibilityChange(false);
+
+			expect(mockFromChain.select).not.toHaveBeenCalled();
+		});
+
+		test('should handle pull error gracefully in visibility fallback', async () => {
+			(service as any).currentUserId = 'test-user';
+			(service as any).lastKnownFreshDataTimestamp = Date.now() - 120_000;
+			(service as any).realtimeChannel = {state: 'closed'};
+
+			mockFromChain.single.mockResolvedValue({
+				data: null,
+				error: {message: 'timeout'},
+			});
+
+			// Should not throw
+			await triggerVisibilityChange(false);
+
+			expect((service as any).syncing).toBe(false);
+		});
+
+		test('should pull when no heartbeat timestamp (never synced)', async () => {
+			(service as any).currentUserId = 'test-user';
+			(service as any).lastKnownFreshDataTimestamp = undefined;
+			(service as any).realtimeChannel = {state: 'closed'};
+
+			mockFromChain.single.mockResolvedValue({
+				data: {data: {lang: 'jp'}},
+				error: null,
+			});
+
+			await triggerVisibilityChange(false);
+
+			expect(mockFromChain.select).toHaveBeenCalled();
 		});
 	});
 

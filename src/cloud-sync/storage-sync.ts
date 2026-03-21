@@ -5,9 +5,6 @@
  * Implements 5-second debouncing for efficient batching of rapid changes.
  */
 
-import {refreshFilterStatus} from '../card-filters.js';
-import {initializeBountyFiltersAll} from '../bounty-filters.js';
-import {pruneStaleNewsRead} from '../news-mark-read.js';
 import {logger} from '../logger.js';
 import {db, isDatabaseConfigured} from './database.js';
 import {AuthService} from './auth.js';
@@ -69,10 +66,6 @@ export class StorageSyncService {
 		return /^sb-.*-auth-token$/u;
 	} // Supabase auth token - never sync to cloud
 
-	private static get oidsKey() {
-		return 'oids_completed';
-	}
-
 	private static get debounceMs() {
 		return 5000;
 	} // 5 seconds - aggressive batching for long-lived tabs
@@ -89,6 +82,7 @@ export class StorageSyncService {
 		return 60_000;
 	} // Minimum interval between visibility-triggered pulls
 
+	private loginSyncComplete = false;
 	private syncing = false;
 	private pushTimer: ReturnType<typeof setTimeout> | undefined;
 	private realtimeChannel: any;
@@ -108,11 +102,11 @@ export class StorageSyncService {
 	}
 
 	/**
-   * Called when user logs in
-   * Cloud is source of truth - always pull if remote data exists
-   */
-	async handleFirstLogin() {
-		if (this.syncing) {
+	 * Called when user logs in
+	 * Cloud is source of truth - always pull if remote data exists
+	 */
+	async handleLogin() {
+		if (this.loginSyncComplete || this.syncing) {
 			return;
 		}
 
@@ -142,6 +136,11 @@ export class StorageSyncService {
 
 			// Enable real-time sync for cross-device/cross-tab updates
 			this.subscribeToRealtimeUpdates(userId);
+			this.loginSyncComplete = true;
+			globalThis.dispatchEvent(new CustomEvent('cloud-sync-complete'));
+		} catch (error) {
+			console.error('Cloud sync error:', error);
+			globalThis.dispatchEvent(new CustomEvent('cloud-sync-error', {detail: error}));
 		} finally {
 			this.syncing = false;
 		}
@@ -151,11 +150,7 @@ export class StorageSyncService {
    * Upload localStorage data to database (last write wins)
    */
 	async pushToDatabase(userId: string) {
-		// Clean up stale objectives before serializing
-		this.pruneStaleOids();
-
-		// Prune stale news read items if news card is present
-		pruneStaleNewsRead();
+		globalThis.dispatchEvent(new CustomEvent('cloud-sync-before-push'));
 
 		const data = this.localStorageToData();
 
@@ -215,7 +210,7 @@ export class StorageSyncService {
 		}
 
 		this.dataToLocalStorage(row.data as UserData);
-		this.refreshUI();
+		globalThis.dispatchEvent(new CustomEvent('cloud-sync-pulled'));
 	}
 
 	/**
@@ -336,7 +331,7 @@ export class StorageSyncService {
 						}
 					} else {
 						logger.debug('✅ First subscription established');
-						// First subscription - no pull needed (already handled in handleFirstLogin)
+						// First subscription - no pull needed (already handled in handleLogin)
 						this.hasSubscribedBefore = true;
 					}
 				} else if (status === 'CLOSED' || status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
@@ -357,55 +352,15 @@ export class StorageSyncService {
 			this.reconnectTimer = undefined;
 		}
 
-		// Reset reconnection state
+		// Reset reconnection state and login sync guard (allows re-sync on next login)
 		this.reconnectAttempts = 0;
+		this.loginSyncComplete = false;
 		this.currentUserId = undefined;
 		this.lastKnownFreshDataTimestamp = undefined;
 
 		if (this.realtimeChannel) {
 			this.realtimeChannel.unsubscribe();
 			this.realtimeChannel = undefined;
-		}
-	}
-
-	/**
-   * Clean up stale objective completions from localStorage
-   * Keeps only objectives that still exist in the DOM
-   */
-	private pruneStaleOids(): void {
-		const oidsValue = localStorage.getItem(StorageSyncService.oidsKey);
-		if (!oidsValue) {
-			return;
-		}
-
-		try {
-			const allOids = JSON.parse(oidsValue);
-			// Get all valid OIDs currently in the DOM
-			const validOids = new Set<string>();
-			for (const element of document.querySelectorAll<HTMLElement>('[data-oid]')) {
-				const {oid} = element.dataset;
-				if (oid) {
-					validOids.add(oid);
-				}
-			}
-
-			// Guard: Skip pruning if page has no [data-oid] elements
-			// Cannot make informed decision about what's stale from pages like invigorations
-			if (validOids.size === 0) {
-				return;
-			}
-
-			// Keep only OIDs that still exist in the DOM
-			const cleanedOids = allOids.filter((oid: string) => validOids.has(oid));
-			// Update localStorage with cleaned array
-			if (cleanedOids.length > 0) {
-				localStorage.setItem(StorageSyncService.oidsKey, JSON.stringify(cleanedOids));
-			} else {
-				localStorage.removeItem(StorageSyncService.oidsKey);
-			}
-		} catch {
-			// Invalid JSON - remove it
-			localStorage.removeItem(StorageSyncService.oidsKey);
 		}
 	}
 
@@ -589,69 +544,5 @@ export class StorageSyncService {
 				}
 			})();
 		}, delayMs);
-	}
-
-	/**
-   * Refresh UI after pulling data from cloud
-   */
-	private refreshUI() {
-		// Refresh completion checkboxes (objectives)
-		if ((globalThis as any).refreshAllCompletionToggles) {
-			(globalThis as any).refreshAllCompletionToggles();
-		}
-
-		// Refresh collapse states using existing function
-		if ((globalThis as any).refreshCollapseStatus) {
-			for (const elm of document.querySelectorAll<HTMLElement>('[data-collapse-toggle]')) {
-				(globalThis as any).refreshCollapseStatus(elm);
-			}
-		}
-
-		// Refresh notification states using existing function
-		if ((globalThis as any).refreshNotifStatus) {
-			for (const elm of document.querySelectorAll<HTMLElement>('[data-notif-toggle]')) {
-				(globalThis as any).refreshNotifStatus(elm);
-			}
-		}
-
-		// Refresh filter states
-		for (const elm of document.querySelectorAll<HTMLElement>('[data-filter-toggle]')) {
-			refreshFilterStatus(elm);
-		}
-
-		// Refresh filter checkboxes
-		for (const checkbox of document.querySelectorAll<HTMLInputElement>('[data-filter-type]')) {
-			const {filterType} = checkbox.dataset;
-			if (filterType) {
-				// Extract card name from checkbox ID (e.g., "filter-news-danger" -> "news")
-				const cardName = checkbox.id.split('-')[1];
-				const storageKey = `live.filter.${cardName}.${filterType}`;
-				const savedState = localStorage.getItem(storageKey);
-				if (savedState !== null) {
-					checkbox.checked = savedState === '1';
-				}
-			}
-		}
-
-		// Refresh bounty filter dropdowns
-		initializeBountyFiltersAll();
-
-		// Refresh card content to apply filters
-		if ((globalThis as any).updateNewsTicker) {
-			(globalThis as any).updateNewsTicker();
-		}
-
-		if ((globalThis as any).updateBountyCycleLocalised) {
-			(globalThis as any).updateBountyCycleLocalised();
-		}
-
-		if ((globalThis as any).updateIncursionsLocalised) {
-			(globalThis as any).updateIncursionsLocalised();
-		}
-
-		// Refresh arbys Load button state (enable/disable based on saved settings)
-		if ((globalThis as any).checkLoadButtonState) {
-			(globalThis as any).checkLoadButtonState();
-		}
 	}
 }

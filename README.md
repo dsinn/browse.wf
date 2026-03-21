@@ -15,7 +15,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 
 - **Widget filters**: Configurable filter panels to selectively display content; for example:
   - News: Filters for red text, community events, and regular events
-  - Bounties: Filter by tier for each syndicate; checkboxes to track completion with a badge showing the count
+  - Bounties: Filter by tier for each syndicate; checkboxes to track completion with a badge showing the count; ally shown as icon with tooltip
   - Steel Path incursions: Filter by mission type, with tileset tooltips on mission type icons
   - Void fissures: Filter by tier/era and mission type
   - Weekly missions: Filter by Archon Hunt, Ayatan Hunt, Elite Archimedia, and Netracells
@@ -23,7 +23,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 - **Checkbox linking**: Checking/unchecking a Netracell or Narmer bounty box propagates to adjacent boxes; checking an Archimedea box auto-checks two Netracell boxes
 - **News card**: Styling that more closely resembles the in-game UI
 - **Improved void fissures UI**: Enhanced layout, sorted by expiry for each relic tier/era
-- **Enhanced invasion info**: Populated with and sorted by progress data; mission type icons replacing the unreliable dynamic mission type column
+- **Enhanced invasion info**: Populated with and sorted by progress data; mission type icons replacing the unreliable dynamic mission type column; duplicate active-node invasions sorted to bottom
 - **Sortie locations**: Mission locations now displayed in the Sortie card
 - **1999 calendar card**: Displays the current 1999 calendar rotation
 - **Descendia card**: Experimental Descendia rotation display
@@ -37,16 +37,18 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 - **2-week schedule view**: Shows the next two weeks by default
 - **Save/load settings**: Persist and restore page settings
 
+#### Profile page
+
+- **Single-click fetch**: Logged-in users can fetch their profile with a single click via the front proxy
+- **Guided workflow**: Step-by-step instructions for retrieving profile data manually, including account ID extraction from EE.log
+- **Sortable stats table**: Category filters, rank column, and usage percentages
+- **Stat calculations**: Mission completion/failure/quit rates, cipher rates, etc.
+- **Increased precision**: Cipher completion times shown with sub-second detail
+- **Playtime tooltip**: Expanded time duration string on hover
+- **Syndicate progress bars**: Visual standing progress bars on each syndicate card
+
 #### Other pages
 
-- **Profile viewer**:
-  - Logged-in users can fetch their profile with a single click via the front proxy
-  - Guided workflow with step-by-step instructions for retrieving profile data manually
-  - Account ID extraction from EE.log file
-  - Sortable tables on stats tab with category filters, rank column, and usage percentages
-  - Percentage calculations for various stats (mission completion/failure/quit rates, cipher rates, etc.)
-  - Increased precision for cipher completion times
-  - Playtime tooltip with expanded time duration string
 - **Weekly forecast**: Dedicated page (`/weekly-forecast`) showing the upcoming week's mission rotation
 - **Invigorations**: Response caching so that info is preserved on refresh and next week
 
@@ -54,7 +56,9 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 
 - **GitHub Pages deployment**: Automated workflow for deploying static builds to GitHub Pages
 - **Vite dev server**: Replaced `php-ts-dev` with Vite for local development; fixes quirks mode issues and broken tooltips, and hot reload ignores test file changes
-- **Automated testing**: Vitest and Playwright test infrastructure (mainly for the `/live` page so far)
+- **Automated testing**: Vitest and Playwright test infrastructure (mainly for the `/live` page so far); CI publishes a coverage report
+- **esbuild bundling**: Fork modules are bundled into a single IIFE, simplifying script loading and enabling direct TypeScript imports in tests
+- **TypeScript strict mode**: Enabled for all fork-specific files
 - **Event-driven live page updates**: Replaced 500ms polling loops with longer intervals, timeouts, and event listeners; also consolidated `/invasions` and `/min` API calls into `worldState`
 - **Lazy-loaded images**: Images load on demand rather than all at page load
 - **Profile rate limiting**: Front proxy enforces a 23-hour per-user rate limit on profile fetch requests for logged-in users

@@ -74,7 +74,7 @@ test/
 │   ├── bounty-cycle.json
 │   ├── worldState.json
 │   ├── worldState-invasions.json  # Minimal mock for invasion filter tests
-│   ├── arbys.txt
+│   ├── worldState-*.json          # Scenario-specific worldState variants
 │   ├── dicts/
 │   │   └── en.json        # Game text translations
 │   └── ...
@@ -83,25 +83,17 @@ test/
 │   ├── api-mocks.ts       # Mock fetch setup & data loading
 │   ├── domain-blocker.ts  # Production domain safeguards
 │   ├── dom-helpers.ts     # DOM setup & query helpers
+│   ├── fixture-loader.ts  # PHP fixture loading
+│   ├── test-constants.ts  # Shared constants (MOCK_TIMESTAMP, etc.)
 │   ├── time-helpers.ts    # Time-freezing utilities
 │   └── ...
 │
 ├── live/                   # Live page unit tests (Vitest)
 │   ├── card-filters-factory.ts   # Test factory for card filter integration
-│   │
 │   ├── cards/             # Card-specific tests
-│   │   ├── arbitration.test.ts
-│   │   ├── bounties.test.ts
-│   │   ├── invasions.test.ts
-│   │   └── ...
-│   │
 │   └── integration/       # API validation, time-freezing, and user interactions
-│       ├── api-integration.test.ts
-│       ├── time-freezing.test.ts
-│       └── ...
 │
-├── arbys/                  # Arbys page unit tests (Vitest)
-│   └── arbys.test.ts      # Structural tests (HTML, data files)
+├── .../                    # Per-page unit test folders (arbys, cloud-sync, profile, etc.)
 │
 ├── setup.ts               # Global unit test setup
 ├── global-setup.ts        # Global test environment setup
@@ -113,19 +105,20 @@ test/
 e2e/                        # E2E tests (Playwright)
 ├── helpers/               # E2E test utilities
 │   └── api-mocks.ts       # Playwright route interception for API mocking
-├── arbys.spec.ts          # Arbys page behavioral tests
-└── live.spec.ts           # Live page behavioral tests
+├── live/                  # Live page behavioral tests
+├── profile/               # Profile page behavioral tests
+└── *.spec.ts              # Top-level page tests (arbys, invigorations, weekly-forecast, etc.)
 ```
 
 ## Test Categories
 
 - **Test Factories** (`live/`) - Reusable test generators
   - `card-filters-factory.ts` - Factory function that tests generic filter functionality for any card
-  - Loads real compiled code from `typestripped/src/card-filters.js` (no test drift)
+  - Imports fork modules directly as TypeScript (no compiled output needed)
   - Cards with filters import and call `testCardFilters(cardName)` to verify correct integration
 - **Card Tests** (`live/cards/`) - Verify each card renders correctly with mock data
   - `news.test.ts` - Calls `testCardFilters('news')` for filter integration
-  - Other card tests - Smoke tests for specific game features (Arbitration, Bounties, Invasions, etc.)
+  - Other card tests - Smoke tests for specific game features (Bounties, Invasions, etc.)
 - **Integration Tests** (`live/integration/`) - API validation, time-freezing, and user interactions
 - **Structural Tests** (`arbys/`) - HTML structure and data file validation
 - **E2E Tests** (`e2e/`) - Real browser behavioral tests with Playwright
@@ -192,7 +185,7 @@ await page.route('**/oracle.browse.wf/new-endpoint', route => {
 
 **Principle:** Test the real production code, not mocked duplicates. This prevents test drift where tests pass but production is broken.
 
-**For fork code** (`src/` modules): Import directly from the `.ts` source files. Vitest handles TypeScript natively — no compilation step needed. See `test/live/card-filters-factory.ts` for example.
+**For fork code** (`src/` modules): Import directly from the `.ts` source files. Vitest handles TypeScript natively — no compilation step needed. All fork modules are also bundled into a single IIFE (`src/bundle-entry.ts`) via esbuild for browser use, but tests import the `.ts` sources directly.
 
 **For upstream code** (`live.ts`, `index.ts`): Don't test behavior in unit tests - test integration points only. Use E2E tests for full behavior verification.
 
@@ -217,6 +210,10 @@ await page.route('**/oracle.browse.wf/new-endpoint', route => {
 ### `helpers/render-php.js`
 - Renders PHP to HTML fixtures (runs automatically before tests)
 - Uses shared `/helpers/php-server.js` module (also used by build script)
+
+### `helpers/test-constants.ts`
+- `MOCK_TIMESTAMP` - Constant for mock data time (re-exported from `time-helpers.ts`)
+- `TEST_FRONT_PROXY_BASE_URL` - Front proxy URL for API validation tests
 
 ### `helpers/time-helpers.ts`
 - `freezeTime(timestamp)` - Freeze time for tests
@@ -244,7 +241,7 @@ To refresh mock data with current game state:
 ./test/update-mocks.sh
 ```
 
-This updates all mock files including the dictionary file (`dicts/en.json`), which contains game text translations used by E2E tests to properly display item names, mission types, and other localized content.
+This requires `WARFRAME_API_FRONT_PROXY_TOKEN` to be set (for worldState). It updates `bounty-cycle.json`, `worldState.json`, and `dicts/en.json`.
 
 **Warning:** Mock data is tied to the world state at capture time. A full replacement will break tests expecting specific values.
 

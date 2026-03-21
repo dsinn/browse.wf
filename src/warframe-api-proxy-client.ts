@@ -25,7 +25,9 @@ async function request(path: string): Promise<any> {
 
 export const WarframeApiFrontProxyClient = {
 	async fetchWorldState(): Promise<any> {
-		return request('/worldState');
+		const worldState = await request('/worldState');
+		globalThis.dispatchEvent(new CustomEvent('worldstate-updated'));
+		return worldState;
 	},
 
 	async fetchProfile(platform: string, playerId: string): Promise<{status: number; data: any; nextFetchAvailableAt: number | undefined}> {

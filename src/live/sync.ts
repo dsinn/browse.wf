@@ -8,35 +8,10 @@
 import {refreshFilterStatus} from '../card-filters.js';
 import {initializeBountyFiltersAll} from '../bounty-filters.js';
 import {pruneStaleNewsRead} from '../news-mark-read.js';
+import {pruneStaleOids} from './prune-stale-data.js';
 
 globalThis.addEventListener('cloud-sync-before-push', () => {
-	// Prune stale objective completions — keep only OIDs present in the DOM
-	const oidsValue = localStorage.getItem('oids_completed');
-	if (oidsValue) {
-		try {
-			const allOids = JSON.parse(oidsValue);
-			const validOids = new Set<string>();
-			for (const element of document.querySelectorAll<HTMLElement>('[data-oid]')) {
-				const {oid} = element.dataset;
-				if (oid) {
-					validOids.add(oid);
-				}
-			}
-
-			// Skip if page has no [data-oid] elements — can't determine what's stale
-			if (validOids.size > 0) {
-				const cleanedOids = allOids.filter((oid: string) => validOids.has(oid));
-				if (cleanedOids.length > 0) {
-					localStorage.setItem('oids_completed', JSON.stringify(cleanedOids));
-				} else {
-					localStorage.removeItem('oids_completed');
-				}
-			}
-		} catch {
-			localStorage.removeItem('oids_completed');
-		}
-	}
-
+	pruneStaleOids();
 	pruneStaleNewsRead();
 });
 

@@ -175,13 +175,13 @@ describe('updateCalendarSeason — active season', () => {
 		expect(toggle).not.toBeNull();
 	});
 
-	test('completion toggle oid contains activation timestamp', async () => {
-		const activationMs = Number.parseInt(activeSeason.Activation.$date.$numberLong, 10);
+	test('completion toggle oid contains expiry timestamp', async () => {
+		const expiryMs = Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10);
 
 		await updateCalendarSeason();
 
 		const toggle = document.querySelector<HTMLElement>('#calendar-season-checks .completion-toggle')!;
-		expect(toggle.dataset.oid).toContain(String(activationMs));
+		expect(toggle.dataset.oid).toContain(String(expiryMs));
 	});
 
 	test('calls renderCalendarSeasonPane with the active season', async () => {

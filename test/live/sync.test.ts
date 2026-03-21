@@ -7,6 +7,7 @@
 import {
 	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
+import {MOCK_TIMESTAMP} from '../helpers/test-constants';
 
 // ---------------------------------------------------------------------------
 // Mocks — must be declared before the import
@@ -61,76 +62,201 @@ describe('cloud-sync-before-push', () => {
 		expect(localStorage.getItem('oids_completed')).toBeNull();
 	});
 
-	test('keeps only OIDs present in the DOM', () => {
-		document.body.innerHTML = '<div data-oid="obj1"></div>';
-		localStorage.setItem('oids_completed', JSON.stringify(['obj1', 'obj2']));
-
-		dispatchBeforePush();
-
-		expect(localStorage.getItem('oids_completed')).toBe(JSON.stringify(['obj1']));
-	});
-
-	test('removes oids_completed entirely when all OIDs are stale', () => {
-		document.body.innerHTML = '<div data-oid="obj3"></div>';
-		localStorage.setItem('oids_completed', JSON.stringify(['obj1', 'obj2']));
-
-		dispatchBeforePush();
-
-		expect(localStorage.getItem('oids_completed')).toBeNull();
-	});
-
-	test('removes oids_completed when no [data-oid] elements in DOM but keeps it when no DOM elements', () => {
-		// If the DOM has no [data-oid] elements, can't determine stale — skip pruning
-		document.body.innerHTML = '';
-		localStorage.setItem('oids_completed', JSON.stringify(['obj1']));
-
-		dispatchBeforePush();
-
-		// With no [data-oid] elements in DOM, pruning is skipped
-		expect(localStorage.getItem('oids_completed')).toBe(JSON.stringify(['obj1']));
-	});
-
-	test('removes oids_completed and clears key when all are valid but result is empty array', () => {
-		// DOM has obj1, localStorage has obj1 — filtered result is ['obj1']
-		document.body.innerHTML = '<div data-oid="obj1"></div>';
-		localStorage.setItem('oids_completed', JSON.stringify(['obj1']));
-
-		dispatchBeforePush();
-
-		expect(localStorage.getItem('oids_completed')).toBe(JSON.stringify(['obj1']));
-	});
-
-	test('ignores [data-oid] elements with no oid value', () => {
-		// Element has data-oid attribute but empty value — treated as no DOM OIDs
-		document.body.innerHTML = '<div data-oid=""></div>';
-		localStorage.setItem('oids_completed', JSON.stringify(['obj1']));
-
-		dispatchBeforePush();
-
-		// ValidOids is empty (element had no oid value), so pruning is skipped
-		expect(localStorage.getItem('oids_completed')).toBe(JSON.stringify(['obj1']));
-	});
-
 	test('removes oids_completed on malformed JSON', () => {
-		document.body.innerHTML = '<div data-oid="obj1"></div>';
 		localStorage.setItem('oids_completed', 'not-valid-json');
-
 		dispatchBeforePush();
-
 		expect(localStorage.getItem('oids_completed')).toBeNull();
 	});
 
-	test('preserves valid OIDs when multiple [data-oid] elements present', () => {
-		document.body.innerHTML = `
-			<div data-oid="obj1"></div>
-			<div data-oid="obj2"></div>
-			<div data-oid="obj3"></div>
-		`;
-		localStorage.setItem('oids_completed', JSON.stringify(['obj1', 'obj2', 'stale1', 'stale2']));
-
+	test('keeps unknown-format OIDs (unknown format — keep)', () => {
+		localStorage.setItem('oids_completed', JSON.stringify(['unknown-format']));
 		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual(['unknown-format']);
+	});
 
-		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual(['obj1', 'obj2']);
+	// -------------------------------------------------------------------------
+	// Millisecond-timestamp OIDs (weekly missions, vendors, daily syndicates, Archimedea, calendar season)
+	// -------------------------------------------------------------------------
+
+	test('keeps future circuit-hard OID', () => {
+		const futureMs = MOCK_TIMESTAMP + 604_800_000;
+		localStorage.setItem('oids_completed', JSON.stringify([`circuit-hard-${futureMs}`]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`circuit-hard-${futureMs}`]);
+	});
+
+	test('drops past circuit-hard OID', () => {
+		const pastMs = MOCK_TIMESTAMP - 1000;
+		localStorage.setItem('oids_completed', JSON.stringify([`circuit-hard-${pastMs}`]));
+		dispatchBeforePush();
+		expect(localStorage.getItem('oids_completed')).toBeNull();
+	});
+
+	test('keeps future kahl OID', () => {
+		const futureMs = MOCK_TIMESTAMP + 604_800_000;
+		localStorage.setItem('oids_completed', JSON.stringify([`kahl-${futureMs}`]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`kahl-${futureMs}`]);
+	});
+
+	test('drops past kahlb3 OID', () => {
+		const pastMs = MOCK_TIMESTAMP - 1000;
+		localStorage.setItem('oids_completed', JSON.stringify([`kahlb3-${pastMs}`]));
+		dispatchBeforePush();
+		expect(localStorage.getItem('oids_completed')).toBeNull();
+	});
+
+	test('keeps future teshin OID', () => {
+		const futureMs = MOCK_TIMESTAMP + 604_800_000;
+		localStorage.setItem('oids_completed', JSON.stringify([`teshin-${futureMs}`]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`teshin-${futureMs}`]);
+	});
+
+	test('drops past ironwake OID', () => {
+		const pastMs = MOCK_TIMESTAMP - 1000;
+		localStorage.setItem('oids_completed', JSON.stringify([`ironwake-${pastMs}`]));
+		dispatchBeforePush();
+		expect(localStorage.getItem('oids_completed')).toBeNull();
+	});
+
+	test('keeps future HexSyndicate-check OID', () => {
+		const futureMs = MOCK_TIMESTAMP + 86_400_000;
+		localStorage.setItem('oids_completed', JSON.stringify([`HexSyndicate-check-${futureMs}`]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`HexSyndicate-check-${futureMs}`]);
+	});
+
+	test('drops past HexSyndicate-check OID', () => {
+		const pastMs = MOCK_TIMESTAMP - 1000;
+		localStorage.setItem('oids_completed', JSON.stringify([`HexSyndicate-check-${pastMs}`]));
+		dispatchBeforePush();
+		expect(localStorage.getItem('oids_completed')).toBeNull();
+	});
+
+	test('keeps future EntratiLabSyndicate-check OID', () => {
+		const futureMs = MOCK_TIMESTAMP + 86_400_000;
+		localStorage.setItem('oids_completed', JSON.stringify([`EntratiLabSyndicate-check-${futureMs}`]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`EntratiLabSyndicate-check-${futureMs}`]);
+	});
+
+	test('keeps future hexconquest OID', () => {
+		const futureMs = MOCK_TIMESTAMP + 604_800_000;
+		localStorage.setItem('oids_completed', JSON.stringify([`hexconquest-${futureMs}`]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`hexconquest-${futureMs}`]);
+	});
+
+	test('drops past labconquest OID', () => {
+		const pastMs = MOCK_TIMESTAMP - 1000;
+		localStorage.setItem('oids_completed', JSON.stringify([`labconquest-${pastMs}`]));
+		dispatchBeforePush();
+		expect(localStorage.getItem('oids_completed')).toBeNull();
+	});
+
+	test('keeps future calendarseason OID', () => {
+		const futureMs = MOCK_TIMESTAMP + 604_800_000;
+		localStorage.setItem('oids_completed', JSON.stringify([`calendarseason-${futureMs}`]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`calendarseason-${futureMs}`]);
+	});
+
+	test('drops past calendarseason OID', () => {
+		const pastMs = MOCK_TIMESTAMP - 1000;
+		localStorage.setItem('oids_completed', JSON.stringify([`calendarseason-${pastMs}`]));
+		dispatchBeforePush();
+		expect(localStorage.getItem('oids_completed')).toBeNull();
+	});
+
+	// -------------------------------------------------------------------------
+	// MongoDB ObjectIDs
+	// -------------------------------------------------------------------------
+
+	const SORTIE_OID = '6974e8fee68ad4bc31ce5f49';
+	const ARCHON_OID = '6974e8fee68ad4bc31ce5f50';
+	const INVASION_OID = '6974e8fee68ad4bc31ce5f51';
+	const ALERT_OID = '6974e8fee68ad4bc31ce5f52';
+	const STALE_OID = '1234567890abcdef12345678';
+
+	function setupLoadedCards(options: {
+		sortie?: boolean;
+		litesortie?: boolean;
+		invasions?: boolean;
+		alerts?: 'loaded' | 'loading' | 'none';
+	} = {}) {
+		const {sortie = true, litesortie = true, invasions = true, alerts = 'loaded'} = options;
+		let alertsContent: string;
+		if (alerts === 'loading') {
+			alertsContent = 'Loading...';
+		} else if (alerts === 'loaded') {
+			alertsContent = `<span data-oid="${ALERT_OID}"></span>`;
+		} else {
+			alertsContent = 'None right now.';
+		}
+
+		document.body.innerHTML = `
+			<span id="sortie-header">${sortie ? `<a data-oid="${SORTIE_OID}"></a>` : ''}</span>
+			<span id="litesortie-header">${litesortie ? `<a data-oid="${ARCHON_OID}"></a>` : ''}</span>
+			<table id="invasions-table">${invasions ? `<tr><td><a data-oid="${INVASION_OID}"></a></td></tr>` : ''}</table>
+			<div id="alerts-body">${alertsContent}</div>
+		`;
+	}
+
+	test('prunes stale Mongo OID when all cards loaded', () => {
+		setupLoadedCards();
+		localStorage.setItem('oids_completed', JSON.stringify([SORTIE_OID, STALE_OID]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([SORTIE_OID]);
+	});
+
+	test('keeps all Mongo OIDs in valid set when all cards loaded', () => {
+		setupLoadedCards();
+		localStorage.setItem('oids_completed', JSON.stringify([SORTIE_OID, ARCHON_OID, INVASION_OID, ALERT_OID]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([SORTIE_OID, ARCHON_OID, INVASION_OID, ALERT_OID]);
+	});
+
+	test('skips Mongo pruning when sortie not loaded', () => {
+		setupLoadedCards({sortie: false});
+		localStorage.setItem('oids_completed', JSON.stringify([STALE_OID]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([STALE_OID]);
+	});
+
+	test('skips Mongo pruning when litesortie not loaded', () => {
+		setupLoadedCards({litesortie: false});
+		localStorage.setItem('oids_completed', JSON.stringify([STALE_OID]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([STALE_OID]);
+	});
+
+	test('skips Mongo pruning when invasions not loaded', () => {
+		setupLoadedCards({invasions: false});
+		localStorage.setItem('oids_completed', JSON.stringify([STALE_OID]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([STALE_OID]);
+	});
+
+	test('skips Mongo pruning when alerts still loading', () => {
+		setupLoadedCards({alerts: 'loading'});
+		localStorage.setItem('oids_completed', JSON.stringify([STALE_OID]));
+		dispatchBeforePush();
+		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([STALE_OID]);
+	});
+
+	test('prunes Mongo OIDs when alerts shows "None right now."', () => {
+		setupLoadedCards({alerts: 'none'});
+		localStorage.setItem('oids_completed', JSON.stringify([STALE_OID]));
+		dispatchBeforePush();
+		expect(localStorage.getItem('oids_completed')).toBeNull();
+	});
+
+	test('removes oids_completed entirely when all OIDs are pruned', () => {
+		setupLoadedCards();
+		localStorage.setItem('oids_completed', JSON.stringify([STALE_OID]));
+		dispatchBeforePush();
+		expect(localStorage.getItem('oids_completed')).toBeNull();
 	});
 });
 

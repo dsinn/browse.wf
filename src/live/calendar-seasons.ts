@@ -53,7 +53,7 @@ export async function updateCalendarSeason(): Promise<void> {
 	// Inject completion toggle into header span
 	const checksSpan = document.querySelector('#calendar-season-checks');
 	if (checksSpan) {
-		const oid = `calendarseason-${String(activeSeason.Activation.$date.$numberLong)}`;
+		const oid = `calendarseason-${String(activeSeason.Expiry.$date.$numberLong)}`;
 		checksSpan.innerHTML = '';
 		checksSpan.append(createCompletionToggle(oid));
 	}

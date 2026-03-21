@@ -1317,11 +1317,11 @@ function updateTeshin()
 	][week % 8];
 	document.getElementById("teshin-check").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 	document.getElementById("teshin-check").innerHTML = "";
-	document.getElementById("teshin-check").appendChild(createCompletionToggle("teshin" + week));
+	document.getElementById("teshin-check").appendChild(createCompletionToggle(`teshin-${weekEnd}`));
 
 	document.getElementById("ironwake-check").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 	document.getElementById("ironwake-check").innerHTML = "";
-	document.getElementById("ironwake-check").appendChild(createCompletionToggle("ironwake" + week));
+	document.getElementById("ironwake-check").appendChild(createCompletionToggle(`ironwake-${weekEnd}`));
 
 	setTimeout(updateTeshin, weekEnd - Date.now());
 }
@@ -1393,42 +1393,42 @@ function updateCircuit()
 
 	document.getElementById("clem-check").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 	document.getElementById("clem-check").innerHTML = "";
-	document.getElementById("clem-check").appendChild(createCompletionToggle("clem" + week));
+	document.getElementById("clem-check").appendChild(createCompletionToggle(`clem-${weekEnd}`));
 
 	document.getElementById("maroo-check").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 	document.getElementById("maroo-check").innerHTML = "";
-	document.getElementById("maroo-check").appendChild(createCompletionToggle("maroo" + week));
+	document.getElementById("maroo-check").appendChild(createCompletionToggle(`maroo-${weekEnd}`));
 
 	document.getElementById("circuit-frames-check").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 	document.getElementById("circuit-frames-check").innerHTML = "";
-	document.getElementById("circuit-frames-check").appendChild(createCompletionToggle("circuit-normal-" + week));
+	document.getElementById("circuit-frames-check").appendChild(createCompletionToggle(`circuit-normal-${weekEnd}`));
 
 	document.getElementById("circuit-weapons-check").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 	document.getElementById("circuit-weapons-check").innerHTML = "";
-	document.getElementById("circuit-weapons-check").appendChild(createCompletionToggle("circuit-hard-" + week));
+	document.getElementById("circuit-weapons-check").appendChild(createCompletionToggle(`circuit-hard-${weekEnd}`));
 
 	document.getElementById("netracell-checks").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 	document.getElementById("netracell-checks").innerHTML = "";
-	document.getElementById("netracell-checks").appendChild(createCompletionToggle("netracell1-" + week));
-	document.getElementById("netracell-checks").appendChild(createCompletionToggle("netracell2-" + week));
-	document.getElementById("netracell-checks").appendChild(createCompletionToggle("netracell3-" + week));
-	document.getElementById("netracell-checks").appendChild(createCompletionToggle("netracell4-" + week));
-	document.getElementById("netracell-checks").appendChild(createCompletionToggle("netracell5-" + week));
+	document.getElementById("netracell-checks").appendChild(createCompletionToggle(`netracell1-${weekEnd}`));
+	document.getElementById("netracell-checks").appendChild(createCompletionToggle(`netracell2-${weekEnd}`));
+	document.getElementById("netracell-checks").appendChild(createCompletionToggle(`netracell3-${weekEnd}`));
+	document.getElementById("netracell-checks").appendChild(createCompletionToggle(`netracell4-${weekEnd}`));
+	document.getElementById("netracell-checks").appendChild(createCompletionToggle(`netracell5-${weekEnd}`));
 
 	document.getElementById("kahl-checks").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 	document.getElementById("kahl-checks").innerHTML = "";
-	document.getElementById("kahl-checks").appendChild(createCompletionToggle("kahl-" + week));
-	document.getElementById("kahl-checks").appendChild(createCompletionToggle("kahlb1-" + week));
-	document.getElementById("kahl-checks").appendChild(createCompletionToggle("kahlb2-" + week));
-	document.getElementById("kahl-checks").appendChild(createCompletionToggle("kahlb3-" + week));
-	document.getElementById("kahl-checks").appendChild(createCompletionToggle("kahlb4-" + week));
-	document.getElementById("kahl-checks").appendChild(createCompletionToggle("kahlb5-" + week));
-	document.getElementById("kahl-checks").appendChild(createCompletionToggle("kahlb6-" + week));
+	document.getElementById("kahl-checks").appendChild(createCompletionToggle(`kahl-${weekEnd}`));
+	document.getElementById("kahl-checks").appendChild(createCompletionToggle(`kahlb1-${weekEnd}`));
+	document.getElementById("kahl-checks").appendChild(createCompletionToggle(`kahlb2-${weekEnd}`));
+	document.getElementById("kahl-checks").appendChild(createCompletionToggle(`kahlb3-${weekEnd}`));
+	document.getElementById("kahl-checks").appendChild(createCompletionToggle(`kahlb4-${weekEnd}`));
+	document.getElementById("kahl-checks").appendChild(createCompletionToggle(`kahlb5-${weekEnd}`));
+	document.getElementById("kahl-checks").appendChild(createCompletionToggle(`kahlb6-${weekEnd}`));
 
 	document.getElementById("descent-checks").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
 	document.getElementById("descent-checks").innerHTML = "";
-	document.getElementById("descent-checks").appendChild(createCompletionToggle("descent1-" + week));
-	document.getElementById("descent-checks").appendChild(createCompletionToggle("descent2-" + week));
+	document.getElementById("descent-checks").appendChild(createCompletionToggle(`descent1-${weekEnd}`));
+	document.getElementById("descent-checks").appendChild(createCompletionToggle(`descent2-${weekEnd}`));
 
 	setTimeout(updateCircuit, weekEnd - Date.now());
 }

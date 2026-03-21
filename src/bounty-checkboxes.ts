@@ -6,8 +6,8 @@
 let dailyResetTimer: ReturnType<typeof setTimeout> | undefined;
 
 export function updateBountyCheckboxes(): void {
-	// LastDailyReset in seconds since epoch at start of UTC day — matches incursions_expiry calculation
-	const lastDailyReset = Math.trunc(Date.now() / 86_400_000) * 86_400;
+	// Next daily reset in milliseconds — used as the OID suffix so pruning can compare directly to Date.now()
+	const nextDailyReset = (Math.trunc(Date.now() / 86_400_000) + 1) * 86_400_000;
 
 	for (const headingId of ['EntratiLabSyndicate-name', 'HexSyndicate-name']) {
 		const heading = document.querySelector<HTMLElement>(`#${headingId}`);
@@ -31,17 +31,14 @@ export function updateBountyCheckboxes(): void {
 			heading.append(span);
 		}
 
-		span.append(createCompletionToggle(`${spanId}-${lastDailyReset}`));
+		span.append(createCompletionToggle(`${spanId}-${nextDailyReset}`));
 	}
 
 	// Schedule reset at next daily reset (UTC) — memoized so multiple calls don't stack timers
-	if (!dailyResetTimer) {
-		const nextDailyReset = (lastDailyReset + 86_400) * 1000;
-		dailyResetTimer = setTimeout(() => {
-			dailyResetTimer = undefined;
-			updateBountyCheckboxes();
-		}, nextDailyReset - Date.now());
-	}
+	dailyResetTimer ||= setTimeout(() => {
+		dailyResetTimer = undefined;
+		updateBountyCheckboxes();
+	}, nextDailyReset - Date.now());
 }
 
 (globalThis as any).updateBountyCheckboxes = updateBountyCheckboxes;

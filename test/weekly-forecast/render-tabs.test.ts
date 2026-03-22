@@ -19,10 +19,6 @@ import {
 import {loadMock} from '../helpers/api-mocks';
 import {mockBootstrapTooltip} from '../helpers/dom-helpers';
 
-// ---------------------------------------------------------------------------
-// Hoisted mocks
-// ---------------------------------------------------------------------------
-
 const {mockFetchWorldState} = vi.hoisted(() => ({
 	mockFetchWorldState: vi.fn(),
 }));
@@ -45,10 +41,6 @@ vi.mock('../../src/arbys-timer', () => ({
 		return span;
 	}),
 }));
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
 
 const worldState = loadMock('worldState.json');
 
@@ -87,10 +79,6 @@ async function loadModule() {
 	return mod;
 }
 
-// ---------------------------------------------------------------------------
-// Tests: initWeeklyMissionsNotice
-// ---------------------------------------------------------------------------
-
 describe('initWeeklyMissionsNotice', () => {
 	beforeEach(() => {
 		vi.resetModules();
@@ -125,10 +113,6 @@ describe('initWeeklyMissionsNotice', () => {
 		await expect(loadModule()).resolves.not.toThrow();
 	});
 });
-
-// ---------------------------------------------------------------------------
-// Tests: renderConquestTabs (Deep Archimedea / CT_LAB)
-// ---------------------------------------------------------------------------
 
 describe('renderConquestTabs — CT_LAB (Deep Archimedea)', () => {
 	beforeEach(() => {
@@ -198,10 +182,6 @@ describe('renderConquestTabs — CT_LAB (Deep Archimedea)', () => {
 	});
 });
 
-// ---------------------------------------------------------------------------
-// Tests: renderConquestTabs (Temporal Archimedea / CT_HEX)
-// ---------------------------------------------------------------------------
-
 describe('renderConquestTabs — CT_HEX (Temporal Archimedea)', () => {
 	beforeEach(() => {
 		vi.resetModules();
@@ -240,10 +220,6 @@ describe('renderConquestTabs — CT_HEX (Temporal Archimedea)', () => {
 		expect(panes.length).toBeGreaterThan(0);
 	});
 });
-
-// ---------------------------------------------------------------------------
-// Tests: renderDescentTabs
-// ---------------------------------------------------------------------------
 
 describe('renderDescentTabs', () => {
 	beforeEach(() => {
@@ -329,10 +305,6 @@ describe('renderDescentTabs', () => {
 	});
 });
 
-// ---------------------------------------------------------------------------
-// Tests: renderCalendarSeasonTabs
-// ---------------------------------------------------------------------------
-
 describe('renderCalendarSeasonTabs', () => {
 	beforeEach(() => {
 		vi.resetModules();
@@ -397,10 +369,6 @@ describe('renderCalendarSeasonTabs', () => {
 	});
 });
 
-// ---------------------------------------------------------------------------
-// Tests: tab activation preservation on refresh
-// ---------------------------------------------------------------------------
-
 describe('initWeeklyForecast — tab activation preservation', () => {
 	beforeEach(() => {
 		vi.resetModules();
@@ -436,10 +404,6 @@ describe('initWeeklyForecast — tab activation preservation', () => {
 		expect(firstBtn?.classList.contains('active')).toBe(true);
 	});
 });
-
-// ---------------------------------------------------------------------------
-// Tests: initWeeklyForecast — schedules a refresh setTimeout
-// ---------------------------------------------------------------------------
 
 describe('initWeeklyForecast — refresh scheduling', () => {
 	beforeEach(() => {

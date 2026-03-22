@@ -9,10 +9,6 @@ import {
 	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 
-// ---------------------------------------------------------------------------
-// Hoisted mocks
-// ---------------------------------------------------------------------------
-
 const {
 	mockInitialize,
 	mockIsAuthenticated,
@@ -68,10 +64,6 @@ vi.mock('../../src/cloud-sync/trigger', () => ({
 	registerSyncHandler: mockRegisterSyncHandler,
 }));
 
-// ---------------------------------------------------------------------------
-// Helper: import the module fresh and let async initializeAuth() settle
-// ---------------------------------------------------------------------------
-
 async function importAuthInit() {
 	vi.resetModules();
 	await import('../../src/cloud-sync/auth-init');
@@ -80,10 +72,6 @@ async function importAuthInit() {
 		await Promise.resolve();
 	}
 }
-
-// ---------------------------------------------------------------------------
-// updateAuthUI — unauthenticated
-// ---------------------------------------------------------------------------
 
 describe('updateAuthUI — unauthenticated', () => {
 	beforeEach(() => {
@@ -118,10 +106,6 @@ describe('updateAuthUI — unauthenticated', () => {
 	});
 });
 
-// ---------------------------------------------------------------------------
-// updateAuthUI — authenticated
-// ---------------------------------------------------------------------------
-
 describe('updateAuthUI — authenticated', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -155,10 +139,6 @@ describe('updateAuthUI — authenticated', () => {
 	});
 });
 
-// ---------------------------------------------------------------------------
-// updateAuthUI — authenticated without avatar_url
-// ---------------------------------------------------------------------------
-
 describe('updateAuthUI — authenticated without avatar_url', () => {
 	test('falls back to generic SVG avatar', async () => {
 		vi.clearAllMocks();
@@ -174,10 +154,6 @@ describe('updateAuthUI — authenticated without avatar_url', () => {
 		expect(img!.src).toMatch(/^data:image\/svg\+xml;base64,/u);
 	});
 });
-
-// ---------------------------------------------------------------------------
-// updateAuthUI — database not configured
-// ---------------------------------------------------------------------------
 
 describe('updateAuthUI — database not configured', () => {
 	test('hides the auth button when auth-state-changed fires while db is unconfigured', async () => {
@@ -199,10 +175,6 @@ describe('updateAuthUI — database not configured', () => {
 		expect(authButton.style.display).toBe('none');
 	});
 });
-
-// ---------------------------------------------------------------------------
-// showToast
-// ---------------------------------------------------------------------------
 
 describe('showToast', () => {
 	beforeEach(() => {
@@ -284,10 +256,6 @@ describe('showToast', () => {
 	});
 });
 
-// ---------------------------------------------------------------------------
-// auth-state-changed event
-// ---------------------------------------------------------------------------
-
 describe('auth-state-changed event', () => {
 	test('re-renders auth button when auth-state-changed fires', async () => {
 		vi.clearAllMocks();
@@ -309,10 +277,6 @@ describe('auth-state-changed event', () => {
 		expect(img!.src).toBe('https://example.com/pic.png');
 	});
 });
-
-// ---------------------------------------------------------------------------
-// registerSyncHandler wiring
-// ---------------------------------------------------------------------------
 
 describe('registerSyncHandler wiring', () => {
 	beforeEach(async () => {
@@ -342,10 +306,6 @@ describe('registerSyncHandler wiring', () => {
 		expect(mockDebouncedPush).not.toHaveBeenCalled();
 	});
 });
-
-// ---------------------------------------------------------------------------
-// OAuth hash cleanup
-// ---------------------------------------------------------------------------
 
 describe('OAuth hash cleanup', () => {
 	function mockLocation(hash: string, pathname = '/live', search = '') {
@@ -417,10 +377,6 @@ describe('OAuth hash cleanup', () => {
 	});
 });
 
-// ---------------------------------------------------------------------------
-// beforeunload handler
-// ---------------------------------------------------------------------------
-
 describe('beforeunload handler', () => {
 	test('calls flushPendingChanges when tab closes', async () => {
 		vi.clearAllMocks();
@@ -435,10 +391,6 @@ describe('beforeunload handler', () => {
 		expect(mockFlushPendingChanges).toHaveBeenCalled();
 	});
 });
-
-// ---------------------------------------------------------------------------
-// auth-signed-out handler
-// ---------------------------------------------------------------------------
 
 describe('auth-signed-out handler', () => {
 	beforeEach(async () => {
@@ -480,14 +432,6 @@ describe('auth-signed-out handler', () => {
 	});
 });
 
-// ---------------------------------------------------------------------------
-// DOMContentLoaded path
-// ---------------------------------------------------------------------------
-
-// ---------------------------------------------------------------------------
-// auth-signed-in handler
-// ---------------------------------------------------------------------------
-
 describe('auth-signed-in handler', () => {
 	test('calls handleLogin when auth-signed-in fires', async () => {
 		vi.clearAllMocks();
@@ -514,10 +458,6 @@ describe('auth-signed-in handler', () => {
 	});
 });
 
-// ---------------------------------------------------------------------------
-// updateAuthUI — no auth button
-// ---------------------------------------------------------------------------
-
 describe('updateAuthUI — no auth button', () => {
 	test('returns early when #auth-button is absent', async () => {
 		vi.clearAllMocks();
@@ -541,10 +481,6 @@ describe('updateAuthUI — no auth button', () => {
 		document.body.append(btn);
 	});
 });
-
-// ---------------------------------------------------------------------------
-// showToast — hidden.bs.toast cleanup
-// ---------------------------------------------------------------------------
 
 describe('showToast — toast cleanup on hide', () => {
 	test('removes toast element when hidden.bs.toast fires', async () => {

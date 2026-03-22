@@ -23,15 +23,7 @@ import {freezeTime, MOCK_TIMESTAMP} from '../../helpers/time-helpers';
 // Captured before any fake timers are installed
 const realNow = Date.now();
 
-// ---------------------------------------------------------------------------
-// Mock getDictPromise (declared as global in descendia.ts)
-// ---------------------------------------------------------------------------
-
 declare function getDictPromise(): Promise<Record<string, string>>;
-
-// ---------------------------------------------------------------------------
-// Setup / teardown
-// ---------------------------------------------------------------------------
 
 const mockWorldState = {Descents: loadMock('worldState.json').Descents};
 
@@ -60,10 +52,6 @@ afterEach(() => {
 	delete (globalThis as any).getDictPromise;
 	delete (globalThis as any).createExpiryBadge;
 });
-
-// ---------------------------------------------------------------------------
-// Tests: retry paths
-// ---------------------------------------------------------------------------
 
 describe('updateDescendia — worldState not ready', () => {
 	test('schedules retry when worldState is undefined', () => {
@@ -103,10 +91,6 @@ describe('updateDescendia — no active descent', () => {
 		expect((globalThis as any).getDictPromise).not.toHaveBeenCalled();
 	});
 });
-
-// ---------------------------------------------------------------------------
-// Tests: active descent
-// ---------------------------------------------------------------------------
 
 describe('updateDescendia — active descent', () => {
 	let activeDescent: any;
@@ -186,10 +170,6 @@ describe('updateDescendia — active descent', () => {
 		expect(checks).not.toBeNull();
 	});
 });
-
-// ---------------------------------------------------------------------------
-// Tests: missing DOM elements
-// ---------------------------------------------------------------------------
 
 describe('updateDescendia — missing DOM elements', () => {
 	test('does not throw when card header is absent', async () => {

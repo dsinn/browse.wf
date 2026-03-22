@@ -22,10 +22,6 @@ import {freezeTime, MOCK_TIMESTAMP} from '../../helpers/time-helpers';
 // Captured before any fake timers are installed
 const realNow = Date.now();
 
-// ---------------------------------------------------------------------------
-// Mocks
-// ---------------------------------------------------------------------------
-
 const {mockRenderCalendarSeasonPane, mockFetchExport} = vi.hoisted(() => ({
 	mockRenderCalendarSeasonPane: vi.fn(),
 	mockFetchExport: vi.fn(async () => ({})),
@@ -39,10 +35,6 @@ vi.mock('../../../src/public-export-fetcher', () => ({
 	fetchExport: mockFetchExport,
 	exportCache: new Map(),
 }));
-
-// ---------------------------------------------------------------------------
-// Setup / teardown
-// ---------------------------------------------------------------------------
 
 const mockWorldState = {
 	KnownCalendarSeasons: loadMock('worldState.json').KnownCalendarSeasons,
@@ -84,10 +76,6 @@ afterEach(() => {
 	delete (globalThis as any).setImageSource;
 	delete (globalThis as any).ExportImages;
 });
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
 
 describe('updateCalendarSeason — empty worldState', () => {
 	test('schedules retry in 5s when KnownCalendarSeasons is empty', () => {

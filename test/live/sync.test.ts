@@ -9,10 +9,6 @@ import {
 } from 'vitest';
 import {MOCK_TIMESTAMP} from '../helpers/test-constants';
 
-// ---------------------------------------------------------------------------
-// Mocks — must be declared before the import
-// ---------------------------------------------------------------------------
-
 const mockRefreshFilterStatus = vi.fn();
 const mockInitializeBountyFiltersAll = vi.fn();
 const mockPruneStaleNewsRead = vi.fn();
@@ -30,10 +26,6 @@ vi.mock('../../src/news-mark-read.js', () => ({
 // Import the module — this registers the event listeners
 await import('../../src/live/sync.js');
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 function dispatchBeforePush() {
 	globalThis.dispatchEvent(new CustomEvent('cloud-sync-before-push'));
 }
@@ -41,10 +33,6 @@ function dispatchBeforePush() {
 function dispatchPulled() {
 	globalThis.dispatchEvent(new CustomEvent('cloud-sync-pulled'));
 }
-
-// ---------------------------------------------------------------------------
-// Tests: cloud-sync-before-push
-// ---------------------------------------------------------------------------
 
 describe('cloud-sync-before-push', () => {
 	afterEach(() => {
@@ -259,10 +247,6 @@ describe('cloud-sync-before-push', () => {
 		expect(localStorage.getItem('oids_completed')).toBeNull();
 	});
 });
-
-// ---------------------------------------------------------------------------
-// Tests: cloud-sync-pulled
-// ---------------------------------------------------------------------------
 
 describe('cloud-sync-pulled', () => {
 	beforeEach(() => {

@@ -16,10 +16,6 @@ import {
 import {AuthService} from '../../src/cloud-sync/auth';
 import {db} from '../../src/cloud-sync/database';
 
-// ---------------------------------------------------------------------------
-// Mocks
-// ---------------------------------------------------------------------------
-
 vi.mock('../../src/cloud-sync/database', () => ({
 	db: {
 		auth: {
@@ -31,10 +27,6 @@ vi.mock('../../src/cloud-sync/database', () => ({
 	},
 	isDatabaseConfigured: vi.fn(() => true),
 }));
-
-// ---------------------------------------------------------------------------
-// Helper
-// ---------------------------------------------------------------------------
 
 async function initService() {
 	(AuthService as any).instance = undefined;
@@ -51,10 +43,6 @@ async function initService() {
 
 	return {authService, call};
 }
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
 
 beforeEach(() => {
 	vi.clearAllMocks();

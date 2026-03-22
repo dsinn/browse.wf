@@ -56,6 +56,7 @@
 			</div>
 		</form>
 		<div id="history" class="d-none mt-4">
+			<p class="text-secondary-emphasis">New invigorations will become available in <span id="invigoration-timer"></span></p>
 			<h4>Invigoration History</h4>
 			<?php foreach (['this-week' => 'This Week', 'last-week' => 'Last Week'] as $prefix => $label): ?>
 			<div id="history-<?= $prefix ?>" class="d-none mb-3">
@@ -202,6 +203,10 @@
 						}
 					}
 				}
+				if (lastWeekData || currentWeekData || nextWeekData)
+				{
+					scheduleInvigorationReload();
+				}
 			}
 		});
 
@@ -209,6 +214,8 @@
 		{
 			document.getElementById("input-header").textContent = this.checked ? "Current Offerings" : "Previous Offerings";
 		};
+
+		initInvigorationTimer();
 
 		window.invigorationNames = {
 			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerStrength": "+200% Ability Strength",

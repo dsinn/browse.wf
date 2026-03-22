@@ -171,8 +171,28 @@ export function showResults(response: InvigorationResponse, request: Invigoratio
 	populateInvigorationGrid('out', response);
 }
 
+export function initInvigorationTimer(): void {
+	const timerElement = document.querySelector('#invigoration-timer');
+	if (!timerElement) {
+		return;
+	}
+
+	const weekEnd = ((getWeekIndex(Date.now()) + 1) * 604_800) + 1_391_990_400;
+	const badge = (globalThis as any).createShortTimerBadge(weekEnd, 'Pending Refresh') as HTMLSpanElement;
+	timerElement.append(badge);
+}
+
+export function scheduleInvigorationReload(): void {
+	const weekEnd = ((getWeekIndex(Date.now()) + 1) * 604_800) + 1_391_990_400;
+	setTimeout(() => {
+		location.reload();
+	}, (weekEnd * 1000) - Date.now());
+}
+
 // Expose globally for use by the non-module inline script
 (globalThis as any).getWeekIndex = getWeekIndex;
+(globalThis as any).initInvigorationTimer = initInvigorationTimer;
+(globalThis as any).scheduleInvigorationReload = scheduleInvigorationReload;
 (globalThis as any).loadCache = loadCache;
 (globalThis as any).populateInvigorationGrid = populateInvigorationGrid;
 (globalThis as any).preFillForm = preFillForm;

@@ -270,8 +270,12 @@ function initWeeklyMissionsNotice(): void {
 		return;
 	}
 
-	const badge = createShortTimerBadge(nextForecastPublishedSeconds(), 'Pending Refresh');
+	const expirySeconds = nextForecastPublishedSeconds();
+	const badge = createShortTimerBadge(expirySeconds, 'Pending Refresh');
 	timerElement.append(badge);
+	setTimeout(() => {
+		location.reload();
+	}, (expirySeconds * 1000) - Date.now());
 }
 
 async function initWeeklyForecast(isRefresh = false): Promise<void> {

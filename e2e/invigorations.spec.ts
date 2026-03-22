@@ -178,6 +178,26 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
 		await expect(selects.nth(2)).toHaveValue(ENTRY_RHINO_FROST_LOKI_PEEK.response.suits[2]);
 	});
 
+	test('shows invigoration timer when history is visible', async ({page}) => {
+		const mockCache = {
+			[CURRENT_WEEK]: ENTRY_MAG_VOLT_EXCALIBUR,
+		};
+
+		await page.evaluate(cache => {
+			localStorage.setItem('invigorations.cache', JSON.stringify(cache));
+		}, mockCache);
+
+		await page.reload();
+		await page.waitForFunction(() => {
+			const select = document.querySelector('.suit-select');
+			return select && (select as HTMLSelectElement).options.length > 1;
+		}, {timeout: 30_000});
+
+		await expect(page.locator('#history')).not.toHaveClass(/d-none/u);
+		await expect(page.locator('#invigoration-timer')).toBeVisible();
+		await expect(page.locator('#invigoration-timer').locator('..')).toContainText('New invigorations will become available in');
+	});
+
 	test('new submission updates cache in localStorage', async ({page}) => {
 		// Fill in form
 		await page.locator('#username').fill('NewUser');

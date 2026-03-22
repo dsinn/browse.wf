@@ -16,10 +16,10 @@ const {
 	mockGetUserId,
 	mockSignOut,
 	mockSignInWithDiscord,
-	mockFlushPendingChanges,
-	mockDebouncedPush,
+	mockPushToDatabase,
 	mockIsDatabaseConfigured,
 	mockRegisterSyncHandler,
+	mockFlushDebounce,
 } = vi.hoisted(() => ({
 	mockInitialize: vi.fn(),
 	mockIsAuthenticated: vi.fn(() => false),
@@ -27,10 +27,10 @@ const {
 	mockGetUserId: vi.fn<() => any>(() => null),
 	mockSignOut: vi.fn(async () => undefined),
 	mockSignInWithDiscord: vi.fn(),
-	mockFlushPendingChanges: vi.fn(),
-	mockDebouncedPush: vi.fn(),
+	mockPushToDatabase: vi.fn(async () => undefined),
 	mockIsDatabaseConfigured: vi.fn(() => true),
 	mockRegisterSyncHandler: vi.fn(),
+	mockFlushDebounce: vi.fn(),
 }));
 
 vi.mock('../../src/cloud-sync/database', () => ({
@@ -54,14 +54,14 @@ vi.mock('../../src/cloud-sync/auth', () => ({
 vi.mock('../../src/cloud-sync/storage-sync', () => ({
 	StorageSyncService: {
 		getInstance: vi.fn(() => ({
-			flushPendingChanges: mockFlushPendingChanges,
-			debouncedPush: mockDebouncedPush,
+			pushToDatabase: mockPushToDatabase,
 		})),
 	},
 }));
 
 vi.mock('../../src/cloud-sync/trigger', () => ({
 	registerSyncHandler: mockRegisterSyncHandler,
+	flushDebounce: mockFlushDebounce,
 }));
 
 async function importAuthInit() {
@@ -292,18 +292,20 @@ describe('registerSyncHandler wiring', () => {
 		expect(mockRegisterSyncHandler).toHaveBeenCalledWith(expect.any(Function));
 	});
 
-	test('sync handler calls debouncedPush when userId is present', () => {
+	test('sync handler calls pushToDatabase when userId is present', async () => {
 		mockGetUserId.mockReturnValue('user-123');
 		const handler = mockRegisterSyncHandler.mock.calls[0][0];
 		handler();
-		expect(mockDebouncedPush).toHaveBeenCalledWith('user-123');
+		await Promise.resolve();
+		expect(mockPushToDatabase).toHaveBeenCalledWith('user-123');
 	});
 
-	test('sync handler does not call debouncedPush when userId is null', () => {
+	test('sync handler does not call pushToDatabase when userId is null', async () => {
 		mockGetUserId.mockReturnValue(null);
 		const handler = mockRegisterSyncHandler.mock.calls[0][0];
 		handler();
-		expect(mockDebouncedPush).not.toHaveBeenCalled();
+		await Promise.resolve();
+		expect(mockPushToDatabase).not.toHaveBeenCalled();
 	});
 });
 
@@ -378,7 +380,7 @@ describe('OAuth hash cleanup', () => {
 });
 
 describe('beforeunload handler', () => {
-	test('calls flushPendingChanges when tab closes', async () => {
+	test('calls flushDebounce when tab closes', async () => {
 		vi.clearAllMocks();
 		mockIsDatabaseConfigured.mockReturnValue(true);
 		mockIsAuthenticated.mockReturnValue(false);
@@ -388,7 +390,7 @@ describe('beforeunload handler', () => {
 
 		globalThis.dispatchEvent(new Event('beforeunload'));
 
-		expect(mockFlushPendingChanges).toHaveBeenCalled();
+		expect(mockFlushDebounce).toHaveBeenCalled();
 	});
 });
 
@@ -405,7 +407,6 @@ describe('auth-signed-out handler', () => {
 		const mockUnsubscribe = vi.fn();
 		const {StorageSyncService} = await import('../../src/cloud-sync/storage-sync');
 		vi.mocked(StorageSyncService.getInstance).mockReturnValue({
-			flushPendingChanges: mockFlushPendingChanges,
 			unsubscribeFromRealtimeUpdates: mockUnsubscribe,
 		} as any);
 		mockGetUserId.mockReturnValue('user-123');
@@ -416,7 +417,7 @@ describe('auth-signed-out handler', () => {
 			await Promise.resolve();
 		}
 
-		expect(mockFlushPendingChanges).toHaveBeenCalled();
+		expect(mockFlushDebounce).toHaveBeenCalled();
 		expect(mockUnsubscribe).toHaveBeenCalled();
 	});
 
@@ -428,7 +429,7 @@ describe('auth-signed-out handler', () => {
 			await Promise.resolve();
 		}
 
-		expect(mockFlushPendingChanges).not.toHaveBeenCalled();
+		expect(mockFlushDebounce).not.toHaveBeenCalled();
 	});
 });
 
@@ -443,8 +444,6 @@ describe('auth-signed-in handler', () => {
 		const {StorageSyncService} = await import('../../src/cloud-sync/storage-sync');
 		vi.mocked(StorageSyncService.getInstance).mockReturnValue({
 			handleLogin: mockHandleLogin,
-			flushPendingChanges: mockFlushPendingChanges,
-			debouncedPush: mockDebouncedPush,
 		} as any);
 
 		await importAuthInit();

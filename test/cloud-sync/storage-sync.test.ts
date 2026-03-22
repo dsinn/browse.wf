@@ -87,6 +87,8 @@ describe('StorageSyncService', () => {
 		// Get singleton instance and reset per-session state
 		service = StorageSyncService.getInstance();
 		(service as any).loginSyncComplete = false;
+		(service as any).syncing = false;
+		(service as any).justPushed = false;
 	});
 
 	afterEach(() => {
@@ -310,71 +312,6 @@ describe('StorageSyncService', () => {
 
 			expect(localStorage.getItem('lang')).toBe('fr');
 			expect(events).toContain('cloud-sync-pulled');
-		});
-	});
-
-	describe('saveWithFallback', () => {
-		beforeEach(() => {
-			vi.useFakeTimers();
-		});
-
-		afterEach(() => {
-			vi.useRealTimers();
-		});
-
-		test('should save to localStorage immediately', async () => {
-			await service.saveWithFallback('test-key', 'test-value');
-
-			expect(localStorage.getItem('test-key')).toBe('test-value');
-		});
-
-		test('should debounce database push for 5 seconds', async () => {
-			mockFromChain.upsert.mockResolvedValue({error: null});
-
-			await service.saveWithFallback('test-key', 'test-value');
-
-			// Should not push immediately
-			expect(mockFromChain.upsert).not.toHaveBeenCalled();
-
-			// Fast-forward 4 seconds - still no push
-			vi.advanceTimersByTime(4000);
-			expect(mockFromChain.upsert).not.toHaveBeenCalled();
-
-			// Fast-forward 1 more second - should push
-			vi.advanceTimersByTime(1000);
-			await vi.runAllTimersAsync();
-
-			expect(mockFromChain.upsert).toHaveBeenCalled();
-		});
-
-		test('should reset debounce timer on subsequent saves', async () => {
-			mockFromChain.upsert.mockResolvedValue({error: null});
-
-			await service.saveWithFallback('key1', 'value1');
-			vi.advanceTimersByTime(3000);
-
-			await service.saveWithFallback('key2', 'value2');
-			vi.advanceTimersByTime(3000);
-
-			// First timer was cancelled, so only 1 push after second timer completes
-			expect(mockFromChain.upsert).not.toHaveBeenCalled();
-
-			vi.advanceTimersByTime(2000);
-			await vi.runAllTimersAsync();
-
-			expect(mockFromChain.upsert).toHaveBeenCalledTimes(1);
-		});
-
-		test('should handle database push failure gracefully', async () => {
-			mockFromChain.upsert.mockRejectedValue(new Error('Network error'));
-
-			await service.saveWithFallback('test-key', 'test-value');
-
-			vi.advanceTimersByTime(5000);
-			await vi.runAllTimersAsync();
-
-			// Should not throw - data still in localStorage
-			expect(localStorage.getItem('test-key')).toBe('test-value');
 		});
 	});
 
@@ -1098,42 +1035,6 @@ describe('StorageSyncService', () => {
 		});
 	});
 
-	describe('flushPendingChanges', () => {
-		beforeEach(() => {
-			vi.useFakeTimers();
-		});
-
-		afterEach(() => {
-			vi.useRealTimers();
-		});
-
-		test('should immediately push pending changes', async () => {
-			mockFromChain.upsert.mockResolvedValue({error: null});
-
-			await service.saveWithFallback('test-key', 'test-value');
-
-			// Without flush, would need to wait 5 seconds
-			await service.flushPendingChanges();
-
-			expect(mockFromChain.upsert).toHaveBeenCalled();
-		});
-
-		test('should do nothing if no pending changes', async () => {
-			await service.flushPendingChanges();
-
-			expect(mockFromChain.upsert).not.toHaveBeenCalled();
-		});
-
-		test('should not throw when push fails during flush', async () => {
-			mockFromChain.upsert.mockResolvedValue({error: {message: 'network error'}});
-
-			await service.saveWithFallback('test-key', 'test-value');
-
-			// Should not throw even when push fails
-			await expect(service.flushPendingChanges()).resolves.toBeUndefined();
-		});
-	});
-
 	describe('heartbeat', () => {
 		test('updates lastKnownFreshDataTimestamp when channel is joined', () => {
 			vi.useFakeTimers();
@@ -1301,18 +1202,15 @@ describe('StorageSyncService', () => {
 	});
 
 	describe('Dropdown Filter Syncing', () => {
-		test('should sync dropdown filter values (numeric strings) via saveWithFallback', async () => {
+		test('should sync dropdown filter values (numeric strings)', async () => {
 			mockFromChain.upsert.mockResolvedValue({error: null});
 
-			// Use saveWithFallback to properly trigger sync
-			await service.saveWithFallback('live.filter.bounties.ZarimanSyndicate', '3');
-			await service.saveWithFallback('live.filter.bounties.EntratiLabSyndicate', '5');
-			await service.saveWithFallback('live.filter.bounties.HexSyndicate', '-1');
+			localStorage.setItem('live.filter.bounties.ZarimanSyndicate', '3');
+			localStorage.setItem('live.filter.bounties.EntratiLabSyndicate', '5');
+			localStorage.setItem('live.filter.bounties.HexSyndicate', '-1');
 
-			// Flush to trigger immediate sync
-			await service.flushPendingChanges();
+			await service.pushToDatabase('mock-user-uuid');
 
-			// Check the data property was called with nested structure
 			const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
 			expect(call.data.live.filter.bounties.ZarimanSyndicate).toBe('3');
 			expect(call.data.live.filter.bounties.EntratiLabSyndicate).toBe('5');
@@ -1351,11 +1249,11 @@ describe('StorageSyncService', () => {
 			mockFromChain.upsert.mockResolvedValue({error: null});
 
 			// Set both checkbox filters (boolean "0"/"1") and dropdown filters (string "0"-"7")
-			await service.saveWithFallback('live.filter.news.danger', '1');
-			await service.saveWithFallback('live.filter.news.primary', '0');
-			await service.saveWithFallback('live.filter.bounties.ZarimanSyndicate', '3');
+			localStorage.setItem('live.filter.news.danger', '1');
+			localStorage.setItem('live.filter.news.primary', '0');
+			localStorage.setItem('live.filter.bounties.ZarimanSyndicate', '3');
 
-			await service.flushPendingChanges();
+			await service.pushToDatabase('mock-user-uuid');
 
 			// Check the data property has both filter types in nested structure
 			const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];

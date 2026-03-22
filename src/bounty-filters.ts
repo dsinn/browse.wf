@@ -8,7 +8,7 @@
  * with non-module scripts.
  */
 
-import {triggerCloudSync} from './cloud-sync/trigger.js';
+import {triggerCloudSyncWithDebounce as triggerCloudSync} from './cloud-sync/trigger.js';
 
 const SYNDICATE_TAGS = [
 	'ZarimanSyndicate',

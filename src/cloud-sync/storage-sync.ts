@@ -66,10 +66,6 @@ export class StorageSyncService {
 		return /^sb-.*-auth-token$/u;
 	} // Supabase auth token - never sync to cloud
 
-	private static get debounceMs() {
-		return 5000;
-	} // 5 seconds - aggressive batching for long-lived tabs
-
 	private static get heartbeatIntervalMs() {
 		return 5000;
 	}
@@ -84,7 +80,6 @@ export class StorageSyncService {
 
 	private loginSyncComplete = false;
 	private syncing = false;
-	private pushTimer: ReturnType<typeof setTimeout> | undefined;
 	private realtimeChannel: any;
 	private justPushed = false; // Track when we just pushed to avoid pulling our own update
 	private justPushedTimeout: ReturnType<typeof setTimeout> | undefined; // Timeout for clearing justPushed flag
@@ -211,40 +206,6 @@ export class StorageSyncService {
 
 		this.dataToLocalStorage(row.data as UserData);
 		globalThis.dispatchEvent(new CustomEvent('cloud-sync-pulled'));
-	}
-
-	/**
-   * Save specific key to database with localStorage fallback
-   * Uses 5-second debounce to batch rapid changes
-   */
-	async saveWithFallback(key: string, value: any) {
-		// Always save to localStorage first (instant UI feedback)
-		localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
-
-		// Debounce database push to batch rapid changes
-		const userId = AuthService.getInstance().getUserId();
-		if (userId) {
-			this.debouncedPush(userId);
-		}
-	}
-
-	/**
-   * Flush pending changes immediately (called on logout or page unload)
-   */
-	async flushPendingChanges() {
-		if (this.pushTimer !== undefined) {
-			clearTimeout(this.pushTimer);
-			this.pushTimer = undefined;
-
-			const userId = AuthService.getInstance().getUserId();
-			if (userId) {
-				try {
-					await this.pushToDatabase(userId);
-				} catch (error) {
-					logger.warn('Failed to flush pending changes:', error);
-				}
-			}
-		}
 	}
 
 	/**
@@ -410,29 +371,6 @@ export class StorageSyncService {
 		for (const [key, value] of Object.entries(flattened)) {
 			localStorage.setItem(key, String(value));
 		}
-	}
-
-	/**
-   * Debounced push - batches multiple rapid changes into single database write
-   */
-	private debouncedPush(userId: string) {
-		// Clear existing timer if user makes another change
-		if (this.pushTimer !== undefined) {
-			clearTimeout(this.pushTimer);
-		}
-
-		// Start new 5-second timer
-		this.pushTimer = globalThis.setTimeout(() => {
-			this.pushTimer = undefined;
-			void (async () => {
-				try {
-					await this.pushToDatabase(userId);
-					logger.log('💻➡️☁️ Synced data to cloud');
-				} catch (error) {
-					logger.warn('Failed to sync to database, data saved locally:', error);
-				}
-			})();
-		}, StorageSyncService.debounceMs);
 	}
 
 	/**

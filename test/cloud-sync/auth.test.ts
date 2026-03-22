@@ -26,7 +26,6 @@ vi.mock('../../src/cloud-sync/storage-sync', () => ({
 	StorageSyncService: {
 		getInstance: vi.fn(() => ({
 			handleLogin: vi.fn(),
-			flushPendingChanges: vi.fn(),
 			unsubscribeFromRealtimeUpdates: vi.fn(),
 		})),
 	},

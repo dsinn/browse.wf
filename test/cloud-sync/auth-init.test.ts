@@ -34,10 +34,7 @@ vi.mock('../../src/cloud-sync/auth', () => ({
 
 vi.mock('../../src/cloud-sync/storage-sync', () => ({
 	StorageSyncService: {
-		getInstance: vi.fn(() => ({
-			flushPendingChanges: vi.fn(),
-			debouncedPush: vi.fn(),
-		})),
+		getInstance: vi.fn(() => ({})),
 	},
 }));
 

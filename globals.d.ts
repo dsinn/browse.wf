@@ -119,8 +119,9 @@ declare global {
 
 	// ── Fork-exposed globals (src/ modules) ─────────────────────────────────────
 
-	// src/cloud-sync/auth-init.ts
+	// src/cloud-sync/trigger.ts
 	var triggerCloudSync: (() => void) | undefined;
+	var triggerCloudSyncWithDebounce: (() => void) | undefined;
 	var __getSupabaseAccessToken: (() => Promise<string | undefined>) | undefined;
 
 	// src/short-timer-badge.ts

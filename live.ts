@@ -1501,9 +1501,9 @@ function toggleOidCompletion(oid: string): void
 	}
 	localStorage.setItem("oids_completed", JSON.stringify(arr));
 	// Trigger cloud sync if available
-	if ((window as any).triggerCloudSync)
+	if ((window as any).triggerCloudSyncWithDebounce)
 	{
-		(window as any).triggerCloudSync();
+		(window as any).triggerCloudSyncWithDebounce();
 	}
 }
 
@@ -1873,9 +1873,9 @@ document.querySelectorAll<HTMLSpanElement>("[data-collapse-toggle]").forEach(elm
 			localStorage.setItem("live.collapse." + elm.getAttribute("data-collapse-toggle"), "1");
 		}
 		// Trigger cloud sync if available
-		if ((window as any).triggerCloudSync)
+		if ((window as any).triggerCloudSyncWithDebounce)
 		{
-			(window as any).triggerCloudSync();
+			(window as any).triggerCloudSyncWithDebounce();
 		}
 		refreshCollapseStatus(elm);
 	};
@@ -1938,9 +1938,9 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 			}
 		}
 		// Trigger cloud sync if available
-		if ((window as any).triggerCloudSync)
+		if ((window as any).triggerCloudSyncWithDebounce)
 		{
-			(window as any).triggerCloudSync();
+			(window as any).triggerCloudSyncWithDebounce();
 		}
 		refreshNotifStatus(elm);
 	};

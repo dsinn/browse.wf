@@ -88,7 +88,7 @@ describe('saveToCache()', () => {
 	});
 
 	afterEach(() => {
-		registerSyncHandler(vi.fn<() => void>());
+		registerSyncHandler(vi.fn(async () => undefined) as () => Promise<void>);
 	});
 
 	test('peek=false saves at currentWeek', () => {
@@ -123,7 +123,7 @@ describe('saveToCache()', () => {
 	});
 
 	test('calls triggerCloudSync', () => {
-		const mockSync = vi.fn<() => void>();
+		const mockSync = vi.fn(async () => undefined);
 		registerSyncHandler(mockSync);
 		saveToCache(ENTRY_MAG_VOLT_EXCALIBUR.request, ENTRY_MAG_VOLT_EXCALIBUR.response);
 		expect(mockSync).toHaveBeenCalledOnce();

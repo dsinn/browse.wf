@@ -4,7 +4,7 @@
  * Excludes red text (danger) items - only applies to primary/success
  */
 
-import {triggerCloudSync} from './cloud-sync/trigger.js';
+import {triggerCloudSyncWithDebounce as triggerCloudSync} from './cloud-sync/trigger.js';
 
 type NewsItem = {
 	type: 'danger' | 'primary' | 'success';

@@ -5,10 +5,11 @@
  * Import this file in pages that need cloud sync functionality.
  */
 
+import {logger} from '../logger.js';
 import {AuthService} from './auth.js';
 import {StorageSyncService} from './storage-sync.js';
 import {db, isDatabaseConfigured} from './database.js';
-import {registerSyncHandler} from './trigger.js';
+import {flushDebounce, registerSyncHandler} from './trigger.js';
 
 // Initialize auth on page load
 async function initializeAuth() {
@@ -58,11 +59,10 @@ globalThis.addEventListener('auth-signed-in', () => {
 // Flush and unsubscribe on sign-out
 globalThis.addEventListener('auth-signed-out', () => {
 	void (async () => {
-		const syncService = StorageSyncService.getInstance();
 		const userId = AuthService.getInstance().getUserId();
 		if (userId) {
-			await syncService.flushPendingChanges();
-			syncService.unsubscribeFromRealtimeUpdates();
+			await flushDebounce();
+			StorageSyncService.getInstance().unsubscribeFromRealtimeUpdates();
 		}
 	})();
 });
@@ -73,9 +73,10 @@ globalThis.addEventListener('auth-state-changed', () => {
 	updateAuthUI(authService.isAuthenticated(), authService.getCurrentUser());
 });
 
-// Flush pending changes before tab closes
+// Best-effort flush before tab closes — beforeunload cannot await async work,
+// so pending debounced changes may still be lost on normal tab close.
 window.addEventListener('beforeunload', () => {
-	void StorageSyncService.getInstance().flushPendingChanges();
+	void flushDebounce();
 });
 
 function updateAuthUI(isAuthenticated: boolean, user: any) {
@@ -201,11 +202,15 @@ function showToast(message: string): void {
 }
 
 // Wire triggerCloudSync (exported by trigger.ts, also exposed globally there) to the real handler
-registerSyncHandler(() => {
+registerSyncHandler(async () => {
 	const userId = AuthService.getInstance().getUserId();
 	if (userId) {
-		const syncService = StorageSyncService.getInstance();
-		(syncService as any).debouncedPush(userId);
+		try {
+			await StorageSyncService.getInstance().pushToDatabase(userId);
+			logger.log('💻➡️☁️ Synced data to cloud');
+		} catch (error) {
+			logger.warn('Failed to sync to database, data saved locally:', error);
+		}
 	}
 });
 

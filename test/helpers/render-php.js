@@ -47,6 +47,11 @@ const FIXTURES = {
 		output: 'profile.html',
 		description: 'Profile page full HTML',
 	},
+	invigorations: {
+		url: '/invigorations.php',
+		output: 'invigorations.html',
+		description: 'Invigorations page full HTML',
+	},
 };
 
 /**

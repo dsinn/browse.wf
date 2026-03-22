@@ -3,7 +3,9 @@ import {
 } from 'vitest';
 import {
 	getWeekIndex, loadCache, saveToCache, preFillForm, showResults, showHistory,
+	showCacheAlert, initInvigorationsFromCache, initInvigorations,
 } from '../../src/invigorations';
+import {loadFixture} from '../helpers/fixture-loader';
 import {registerSyncHandler} from '../../src/cloud-sync/trigger';
 import {
 	ENTRY_MAG_VOLT_EXCALIBUR,
@@ -21,44 +23,18 @@ beforeEach(() => {
 	CURRENT_WEEK = getWeekIndex(Date.now());
 });
 
-// Minimal DOM stub for showResults
 function makeResultsDOM() {
-	document.body.innerHTML = `
-		<div id="results" class="d-none">
-			<h4></h4>
-			<p id="explain-noprev" class="explainer d-none"><b></b></p>
-			<p id="explain-current" class="explainer d-none"><b></b></p>
-			<p id="explain-peek" class="explainer d-none"><b></b></p>
-			<div id="out-suit-0"></div><div id="out-off-0"></div><div id="out-def-0"></div>
-			<div id="out-suit-1"></div><div id="out-off-1"></div><div id="out-def-1"></div>
-			<div id="out-suit-2"></div><div id="out-off-2"></div><div id="out-def-2"></div>
-		</div>
-	`;
+	document.body.innerHTML = loadFixture('invigorations');
 	(globalThis as any).baseSuitTypes = {};
 	(globalThis as any).dict = {};
-	(globalThis as any).invigorationNames = {};
+	initInvigorations({});
 }
 
-// Minimal DOM stub for showHistory
 function makeHistoryDOM() {
-	document.body.innerHTML = `
-		<div id="history" class="d-none">
-			<div id="history-this-week" class="d-none">
-				<h6 id="this-week-suit-0"></h6><p id="this-week-off-0"></p><p id="this-week-def-0"></p>
-				<h6 id="this-week-suit-1"></h6><p id="this-week-off-1"></p><p id="this-week-def-1"></p>
-				<h6 id="this-week-suit-2"></h6><p id="this-week-off-2"></p><p id="this-week-def-2"></p>
-			</div>
-			<div id="history-last-week" class="d-none">
-				<h6 id="last-week-suit-0"></h6><p id="last-week-off-0"></p><p id="last-week-def-0"></p>
-				<h6 id="last-week-suit-1"></h6><p id="last-week-off-1"></p><p id="last-week-def-1"></p>
-				<h6 id="last-week-suit-2"></h6><p id="last-week-off-2"></p><p id="last-week-def-2"></p>
-			</div>
-		</div>
-	`;
-
+	document.body.innerHTML = loadFixture('invigorations');
 	(globalThis as any).baseSuitTypes = {};
 	(globalThis as any).dict = {};
-	(globalThis as any).invigorationNames = {};
+	initInvigorations({});
 }
 
 describe('getWeekIndex()', () => {
@@ -350,5 +326,134 @@ describe('showHistory()', () => {
 		};
 		showHistory(CURRENT_WEEK, cache);
 		expect(suitText('this-week', 0)).toBe(ENTRY_RHINO_FROST_LOKI.response.suits[0]);
+	});
+});
+
+describe('showCacheAlert()', () => {
+	beforeEach(() => {
+		document.body.innerHTML = '<div id="cache-alert" class="alert d-none mb-3" role="alert"></div>';
+	});
+
+	test('removes d-none and sets type class', () => {
+		showCacheAlert('success', 'Hello');
+		const element = document.querySelector('#cache-alert')!;
+		expect(element.classList.contains('d-none')).toBe(false);
+		expect(element.classList.contains('alert-success')).toBe(true);
+	});
+
+	test('sets message text', () => {
+		showCacheAlert('info', 'Test message');
+		expect(document.querySelector('#cache-alert')!.textContent).toBe('Test message');
+	});
+
+	test('replaces previous alert type', () => {
+		showCacheAlert('danger', 'Error');
+		showCacheAlert('warning', 'Warn');
+		const element = document.querySelector('#cache-alert')!;
+		expect(element.classList.contains('alert-warning')).toBe(true);
+		expect(element.classList.contains('alert-danger')).toBe(false);
+	});
+
+	test('does nothing when element is absent', () => {
+		document.body.innerHTML = '';
+		expect(() => {
+			showCacheAlert('info', 'x');
+		}).not.toThrow();
+	});
+});
+
+describe('initInvigorationsFromCache()', () => {
+	beforeEach(() => {
+		localStorage.clear();
+		document.body.innerHTML = loadFixture('invigorations');
+		(globalThis as any).baseSuitTypes = {};
+		(globalThis as any).dict = {};
+		document.querySelector<HTMLInputElement>('#peek')!.addEventListener('change', function (this: HTMLInputElement) {
+			document.querySelector('#input-header')!.textContent = this.checked ? 'Current Offerings' : 'Previous Offerings';
+		});
+		vi.useFakeTimers();
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+		vi.unstubAllGlobals();
+	});
+
+	test('does nothing when inventoryDataUsed=true', () => {
+		localStorage.setItem('invigorations.cache', JSON.stringify({[CURRENT_WEEK]: ENTRY_MAG_VOLT_EXCALIBUR}));
+		initInvigorationsFromCache(true);
+		expect(document.querySelector('#results')!.classList.contains('d-none')).toBe(true);
+		expect(document.querySelector('#cache-alert')!.classList.contains('d-none')).toBe(true);
+	});
+
+	test('shows next-week data with success alert when nextWeekData exists', () => {
+		const cache: InvigorationCache = {[CURRENT_WEEK + 1]: ENTRY_RHINO_FROST_LOKI_PEEK};
+		localStorage.setItem('invigorations.cache', JSON.stringify(cache));
+		initInvigorationsFromCache(false);
+		expect(document.querySelector('#cache-alert')!.classList.contains('alert-success')).toBe(true);
+		expect(document.querySelector('#results')!.classList.contains('d-none')).toBe(false);
+		expect(document.querySelector<HTMLInputElement>('#username')!.value).toBe(ENTRY_RHINO_FROST_LOKI_PEEK.request.n);
+	});
+
+	test('shows current-week data with info alert when only currentWeekData exists', () => {
+		const cache: InvigorationCache = {[CURRENT_WEEK]: ENTRY_MAG_VOLT_EXCALIBUR};
+		localStorage.setItem('invigorations.cache', JSON.stringify(cache));
+		initInvigorationsFromCache(false);
+		expect(document.querySelector('#cache-alert')!.classList.contains('alert-info')).toBe(true);
+		expect(document.querySelector('#results')!.classList.contains('d-none')).toBe(false);
+	});
+
+	test('current-week peek data pre-fills response suits into selects', () => {
+		// Scenario: user peeked last week (data now in currentWeek slot after week rolled over).
+		// request.s has last week's suits; response.suits has this week's offerings.
+		// Selects should show response.suits so the user can immediately peek at next week.
+		const selects = document.querySelectorAll<HTMLSelectElement>('.suit-select');
+		for (const [i, select] of selects.entries()) {
+			const option = document.createElement('option');
+			option.value = ENTRY_RHINO_FROST_LOKI_PEEK.response.suits[i];
+			select.append(option);
+		}
+
+		const cache: InvigorationCache = {[CURRENT_WEEK]: ENTRY_RHINO_FROST_LOKI_PEEK};
+		localStorage.setItem('invigorations.cache', JSON.stringify(cache));
+		initInvigorationsFromCache(false);
+		expect(selects[0].value).toBe(ENTRY_RHINO_FROST_LOKI_PEEK.response.suits[0]);
+		expect(selects[1].value).toBe(ENTRY_RHINO_FROST_LOKI_PEEK.response.suits[1]);
+		expect(selects[2].value).toBe(ENTRY_RHINO_FROST_LOKI_PEEK.response.suits[2]);
+	});
+
+	test('pre-fills form with info alert when only lastWeekData exists', () => {
+		const cache: InvigorationCache = {[CURRENT_WEEK - 1]: ENTRY_MAG_VOLT_EXCALIBUR};
+		localStorage.setItem('invigorations.cache', JSON.stringify(cache));
+		initInvigorationsFromCache(false);
+		expect(document.querySelector('#cache-alert')!.classList.contains('alert-info')).toBe(true);
+		// Results should NOT be shown for last-week-only data
+		expect(document.querySelector('#results')!.classList.contains('d-none')).toBe(true);
+		expect(document.querySelector<HTMLInputElement>('#username')!.value).toBe(ENTRY_MAG_VOLT_EXCALIBUR.request.n);
+	});
+
+	test('shows warning alert for stale cache (2+ weeks old)', () => {
+		const cache: InvigorationCache = {[CURRENT_WEEK - 3]: ENTRY_MAG_VOLT_EXCALIBUR};
+		localStorage.setItem('invigorations.cache', JSON.stringify(cache));
+		initInvigorationsFromCache(false);
+		expect(document.querySelector('#cache-alert')!.classList.contains('alert-warning')).toBe(true);
+		expect(document.querySelector<HTMLInputElement>('#username')!.value).toBe(ENTRY_MAG_VOLT_EXCALIBUR.request.n);
+	});
+
+	test('shows no alert for empty cache', () => {
+		initInvigorationsFromCache(false);
+		expect(document.querySelector('#cache-alert')!.classList.contains('d-none')).toBe(true);
+	});
+
+	test('schedules reload when cache has recent data', () => {
+		const cache: InvigorationCache = {[CURRENT_WEEK]: ENTRY_MAG_VOLT_EXCALIBUR};
+		localStorage.setItem('invigorations.cache', JSON.stringify(cache));
+		const reloadMock = vi.fn();
+		vi.stubGlobal('location', {reload: reloadMock});
+		initInvigorationsFromCache(false);
+		// Advance time past the week boundary
+		const weekEnd = (((getWeekIndex(Date.now()) + 1) * 604_800) + 1_391_990_400) * 1000;
+		vi.advanceTimersByTime(weekEnd - Date.now() + 1000);
+		expect(reloadMock).toHaveBeenCalled();
 	});
 });

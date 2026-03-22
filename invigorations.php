@@ -55,24 +55,7 @@
 				</div>
 			</div>
 		</form>
-		<div id="history" class="d-none mt-4">
-			<p class="text-secondary-emphasis">New invigorations will become available in <span id="invigoration-timer"></span></p>
-			<h4>Invigoration History</h4>
-			<?php foreach (['this-week' => 'This Week', 'last-week' => 'Last Week'] as $prefix => $label): ?>
-			<div id="history-<?= $prefix ?>" class="d-none mb-3">
-				<h5 class="mb-2"><?= $label ?></h5>
-				<div class="row text-center">
-					<?php for ($i = 0; $i < 3; $i++): ?>
-					<div class="col-4">
-						<h6 id="<?= $prefix ?>-suit-<?= $i ?>"></h6>
-						<p id="<?= $prefix ?>-off-<?= $i ?>" class="m-0"></p>
-						<p id="<?= $prefix ?>-def-<?= $i ?>"></p>
-					</div>
-					<?php endfor; ?>
-				</div>
-			</div>
-			<?php endforeach; ?>
-		</div>
+		<?php require "components/invigoration-history.php"; ?>
 	</div>
 	<?php require "components/commonjs.html"; ?>
 	<script>
@@ -146,68 +129,7 @@
 				}
 			}
 
-			// Load from cache on page load (only if inventory data wasn't used)
-			if (!inventoryDataUsed)
-			{
-				const cache = loadCache();
-				const currentWeek = getWeekIndex(Date.now());
-				const lastWeekData = cache[currentWeek - 1];
-				const currentWeekData = cache[currentWeek];
-				const nextWeekData = cache[currentWeek + 1];
-
-				// Priority: next week > current week > last week (always use most recent data)
-				if (nextWeekData)
-				{
-					// Next week data exists (most recent) - we have results, so peek=true
-					preFillForm(nextWeekData.request.n, true, nextWeekData.request.s);
-
-					showResults(nextWeekData.response, nextWeekData.request);
-					showCacheAlert("success", "Loaded fresh data from cache");
-					showHistory(currentWeek, cache);
-				}
-				else if (currentWeekData)
-				{
-					// Current week data exists - we have results, so peek=true
-					// Use response suits: this week's offerings are the output of last week's peek request
-					preFillForm(currentWeekData.request.n, true, currentWeekData.response.suits);
-
-					// Force p=false: data saved as "next week" last week is now this week's data
-					showResults(currentWeekData.response, { ...currentWeekData.request, p: false });
-					showCacheAlert("info", "Pre-filled form with data for this week only from cache. For next week's invigorations, please verify and re-calculate.");
-					showHistory(currentWeek, cache);
-				}
-				else if (lastWeekData)
-				{
-					// Last week data only - pre-fill for convenience, but no results shown
-					preFillForm(lastWeekData.request.n, false, lastWeekData.response.suits);
-
-					showCacheAlert("info", `Pre-filled form with stale data from last week's cache`);
-					showHistory(currentWeek, cache);
-				}
-				else
-				{
-					// No recent data - check for older data
-					const newestWeek = Object.keys(cache).reduce((max, key) => {
-						const week = parseInt(key);
-						return !isNaN(week) && week > max ? week : max;
-					}, -Infinity);
-
-					if (newestWeek !== -Infinity && currentWeek - newestWeek >= 2)
-					{
-						const newestData = cache[newestWeek];
-						if (newestData)
-						{
-							const weeksOld = currentWeek - newestWeek;
-							preFillForm(newestData.request.n, false, []);
-							showCacheAlert("warning", `Cached data is ${weeksOld} weeks old - too stale to pre-fill form`);
-						}
-					}
-				}
-				if (lastWeekData || currentWeekData || nextWeekData)
-				{
-					scheduleInvigorationReload();
-				}
-			}
+			initInvigorationsFromCache(inventoryDataUsed);
 		});
 
 		document.getElementById("peek").onchange = function()
@@ -215,9 +137,7 @@
 			document.getElementById("input-header").textContent = this.checked ? "Current Offerings" : "Previous Offerings";
 		};
 
-		initInvigorationTimer();
-
-		window.invigorationNames = {
+		const invigorationNames = {
 			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerStrength": "+200% Ability Strength",
 			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerRange": "+100% Ability Range",
 			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerDuration": "+100% Ability Duration",
@@ -239,15 +159,7 @@
 			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationJumps": "5 Jump Resets",
 			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationEnergyRegen": "+2 Energy Regen",
 		};
-
-		// Helper function to show cache alert
-		function showCacheAlert(type, message)
-		{
-			const alert = document.getElementById("cache-alert");
-			alert.className = `alert alert-${type} mb-3`;
-			alert.textContent = message;
-			alert.classList.remove("d-none");
-		}
+		initInvigorations(invigorationNames);
 
 		function doSubmit()
 		{

@@ -9,9 +9,9 @@ declare function toTitleCase(str: string): string;
 // arbyTiers.js
 declare const arbyTiers: Record<string, string>;
 
-// arbys-timer.js
-declare function createArbyCountdownBadge(timestamp: number): HTMLSpanElement;
-declare function initializeArbyTimer(): void;
+// short-timer-badge.js
+declare function createShortTimerBadge(timestamp: number, expiredLabel: string): HTMLSpanElement;
+declare function initializeShortTimerBadges(): void;
 
 // fetch
 declare let dict: Record<string, string>;
@@ -129,7 +129,7 @@ Promise.all([
 	};
 	onLanguageUpdate();
 	// Initialize timer for countdown badges (minimal change to upstream)
-	initializeArbyTimer();
+	initializeShortTimerBadges();
 });
 
 function updateFilterNamesForLocale(): void
@@ -230,7 +230,7 @@ function updateLog(): void
 		span.textContent += ")";
 		document.getElementById("log").appendChild(span);
 
-		span.prepend(createArbyCountdownBadge(arr[0]));
+		span.prepend(createShortTimerBadge(arr[0], 'Started'));
 	}
 	if (document.getElementById("log").children.length == 0)
 	{

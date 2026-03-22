@@ -1,6 +1,5 @@
 /**
- * Timer functionality for /arbys page
- * Displays countdowns with only two units (e.g., "1h 23m" instead of "1h 23m 45s")
+ * Short timer badge: countdown badge showing only two units (e.g., "1h 23m" instead of "1h 23m 45s")
  */
 
 /**
@@ -47,11 +46,11 @@ function deltaToTwoUnits(deltaSeconds: number): string[] {
 /**
  * Formats a timestamp as a countdown with two units
  */
-function formatArbyCountdown(timestamp: number): string {
+function formatShortTimerCountdown(timestamp: number, expiredLabel: string): string {
 	const deltaSeconds = timestamp - Math.floor(Date.now() / 1000);
 
 	if (deltaSeconds <= 0) {
-		return 'Started';
+		return expiredLabel;
 	}
 
 	return deltaToTwoUnits(deltaSeconds).join(' ');
@@ -60,77 +59,79 @@ function formatArbyCountdown(timestamp: number): string {
 /**
  * Schedules the next update for a countdown badge based on when the display text will change
  */
-function scheduleArbyUpdate(elm: HTMLElement): void {
-	const timestamp = Number.parseInt(elm.dataset.arbyTimestamp ?? '', 10);
+function scheduleShortTimerUpdate(elm: HTMLElement): void {
+	const timestamp = Number.parseInt(elm.dataset.shortTimerExpiry ?? '', 10);
+	const expiredLabel = elm.dataset.shortTimerExpiredLabel ?? 'Started';
 	const deltaSeconds = timestamp - Math.floor(Date.now() / 1000);
 
 	if (deltaSeconds <= 0) {
-		// Event has started, no more updates needed
-		elm.textContent = 'Started';
+		// Timer has expired, no more updates needed
+		elm.textContent = expiredLabel;
 		return;
 	}
 
 	// Update the display
-	elm.textContent = formatArbyCountdown(timestamp);
+	elm.textContent = formatShortTimerCountdown(timestamp, expiredLabel);
 
 	// Calculate delay until next update based on which units are showing
 	if (deltaSeconds >= 86_400) {
 		// Showing days + hours: update at top of next hour
 		const delayMs = (3600 - (deltaSeconds % 3600)) * 1000;
 		setTimeout(() => {
-			scheduleArbyUpdate(elm);
+			scheduleShortTimerUpdate(elm);
 		}, delayMs);
 	} else if (deltaSeconds >= 3600) {
 		// Showing hours + minutes: update at top of next minute
 		const delayMs = (60 - (deltaSeconds % 60)) * 1000;
 		setTimeout(() => {
-			scheduleArbyUpdate(elm);
+			scheduleShortTimerUpdate(elm);
 		}, delayMs);
 	} else {
 		// Showing minutes + seconds: use setInterval for regular 1-second updates
 		const intervalId = setInterval(() => {
-			const ts = Number.parseInt(elm.dataset.arbyTimestamp ?? '', 10);
+			const ts = Number.parseInt(elm.dataset.shortTimerExpiry ?? '', 10);
+			const label = elm.dataset.shortTimerExpiredLabel ?? 'Started';
 			const delta = ts - Math.floor(Date.now() / 1000);
 
 			if (delta <= 0) {
-				elm.textContent = 'Started';
+				elm.textContent = label;
 				clearInterval(intervalId);
 				return;
 			}
 
-			elm.textContent = formatArbyCountdown(ts);
+			elm.textContent = formatShortTimerCountdown(ts, label);
 		}, 1000);
 	}
 }
 
 /**
- * Creates a countdown badge element for an arbitration timestamp
+ * Creates a countdown badge element for a given timestamp
  */
-export function createArbyCountdownBadge(timestamp: number): HTMLSpanElement {
+export function createShortTimerBadge(timestamp: number, expiredLabel: string): HTMLSpanElement {
 	const span = document.createElement('span');
-	span.dataset.arbyTimestamp = timestamp.toString();
+	span.dataset.shortTimerExpiry = timestamp.toString();
+	span.dataset.shortTimerExpiredLabel = expiredLabel;
 	span.className = 'badge text-bg-secondary me-2';
 	// Override the #log span { display: block } CSS rule and set fixed width
 	span.style.display = 'inline-block';
 	span.style.width = '5.5em'; // Wide enough for "99d 99h"
 	span.style.textAlign = 'center';
-	span.textContent = formatArbyCountdown(timestamp);
+	span.textContent = formatShortTimerCountdown(timestamp, expiredLabel);
 	// Schedule first update
-	scheduleArbyUpdate(span);
+	scheduleShortTimerUpdate(span);
 	return span;
 }
 
 /**
- * Initializes the timer system for the /arbys page
- * Each badge schedules its own updates based on when the display text will change
+ * Initializes short timer badges already present in the DOM
  */
-export function initializeArbyTimer(): void {
+export function initializeShortTimerBadges(): void {
 	// Schedule updates for any existing badges
-	for (const elm of document.querySelectorAll<HTMLElement>('[data-arby-timestamp]')) {
-		scheduleArbyUpdate(elm);
+	for (const elm of document.querySelectorAll<HTMLElement>('[data-short-timer-expiry]')) {
+		scheduleShortTimerUpdate(elm);
 	}
 }
 
 // Expose functions globally for non-module scripts
-(globalThis as any).createArbyCountdownBadge = createArbyCountdownBadge;
-(globalThis as any).initializeArbyTimer = initializeArbyTimer;
+(globalThis as any).createShortTimerBadge = createShortTimerBadge;
+(globalThis as any).initializeShortTimerBadges = initializeShortTimerBadges;

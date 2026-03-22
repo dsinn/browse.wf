@@ -10,7 +10,7 @@ import {transformConquestMissions, renderConquestMissions, renderConquestFrameVa
 import {renderDescentChallenges} from './descendia.js';
 import {getSeasonLabel} from './calendar-seasons-data.js';
 import {renderCalendarSeasonPane} from './calendar-seasons.js';
-import {createArbyCountdownBadge} from './arbys-timer.js';
+import {createShortTimerBadge} from './short-timer-badge.js';
 import {WarframeApiFrontProxyClient} from './warframe-api-proxy-client.js';
 import {fetchExport} from './public-export-fetcher.js';
 
@@ -270,7 +270,7 @@ function initWeeklyMissionsNotice(): void {
 		return;
 	}
 
-	const badge = createArbyCountdownBadge(nextForecastPublishedSeconds());
+	const badge = createShortTimerBadge(nextForecastPublishedSeconds(), 'Pending Refresh');
 	timerElement.append(badge);
 }
 

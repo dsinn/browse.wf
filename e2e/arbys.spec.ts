@@ -454,7 +454,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		test('appear on log entries', async ({page}) => {
 			// Timer badges should exist on all log entries
 			const logEntries = await page.locator('#log [data-timestamp]').count();
-			const timerBadges = await page.locator('#log [data-arby-timestamp]').count();
+			const timerBadges = await page.locator('#log [data-short-timer-expiry]').count();
 
 			// Should have exactly as many timer badges as log entries
 			expect(timerBadges).toBe(logEntries);
@@ -462,7 +462,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		});
 
 		test('have correct styling and fixed width', async ({page}) => {
-			const firstBadge = page.locator('#log [data-arby-timestamp]').first();
+			const firstBadge = page.locator('#log [data-short-timer-expiry]').first();
 
 			// Check Bootstrap badge classes
 			await expect(firstBadge).toHaveClass(/badge/u);
@@ -477,7 +477,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		});
 
 		test('show countdown in two-unit format', async ({page}) => {
-			const badges = await page.locator('#log [data-arby-timestamp]').all();
+			const badges = await page.locator('#log [data-short-timer-expiry]').all();
 
 			for (const badge of badges.slice(0, 5)) { // Check first 5
 				const text = await badge.textContent();
@@ -495,7 +495,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 		test('update over time for near-term events', async ({page}) => {
 			// The first badge should be near-term (arbitrations occur every hour)
-			const badge = page.locator('#log [data-arby-timestamp]').first();
+			const badge = page.locator('#log [data-short-timer-expiry]').first();
 			const initialText = await badge.textContent();
 
 			// Wait 2 seconds
@@ -514,7 +514,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			const html = await firstEntry.innerHTML();
 
 			// Timer badge should come before the time (e.g., "1200 •")
-			const badgeIndex = html.indexOf('data-arby-timestamp');
+			const badgeIndex = html.indexOf('data-short-timer-expiry');
 			const timeIndex = html.indexOf('•');
 
 			if (badgeIndex !== -1) {
@@ -528,7 +528,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			const exists = await currentEntry.count() > 0;
 
 			if (exists) {
-				const badge = currentEntry.locator('[data-arby-timestamp]');
+				const badge = currentEntry.locator('[data-short-timer-expiry]');
 				const badgeExists = await badge.count() > 0;
 
 				if (badgeExists) {
@@ -539,11 +539,11 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			}
 		});
 
-		test('have data-arby-timestamp attribute with valid unix timestamp', async ({page}) => {
-			const badges = await page.locator('#log [data-arby-timestamp]').all();
+		test('have data-short-timer-expiry attribute with valid unix timestamp', async ({page}) => {
+			const badges = await page.locator('#log [data-short-timer-expiry]').all();
 
 			for (const badge of badges.slice(0, 3)) { // Check first 3
-				const timestamp = await badge.getAttribute('data-arby-timestamp');
+				const timestamp = await badge.getAttribute('data-short-timer-expiry');
 				expect(timestamp).toBeTruthy();
 
 				const ts = Number.parseInt(timestamp!, 10);
@@ -554,38 +554,38 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 		test('filter changes preserve timer badges', async ({page}) => {
 			// Get initial badge count
-			const initialCount = await page.locator('#log [data-arby-timestamp]').count();
+			const initialCount = await page.locator('#log [data-short-timer-expiry]').count();
 			expect(initialCount).toBeGreaterThan(0);
 
 			// Change a filter
 			await page.locator('#filter-MT_SURVIVAL').uncheck();
 
 			// Wait for log to update by waiting for badge count to change
-			await expect(page.locator('#log [data-arby-timestamp]')).not.toHaveCount(initialCount, {timeout: 2000});
+			await expect(page.locator('#log [data-short-timer-expiry]')).not.toHaveCount(initialCount, {timeout: 2000});
 
 			// Badges should still exist (on filtered entries)
-			const newCount = await page.locator('#log [data-arby-timestamp]').count();
+			const newCount = await page.locator('#log [data-short-timer-expiry]').count();
 			expect(newCount).toBeGreaterThan(0);
 
 			// Check that badges still have valid format (including "Started" for current event)
-			const firstBadge = page.locator('#log [data-arby-timestamp]').first();
+			const firstBadge = page.locator('#log [data-short-timer-expiry]').first();
 			const text = await firstBadge.textContent();
 			expect(text === 'Started' || /\d+[dhms]/u.test(text!)).toBe(true);
 		});
 
 		test('dropdown changes preserve timer badges', async ({page}) => {
 			// Get initial badge count
-			const initialCount = await page.locator('#log [data-arby-timestamp]').count();
+			const initialCount = await page.locator('#log [data-short-timer-expiry]').count();
 			expect(initialCount).toBeGreaterThan(0);
 
 			// Change days dropdown
 			await page.selectOption('#select-days', '7');
 
 			// Wait for log to update by waiting for badge count to change (fewer days = fewer entries)
-			await expect(page.locator('#log [data-arby-timestamp]')).not.toHaveCount(initialCount, {timeout: 2000});
+			await expect(page.locator('#log [data-short-timer-expiry]')).not.toHaveCount(initialCount, {timeout: 2000});
 
 			// Badges should still exist
-			const newCount = await page.locator('#log [data-arby-timestamp]').count();
+			const newCount = await page.locator('#log [data-short-timer-expiry]').count();
 			expect(newCount).toBeGreaterThan(0);
 		});
 	});

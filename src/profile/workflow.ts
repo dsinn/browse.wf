@@ -90,7 +90,7 @@ function updateRefreshAlert(): void {
 function showRateLimitNotice(epochMs: number): void {
 	const countdown = document.querySelector('#rate-limit-countdown');
 	if (countdown) {
-		countdown.replaceChildren((globalThis as any).createArbyCountdownBadge(Math.floor(epochMs / 1000)));
+		countdown.replaceChildren((globalThis as any).createShortTimerBadge(Math.floor(epochMs / 1000), 'Pending Refresh'));
 	}
 
 	document.querySelector('#rate-limit-notice')?.classList.remove('d-none');

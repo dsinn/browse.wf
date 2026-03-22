@@ -34,8 +34,8 @@ vi.mock('../../src/public-export-fetcher', () => ({
 	exportCache: new Map(),
 }));
 
-vi.mock('../../src/arbys-timer', () => ({
-	createArbyCountdownBadge: vi.fn(() => {
+vi.mock('../../src/short-timer-badge', () => ({
+	createShortTimerBadge: vi.fn(() => {
 		const span = document.createElement('span');
 		span.className = 'arby-badge';
 		return span;

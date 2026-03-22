@@ -11,7 +11,7 @@
  */
 
 /* eslint-disable import-x/no-unassigned-import */
-import './arbys-timer.js';
+import './short-timer-badge.js';
 import './bounty-checkboxes.js';
 import './bounty-filters.js';
 import './calendar-seasons-data.js';

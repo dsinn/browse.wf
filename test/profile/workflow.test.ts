@@ -16,7 +16,7 @@ function setupGlobals() {
 	(globalThis as any).renderProfile = vi.fn();
 	(globalThis as any).activateTab = vi.fn();
 	(globalThis as any).triggerCloudSync = vi.fn();
-	(globalThis as any).createArbyCountdownBadge = vi.fn(() => document.createTextNode('21h'));
+	(globalThis as any).createShortTimerBadge = vi.fn(() => document.createTextNode('21h'));
 	(globalThis as any).__showAutoFetchFlow = false;
 }
 
@@ -46,7 +46,7 @@ afterEach(() => {
 		'renderProfile',
 		'activateTab',
 		'triggerCloudSync',
-		'createArbyCountdownBadge',
+		'createShortTimerBadge',
 		'copyWarframePath',
 		'fetchProfile',
 		'loadEELog',

@@ -120,9 +120,9 @@ declare global {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	var __getSupabaseAccessToken: (() => Promise<string | undefined>) | undefined;
 
-	// src/arbys-timer.ts
-	var createArbyCountdownBadge: ((timestamp: number) => HTMLSpanElement) | undefined;
-	var initializeArbyTimer: (() => void) | undefined;
+	// src/short-timer-badge.ts
+	var createShortTimerBadge: ((timestamp: number, expiredLabel: string) => HTMLSpanElement) | undefined;
+	var initializeShortTimerBadges: (() => void) | undefined;
 
 	// src/bounty-checkboxes.ts
 	var updateBountyCheckboxes: (() => void) | undefined;

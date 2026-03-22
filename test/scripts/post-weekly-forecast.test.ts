@@ -11,6 +11,7 @@ import {
 	formatDescendia,
 	formatCalendarSeason,
 	chunkMessage,
+	escapeMarkdown,
 } from '../../scripts/post-weekly-forecast.js';
 import {loadMock} from '../helpers/api-mocks';
 import {MOCK_TIMESTAMP} from '../helpers/test-constants';
@@ -458,6 +459,48 @@ describe('formatCalendarSeason', () => {
 		const result = await formatCalendarSeason(worldState);
 		expect(result).toMatch(/^## 1999 Calendar: .+$/mu);
 		expect(result).not.toMatch(/<t:\d+:D>/u);
+	});
+});
+
+describe('escapeMarkdown', () => {
+	test('escapes asterisk', () => {
+		expect(escapeMarkdown('hello *world*')).toBe(String.raw`hello \*world\*`);
+	});
+
+	test('escapes underscore', () => {
+		expect(escapeMarkdown('_italic_')).toBe(String.raw`\_italic\_`);
+	});
+
+	test('escapes tilde', () => {
+		expect(escapeMarkdown('~~strike~~')).toBe(String.raw`\~\~strike\~\~`);
+	});
+
+	test('escapes backtick', () => {
+		expect(escapeMarkdown('`code`')).toBe(String.raw`\`code\``);
+	});
+
+	test('escapes pipe', () => {
+		expect(escapeMarkdown('a|b')).toBe(String.raw`a\|b`);
+	});
+
+	test('escapes greater-than', () => {
+		expect(escapeMarkdown('> quote')).toBe(String.raw`\> quote`);
+	});
+
+	test('escapes brackets', () => {
+		expect(escapeMarkdown('[link]')).toBe(String.raw`\[link\]`);
+	});
+
+	test('escapes backslash', () => {
+		expect(escapeMarkdown(String.raw`back\slash`)).toBe(String.raw`back\\slash`);
+	});
+
+	test('leaves plain text unchanged', () => {
+		expect(escapeMarkdown('Hello, world!')).toBe('Hello, world!');
+	});
+
+	test('escapes multiple specials in one string', () => {
+		expect(escapeMarkdown('*bold* and _italic_')).toBe(String.raw`\*bold\* and \_italic\_`);
 	});
 });
 

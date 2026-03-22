@@ -86,6 +86,10 @@ function toTitleCase(s: string) {
 	return s.replaceAll(/\w+/gu, (w: string) => w[0].toUpperCase() + w.slice(1).toLowerCase());
 }
 
+export function escapeMarkdown(s: string) {
+	return s.replaceAll(/(?=[*_~`|>[\\\]])/gu, '\\');
+}
+
 // Conquest (Deep / Temporal Archimedea)
 
 export async function formatConquest(worldState: AnyRecord, conquestType: string, variantKeyPrefix: string, sectionTitle: string, find = findWeekly, showTimestamp = false) {
@@ -107,18 +111,18 @@ export async function formatConquest(worldState: AnyRecord, conquestType: string
 		lines.push(
 			`**${typeName}**`,
 			mission.variantDesc
-				? `- **${mission.variant}**: ${mission.variantDesc}`
-				: `- **${mission.variant}**`,
+				? `- **${escapeMarkdown(mission.variant)}**: ${escapeMarkdown(mission.variantDesc)}`
+				: `- **${escapeMarkdown(mission.variant)}**`,
 		);
 		for (const cond of mission.conditions) {
-			lines.push(cond.desc ? `- **${cond.name}**: ${cond.desc}` : `- **${cond.name}**`);
+			lines.push(cond.desc ? `- **${escapeMarkdown(cond.name)}**: ${escapeMarkdown(cond.desc)}` : `- **${escapeMarkdown(cond.name)}**`);
 		}
 	}
 
 	if (frameVariables.length > 0) {
 		lines.push('> **Frame Variables**');
 		for (const fv of frameVariables) {
-			lines.push(fv.desc ? `> - **${fv.name}**: ${fv.desc}` : `> - **${fv.name}**`);
+			lines.push(fv.desc ? `> - **${escapeMarkdown(fv.name)}**: ${escapeMarkdown(fv.desc)}` : `> - **${escapeMarkdown(fv.name)}**`);
 		}
 	}
 
@@ -147,7 +151,7 @@ export async function formatDescendia(worldState: AnyRecord, find = findWeekly, 
 			parts.push(row.auras.join(', '));
 		}
 
-		const content = `**${row.typeLabel}** · ${parts.join(' · ')}`;
+		const content = `**${escapeMarkdown(row.typeLabel)}** · ${parts.map(p => escapeMarkdown(p)).join(' · ')}`;
 		const formatted = row.type === 'DT_PROTOFRAME' ? `__${content}__` : content;
 		lines.push(`${row.index}. ${arena} ${formatted}`);
 	}
@@ -175,7 +179,7 @@ export async function formatCalendarSeason(worldState: AnyRecord, find = findWee
 		let groupTexts: string[] = [];
 		const flushGroup = () => {
 			if (groupTexts.length > 0) {
-				lines.push(`${groupEmoji} **${groupDate}** ${groupTexts.join(' · ')}`);
+				lines.push(`${groupEmoji} **${groupDate}** ${groupTexts.map(t => escapeMarkdown(t)).join(' · ')}`);
 			}
 		};
 

@@ -55,6 +55,7 @@ declare function toTitleCase(string_: string): string;
 
 /* eslint-disable capitalized-comments */
 declare global {
+	// `interface` is required here — `type` aliases cannot augment the global Window
 	// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 	interface Window {
 		bootstrap?: any;
@@ -74,6 +75,7 @@ declare global {
 	var osdict: any;
 
 	// Environment config injected by PHP into the page
+	// Double-underscore prefix is an intentional convention to signal PHP-injected globals
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	var __ENV__: Window['__ENV__'];
 
@@ -87,11 +89,13 @@ declare global {
 	var checkLoadButtonState: (() => void) | undefined;
 	var createCompletionToggle: ((oid: string) => HTMLAnchorElement) | undefined;
 	var createExpiryBadge: ((expiry: number) => HTMLSpanElement) | undefined;
+	// Upstream names — cannot be renamed
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	var dicts_promise: Promise<void> | undefined;
 	var ExportChallenges: Record<string, any> | undefined;
 	var ExportImages: Record<string, any> | undefined;
 	var ExportRegions: Record<string, IRegion> | undefined;
+	// Upstream names — cannot be renamed
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	var ExportRegions_promise: Promise<void> | undefined;
 	var getDictPromise: (() => Promise<Record<string, string>>) | undefined;
@@ -117,7 +121,6 @@ declare global {
 
 	// src/cloud-sync/auth-init.ts
 	var triggerCloudSync: (() => void) | undefined;
-	// eslint-disable-next-line @typescript-eslint/naming-convention
 	var __getSupabaseAccessToken: (() => Promise<string | undefined>) | undefined;
 
 	// src/short-timer-badge.ts

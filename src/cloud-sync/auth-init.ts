@@ -149,6 +149,7 @@ function generateGenericAvatar(): string {
 		<circle cx="16" cy="16" r="16" fill="#6c757d"/>
 		<path d="M16 16c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#fff"/>
 	</svg>`;
+	// `btoa` is safe here — we're encoding a static SVG string with no user input
 	// eslint-disable-next-line no-restricted-globals
 	return `data:image/svg+xml;base64,${btoa(svg)}`;
 }

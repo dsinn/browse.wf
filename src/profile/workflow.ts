@@ -7,6 +7,8 @@
  * Also exposes all onclick handlers and profileWorkflowReady/updateProfileAge.
  */
 
+// `alert()` is used intentionally for user-facing error messages
+/* eslint-disable no-alert */
 import {WarframeApiFrontProxyClient} from '../warframe-api-proxy-client.js';
 
 // Keep in sync with VALID_PLAYER_ID_REGEX in warframe-api-front-proxy/profile.js
@@ -35,7 +37,8 @@ const cloudSyncEvent = new Promise<string>(resolve => {
 	}, 3000);
 });
 
-// Get initial profile (from localStorage or fallback)
+// Get initial profile (from localStorage or fallback).
+// `.then()` is used instead of `await` because this is a non-module script — top-level await is unavailable.
 const initialProfilePromise = cloudSyncEvent.then(async () => { // eslint-disable-line unicorn/prefer-top-level-await
 	const profileJson = localStorage.getItem(PROFILE_DATA_STORAGE_KEY);
 	if (profileJson) {
@@ -70,7 +73,7 @@ function copyWarframePath(event: Event): void {
 		}, 5000);
 	}).catch((error: unknown) => {
 		console.error('Failed to copy:', error);
-		alert('Failed to copy to clipboard'); // eslint-disable-line no-alert
+		alert('Failed to copy to clipboard');
 	});
 }
 
@@ -304,12 +307,12 @@ async function loadEeLog(file?: File): Promise<void> {
 				statusElement?.classList.add('d-none');
 			}
 		} else {
-			alert('Could not find account ID in EE.log. Make sure you\'ve logged in and the file contains a "Logged in" line.'); // eslint-disable-line no-alert
+			alert('Could not find account ID in EE.log. Make sure you\'ve logged in and the file contains a "Logged in" line.');
 			statusElement?.classList.add('d-none');
 		}
 	} catch (error) {
 		console.error(error);
-		alert('Failed to parse EE.log file: ' + (error as Error).message); // eslint-disable-line no-alert
+		alert('Failed to parse EE.log file: ' + (error as Error).message);
 		statusElement?.classList.add('d-none');
 	}
 }
@@ -338,7 +341,7 @@ async function loadProfile(file?: File): Promise<void> {
 		(globalThis as any).triggerCloudSync?.();
 	} catch (error) {
 		console.error(error);
-		alert('Failed to parse profile file: ' + (error as Error).message); // eslint-disable-line no-alert
+		alert('Failed to parse profile file: ' + (error as Error).message);
 	}
 }
 

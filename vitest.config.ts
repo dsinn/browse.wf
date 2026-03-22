@@ -44,6 +44,8 @@ function phpPagesPlugin(): Plugin {
 			// Pre-middleware: runs before Vite's built-in file serving.
 			// This is necessary because Vite would otherwise resolve e.g. /live
 			// to live.ts in the project root instead of public/live.html.
+			// The callback is typed as returning void but we use async/await internally;
+			// the return type mismatch is harmless since connect ignores the return value.
 			// eslint-disable-next-line @typescript-eslint/strict-void-return
 			server.middlewares.use(async (request, response, next) => {
 				if (!request.url || request.method !== 'GET') {

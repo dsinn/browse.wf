@@ -58,6 +58,7 @@ export function setupMockFetch() {
 		const exportMatch = /warframe-public-export-plus\/(.+\.json)$/u.exec(urlString);
 		if (exportMatch) {
 			const data = loadExportJson(exportMatch[1]);
+			// Partial mock object — only implements the methods used in tests
 			// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 			return {ok: true, status: 200, json: async () => data} as Response;
 		}
@@ -70,6 +71,7 @@ export function setupMockFetch() {
 		}
 
 		if (mockData !== undefined) {
+			// Partial mock object — only implements the methods used in tests
 			// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 			return {
 				ok: true,
@@ -84,6 +86,7 @@ export function setupMockFetch() {
 		if (isBlockedDomain(urlString)) {
 			if (isImageRequest(urlString)) {
 				// Silently return empty response for image requests
+				// Partial mock object — only implements the methods used in tests
 				// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 				return {
 					ok: true,

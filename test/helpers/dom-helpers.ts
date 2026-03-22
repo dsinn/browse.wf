@@ -74,6 +74,8 @@ export function mockBootstrapTooltip() {
 export function loadCommonJsFunctions(functionNames: string[]) {
 	const scriptContent = fs.readFileSync(path.join(process.cwd(), 'common.js'), 'utf8');
 	const promotions = functionNames.map(name => `window.${name} = ${name};`).join('\n');
+	// `eval` is necessary here: common.js is a non-module script that declares globals
+	// via `var`, which only become visible to tests when executed in the current scope.
 	// eslint-disable-next-line no-eval
 	eval(String(scriptContent) + '\n' + promotions);
 }

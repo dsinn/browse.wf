@@ -5,8 +5,8 @@ import {test, expect} from '@playwright/test';
 import {setupMockRoutes} from '../helpers/api-mocks';
 import {TEST_FRONT_PROXY_BASE_URL} from '../../test/helpers/test-constants';
 
-const __filename = fileURLToPath(import.meta.url); // eslint-disable-line @typescript-eslint/naming-convention
-const __dirname = path.dirname(__filename); // eslint-disable-line @typescript-eslint/naming-convention
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const proxyHost = new URL(TEST_FRONT_PROXY_BASE_URL).host;
 const profileData = JSON.parse(fs.readFileSync(path.join(__dirname, '../../test/profile/getProfileViewingData.html'), 'utf8'));

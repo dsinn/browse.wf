@@ -58,7 +58,7 @@ const config = [
 			'@typescript-eslint/naming-convention': [
 				'error',
 				{selector: 'default', format: ['camelCase']},
-				{selector: 'variable', format: ['camelCase', 'UPPER_CASE', 'PascalCase']},
+				{selector: 'variable', format: ['camelCase', 'UPPER_CASE', 'PascalCase'], leadingUnderscore: 'allowDouble'},
 				{
 					selector: 'parameter', format: ['camelCase'], leadingUnderscore: 'allow', trailingUnderscore: 'allow',
 				},

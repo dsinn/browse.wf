@@ -30,6 +30,7 @@ import './live/sync.js';
 import './news-mark-read.js';
 import './profile/stats-filters.js';
 import './profile/syndicate-addons.js';
+import './profile/workflow.js';
 import './public-export-fetcher.js';
 import './string-helpers.js';
 import './tileset-helpers.js';

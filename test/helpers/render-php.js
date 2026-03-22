@@ -42,6 +42,11 @@ const FIXTURES = {
 		output: 'arbys.html',
 		description: 'Arbitration Schedule page full HTML',
 	},
+	profile: {
+		url: '/profile.php',
+		output: 'profile.html',
+		description: 'Profile page full HTML',
+	},
 };
 
 /**

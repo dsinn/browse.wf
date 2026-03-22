@@ -46,8 +46,11 @@
 		<div class="card mb-4">
 			<div class="card-header"><h5 class="mb-0">1999 Calendar</h5></div>
 			<div class="card-body">
-				<ul class="nav nav-tabs mb-3" id="calendar-season-tabs" role="tablist"></ul>
-				<div class="tab-content" id="calendar-season-content">Loading...</div>
+				<div class="d-none d-xl-block" id="calendar-season-columns">Loading...</div>
+				<div class="d-xl-none">
+					<ul class="nav nav-tabs mb-3" id="calendar-season-tabs" role="tablist"></ul>
+					<div class="tab-content" id="calendar-season-content"></div>
+				</div>
 			</div>
 		</div>
 	</div>

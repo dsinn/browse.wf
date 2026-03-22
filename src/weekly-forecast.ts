@@ -120,14 +120,15 @@ async function renderConquestTabs(
 	}));
 
 	// There's usually only one entry per conquest type, but handle multiple for robustness
+	const firstFutureConquestIdx = conquests.findIndex(c => mongoMs(c.Activation) > now);
+	const defaultConquestIdx = Math.max(firstFutureConquestIdx, 0);
+
 	for (const [i, conquest] of conquests.entries()) {
 		const activationMs = mongoMs(conquest.Activation);
-		const expiryMs = mongoMs(conquest.Expiry);
-		const isCurrent = activationMs <= now && now < expiryMs;
 		const label = formatTabDate(activationMs);
 		const id = conquestType.toLowerCase() + '-' + i;
 
-		buildTab(tabsElement, contentElement, id, label, activationMs, isCurrent || i === 0, pane => {
+		buildTab(tabsElement, contentElement, id, label, activationMs, i === defaultConquestIdx, pane => {
 			const {tbody, fvRow} = paneContents[i];
 
 			const missionsTable = document.createElement('table');
@@ -159,12 +160,12 @@ async function renderDescentTabs(
 
 	const dict = await getDictPromise();
 
-	const activeIdx = descents.findIndex(d =>
-		mongoMs(d.Activation) <= now && now < mongoMs(d.Expiry));
+	const firstFutureIdx = descents.findIndex(d => mongoMs(d.Activation) > now);
+	const defaultIdx = Math.max(firstFutureIdx, 0);
 
 	for (const [i, descent] of descents.entries()) {
 		const activationMs = mongoMs(descent.Activation);
-		const isActive = i === activeIdx || (activeIdx === -1 && i === 0);
+		const isActive = i === defaultIdx;
 		const label = formatTabDate(activationMs);
 		const id = 'descent-' + i;
 
@@ -177,7 +178,7 @@ async function renderDescentTabs(
 			// Header row
 			const thead = document.createElement('thead');
 			const headerRow = document.createElement('tr');
-			for (const text of ['#', 'Type', 'Challenge', 'Arena', 'Specs', 'Auras']) {
+			for (const text of ['#', 'Type', 'Challenge', 'Arena', 'Specs & Auras']) {
 				const th = document.createElement('th');
 				th.textContent = text;
 				headerRow.append(th);
@@ -205,29 +206,52 @@ async function renderCalendarSeasonTabs(
 	tabsElement.innerHTML = '';
 	contentElement.innerHTML = '';
 
-	const activeIdx = seasons.findIndex(s =>
-		mongoMs(s.Activation) <= now && now < mongoMs(s.Expiry));
+	const firstFutureSeasonIdx = seasons.findIndex(s => mongoMs(s.Activation) > now);
+	const defaultSeasonIdx = Math.max(firstFutureSeasonIdx, 0);
 
 	// Required for common.js' setImageSource, must be set before renderCalendarSeasonPane runs
 	(globalThis as any).ExportImages = await fetchExport('ExportImages');
 
-	// Render all season panes in parallel
-	const seasonPanes = await Promise.all(seasons.map(async season => renderCalendarSeasonPane(season)));
+	// Render all season panes in parallel (two copies: one for tabs, one for columns)
+	const [seasonPanesForTabs, seasonPanesForColumns] = await Promise.all([
+		Promise.all(seasons.map(async season => renderCalendarSeasonPane(season))),
+		Promise.all(seasons.map(async season => renderCalendarSeasonPane(season))),
+	]);
 
-	// Build tabs with the rendered content
+	// Build tabs with the rendered content (xl+)
 	for (const [i, season] of seasons.entries()) {
 		const activationMs = mongoMs(season.Activation);
-		const isActive = i === activeIdx || (activeIdx === -1 && i === 0);
+		const isActive = i === defaultSeasonIdx;
 		const label = getSeasonLabel(season.Season);
 		const id = 'calendar-season-' + i;
 
 		buildTab(tabsElement, contentElement, id, label, activationMs, isActive, pane => {
-			pane.append(seasonPanes[i]);
+			pane.append(seasonPanesForTabs[i]);
 		});
 	}
 
 	if (preserveActivation !== undefined) {
 		restoreActiveTab(tabsElement, preserveActivation);
+	}
+
+	// Build two-column layout for below-xl viewports
+	const columnsElement = document.querySelector<HTMLElement>('#calendar-season-columns');
+	if (columnsElement) {
+		columnsElement.innerHTML = '';
+		const row = document.createElement('div');
+		row.className = 'row';
+		for (const [i, season] of seasons.entries()) {
+			const col = document.createElement('div');
+			col.className = 'col-6';
+			const heading = document.createElement('h5');
+			heading.className = 'mb-3';
+			heading.textContent = getSeasonLabel(season.Season);
+			col.append(heading);
+			col.append(seasonPanesForColumns[i]);
+			row.append(col);
+		}
+
+		columnsElement.append(row);
 	}
 }
 
@@ -264,7 +288,7 @@ export function nextForecastPublishedSeconds(): number {
 /**
  * Populates the weekly missions notice with a timer badge and local-time update text.
  */
-function initWeeklyMissionsNotice(): void {
+export function initWeeklyMissionsNotice(): void {
 	const timerElement = document.querySelector('#weekly-missions-timer');
 	if (!timerElement) {
 		return;
@@ -278,7 +302,7 @@ function initWeeklyMissionsNotice(): void {
 	}, (expirySeconds * 1000) - Date.now());
 }
 
-async function initWeeklyForecast(isRefresh = false): Promise<void> {
+export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	const labTabsElement = document.querySelector<HTMLElement>('#lab-conquest-tabs');
 	const hexTabsElement = document.querySelector<HTMLElement>('#hex-conquest-tabs');
 	const descentTabsElement = document.querySelector<HTMLElement>('#descendia-tabs');
@@ -347,5 +371,4 @@ async function initWeeklyForecast(isRefresh = false): Promise<void> {
 }
 
 initWeeklyMissionsNotice();
-// eslint-disable-next-line unicorn/prefer-top-level-await
-initWeeklyForecast().catch(console.error);
+await initWeeklyForecast();

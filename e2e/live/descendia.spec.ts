@@ -40,10 +40,10 @@ test.describe('Live Page - Descendia Card', () => {
 
 			// Check all column headers
 			const headers = table.locator('thead th');
-			await expect(headers).toHaveCount(6);
+			await expect(headers).toHaveCount(5);
 
 			const headerTexts = await headers.allTextContents();
-			expect(headerTexts).toEqual(['Level', 'Mission Type', 'Challenge', 'Arena', 'Specs', 'Auras']);
+			expect(headerTexts).toEqual(['Level', 'Mission Type', 'Challenge', 'Arena', 'Specs & Auras']);
 		});
 
 		test('has collapsible card functionality', async ({page}) => {
@@ -72,14 +72,17 @@ test.describe('Live Page - Descendia Card', () => {
 			expect(count).toBe(21);
 		});
 
-		test('each row has all 6 columns', async ({page}) => {
+		test('each row has all 5 columns with content', async ({page}) => {
 			const rows = page.locator('#descendia-table tbody tr');
 			const count = await rows.count();
 
 			for (let i = 0; i < count; i++) {
-				const row = rows.nth(i);
-				const cells = await row.locator('td').count();
-				expect(cells).toBe(6);
+				const cells = rows.nth(i).locator('td');
+				await expect(cells).toHaveCount(5);
+				const texts = await cells.allTextContents();
+				for (const text of texts) {
+					expect(text.length).toBeGreaterThan(0);
+				}
 			}
 		});
 
@@ -147,42 +150,6 @@ test.describe('Live Page - Descendia Card', () => {
 				expect(title).not.toMatch(/\.level$/iu);
 				expect(title).not.toContain('/');
 			}
-		});
-
-		test('specs column shows content or dash', async ({page}) => {
-			const specsCells = page.locator('#descendia-table tbody tr td:nth-child(5)');
-			const specs = await specsCells.allTextContents();
-
-			// Should have 21 specs entries
-			expect(specs.length).toBe(21);
-
-			// Each should be non-empty (content or "-")
-			for (const spec of specs) {
-				expect(spec).toBeTruthy();
-				expect(spec.length).toBeGreaterThan(0);
-			}
-
-			// Should have at least some rows with "-" (empty specs)
-			const emptySpecs = specs.filter(s => s === '-');
-			expect(emptySpecs.length).toBeGreaterThan(0);
-		});
-
-		test('auras column shows content or dash', async ({page}) => {
-			const aurasCells = page.locator('#descendia-table tbody tr td:nth-child(6)');
-			const auras = await aurasCells.allTextContents();
-
-			// Should have 21 auras entries
-			expect(auras.length).toBe(21);
-
-			// Each should be non-empty (content or "-")
-			for (const aura of auras) {
-				expect(aura).toBeTruthy();
-				expect(aura.length).toBeGreaterThan(0);
-			}
-
-			// Should have at least some rows with "-" (empty auras)
-			const emptyAuras = auras.filter(a => a === '-');
-			expect(emptyAuras.length).toBeGreaterThan(0);
 		});
 	});
 

@@ -11,12 +11,11 @@
 									<th>Mission Type</th>
 									<th>Challenge</th>
 									<th>Arena</th>
-									<th>Specs</th>
-									<th>Auras</th>
+									<th>Specs &amp; Auras</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr><td colspan="6">Loading...</td></tr>
+								<tr><td colspan="5">Loading...</td></tr>
 							</tbody>
 						</table>
 					</div>

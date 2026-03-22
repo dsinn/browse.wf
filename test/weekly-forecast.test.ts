@@ -4,7 +4,7 @@
  * Covers: mongoMs, formatTabDate, nextForecastPublishedSeconds,
  *         buildTab, getActiveTabActivation, restoreActiveTab.
  *
- * These functions have no external dependencies, so no mocks are needed.
+ * warframe-api-proxy-client is mocked to prevent the module's top-level await from firing.
  */
 import {
 	describe, test, expect, vi, beforeEach, afterEach,
@@ -17,6 +17,12 @@ import {
 	restoreActiveTab,
 	nextForecastPublishedSeconds,
 } from '../src/weekly-forecast.js';
+
+vi.mock('../src/warframe-api-proxy-client', () => ({
+	WarframeApiFrontProxyClient: {
+		fetchWorldState: vi.fn().mockResolvedValue({Conquests: [], Descents: [], KnownCalendarSeasons: []}),
+	},
+}));
 
 describe('mongoMs', () => {
 	test('converts a MongoDB date object to milliseconds', () => {

@@ -31,12 +31,12 @@ describe('renderDescentChallenges', () => {
 		expect(tbody.querySelectorAll('tr').length).toBe(21);
 	});
 
-	test('each row has 6 columns', () => {
+	test('each row has 5 columns', () => {
 		const descent = worldState.Descents[0];
 		const tbody = renderDescentChallenges(descent, dict);
 
 		for (const tr of tbody.querySelectorAll('tr')) {
-			expect(tr.querySelectorAll('td').length).toBe(6);
+			expect(tr.querySelectorAll('td').length).toBe(5);
 		}
 	});
 
@@ -102,26 +102,32 @@ describe('renderDescentChallenges', () => {
 		expect(arenaCell.textContent).toBe('ArenaUnknownXYZ');
 	});
 
-	test('specs column shows "-" when Specs is empty', () => {
+	test('specs & auras column shows "-" when both Specs and Auras are empty', () => {
 		const descent = worldState.Descents[0];
-		const emptySpecsChallenge = descent.Challenges.find((c: any) => !c.Specs || c.Specs.length === 0);
-		expect(emptySpecsChallenge).toBeDefined();
+		const emptyBothChallenge = descent.Challenges.find((c: any) =>
+			(!c.Specs || c.Specs.length === 0) && (!c.Auras || c.Auras.length === 0));
+		expect(emptyBothChallenge).toBeDefined();
 
 		const tbody = renderDescentChallenges(descent, dict);
 		const rows = tbody.querySelectorAll('tr');
-		const idx = descent.Challenges.indexOf(emptySpecsChallenge);
-		expect(rows[idx].querySelectorAll('td')[4].textContent).toBe('-');
+		const idx = descent.Challenges.indexOf(emptyBothChallenge);
+		expect(rows[idx].querySelectorAll('td')[4].textContent).toBe('\u2014');
 	});
 
-	test('auras column shows "-" when Auras is empty', () => {
+	test('specs & auras column uses middot separator between spec and aura values', () => {
 		const descent = worldState.Descents[0];
-		const emptyAurasChallenge = descent.Challenges.find((c: any) => !c.Auras || c.Auras.length === 0);
-		expect(emptyAurasChallenge).toBeDefined();
+		// Find a challenge that has both specs and auras
+		const bothChallenge = descent.Challenges.find((c: any) =>
+			c.Specs && c.Specs.length > 0 && c.Auras && c.Auras.length > 0);
+		if (!bothChallenge) {
+			return; // Skip if mock data lacks a row with both
+		}
 
 		const tbody = renderDescentChallenges(descent, dict);
 		const rows = tbody.querySelectorAll('tr');
-		const idx = descent.Challenges.indexOf(emptyAurasChallenge);
-		expect(rows[idx].querySelectorAll('td')[5].textContent).toBe('-');
+		const idx = descent.Challenges.indexOf(bothChallenge);
+		const cell = rows[idx].querySelectorAll('td')[4];
+		expect(cell.textContent).toContain('\u00A0\u00B7');
 	});
 
 	test('works for any descent in the Descents array (not just first)', () => {

@@ -123,6 +123,7 @@ export function renderDescentChallenges(descent: IDescent, dict: Record<string, 
 		// Column 4: Arena (known arenas → emoji span with tooltip; unknown → plain text)
 		{
 			const td = document.createElement('td');
+			td.className = 'text-center';
 			if (row.arenaEmoji) {
 				const span = document.createElement('span');
 				span.textContent = row.arenaEmoji;
@@ -137,17 +138,10 @@ export function renderDescentChallenges(descent: IDescent, dict: Record<string, 
 			tr.append(td);
 		}
 
-		// Column 5: Specs
+		// Column 5: Specs & Auras (merged, middot-separated)
 		{
 			const td = document.createElement('td');
-			td.textContent = row.specs.length > 0 ? row.specs.join(', ') : '-';
-			tr.append(td);
-		}
-
-		// Column 6: Auras
-		{
-			const td = document.createElement('td');
-			td.textContent = row.auras.length > 0 ? row.auras.join(', ') : '-';
+			td.textContent = [...row.specs, ...row.auras].join('\u00A0\u00B7 ') || '\u2014';
 			tr.append(td);
 		}
 

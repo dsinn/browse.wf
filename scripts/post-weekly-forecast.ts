@@ -136,7 +136,7 @@ export async function formatDescendia(worldState: AnyRecord, find = findWeekly, 
 	const lines = [heading];
 
 	for (const row of resolveDescentChallenges(next as any, dictEn)) {
-		const arena = row.arenaEmoji ?? row.arenaFallback;
+		const arena = row.arenaEmoji;
 		const parts = [row.challenge];
 		if (row.specs.length > 0) {
 			parts.push(row.specs.join(', '));

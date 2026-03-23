@@ -270,7 +270,7 @@ describe('formatDescendia', () => {
 		expect(result).toContain('🥑');
 	});
 
-	test('falls back to arena key when not in emoji map', async () => {
+	test('falls back to ❔ emoji when arena not in emoji map', async () => {
 		const descentWithUnknownArena = {
 			...worldState.Descents[0],
 			Challenges: [{
@@ -283,7 +283,7 @@ describe('formatDescendia', () => {
 			}],
 		};
 		const result = await formatDescendia({Descents: [descentWithUnknownArena]});
-		expect(result).toContain('ArenaUnknownFruit');
+		expect(result).toContain('❔');
 	});
 
 	test('omits extra separators when specs and auras are empty', async () => {

@@ -124,16 +124,12 @@ export function renderDescentChallenges(descent: IDescent, dict: Record<string, 
 		{
 			const td = document.createElement('td');
 			td.className = 'text-center';
-			if (row.arenaEmoji) {
-				const span = document.createElement('span');
-				span.textContent = row.arenaEmoji;
-				span.dataset.bsToggle = 'tooltip';
-				span.dataset.bsTitle = row.arenaKey;
-				void new globalThis.bootstrap.Tooltip(span);
-				td.append(span);
-			} else {
-				td.textContent = row.arenaFallback;
-			}
+			const span = document.createElement('span');
+			span.textContent = row.arenaEmoji;
+			span.dataset.bsToggle = 'tooltip';
+			span.dataset.bsTitle = row.arenaKey;
+			void new globalThis.bootstrap.Tooltip(span);
+			td.append(span);
 
 			tr.append(td);
 		}

@@ -26,8 +26,7 @@ type IDescentChallengeRow = {
 	typeLabel: string; // Display-ready, e.g. "Protoframe"
 	challenge: string; // Resolved display text
 	arenaKey: string; // Clean key, e.g. "ArenaAvocado"
-	arenaEmoji: string | undefined;
-	arenaFallback: string; // Dict[Level] || arenaKey — used when arenaEmoji is null
+	arenaEmoji: string;
 	specs: string[]; // Resolved; empty array means render as "-"
 	auras: string[]; // Resolved; empty array means render as "-"
 };
@@ -57,7 +56,7 @@ export function resolveDescentChallenges(
 	dict: Record<string, string>,
 ): IDescentChallengeRow[] {
 	const tail = (p: string) => p.split('/').pop() ?? p;
-	const toWords = (s: string) => s.replaceAll(/(?<=.)(?=[A-Z])/gu, ' ');
+	const toWords = (s: string) => s.replaceAll(/(?<=[a-z])(?=[A-Z])|(?<=.)(?=[A-Z](?:[a-z]|$))/gu, ' ');
 	const toTitleCase = (s: string) => s.replaceAll(/\w+/gu, w => w[0].toUpperCase() + w.slice(1).toLowerCase());
 	const TYPE_LABEL_CORRECTIONS: Record<string, string> = {
 		'Presure Gauge': 'Pressure Gauge',
@@ -71,12 +70,11 @@ export function resolveDescentChallenges(
 			index: ch.Index,
 			type: ch.Type,
 			typeLabel,
-			challenge: dict[ch.Challenge] || toWords(tail(ch.Challenge)),
+			challenge: dict[ch.Challenge] || toWords(tail(ch.Challenge).replace(/^NC_/u, '')),
 			arenaKey,
-			arenaEmoji: ARENA_EMOJI[arenaKey] ?? null,
-			arenaFallback: dict[ch.Level] || arenaKey,
-			specs: ch.Specs?.length ? ch.Specs.map(s => dict[s] || tail(s)) : [],
-			auras: ch.Auras?.length ? ch.Auras.map(a => dict[a] || tail(a)) : [],
+			arenaEmoji: ARENA_EMOJI[arenaKey] ?? '❔',
+			specs: ch.Specs?.length ? ch.Specs.map(s => dict[s] || toWords(tail(s).replace(/^CoH/u, ''))) : [],
+			auras: ch.Auras?.length ? ch.Auras.map(a => dict[a] || toWords(tail(a).replace(/^CoH/u, ''))) : [],
 		};
 	});
 }

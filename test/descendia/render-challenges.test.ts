@@ -98,8 +98,9 @@ describe('renderDescentChallenges', () => {
 		};
 		const tbody = renderDescentChallenges(unknownDescent, {});
 		const arenaCell = tbody.querySelector('tr')!.querySelectorAll('td')[3];
-		expect(arenaCell.querySelector('span')).toBeNull();
-		expect(arenaCell.textContent).toBe('ArenaUnknownXYZ');
+		const span = arenaCell.querySelector('span');
+		expect(span?.textContent).toBe('❔');
+		expect(span?.dataset.bsTitle).toBe('ArenaUnknownXYZ');
 	});
 
 	test('specs & auras column shows "-" when both Specs and Auras are empty', () => {

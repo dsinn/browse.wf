@@ -12,4 +12,9 @@ export function pluralize(count: number, singular: string, plural: string = sing
 	return `${count} ${count === 1 ? singular : plural}`;
 }
 
+export function toTitleCase(string_: string): string {
+	return string_.replaceAll(/[^\s-]+/gu, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+}
+
 (globalThis as any).pluralize = pluralize;
+(globalThis as any).toTitleCase = toTitleCase;

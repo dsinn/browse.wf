@@ -8,12 +8,6 @@ type IMongoDate = {
 	};
 };
 
-type IConquestMission = {
-	type: string;
-	variant: string;
-	conditions: string[];
-};
-
 type IWorldStateInvasion = {
 	_id: {$oid: string};
 	Node: string;
@@ -158,16 +152,12 @@ declare global {
 	var applyCheckboxLinking: ((element: HTMLElement, nowChecked: boolean) => void) | undefined;
 
 	// src/conquest-helpers.ts
-	var conquestRiskTagToLoc: ((tag: string) => string) | undefined;
-	var conquestVariableTagToLoc: ((tag: string) => string) | undefined;
-	var createArchimedeaTooltipElement: ((
-		keyPrefix: string, rawValue: string, osdict: Record<string, string>,
-		descTransform?: (desc: string, rawValue: string) => string,
-	) => HTMLElement | Text) | undefined;
-	var renderConquestFrameVariables: ((frameVariables: string[], osdict: Record<string, string>) => HTMLTableRowElement) | undefined;
-	var renderConquestMissions: ((missions: IConquestMission[], variantKeyPrefix: string, osdict: Record<string, string>, dict: Record<string, string>) => HTMLTableSectionElement) | undefined;
-	var transformConquestMissions: ((conquest: any, conquestType: string, ExportMissionTypes: Record<string, {name: string}>) => IConquestMission[]) | undefined;
-	var transformFrameVariable: ((desc: string, rawValue: string) => string) | undefined;
+	var renderConquestTable: ((container: HTMLElement, conquest: any, conquestType: string, variantKeyPrefix: string) => Promise<void>) | undefined;
+	var renderConquestMissions: ((missions: Array<{
+		type: string; variant: string; variantDesc: string | undefined;
+		conditions: Array<{name: string; desc: string | undefined}>;
+	}>) => HTMLTableSectionElement) | undefined;
+	var renderConquestFrameVariables: ((frameVariables: Array<{name: string; desc: string | undefined}>) => HTMLTableRowElement) | undefined;
 
 	// src/descendia.ts
 	var renderDescentChallenges: ((descent: IDescent, dict: Record<string, string>) => HTMLTableSectionElement) | undefined;

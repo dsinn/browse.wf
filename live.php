@@ -477,32 +477,14 @@
 						<h5 class="mb-0"><span data-collapse-toggle="labconquest"></span> <span id="labConquest-header" data-autocheck-target="#netracell-checks" data-autocheck-count="2">Deep Archimedea</h5>
 						<a class="m-auto me-0" data-notif-toggle="labconquest"></a>
 					</div>
-					<div class="card-body overflow-auto">
-						<table class="table table-sm table-borderless table-hover mb-2" id="labConquest-missions">
-							<tr><th>Fetching data...</th></tr>
-							<tr><td>&nbsp;</td></tr>
-							<tr><td>&nbsp;</td></tr>
-						</table>
-						<table class="table table-sm table-borderless mb-0">
-							<tr id="labConquest-fv"><td>&nbsp;</td></tr>
-						</table>
-					</div>
+					<div class="card-body overflow-auto" id="labConquest-body"><p>Fetching data...</p></div>
 				</div>
 				<div class="card mb-3">
 					<div class="card-header d-flex">
 						<h5 class="mb-0"><span data-collapse-toggle="hexconquest"></span> <span id="hexConquest-header" data-autocheck-target="#netracell-checks" data-autocheck-count="2">Temporal Archimedea</h5>
 						<a class="m-auto me-0" data-notif-toggle="hexconquest"></a>
 					</div>
-					<div class="card-body overflow-auto">
-						<table class="table table-sm table-borderless table-hover mb-2" id="hexConquest-missions">
-							<tr><th>Fetching data...</th></tr>
-							<tr><td>&nbsp;</td></tr>
-							<tr><td>&nbsp;</td></tr>
-						</table>
-						<table class="table table-sm table-borderless mb-0">
-							<tr id="hexConquest-fv"><td>&nbsp;</td></tr>
-						</table>
-					</div>
+					<div class="card-body overflow-auto" id="hexConquest-body"><p>Fetching data...</p></div>
 				</div>
 				<?php require "components/descendia-card.php"; ?>
 

@@ -13,11 +13,6 @@ interface IBountyCycle {
 	}[]>;
 }
 
-interface IConquestMission {
-	type:       string;
-	variant:    string;
-	conditions: string[];
-}
 
 // worldState
 interface IMongoDate {
@@ -581,135 +576,33 @@ function addTooltip(elm: HTMLElement, title: string): any
 	return new window.bootstrap.Tooltip(elm);
 }
 
-function updateWeeklyLocalised()
+async function updateWeeklyLocalised()
 {
 	const labConquest = window.worldState.Conquests.find((c: any) => c.Type === "CT_LAB");
 	const hexConquest = window.worldState.Conquests.find((c: any) => c.Type === "CT_HEX");
 
-	const labMissions      = labConquest ? transformConquestMissions(labConquest, "CT_LAB") : [];
-	const labFvs           = labConquest?.Variables || [];
-	const hexMissions      = hexConquest ? transformConquestMissions(hexConquest, "CT_HEX") : [];
-	const hexFvs           = hexConquest?.Variables || [];
+	const osdict = await getOSDictPromise();
 
-	// Helper to create tooltip element with graceful degradation for osdict lookups
-	function createArchimedeaTooltip(
-		keyPrefix: string,
-		rawValue: string,
-		descTransform?: (desc: string, rawValue: string) => string
-	): HTMLElement | Text {
-		const key = keyPrefix + rawValue;
-		const text = osdict[key];
-		const desc = osdict[key + "_Desc"];
-		if (text && desc) {
-			const abbr = document.createElement("abbr");
-			abbr.textContent = text;
-			const finalDesc = descTransform ? descTransform(desc, rawValue) : desc;
-			addTooltip(abbr, finalDesc);
-			return abbr;
-		} else if (text) {
-			// Have text but no description - use text without tooltip
-			if (!desc) {
-				console.warn("Missing osdict key:", key + "_Desc");
-			}
-			return document.createTextNode(text);
-		} else {
-			// No localization available - use raw value
-			console.warn("Missing osdict key:", key);
-			return document.createTextNode(rawValue);
-		}
-	}
-
-	// Transform function for frame variable descriptions
-	function transformFrameVariable(desc: string, rawValue: string): string {
-		desc = desc.replaceAll(/<[^>]+>/g, "");
-		if (rawValue === "ShieldDelay") {
-			return desc.split("|val|").join("500");
-		} else if (rawValue === "TimeDilation") {
-			return desc.split("|val|").join("50");
-		}
-		return desc;
-	}
-
+	if (labConquest)
 	{
 		setDatum("labConquest-header", osdict["/Lotus/Language/Conquest/SolarMapLabConquestNode"], weeklyExpiry);
 		document.getElementById("labConquest-header").innerHTML += " ";
 		document.getElementById("labConquest-header").appendChild(createCompletionToggle("labconquest-" + weeklyExpiry));
-		const tbody = document.createElement("tbody");
-		for (const mission of labMissions)
-		{
-			const tr = document.createElement("tr");
-			{
-				const th = document.createElement("th");
-				th.textContent = toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + mission.type] ?? mission.type);
-				tr.appendChild(th);
-			}
-			{
-				const td = document.createElement("td");
-				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/MissionVariant_LabConquest_", mission.variant));
-				tr.appendChild(td);
-			}
-			for (let i = 0; i != 2; ++i)
-			{
-				const td = document.createElement("td");
-				const canonicalCondition = conquestRiskTagToLoc(mission.conditions[i]);
-				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/Condition_", canonicalCondition));
-				tr.appendChild(td);
-			}
-			tbody.appendChild(tr);
-		}
-		document.getElementById("labConquest-missions").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
-		document.getElementById("labConquest-missions").innerHTML = "";
-		document.getElementById("labConquest-missions").appendChild(tbody);
-		document.getElementById("labConquest-fv").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
-		document.getElementById("labConquest-fv").innerHTML = "";
-		for (const fv of labFvs)
-		{
-			const td = document.createElement("td");
-			const canonicalPersonalMod = conquestVariableTagToLoc(fv);
-			td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/PersonalMod_", canonicalPersonalMod, transformFrameVariable));
-			document.getElementById("labConquest-fv").appendChild(td);
-		}
+		await (window as any).renderConquestTable(
+			document.getElementById("labConquest-body"),
+			labConquest, "CT_LAB", "/Lotus/Language/Conquest/MissionVariant_LabConquest_",
+		);
 	}
 
+	if (hexConquest)
 	{
 		setDatum("hexConquest-header", osdict["/Lotus/Language/1999Echoes/1999HexConquestNode"], weeklyExpiry);
 		document.getElementById("hexConquest-header").innerHTML += " ";
 		document.getElementById("hexConquest-header").appendChild(createCompletionToggle("hexconquest-" + weeklyExpiry));
-		const tbody = document.createElement("tbody");
-		for (const mission of hexMissions)
-		{
-			const tr = document.createElement("tr");
-			{
-				const th = document.createElement("th");
-				th.textContent = toTitleCase(dict["/Lotus/Language/Missions/MissionName_" + mission.type] ?? mission.type);
-				tr.appendChild(th);
-			}
-			{
-				const td = document.createElement("td");
-				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/MissionVariant_HexConquest_", mission.variant));
-				tr.appendChild(td);
-			}
-			for (let i = 0; i != 2; ++i)
-			{
-				const td = document.createElement("td");
-				const canonicalCondition = conquestRiskTagToLoc(mission.conditions[i]);
-				td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/Condition_", canonicalCondition));
-				tr.appendChild(td);
-			}
-			tbody.appendChild(tr);
-		}
-		document.getElementById("hexConquest-missions").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
-		document.getElementById("hexConquest-missions").innerHTML = "";
-		document.getElementById("hexConquest-missions").appendChild(tbody);
-		document.getElementById("hexConquest-fv").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
-		document.getElementById("hexConquest-fv").innerHTML = "";
-		for (const fv of hexFvs)
-		{
-			const td = document.createElement("td");
-			const canonicalPersonalMod = conquestVariableTagToLoc(fv);
-			td.appendChild(createArchimedeaTooltip("/Lotus/Language/Conquest/PersonalMod_", canonicalPersonalMod, transformFrameVariable));
-			document.getElementById("hexConquest-fv").appendChild(td);
-		}
+		await (window as any).renderConquestTable(
+			document.getElementById("hexConquest-body"),
+			hexConquest, "CT_HEX", "/Lotus/Language/Conquest/MissionVariant_HexConquest_",
+		);
 	}
 }
 
@@ -1719,42 +1612,6 @@ async function updateFissures(forceRender = false)
 	document.getElementById("rj-fissures-table").appendChild(tbody["rj-fissures"]);
 }
 
-function conquestRiskTagToLoc(tag)
-{
-	if (tag == "EMPBlackHole")
-	{
-		return "MagneticHounds";
-	}
-	return tag;
-}
-
-function conquestVariableTagToLoc(tag)
-{
-	if (tag == "DullBlades")
-	{
-		return "ComboCountChance";
-	}
-	if (tag == "Undersupplied")
-	{
-		return "MaxAmmo";
-	}
-	return tag;
-}
-
-function transformConquestMissions(conquest: any, conquestType: string): IConquestMission[]
-{
-	const missions: IConquestMission[] = [];
-	for (const mission of conquest.Missions) {
-		const hardDiff = mission.difficulties.find((d: any) => d.type === "CD_HARD")
-			|| mission.difficulties.reduce((a: any, b: any) => a.risks.length > b.risks.length ? a : b);
-		let type = ExportMissionTypes[mission.missionType].name.split("MissionName_")[1];
-		if (conquestType === "CT_LAB" && type === "Defense") {
-			type = "DualDefense";
-		}
-		missions.push({ type, variant: hardDiff.deviation, conditions: hardDiff.risks });
-	}
-	return missions;
-}
 
 updateBountyCycle();
 

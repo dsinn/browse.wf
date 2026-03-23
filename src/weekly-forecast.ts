@@ -6,7 +6,7 @@
  *   - getDictPromise, getOSDictPromise
  */
 
-import {transformConquestMissions, renderConquestMissions, renderConquestFrameVariables} from './conquest-helpers.js';
+import {renderConquestTable} from './conquest-helpers.js';
 import {renderDescentChallenges} from './descendia.js';
 import {getSeasonLabel} from './calendar-seasons-data.js';
 import {renderCalendarSeasonPane} from './calendar-seasons.js';
@@ -109,39 +109,23 @@ async function renderConquestTabs(
 	tabsElement.innerHTML = '';
 	contentElement.innerHTML = '';
 
-	// Pre-render all pane contents in parallel
-	const paneContents = await Promise.all(conquests.map(async conquest => {
-		const missions = await transformConquestMissions(conquest, conquestType);
-		const [tbody, fvRow] = await Promise.all([
-			renderConquestMissions(missions, variantKeyPrefix),
-			renderConquestFrameVariables(conquest.Variables || []),
-		]);
-		return {tbody, fvRow};
-	}));
-
 	// There's usually only one entry per conquest type, but handle multiple for robustness
 	const firstFutureConquestIdx = conquests.findIndex(c => mongoMs(c.Activation) > now);
 	const defaultConquestIdx = Math.max(firstFutureConquestIdx, 0);
 
+	// Build tab structure first, then render content in parallel
+	const panes: HTMLElement[] = [];
 	for (const [i, conquest] of conquests.entries()) {
 		const activationMs = mongoMs(conquest.Activation);
 		const label = formatTabDate(activationMs);
 		const id = conquestType.toLowerCase() + '-' + i;
 
 		buildTab(tabsElement, contentElement, id, label, activationMs, i === defaultConquestIdx, pane => {
-			const {tbody, fvRow} = paneContents[i];
-
-			const missionsTable = document.createElement('table');
-			missionsTable.className = 'table table-sm table-borderless table-hover mb-2';
-			missionsTable.append(tbody);
-			pane.append(missionsTable);
-
-			const fvTable = document.createElement('table');
-			fvTable.className = 'table table-sm table-borderless mb-0';
-			fvTable.append(fvRow);
-			pane.append(fvTable);
+			panes.push(pane);
 		});
 	}
+
+	await Promise.all(conquests.map(async (conquest, i) => renderConquestTable(panes[i], conquest, conquestType, variantKeyPrefix)));
 
 	if (preserveActivation !== undefined) {
 		restoreActiveTab(tabsElement, preserveActivation);

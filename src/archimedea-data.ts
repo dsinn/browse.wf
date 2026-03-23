@@ -8,6 +8,7 @@
  */
 
 import {fetchExport} from './public-export-fetcher.js';
+import {toTitleCase} from './string-helpers.js';
 
 const CONQUEST_RISK_REMAP: Record<string, string> = {EMPBlackHole: 'MagneticHounds'};
 const CONQUEST_VARIABLE_REMAP: Record<string, string> = {DullBlades: 'ComboCountChance', Undersupplied: 'MaxAmmo'};
@@ -83,7 +84,7 @@ export async function resolveConquest(
 			type = 'DualDefense';
 		}
 
-		const rawTypeName = dict['/Lotus/Language/Missions/MissionName_' + String(type)] ?? camelToWords(String(type));
+		const rawTypeName = toTitleCase(dict['/Lotus/Language/Missions/MissionName_' + String(type)] ?? camelToWords(String(type)));
 
 		const variantKey = variantKeyPrefix + String(hardDiff.deviation);
 		const variantName = osdict[variantKey] ?? hardDiff.deviation;

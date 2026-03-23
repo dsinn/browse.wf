@@ -82,10 +82,6 @@ function discordTimestamp(ms: number) {
 	return `<t:${Math.floor(ms / 1000)}:D>`;
 }
 
-function toTitleCase(s: string) {
-	return s.replaceAll(/\w+/gu, (w: string) => w[0].toUpperCase() + w.slice(1).toLowerCase());
-}
-
 export function escapeMarkdown(s: string) {
 	return s.replaceAll(/(?=[*_~`|>[\\\]])/gu, '\\');
 }
@@ -107,9 +103,8 @@ export async function formatConquest(worldState: AnyRecord, conquestType: string
 	const lines = [heading];
 
 	for (const mission of missions) {
-		const typeName = toTitleCase(mission.type);
 		lines.push(
-			`**${typeName}**`,
+			`**${mission.type}**`,
 			mission.variantDesc
 				? `- **${escapeMarkdown(mission.variant)}**: ${escapeMarkdown(mission.variantDesc)}`
 				: `- **${escapeMarkdown(mission.variant)}**`,

@@ -1,154 +1,47 @@
 /**
- * Shared helper functions for Deep Archimedea (CT_LAB) and Temporal Archimedea (CT_HEX) rendering.
+ * DOM rendering helpers for Deep Archimedea (CT_LAB) and Temporal Archimedea (CT_HEX).
  *
- * These are used by both weekly-forecast.ts (via globals) to avoid duplicating logic.
+ * Data resolution (text lookups, tag remapping, difficulty selection) is handled by
+ * archimedea-data.ts. This module is responsible only for turning resolved data into DOM.
  */
 
-declare function fetchExport(name: string): Promise<any>;
+import {resolveConquest, type IResolvedConquestMission, type IResolvedFrameVariable} from './archimedea-data.js';
+
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
 
-export function conquestRiskTagToLoc(tag: string): string {
-	if (tag === 'EMPBlackHole') {
-		return 'MagneticHounds';
-	}
-
-	return tag;
-}
-
-export function conquestVariableTagToLoc(tag: string): string {
-	if (tag === 'DullBlades') {
-		return 'ComboCountChance';
-	}
-
-	if (tag === 'Undersupplied') {
-		return 'MaxAmmo';
-	}
-
-	return tag;
-}
-
-export function transformFrameVariable(desc: string, rawValue: string): string {
-	desc = desc.replaceAll(/<[^>]+>/gu, '');
-	if (rawValue === 'ShieldDelay') {
-		return desc.split('|val|').join('500');
-	}
-
-	if (rawValue === 'TimeDilation') {
-		return desc.split('|val|').join('50');
-	}
-
-	return desc;
-}
-
-/**
- * Creates a tooltip <abbr> element (or plain text node) for an osdict key.
- * @param keyPrefix  e.g. "/Lotus/Language/Conquest/MissionVariant_LabConquest_"
- * @param rawValue   e.g. "DA_UnityOfPurpose"
- * @param osdict     The OS dictionary (key → text)
- * @param descTransform  Optional transform for the tooltip description
- */
-export function createArchimedeaTooltipElement(
-	keyPrefix: string,
-	rawValue: string,
-	osdict: Record<string, string>,
-	descTransform?: (desc: string, rawValue: string) => string,
-): HTMLElement | Text {
-	const key = keyPrefix + rawValue;
-	const text = osdict[key];
-	const desc = osdict[key + '_Desc'];
-	if (text && desc) {
+function tooltipElement(name: string, desc: string | undefined): HTMLElement | Text {
+	if (desc) {
 		const abbr = document.createElement('abbr');
-		abbr.textContent = text;
-		const finalDesc = descTransform ? descTransform(desc, rawValue) : desc;
+		abbr.textContent = name;
 		abbr.dataset.bsToggle = 'tooltip';
-		abbr.dataset.bsTitle = finalDesc;
+		abbr.dataset.bsTitle = desc;
 		void new globalThis.bootstrap.Tooltip(abbr);
 		return abbr;
 	}
 
-	if (text) {
-		if (!desc) {
-			console.warn('Missing osdict key:', key + '_Desc');
-		}
-
-		return document.createTextNode(text);
-	}
-
-	console.warn('Missing osdict key:', key);
-	return document.createTextNode(rawValue);
+	return document.createTextNode(name);
 }
 
 /**
- * Transforms a raw Conquest object's Missions array into IConquestMission[].
- * Equivalent to the inline transformMissions() in live.ts's updateWeekly().
- *
- * @param conquest         The raw conquest object from worldState.Conquests[]
- * @param conquestType     "CT_LAB" or "CT_HEX"
- * @param ExportMissionTypes  The ExportMissionTypes lookup table
+ * Renders a missions tbody from pre-resolved mission data.
  */
-export async function transformConquestMissions(
-	conquest: any,
-	conquestType: string,
-): Promise<IConquestMission[]> {
-	const exportMissionTypes: Record<string, {name: string}> = await fetchExport('ExportMissionTypes');
-	const missions: IConquestMission[] = [];
-	for (const mission of conquest.Missions) {
-		let hardDiff = mission.difficulties.find((d: any) => d.type === 'CD_HARD');
-		if (!hardDiff) {
-			for (const d of mission.difficulties) {
-				if (!hardDiff || d.risks.length > hardDiff.risks.length) {
-					hardDiff = d;
-				}
-			}
-		}
-
-		let type = exportMissionTypes[mission.missionType].name.split('MissionName_')[1];
-		if (conquestType === 'CT_LAB' && type === 'Defense') {
-			type = 'DualDefense';
-		}
-
-		missions.push({
-			type,
-			variant: hardDiff.deviation,
-			conditions: hardDiff.risks,
-		});
-	}
-
-	return missions;
-}
-
-/**
- * Renders a missions tbody for a conquest section.
- * @param missions     IConquestMission[] from transformConquestMissions()
- * @param variantKeyPrefix  e.g. "/Lotus/Language/Conquest/MissionVariant_LabConquest_"
- * @param osdict       The OS dictionary
- * @param dict         The main dictionary (for mission type names)
- */
-export async function renderConquestMissions(
-	missions: IConquestMission[],
-	variantKeyPrefix: string,
-): Promise<HTMLTableSectionElement> {
-	const [dict, osdict] = await Promise.all([getDictPromise(), getOSDictPromise()]);
+export function renderConquestMissions(missions: IResolvedConquestMission[]): HTMLTableSectionElement {
 	const tbody = document.createElement('tbody');
 	for (const mission of missions) {
 		const tr = document.createElement('tr');
-		{
-			const th = document.createElement('th');
-			th.textContent = toTitleCase(dict['/Lotus/Language/Missions/MissionName_' + mission.type] ?? mission.type);
-			tr.append(th);
-		}
 
-		{
-			const td = document.createElement('td');
-			td.append(createArchimedeaTooltipElement(variantKeyPrefix, mission.variant, osdict));
-			tr.append(td);
-		}
+		const th = document.createElement('th');
+		th.textContent = mission.type;
+		tr.append(th);
 
-		for (let i = 0; i !== 2; ++i) {
+		const variantTd = document.createElement('td');
+		variantTd.append(tooltipElement(mission.variant, mission.variantDesc));
+		tr.append(variantTd);
+
+		for (const cond of mission.conditions) {
 			const td = document.createElement('td');
-			const canonicalCondition = conquestRiskTagToLoc(mission.conditions[i]);
-			td.append(createArchimedeaTooltipElement('/Lotus/Language/Conquest/Condition_', canonicalCondition, osdict));
+			td.append(tooltipElement(cond.name, cond.desc));
 			tr.append(td);
 		}
 
@@ -159,33 +52,55 @@ export async function renderConquestMissions(
 }
 
 /**
- * Renders a frame variables row (a tr containing tds) for a conquest section.
- * @param frameVariables  string[] of variable tags (e.g. "ShieldDelay")
- * @param osdict          The OS dictionary
+ * Renders a frame variables row from pre-resolved frame variable data.
  */
-export async function renderConquestFrameVariables(frameVariables: string[]): Promise<HTMLTableRowElement> {
-	const osdict = await getOSDictPromise();
+export function renderConquestFrameVariables(frameVariables: IResolvedFrameVariable[]): HTMLTableRowElement {
 	const tr = document.createElement('tr');
 	for (const fv of frameVariables) {
 		const td = document.createElement('td');
-		const canonicalPersonalMod = conquestVariableTagToLoc(fv);
-		td.append(createArchimedeaTooltipElement(
-			'/Lotus/Language/Conquest/PersonalMod_',
-			canonicalPersonalMod,
-			osdict,
-			transformFrameVariable,
-		));
+		td.append(tooltipElement(fv.name, fv.desc));
 		tr.append(td);
 	}
 
 	return tr;
 }
 
-// Expose globally for use by weekly-forecast.ts and other non-module scripts
-(globalThis as any).conquestRiskTagToLoc = conquestRiskTagToLoc;
-(globalThis as any).conquestVariableTagToLoc = conquestVariableTagToLoc;
-(globalThis as any).transformFrameVariable = transformFrameVariable;
-(globalThis as any).createArchimedeaTooltipElement = createArchimedeaTooltipElement;
-(globalThis as any).transformConquestMissions = transformConquestMissions;
+/**
+ * Renders conquest missions and frame variables as two tables into a container.
+ * Clears the container first, disposing any existing Bootstrap tooltips.
+ *
+ * @param container        Element to render into
+ * @param conquest         The raw conquest object from worldState.Conquests[]
+ * @param conquestType     "CT_LAB" or "CT_HEX"
+ * @param variantKeyPrefix e.g. "/Lotus/Language/Conquest/MissionVariant_LabConquest_"
+ */
+export async function renderConquestTable(
+	container: HTMLElement,
+	conquest: any,
+	conquestType: string,
+	variantKeyPrefix: string,
+): Promise<void> {
+	const [dict, osdict] = await Promise.all([getDictPromise(), getOSDictPromise()]);
+	const {missions, frameVariables} = await resolveConquest(conquest, conquestType, variantKeyPrefix, osdict, dict);
+
+	for (const x of container.querySelectorAll('[data-bs-toggle=tooltip]')) {
+		globalThis.bootstrap.Tooltip.getInstance(x)?.dispose();
+	}
+
+	container.innerHTML = '';
+
+	const missionsTable = document.createElement('table');
+	missionsTable.className = 'table table-sm table-borderless table-hover mb-2';
+	missionsTable.append(renderConquestMissions(missions));
+	container.append(missionsTable);
+
+	const fvTable = document.createElement('table');
+	fvTable.className = 'table table-sm table-borderless mb-0';
+	fvTable.append(renderConquestFrameVariables(frameVariables));
+	container.append(fvTable);
+}
+
+// Expose globally for use by live.ts and other non-module scripts
+(globalThis as any).renderConquestTable = renderConquestTable;
 (globalThis as any).renderConquestMissions = renderConquestMissions;
 (globalThis as any).renderConquestFrameVariables = renderConquestFrameVariables;

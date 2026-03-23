@@ -85,7 +85,7 @@ async function watchMode() {
 
 	console.log('Watching PHP files for changes...\n');
 
-	const IGNORED_DIRS = /\.git|dist|node_modules|public|typestripped|vendor/u;
+	const IGNORED_DIRS = /\.git|dist|node_modules|public|test|typestripped|vendor/u;
 	const watcher = chokidar.default.watch(rootDir, {
 		ignored(filePath, stats) {
 			if (!stats) {

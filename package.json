@@ -36,10 +36,10 @@
     "typescript": "^5.9.2",
     "vite": "^8.0.0",
     "vitest": "^4.0.18",
-    "warframe-public-export-plus": "^0.5.86",
     "xo": "^2.0.2"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.90.1"
+    "@supabase/supabase-js": "^2.90.1",
+    "warframe-public-export-plus": "^0.5.86"
   }
 }

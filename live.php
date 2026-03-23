@@ -8,8 +8,8 @@
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
 	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
 	<link rel="stylesheet" href="src/card-filters.css">
-	<link rel="stylesheet" href="src/invasions.css">
-	<link rel="stylesheet" href="src/news-card.css">
+	<link rel="stylesheet" href="src/live/invasions.css">
+	<link rel="stylesheet" href="src/live/news-card.css">
 	<link rel="stylesheet" href="src/tooltip.css">
 	<style>
 		[data-notif-toggle], [data-notif-toggle] > span, .completion-check { text-decoration:none;cursor:pointer;color:inherit }
@@ -495,8 +495,8 @@
 	<?php require "components/footer.php"; ?>
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-	<link rel="stylesheet" href="src/calendar-seasons.css" media="print" onload="this.media='all'">
-	<link rel="stylesheet" href="src/descendia.css" media="print" onload="this.media='all'">
+	<link rel="stylesheet" href="src/calendar-seasons/calendar-seasons.css" media="print" onload="this.media='all'">
+	<link rel="stylesheet" href="src/descendia/descendia.css" media="print" onload="this.media='all'">
 	<!-- live.js must come last as it calls functions defined in the fork bundle loaded from commonjs.html -->
 	<script src="typestripped/live.js?lv0"></script>
 </body>

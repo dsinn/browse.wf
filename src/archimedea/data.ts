@@ -3,19 +3,19 @@
  * Usable in both browser and Node.js environments.
  *
  * Consumed by:
- *   - src/archimedea.ts                (planned: browser DOM rendering, via globals)
- *   - scripts/post-weekly-forecast.js  (Node.js, via compiled archimedea-data.js)
+ *   - src/archimedea/helpers.ts             (browser DOM rendering, via globals)
+ *   - scripts/post-weekly-forecast.js       (Node.js, via compiled archimedea/data.js)
  */
 
-import {fetchExport} from './public-export-fetcher.js';
-import {toTitleCase} from './string-helpers.js';
+import {fetchExport} from '../public-export-fetcher.js';
+import {toTitleCase} from '../helpers/string-helpers.js';
 
 const CONQUEST_RISK_REMAP: Record<string, string> = {EMPBlackHole: 'MagneticHounds'};
 const CONQUEST_VARIABLE_REMAP: Record<string, string> = {DullBlades: 'ComboCountChance', Undersupplied: 'MaxAmmo'};
 const FRAME_VARIABLE_VALUE_MAP: Record<string, string> = {ShieldDelay: '500', TimeDilation: '50'};
 
-export type IResolvedConquestMission = {
-	type: string; // Display-ready mission type, e.g. "Dual Defense"
+export type IResolvedArchimedeaMission = {
+	type: string; // Display-ready mission type, e.g. "Mirror Defense"
 	variant: string; // Display-ready variant name
 	variantDesc: string | undefined; // Variant tooltip description, HTML stripped
 	conditions: Array<{name: string; desc: string | undefined}>; // Up to 2 conditions
@@ -26,8 +26,8 @@ export type IResolvedFrameVariable = {
 	desc: string | undefined;
 };
 
-export type IResolvedConquest = {
-	missions: IResolvedConquestMission[];
+export type IResolvedArchimedea = {
+	missions: IResolvedArchimedeaMission[];
 	frameVariables: IResolvedFrameVariable[];
 };
 
@@ -60,27 +60,27 @@ function findHardDifficulty(mission: any): any {
 }
 
 /**
- * Resolves a raw Conquest object into display-ready data.
+ * Resolves a raw Archimedea object into display-ready data.
  * Returns resolved mission rows and frame variable rows, with all text lookups applied.
  */
-export async function resolveConquest(
-	conquest: any,
-	conquestType: string,
+export async function resolveArchimedea(
+	archimedea: any,
+	archimedeaType: string,
 	variantKeyPrefix: string,
 	osdict: Record<string, string>,
 	dict: Record<string, string>,
-): Promise<IResolvedConquest> {
+): Promise<IResolvedArchimedea> {
 	const exportMissionTypes: Record<string, {name: string}> = await fetchExport('ExportMissionTypes');
-	const missions: IResolvedConquestMission[] = [];
+	const missions: IResolvedArchimedeaMission[] = [];
 
-	for (const mission of conquest.Missions) {
+	for (const mission of archimedea.Missions) {
 		const hardDiff = findHardDifficulty(mission);
 		if (!hardDiff) {
 			continue;
 		}
 
 		let type = exportMissionTypes[mission.missionType]?.name?.split('MissionName_')[1] ?? mission.missionType;
-		if (conquestType === 'CT_LAB' && type === 'Defense') {
+		if (archimedeaType === 'CT_LAB' && type === 'Defense') {
 			type = 'DualDefense';
 		}
 
@@ -107,7 +107,7 @@ export async function resolveConquest(
 		});
 	}
 
-	const frameVariables: IResolvedFrameVariable[] = (conquest.Variables ?? []).map((fv: string) => {
+	const frameVariables: IResolvedFrameVariable[] = (archimedea.Variables ?? []).map((fv: string) => {
 		const canonical = CONQUEST_VARIABLE_REMAP[fv] ?? fv;
 		const key = '/Lotus/Language/Conquest/PersonalMod_' + canonical;
 		const name = osdict[key] ?? fv;
@@ -126,5 +126,5 @@ export async function resolveConquest(
 
 // Expose globals for browser classic scripts; guard allows this file to run in Node.js too
 if (globalThis.window !== undefined) {
-	(globalThis as any).resolveConquest = resolveConquest;
+	(globalThis as any).resolveArchimedea = resolveArchimedea;
 }

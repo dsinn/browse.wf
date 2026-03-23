@@ -6,10 +6,10 @@
  *   - getDictPromise, getOSDictPromise
  */
 
-import {renderConquestTable} from './conquest-helpers.js';
-import {renderDescentChallenges} from './descendia.js';
-import {getSeasonLabel} from './calendar-seasons-data.js';
-import {renderCalendarSeasonPane} from './calendar-seasons.js';
+import {renderArchimedeaTable} from './archimedea/helpers.js';
+import {renderDescentChallenges} from './descendia/index.js';
+import {getSeasonLabel} from './calendar-seasons/data.js';
+import {renderCalendarSeasonPane} from './calendar-seasons/index.js';
 import {createShortTimerBadge} from './short-timer-badge.js';
 import {WarframeApiFrontProxyClient} from './warframe-api-proxy-client.js';
 import {fetchExport} from './public-export-fetcher.js';
@@ -97,11 +97,11 @@ export function restoreActiveTab(tabsElement: HTMLElement, activation: string): 
 	document.querySelector(`#${paneId}`)?.classList.add('show', 'active');
 }
 
-async function renderConquestTabs(
+async function renderArchimedeaTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
-	conquests: any[],
-	conquestType: string,
+	archimedeas: any[],
+	archimedeaType: string,
 	variantKeyPrefix: string,
 	preserveActivation: string | undefined = undefined,
 ): Promise<void> {
@@ -109,23 +109,23 @@ async function renderConquestTabs(
 	tabsElement.innerHTML = '';
 	contentElement.innerHTML = '';
 
-	// There's usually only one entry per conquest type, but handle multiple for robustness
-	const firstFutureConquestIdx = conquests.findIndex(c => mongoMs(c.Activation) > now);
-	const defaultConquestIdx = Math.max(firstFutureConquestIdx, 0);
+	// There's usually only one entry per Archimedea type, but handle multiple for robustness
+	const firstFutureIdx = archimedeas.findIndex(a => mongoMs(a.Activation) > now);
+	const defaultIdx = Math.max(firstFutureIdx, 0);
 
 	// Build tab structure first, then render content in parallel
 	const panes: HTMLElement[] = [];
-	for (const [i, conquest] of conquests.entries()) {
-		const activationMs = mongoMs(conquest.Activation);
+	for (const [i, archimedea] of archimedeas.entries()) {
+		const activationMs = mongoMs(archimedea.Activation);
 		const label = formatTabDate(activationMs);
-		const id = conquestType.toLowerCase() + '-' + i;
+		const id = archimedeaType.toLowerCase() + '-' + i;
 
-		buildTab(tabsElement, contentElement, id, label, activationMs, i === defaultConquestIdx, pane => {
+		buildTab(tabsElement, contentElement, id, label, activationMs, i === defaultIdx, pane => {
 			panes.push(pane);
 		});
 	}
 
-	await Promise.all(conquests.map(async (conquest, i) => renderConquestTable(panes[i], conquest, conquestType, variantKeyPrefix)));
+	await Promise.all(archimedeas.map(async (archimedea, i) => renderArchimedeaTable(panes[i], archimedea, archimedeaType, variantKeyPrefix)));
 
 	if (preserveActivation !== undefined) {
 		restoreActiveTab(tabsElement, preserveActivation);
@@ -287,42 +287,42 @@ export function initWeeklyMissionsNotice(): void {
 }
 
 export async function initWeeklyForecast(isRefresh = false): Promise<void> {
-	const labTabsElement = document.querySelector<HTMLElement>('#lab-conquest-tabs');
-	const hexTabsElement = document.querySelector<HTMLElement>('#hex-conquest-tabs');
+	const deepTabsElement = document.querySelector<HTMLElement>('#deep-archimedea-tabs');
+	const temporalTabsElement = document.querySelector<HTMLElement>('#temporal-archimedea-tabs');
 	const descentTabsElement = document.querySelector<HTMLElement>('#descendia-tabs');
 	const calendarSeasonTabsElement = document.querySelector<HTMLElement>('#calendar-season-tabs');
 
 	// Capture which tab the user is on before re-rendering (only meaningful on refresh)
-	const labActivation = (isRefresh && labTabsElement) ? getActiveTabActivation(labTabsElement) : undefined;
-	const hexActivation = (isRefresh && hexTabsElement) ? getActiveTabActivation(hexTabsElement) : undefined;
+	const deepActivation = (isRefresh && deepTabsElement) ? getActiveTabActivation(deepTabsElement) : undefined;
+	const temporalActivation = (isRefresh && temporalTabsElement) ? getActiveTabActivation(temporalTabsElement) : undefined;
 	const descentActivation = (isRefresh && descentTabsElement) ? getActiveTabActivation(descentTabsElement) : undefined;
 	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsElement) ? getActiveTabActivation(calendarSeasonTabsElement) : undefined;
 
 	const worldState = await WarframeApiFrontProxyClient.fetchWorldState();
 
 	// Deep Archimedea (CT_LAB)
-	const labConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_LAB');
-	if (labTabsElement && labConquests.length > 0) {
-		await renderConquestTabs(
-			labTabsElement,
-			document.querySelector<HTMLElement>('#lab-conquest-content')!,
-			labConquests,
+	const deepArchimedeas = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_LAB');
+	if (deepTabsElement && deepArchimedeas.length > 0) {
+		await renderArchimedeaTabs(
+			deepTabsElement,
+			document.querySelector<HTMLElement>('#deep-archimedea-content')!,
+			deepArchimedeas,
 			'CT_LAB',
 			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
-			labActivation,
+			deepActivation,
 		);
 	}
 
 	// Temporal Archimedea (CT_HEX)
-	const hexConquests = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_HEX');
-	if (hexTabsElement && hexConquests.length > 0) {
-		await renderConquestTabs(
-			hexTabsElement,
-			document.querySelector<HTMLElement>('#hex-conquest-content')!,
-			hexConquests,
+	const temporalArchimedeas = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_HEX');
+	if (temporalTabsElement && temporalArchimedeas.length > 0) {
+		await renderArchimedeaTabs(
+			temporalTabsElement,
+			document.querySelector<HTMLElement>('#temporal-archimedea-content')!,
+			temporalArchimedeas,
 			'CT_HEX',
 			'/Lotus/Language/Conquest/MissionVariant_HexConquest_',
-			hexActivation,
+			temporalActivation,
 		);
 	}
 

@@ -4,7 +4,7 @@
  * Runs periodically, a few seconds after a successful worldState fetch.
  */
 
-import {pruneStaleNewsRead} from '../news-mark-read.js';
+import {pruneStaleNewsRead} from './news-mark-read.js';
 
 const PRUNE_DELAY_MS = 5000;
 const PRUNE_INTERVAL_MS = 86_400_000; // 24 hours

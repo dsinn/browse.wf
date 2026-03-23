@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {pluralize} from '../src/string-helpers';
+import {pluralize} from '../../src/helpers/string-helpers';
 
 describe('string-helpers', () => {
 	describe('pluralize', () => {

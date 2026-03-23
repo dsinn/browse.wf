@@ -4,7 +4,7 @@ import {
 import {mockBootstrapTooltip} from '../../helpers/dom-helpers';
 import {loadMock} from '../../helpers/api-mocks';
 import {testCardFilters} from '../card-filters-factory';
-import {isInvasionRewardShown, updateInvasions} from '../../../src/invasions';
+import {isInvasionRewardShown, updateInvasions} from '../../../src/live/invasions';
 import {isFilterEnabled} from '../../../src/card-filters';
 
 // Test card filter integration

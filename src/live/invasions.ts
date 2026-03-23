@@ -1,7 +1,7 @@
 // Invasion helper functions for calculating progress, sorting, and creating UI elements
 
-import {isFilterEnabled} from './card-filters.js';
-import {addTooltip} from './tooltip.js';
+import {isFilterEnabled} from '../card-filters.js';
+import {addTooltip} from '../tooltip.js';
 
 type InvasionData = {
 	_id: {$oid: string};

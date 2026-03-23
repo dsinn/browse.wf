@@ -11,28 +11,28 @@
  */
 
 /* eslint-disable import-x/no-unassigned-import */
-import './short-timer-badge.js';
-import './bounty-checkboxes.js';
-import './bounty-filters.js';
-import './calendar-seasons-data.js';
-import './calendar-seasons.js';
+import './archimedea/helpers.js';
+import './calendar-seasons/data.js';
+import './calendar-seasons/index.js';
 import './card-filters.js';
-import './checkbox-linking.js';
 import './cloud-sync/auth-init.js';
-import './conquest-helpers.js';
-import './descendia-data.js';
-import './descendia.js';
-import './invasions.js';
+import './descendia/data.js';
+import './descendia/index.js';
+import './helpers/string-helpers.js';
+import './helpers/tileset-helpers.js';
 import './invigorations.js';
+import './live/bounty-checkboxes.js';
+import './live/bounty-filters.js';
 import './live/calendar-seasons.js';
+import './live/checkbox-linking.js';
+import './live/invasions.js';
+import './live/news-mark-read.js';
 import './live/prune-stale-data.js';
 import './live/sync.js';
-import './news-mark-read.js';
 import './profile/stats-filters.js';
 import './profile/syndicate-addons.js';
 import './profile/workflow.js';
 import './public-export-fetcher.js';
-import './string-helpers.js';
-import './tileset-helpers.js';
+import './short-timer-badge.js';
 import './tooltip.js';
 import './warframe-api-proxy-client.js';

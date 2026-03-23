@@ -10,7 +10,7 @@ import {
 import {mockBootstrapTooltip} from '../../helpers/dom-helpers';
 import {freezeTime} from '../../helpers/time-helpers';
 import {MOCK_TIMESTAMP} from '../../helpers/test-constants';
-import {updateBountyCheckboxes} from '../../../src/bounty-checkboxes';
+import {updateBountyCheckboxes} from '../../../src/live/bounty-checkboxes';
 
 const DAY_MS = 86_400_000;
 

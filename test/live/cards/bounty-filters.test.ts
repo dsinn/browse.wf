@@ -13,7 +13,7 @@ import {
 	describe, test, expect, beforeEach, afterEach,
 } from 'vitest';
 import {loadFixture} from '../../helpers/fixture-loader';
-import {initializeBountyFiltersAll, getMinimumTier} from '../../../src/bounty-filters';
+import {initializeBountyFiltersAll, getMinimumTier} from '../../../src/live/bounty-filters';
 
 describe('Bounty Filters', () => {
 	beforeEach(() => {

@@ -588,7 +588,7 @@ async function updateWeeklyLocalised()
 		setDatum("labConquest-header", osdict["/Lotus/Language/Conquest/SolarMapLabConquestNode"], weeklyExpiry);
 		document.getElementById("labConquest-header").innerHTML += " ";
 		document.getElementById("labConquest-header").appendChild(createCompletionToggle("labconquest-" + weeklyExpiry));
-		await (window as any).renderConquestTable(
+		await (window as any).renderArchimedeaTable(
 			document.getElementById("labConquest-body"),
 			labConquest, "CT_LAB", "/Lotus/Language/Conquest/MissionVariant_LabConquest_",
 		);
@@ -599,7 +599,7 @@ async function updateWeeklyLocalised()
 		setDatum("hexConquest-header", osdict["/Lotus/Language/1999Echoes/1999HexConquestNode"], weeklyExpiry);
 		document.getElementById("hexConquest-header").innerHTML += " ";
 		document.getElementById("hexConquest-header").appendChild(createCompletionToggle("hexconquest-" + weeklyExpiry));
-		await (window as any).renderConquestTable(
+		await (window as any).renderArchimedeaTable(
 			document.getElementById("hexConquest-body"),
 			hexConquest, "CT_HEX", "/Lotus/Language/Conquest/MissionVariant_HexConquest_",
 		);

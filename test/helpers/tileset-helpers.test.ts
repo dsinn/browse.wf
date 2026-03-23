@@ -1,6 +1,6 @@
 import {describe, it, expect} from 'vitest';
 import type {IRegion} from 'warframe-public-export-plus';
-import {getTileset, formatTileset} from '../../src/tileset-helpers';
+import {getTileset, formatTileset} from '../../src/helpers/tileset-helpers';
 
 describe('tileset-helpers', () => {
 	describe('getTileset', () => {

@@ -16,10 +16,10 @@ const mockPruneStaleNewsRead = vi.fn();
 vi.mock('../../src/card-filters.js', () => ({
 	refreshFilterStatus: mockRefreshFilterStatus,
 }));
-vi.mock('../../src/bounty-filters.js', () => ({
+vi.mock('../../src/live/bounty-filters.js', () => ({
 	initializeBountyFiltersAll: mockInitializeBountyFiltersAll,
 }));
-vi.mock('../../src/news-mark-read.js', () => ({
+vi.mock('../../src/live/news-mark-read.js', () => ({
 	pruneStaleNewsRead: mockPruneStaleNewsRead,
 }));
 

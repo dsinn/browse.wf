@@ -6,7 +6,7 @@
  * specs, and auras.
  */
 
-import {resolveDescentChallenges} from './descendia-data.js';
+import {resolveDescentChallenges} from './data.js';
 
 type IMongoDate = {
 	$date: {

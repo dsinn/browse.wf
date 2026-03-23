@@ -113,32 +113,24 @@ declare global {
 
 	// ── Fork-exposed globals (src/ modules) ─────────────────────────────────────
 
-	// src/cloud-sync/trigger.ts
-	var triggerCloudSync: (() => void) | undefined;
-	var triggerCloudSyncWithDebounce: (() => void) | undefined;
-	var __getSupabaseAccessToken: (() => Promise<string | undefined>) | undefined;
+	// src/archimedea/helpers.ts
+	var renderArchimedeaTable: ((container: HTMLElement, archimedea: any, archimedeaType: string, variantKeyPrefix: string) => Promise<void>) | undefined;
+	var renderArchimedeaMissions: ((missions: Array<{
+		type: string; variant: string; variantDesc: string | undefined;
+		conditions: Array<{name: string; desc: string | undefined}>;
+	}>) => HTMLTableSectionElement) | undefined;
+	var renderArchimedeaFrameVariables: ((frameVariables: Array<{name: string; desc: string | undefined}>) => HTMLTableRowElement) | undefined;
 
-	// src/short-timer-badge.ts
-	var createShortTimerBadge: ((timestamp: number, expiredLabel: string) => HTMLSpanElement) | undefined;
-	var initializeShortTimerBadges: (() => void) | undefined;
-
-	// src/bounty-checkboxes.ts
-	var updateBountyCheckboxes: (() => void) | undefined;
-
-	// src/bounty-filters.ts
-	var getMinimumTier: ((syndicateTag: string) => number) | undefined;
-	var initializeBountyFiltersAll: (() => void) | undefined;
-
-	// src/calendar-seasons.ts
-	var renderCalendarSeasonPane: (() => Promise<void>) | undefined;
-	var updateCalendarSeason: (() => void) | undefined;
-
-	// src/calendar-seasons-data.ts
+	// src/calendar-seasons/data.ts
 	var SEASON_LABELS: Record<string, string> | undefined;
 	var camelToWords: ((s: string) => string) | undefined;
 	var formatSeasonDay: ((day: number) => string) | undefined;
 	var getSeasonLabel: ((season: string) => string) | undefined;
 	var resolveCalendarSeasonDays: ((...args: any[]) => any[]) | undefined;
+
+	// src/calendar-seasons/index.ts
+	var renderCalendarSeasonPane: (() => Promise<void>) | undefined;
+	var updateCalendarSeason: (() => void) | undefined;
 
 	// src/card-filters.ts
 	var getFilterValue: ((cardName: string, filterType: string, defaultValue: string) => string) | undefined;
@@ -148,30 +140,25 @@ declare global {
 	var redtext: string[] | undefined;
 	var refreshFilterStatus: ((elm: HTMLElement) => void) | undefined;
 
-	// src/checkbox-linking.ts
-	var applyCheckboxLinking: ((element: HTMLElement, nowChecked: boolean) => void) | undefined;
+	// src/cloud-sync/trigger.ts
+	var triggerCloudSync: (() => void) | undefined;
+	var triggerCloudSyncWithDebounce: (() => void) | undefined;
+	var __getSupabaseAccessToken: (() => Promise<string | undefined>) | undefined;
 
-	// src/conquest-helpers.ts
-	var renderConquestTable: ((container: HTMLElement, conquest: any, conquestType: string, variantKeyPrefix: string) => Promise<void>) | undefined;
-	var renderConquestMissions: ((missions: Array<{
-		type: string; variant: string; variantDesc: string | undefined;
-		conditions: Array<{name: string; desc: string | undefined}>;
-	}>) => HTMLTableSectionElement) | undefined;
-	var renderConquestFrameVariables: ((frameVariables: Array<{name: string; desc: string | undefined}>) => HTMLTableRowElement) | undefined;
-
-	// src/descendia.ts
-	var renderDescentChallenges: ((descent: IDescent, dict: Record<string, string>) => HTMLTableSectionElement) | undefined;
-	var updateDescendia: (() => void) | undefined;
-
-	// src/descendia-data.ts
+	// src/descendia/data.ts
 	var ARENA_EMOJI: Record<string, string> | undefined;
 	var resolveDescentChallenges: ((...args: any[]) => any) | undefined;
 
-	// src/invasions.ts
-	var calculatePercentage: ((invasion: IWorldStateInvasion) => number) | undefined;
-	var createInvasionProgressBar: ((invasion: IWorldStateInvasion, percentage: number) => HTMLDivElement) | undefined;
-	var isInvasionRewardShown: ((itemType: string) => boolean) | undefined;
-	var updateInvasions: (() => Promise<void>) | undefined;
+	// src/descendia/index.ts
+	var renderDescentChallenges: ((descent: IDescent, dict: Record<string, string>) => HTMLTableSectionElement) | undefined;
+	var updateDescendia: (() => void) | undefined;
+
+	// src/helpers/string-helpers.ts
+	var pluralize: ((count: number, singular: string, plural?: string) => string) | undefined;
+
+	// src/helpers/tileset-helpers.ts
+	var formatTileset: ((tileset: string | undefined) => string) | undefined;
+	var getTileset: ((node: IRegion) => string | undefined) | undefined;
 
 	// src/invigorations.ts
 	var getWeekIndex: ((timestamp: number) => number) | undefined;
@@ -182,7 +169,23 @@ declare global {
 	var showHistory: ((currentWeek: number, cache: Record<number, any>) => void) | undefined;
 	var showResults: ((response: any, request: any) => void) | undefined;
 
-	// src/news-mark-read.ts
+	// src/live/bounty-checkboxes.ts
+	var updateBountyCheckboxes: (() => void) | undefined;
+
+	// src/live/bounty-filters.ts
+	var getMinimumTier: ((syndicateTag: string) => number) | undefined;
+	var initializeBountyFiltersAll: (() => void) | undefined;
+
+	// src/live/checkbox-linking.ts
+	var applyCheckboxLinking: ((element: HTMLElement, nowChecked: boolean) => void) | undefined;
+
+	// src/live/invasions.ts
+	var calculatePercentage: ((invasion: IWorldStateInvasion) => number) | undefined;
+	var createInvasionProgressBar: ((invasion: IWorldStateInvasion, percentage: number) => HTMLDivElement) | undefined;
+	var isInvasionRewardShown: ((itemType: string) => boolean) | undefined;
+	var updateInvasions: (() => Promise<void>) | undefined;
+
+	// src/live/news-mark-read.ts
 	var generateNewsItemKey: ((item: {id: string; link: string}) => string) | undefined;
 	var initializeMarkAsRead: (() => void) | undefined;
 	var isNewsItemRead: ((key: string) => boolean) | undefined;
@@ -190,19 +193,16 @@ declare global {
 	var markNewsItemAsRead: ((key: string, element: HTMLElement) => void) | undefined;
 	var pruneStaleNewsRead: (() => void) | undefined;
 
-	// src/profile-stats-filters.ts
+	// src/profile/stats-filters.ts
 	var ENEMY_FACTIONS: Array<{tooltip: string; icon: string; factions: string[]}> | undefined;
 	var EQUIPMENT_CATEGORIES: Record<string, {tooltip: string; icon: string; displayText?: string}> | undefined;
 	var getEnemyFactionLabel: ((faction: string) => string | undefined) | undefined;
 	var getEquipmentCategoryLabel: ((productCategory: string) => string | undefined) | undefined;
 	var initStatsFilterBar: ((...args: any[]) => void) | undefined;
 
-	// src/string-helpers.ts
-	var pluralize: ((count: number, singular: string, plural?: string) => string) | undefined;
-
-	// src/tileset-helpers.ts
-	var formatTileset: ((tileset: string | undefined) => string) | undefined;
-	var getTileset: ((node: IRegion) => string | undefined) | undefined;
+	// src/short-timer-badge.ts
+	var createShortTimerBadge: ((timestamp: number, expiredLabel: string) => HTMLSpanElement) | undefined;
+	var initializeShortTimerBadges: (() => void) | undefined;
 
 	// src/warframe-api-proxy-client.ts
 	var WarframeApiFrontProxyClient: {

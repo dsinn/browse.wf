@@ -7,7 +7,7 @@
 import {
 	describe, test, expect, beforeEach, afterEach,
 } from 'vitest';
-import {applyCheckboxLinking} from '../../../src/checkbox-linking';
+import {applyCheckboxLinking} from '../../../src/live/checkbox-linking';
 
 const WEEK_SUFFIX = '99999';
 const EXPIRY_SUFFIX = '88888';

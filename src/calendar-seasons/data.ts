@@ -7,7 +7,7 @@
  *   - src/calendar-seasons-data.mts    (ES module re-export for Node/tests)
  */
 
-import {fetchExport} from './public-export-fetcher.js';
+import {fetchExport} from '../public-export-fetcher.js';
 
 type IResolvedCalendarEvent = {
 	type: string; // E.g. "CET_CHALLENGE", "CET_REWARD", "CET_UPGRADE"

@@ -8,7 +8,7 @@ import {
 } from 'vitest';
 import {mockBootstrapTooltip} from '../helpers/dom-helpers';
 import {loadMock} from '../helpers/api-mocks';
-import {renderDescentChallenges} from '../../src/descendia';
+import {renderDescentChallenges} from '../../src/descendia/index';
 
 beforeEach(() => {
 	// Known arenas render an emoji span with a Bootstrap tooltip.

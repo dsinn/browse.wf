@@ -1,7 +1,7 @@
 import {describe, test, expect} from 'vitest';
 import {loadMock, loadExportJson} from '../../helpers/api-mocks';
 import {getById} from '../../helpers/dom-helpers';
-import {formatTileset} from '../../../src/tileset-helpers';
+import {formatTileset} from '../../../src/helpers/tileset-helpers';
 
 describe('Sortie Card - Data Structure', () => {
 	test('worldState contains sortie with three variants', () => {

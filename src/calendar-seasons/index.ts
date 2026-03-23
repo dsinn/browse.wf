@@ -3,7 +3,7 @@
  * Displays the 1999 in-game calendar days with challenges, rewards, and upgrades.
  */
 
-import {formatSeasonDay, resolveCalendarSeasonDays} from './calendar-seasons-data.js';
+import {formatSeasonDay, resolveCalendarSeasonDays} from './data.js';
 
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function setImageSource(img: HTMLImageElement, path: string): void;

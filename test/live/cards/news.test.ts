@@ -14,7 +14,7 @@ import {getById} from '../../helpers/dom-helpers';
 import {testCardFilters} from '../card-filters-factory';
 import {
 	generateNewsItemKey, isNewsItemRead, markNewsItemAsRead, markAllNewsAsRead, pruneStaleNewsRead, initializeMarkAsRead,
-} from '../../../src/news-mark-read';
+} from '../../../src/live/news-mark-read';
 
 // Test generic card filter integration for News card
 // This verifies: gear icon, accordion, checkboxes, localStorage persistence, auto-expand

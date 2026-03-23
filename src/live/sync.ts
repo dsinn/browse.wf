@@ -6,8 +6,8 @@
  */
 
 import {refreshFilterStatus} from '../card-filters.js';
-import {initializeBountyFiltersAll} from '../bounty-filters.js';
-import {pruneStaleNewsRead} from '../news-mark-read.js';
+import {initializeBountyFiltersAll} from './bounty-filters.js';
+import {pruneStaleNewsRead} from './news-mark-read.js';
 import {pruneStaleOids} from './prune-stale-data.js';
 
 globalThis.addEventListener('cloud-sync-before-push', () => {

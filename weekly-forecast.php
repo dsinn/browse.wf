@@ -30,16 +30,16 @@
 		<div class="card mb-4">
 			<div class="card-header"><h5 class="mb-0">Deep Archimedea</h5></div>
 			<div class="card-body">
-				<ul class="nav nav-tabs mb-3" id="lab-conquest-tabs" role="tablist"></ul>
-				<div class="tab-content" id="lab-conquest-content">Loading...</div>
+				<ul class="nav nav-tabs mb-3" id="deep-archimedea-tabs" role="tablist"></ul>
+				<div class="tab-content" id="deep-archimedea-content">Loading...</div>
 			</div>
 		</div>
 
 		<div class="card mb-4">
 			<div class="card-header"><h5 class="mb-0">Temporal Archimedea</h5></div>
 			<div class="card-body">
-				<ul class="nav nav-tabs mb-3" id="hex-conquest-tabs" role="tablist"></ul>
-				<div class="tab-content" id="hex-conquest-content">Loading...</div>
+				<ul class="nav nav-tabs mb-3" id="temporal-archimedea-tabs" role="tablist"></ul>
+				<div class="tab-content" id="temporal-archimedea-content">Loading...</div>
 			</div>
 		</div>
 

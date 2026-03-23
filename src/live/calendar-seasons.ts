@@ -8,7 +8,7 @@
  */
 
 import {fetchExport} from '../public-export-fetcher.js';
-import {renderCalendarSeasonPane} from '../calendar-seasons.js';
+import {renderCalendarSeasonPane} from '../calendar-seasons/index.js';
 
 declare function createExpiryBadge(expiryMs: number): Node;
 declare function createCompletionToggle(oid: string): Node;

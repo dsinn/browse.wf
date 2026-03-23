@@ -15,7 +15,7 @@
 import {
 	describe, test, expect, beforeAll, beforeEach, afterEach, vi,
 } from 'vitest';
-import {updateDescendia} from '../../../src/descendia';
+import {updateDescendia} from '../../../src/descendia/index';
 import {mockBootstrapTooltip} from '../../helpers/dom-helpers';
 import {loadMock} from '../../helpers/api-mocks';
 import {freezeTime, MOCK_TIMESTAMP} from '../../helpers/time-helpers';

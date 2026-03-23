@@ -6,7 +6,7 @@ async function setupPage(page: Page) {
 	await page.goto('/weekly-forecast.php');
 
 	// Wait for content to be populated by weekly-forecast.ts
-	await page.waitForSelector('#lab-conquest-tabs .nav-link', {timeout: 15_000});
+	await page.waitForSelector('#deep-archimedea-tabs .nav-link', {timeout: 15_000});
 	await page.waitForSelector('#descendia-tabs .nav-link', {timeout: 15_000});
 	await page.waitForSelector('#calendar-season-tabs .nav-link', {state: 'attached', timeout: 15_000});
 }
@@ -35,13 +35,13 @@ test.describe('Weekly Forecast Page', () => {
 		});
 
 		test('Deep Archimedea active pane renders 3 rows', async ({page}) => {
-			const activePane = page.locator('#lab-conquest-content .tab-pane.active');
+			const activePane = page.locator('#deep-archimedea-content .tab-pane.active');
 			await expect(activePane).toBeVisible();
 			await expect(activePane.locator('table:first-of-type tbody tr')).toHaveCount(3);
 		});
 
 		test('Temporal Archimedea active pane renders 3 rows', async ({page}) => {
-			const activePane = page.locator('#hex-conquest-content .tab-pane.active');
+			const activePane = page.locator('#temporal-archimedea-content .tab-pane.active');
 			await expect(activePane).toBeVisible();
 			await expect(activePane.locator('table:first-of-type tbody tr')).toHaveCount(3);
 		});

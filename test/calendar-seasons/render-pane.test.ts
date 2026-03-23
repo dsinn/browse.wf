@@ -7,8 +7,8 @@ import {
 	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {loadMock, loadExportJson} from '../helpers/api-mocks';
-import {renderCalendarSeasonPane} from '../../src/calendar-seasons';
-import {getSeasonLabel} from '../../src/calendar-seasons-data';
+import {renderCalendarSeasonPane} from '../../src/calendar-seasons/index';
+import {getSeasonLabel} from '../../src/calendar-seasons/data';
 import {updateCalendarSeason} from '../../src/live/calendar-seasons';
 
 const worldState = loadMock('worldState.json');

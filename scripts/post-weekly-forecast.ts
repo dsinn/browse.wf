@@ -14,9 +14,9 @@
 
 import process from 'node:process';
 import {dict_en as dictEn} from 'warframe-public-export-plus';
-import {resolveCalendarSeasonDays, getSeasonLabel} from '../src/calendar-seasons-data.js';
-import {resolveDescentChallenges} from '../src/descendia-data.js';
-import {resolveConquest} from '../src/archimedea-data.js';
+import {resolveCalendarSeasonDays, getSeasonLabel} from '../src/calendar-seasons/data.js';
+import {resolveDescentChallenges} from '../src/descendia/data.js';
+import {resolveArchimedea} from '../src/archimedea/data.js';
 import osdict from '../test/__mocks__/dicts/en.json' with {type: 'json'};
 
 type AnyRecord = Record<string, any>;
@@ -86,16 +86,16 @@ export function escapeMarkdown(s: string) {
 	return s.replaceAll(/(?=[*_~`|>[\\\]])/gu, '\\');
 }
 
-// Conquest (Deep / Temporal Archimedea)
+// Deep / Temporal Archimedea
 
-export async function formatConquest(worldState: AnyRecord, conquestType: string, variantKeyPrefix: string, sectionTitle: string, find = findWeekly, showTimestamp = false) {
-	const conquests = (worldState.Conquests ?? []).filter((c: AnyRecord) => c.Type === conquestType);
-	const next = find(conquests);
+export async function formatArchimedea(worldState: AnyRecord, archimedeaType: string, variantKeyPrefix: string, sectionTitle: string, find = findWeekly, showTimestamp = false) {
+	const archimedeas = (worldState.Conquests ?? []).filter((c: AnyRecord) => c.Type === archimedeaType);
+	const next = find(archimedeas);
 	if (!next) {
 		return null;
 	}
 
-	const {missions, frameVariables} = await resolveConquest(next, conquestType, variantKeyPrefix, osdict, dictEn);
+	const {missions, frameVariables} = await resolveArchimedea(next, archimedeaType, variantKeyPrefix, osdict, dictEn);
 
 	const heading = showTimestamp
 		? `## ${sectionTitle} ${discordTimestamp(mongoMs(next.Activation))}`
@@ -287,10 +287,10 @@ async function buildSections(worldState: AnyRecord, entries: Record<string, AnyR
 			? formatCalendarSeason(worldState, findResolved('1999 Calendar'), showTimestamp)
 			: null,
 		entries['Deep Archimedea']
-			? formatConquest(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', findResolved('Deep Archimedea'), showTimestamp)
+			? formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', findResolved('Deep Archimedea'), showTimestamp)
 			: null,
 		entries['Temporal Archimedea']
-			? formatConquest(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea', findResolved('Temporal Archimedea'), showTimestamp)
+			? formatArchimedea(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea', findResolved('Temporal Archimedea'), showTimestamp)
 			: null,
 	]);
 

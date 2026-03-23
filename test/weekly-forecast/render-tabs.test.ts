@@ -1,6 +1,6 @@
 /**
  * Integration tests for the async tab-rendering functions in src/weekly-forecast.ts:
- *   - renderConquestTabs  (via initWeeklyForecast with CT_LAB / CT_HEX data)
+ *   - renderArchimedeaTabs  (via initWeeklyForecast with CT_LAB / CT_HEX data)
  *   - renderDescentTabs   (via initWeeklyForecast with Descents data)
  *   - renderCalendarSeasonTabs (via initWeeklyForecast with KnownCalendarSeasons data)
  *   - initWeeklyMissionsNotice
@@ -54,11 +54,11 @@ function buildDom() {
 	document.body.innerHTML = `
 		<div id="weekly-missions-timer"></div>
 
-		<ul id="lab-conquest-tabs" class="nav nav-tabs"></ul>
-		<div id="lab-conquest-content" class="tab-content"></div>
+		<ul id="deep-archimedea-tabs" class="nav nav-tabs"></ul>
+		<div id="deep-archimedea-content" class="tab-content"></div>
 
-		<ul id="hex-conquest-tabs" class="nav nav-tabs"></ul>
-		<div id="hex-conquest-content" class="tab-content"></div>
+		<ul id="temporal-archimedea-tabs" class="nav nav-tabs"></ul>
+		<div id="temporal-archimedea-content" class="tab-content"></div>
 
 		<ul id="descendia-tabs" class="nav nav-tabs"></ul>
 		<div id="descendia-content" class="tab-content"></div>
@@ -119,28 +119,28 @@ describe('initWeeklyMissionsNotice', () => {
 	});
 });
 
-describe('renderConquestTabs — CT_LAB (Deep Archimedea)', () => {
+describe('renderArchimedeaTabs — CT_LAB (Deep Archimedea)', () => {
 	beforeEach(async () => {
 		await setup({Conquests: worldState.Conquests.filter((c: any) => c.Type === 'CT_LAB')});
 	});
 
-	test('renders at least one nav tab in #lab-conquest-tabs', () => {
-		const tabs = document.querySelectorAll('#lab-conquest-tabs .nav-item');
+	test('renders at least one nav tab in #deep-archimedea-tabs', () => {
+		const tabs = document.querySelectorAll('#deep-archimedea-tabs .nav-item');
 		expect(tabs.length).toBeGreaterThan(0);
 	});
 
-	test('renders a corresponding tab pane in #lab-conquest-content', () => {
-		const panes = document.querySelectorAll('#lab-conquest-content .tab-pane');
+	test('renders a corresponding tab pane in #deep-archimedea-content', () => {
+		const panes = document.querySelectorAll('#deep-archimedea-content .tab-pane');
 		expect(panes.length).toBeGreaterThan(0);
 	});
 
 	test('first tab is marked active', () => {
-		const activeBtn = document.querySelector('#lab-conquest-tabs .nav-link.active');
+		const activeBtn = document.querySelector('#deep-archimedea-tabs .nav-link.active');
 		expect(activeBtn).not.toBeNull();
 	});
 
 	test('each tab pane contains a missions table', () => {
-		const panes = document.querySelectorAll('#lab-conquest-content .tab-pane');
+		const panes = document.querySelectorAll('#deep-archimedea-content .tab-pane');
 		for (const pane of panes) {
 			expect(pane.querySelector('table')).not.toBeNull();
 		}
@@ -151,29 +151,29 @@ describe('renderConquestTabs — CT_LAB (Deep Archimedea)', () => {
 		clearDom();
 		buildDom();
 		await initWeeklyForecast();
-		const tabs = document.querySelectorAll('#lab-conquest-tabs .nav-item');
+		const tabs = document.querySelectorAll('#deep-archimedea-tabs .nav-item');
 		expect(tabs.length).toBe(0);
 	});
 
-	test('does not render tabs when #lab-conquest-tabs is absent', async () => {
-		document.querySelector('#lab-conquest-tabs')!.remove();
-		document.querySelector('#lab-conquest-content')!.remove();
+	test('does not render tabs when #deep-archimedea-tabs is absent', async () => {
+		document.querySelector('#deep-archimedea-tabs')!.remove();
+		document.querySelector('#deep-archimedea-content')!.remove();
 		await expect(initWeeklyForecast()).resolves.not.toThrow();
 	});
 });
 
-describe('renderConquestTabs — CT_HEX (Temporal Archimedea)', () => {
+describe('renderArchimedeaTabs — CT_HEX (Temporal Archimedea)', () => {
 	beforeEach(async () => {
 		await setup({Conquests: worldState.Conquests.filter((c: any) => c.Type === 'CT_HEX')});
 	});
 
-	test('renders at least one nav tab in #hex-conquest-tabs', () => {
-		const tabs = document.querySelectorAll('#hex-conquest-tabs .nav-item');
+	test('renders at least one nav tab in #temporal-archimedea-tabs', () => {
+		const tabs = document.querySelectorAll('#temporal-archimedea-tabs .nav-item');
 		expect(tabs.length).toBeGreaterThan(0);
 	});
 
-	test('renders a corresponding tab pane in #hex-conquest-content', () => {
-		const panes = document.querySelectorAll('#hex-conquest-content .tab-pane');
+	test('renders a corresponding tab pane in #temporal-archimedea-content', () => {
+		const panes = document.querySelectorAll('#temporal-archimedea-content .tab-pane');
 		expect(panes.length).toBeGreaterThan(0);
 	});
 });

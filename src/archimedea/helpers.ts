@@ -2,10 +2,10 @@
  * DOM rendering helpers for Deep Archimedea (CT_LAB) and Temporal Archimedea (CT_HEX).
  *
  * Data resolution (text lookups, tag remapping, difficulty selection) is handled by
- * archimedea-data.ts. This module is responsible only for turning resolved data into DOM.
+ * archimedea/data.ts. This module is responsible only for turning resolved data into DOM.
  */
 
-import {resolveConquest, type IResolvedConquestMission, type IResolvedFrameVariable} from './archimedea-data.js';
+import {resolveArchimedea, type IResolvedArchimedeaMission, type IResolvedFrameVariable} from './data.js';
 
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
@@ -26,7 +26,7 @@ function tooltipElement(name: string, desc: string | undefined): HTMLElement | T
 /**
  * Renders a missions tbody from pre-resolved mission data.
  */
-export function renderConquestMissions(missions: IResolvedConquestMission[]): HTMLTableSectionElement {
+export function renderArchimedeaMissions(missions: IResolvedArchimedeaMission[]): HTMLTableSectionElement {
 	const tbody = document.createElement('tbody');
 	for (const mission of missions) {
 		const tr = document.createElement('tr');
@@ -54,7 +54,7 @@ export function renderConquestMissions(missions: IResolvedConquestMission[]): HT
 /**
  * Renders a frame variables row from pre-resolved frame variable data.
  */
-export function renderConquestFrameVariables(frameVariables: IResolvedFrameVariable[]): HTMLTableRowElement {
+export function renderArchimedeaFrameVariables(frameVariables: IResolvedFrameVariable[]): HTMLTableRowElement {
 	const tr = document.createElement('tr');
 	for (const fv of frameVariables) {
 		const td = document.createElement('td');
@@ -66,22 +66,22 @@ export function renderConquestFrameVariables(frameVariables: IResolvedFrameVaria
 }
 
 /**
- * Renders conquest missions and frame variables as two tables into a container.
+ * Renders Archimedea missions and frame variables as two tables into a container.
  * Clears the container first, disposing any existing Bootstrap tooltips.
  *
  * @param container        Element to render into
- * @param conquest         The raw conquest object from worldState.Conquests[]
- * @param conquestType     "CT_LAB" or "CT_HEX"
+ * @param archimedea       The raw Archimedea object from worldState.Conquests[]
+ * @param archimedeaType   "CT_LAB" or "CT_HEX"
  * @param variantKeyPrefix e.g. "/Lotus/Language/Conquest/MissionVariant_LabConquest_"
  */
-export async function renderConquestTable(
+export async function renderArchimedeaTable(
 	container: HTMLElement,
-	conquest: any,
-	conquestType: string,
+	archimedea: any,
+	archimedeaType: string,
 	variantKeyPrefix: string,
 ): Promise<void> {
 	const [dict, osdict] = await Promise.all([getDictPromise(), getOSDictPromise()]);
-	const {missions, frameVariables} = await resolveConquest(conquest, conquestType, variantKeyPrefix, osdict, dict);
+	const {missions, frameVariables} = await resolveArchimedea(archimedea, archimedeaType, variantKeyPrefix, osdict, dict);
 
 	for (const x of container.querySelectorAll('[data-bs-toggle=tooltip]')) {
 		globalThis.bootstrap.Tooltip.getInstance(x)?.dispose();
@@ -91,16 +91,16 @@ export async function renderConquestTable(
 
 	const missionsTable = document.createElement('table');
 	missionsTable.className = 'table table-sm table-borderless table-hover mb-2';
-	missionsTable.append(renderConquestMissions(missions));
+	missionsTable.append(renderArchimedeaMissions(missions));
 	container.append(missionsTable);
 
 	const fvTable = document.createElement('table');
 	fvTable.className = 'table table-sm table-borderless mb-0';
-	fvTable.append(renderConquestFrameVariables(frameVariables));
+	fvTable.append(renderArchimedeaFrameVariables(frameVariables));
 	container.append(fvTable);
 }
 
 // Expose globally for use by live.ts and other non-module scripts
-(globalThis as any).renderConquestTable = renderConquestTable;
-(globalThis as any).renderConquestMissions = renderConquestMissions;
-(globalThis as any).renderConquestFrameVariables = renderConquestFrameVariables;
+(globalThis as any).renderArchimedeaTable = renderArchimedeaTable;
+(globalThis as any).renderArchimedeaMissions = renderArchimedeaMissions;
+(globalThis as any).renderArchimedeaFrameVariables = renderArchimedeaFrameVariables;

@@ -684,6 +684,7 @@ function initWorldStateCards(): void
 {
 	updateDayNightCycle();
 	updateSorties();
+	updateArchonHunt();
 	updateDarvosDeal();
 	updateBaro();
 	(window as any).updateWeekly();
@@ -758,9 +759,19 @@ async function updateSorties()
 	}
 	window.last_sortie = sortie._id.$oid;
 	setTimeout(updateSorties, parseInt(sortie.Expiry.$date.$numberLong) - Date.now());
+}
+
+async function updateArchonHunt()
+{
+	await dicts_promise;
+	await ExportMissionTypes_promise;
 
 	const litesortie = window.worldState.LiteSorties.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
-	if (!litesortie) return;
+	if (!litesortie)
+	{
+		setTimeout(updateArchonHunt, STALE_DATA_RETRY_MS);
+		return;
+	}
 	setDatum("litesortie-header", osdict["/Lotus/Language/WorldStateWindow/LiteSortieMissionName"], parseInt(litesortie.Expiry.$date.$numberLong));
 	document.getElementById("litesortie-header").innerHTML += " ";
 	document.getElementById("litesortie-header").appendChild(createCompletionToggle(litesortie._id.$oid));
@@ -775,6 +786,7 @@ async function updateSorties()
 	document.getElementById("litesortie-body").innerHTML = "";
 	document.getElementById("litesortie-body").appendChild(span);
 	document.getElementById("litesortie-body").innerHTML += " • " + mission_names.join(", ");
+	setTimeout(updateArchonHunt, parseInt(litesortie.Expiry.$date.$numberLong) - Date.now());
 }
 
 async function updateDarvosDeal()

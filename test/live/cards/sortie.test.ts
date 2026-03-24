@@ -1,63 +1,50 @@
-import {describe, test, expect} from 'vitest';
-import {loadMock, loadExportJson} from '../../helpers/api-mocks';
-import {getById} from '../../helpers/dom-helpers';
-import {formatTileset} from '../../../src/helpers/tileset-helpers';
+import {
+	describe, test, expect, beforeEach, afterEach, vi,
+} from 'vitest';
+import {appendSortieLocation} from '../../../src/live/sortie';
 
-describe('Sortie Card - Data Structure', () => {
-	test('worldState contains sortie with three variants', () => {
-		const worldState = loadMock('worldState.json');
-		expect(Array.isArray(worldState.Sorties)).toBe(true);
-		expect(worldState.Sorties.length).toBeGreaterThan(0);
-
-		const sortie = worldState.Sorties[0];
-		expect(Array.isArray(sortie.Variants)).toBe(true);
-		expect(sortie.Variants.length).toBe(3);
-	});
-
-	test('each sortie variant has missionType, modifierType, node, and tileset', () => {
-		const {Sorties} = loadMock('worldState.json');
-		for (const variant of Sorties[0].Variants) {
-			expect(variant).toHaveProperty('missionType');
-			expect(variant).toHaveProperty('modifierType');
-			expect(variant).toHaveProperty('node');
-			expect(variant).toHaveProperty('tileset');
-		}
-	});
-
-	test('sortie nodes exist in ExportRegions', () => {
-		const {Sorties} = loadMock('worldState.json');
-		const regions = loadExportJson('ExportRegions.json');
-		for (const variant of Sorties[0].Variants) {
-			expect(regions[variant.node], `Node ${variant.node} should exist in ExportRegions`).toBeTruthy();
-		}
-	});
-});
-
-describe('Sortie Card - DOM Structure', () => {
-	test('sortie table element exists in fixture', () => {
-		const table = getById('sortie-table');
-		expect(table).toBeTruthy();
-		expect(table.tagName).toBe('TABLE');
-	});
-
-	test('sortie header element exists in fixture', () => {
-		const header = getById('sortie-header');
-		expect(header).toBeTruthy();
-	});
-});
-
-describe('Sortie Card - Tileset Tooltip Values', () => {
-	// Matches worldState.json sortie data (validated in data structure tests)
-	// SolNode301: OrokinMoonTilesetGrineer, SolNode122: GrineerOceanTileset, SolNode32: GrineerGalleonTileset
-	const VARIANTS = [
-		{node: 'SolNode301', tileset: 'OrokinMoonTilesetGrineer', expectedTooltip: 'Orokin Moon Grineer'},
-		{node: 'SolNode122', tileset: 'GrineerOceanTileset', expectedTooltip: 'Grineer Ocean'},
-		{node: 'SolNode32', tileset: 'GrineerGalleonTileset', expectedTooltip: 'Grineer Galleon'},
-	];
-
-	for (const {node, tileset, expectedTooltip} of VARIANTS) {
-		test(`${node} (${tileset}) formats to "${expectedTooltip}"`, () => {
-			expect(formatTileset(tileset)).toBe(expectedTooltip);
+describe('appendSortieLocation', () => {
+	beforeEach(() => {
+		(globalThis as any).dict = {
+			'/Lotus/Language/Locations/Mercury': 'Mercury',
+			'/Lotus/Language/Locations/SolarSystem': 'Inner Terminus',
+		};
+		(globalThis as any).addTooltip = vi.fn((elm: HTMLElement, title: string) => {
+			elm.dataset.bsTitle = title;
 		});
+		(globalThis as any).formatTileset = vi.fn((tileset: string) => `${tileset} Formatted`);
+	});
+
+	afterEach(() => {
+		delete (globalThis as any).dict;
+		delete (globalThis as any).addTooltip;
+		delete (globalThis as any).formatTileset;
+	});
+
+	function makeNode() {
+		return {
+			name: '/Lotus/Language/Locations/Mercury',
+			systemName: '/Lotus/Language/Locations/SolarSystem',
+		};
 	}
+
+	test('appends a <br> followed by an <abbr> to the td', () => {
+		const td = document.createElement('td');
+		appendSortieLocation(td, makeNode(), 'SomeTileset');
+		expect(td.querySelector('br')).toBeTruthy();
+		expect(td.querySelector('abbr')).toBeTruthy();
+	});
+
+	test('abbr text is "NodeName, SystemName"', () => {
+		const td = document.createElement('td');
+		appendSortieLocation(td, makeNode(), 'SomeTileset');
+		expect(td.querySelector('abbr')!.textContent).toBe('Mercury, Inner Terminus');
+	});
+
+	test('tileset is passed to formatTileset and set as tooltip', () => {
+		const td = document.createElement('td');
+		appendSortieLocation(td, makeNode(), 'GrineerGalleonTileset');
+		expect((globalThis as any).formatTileset).toHaveBeenCalledWith('GrineerGalleonTileset');
+		expect(td.querySelector('abbr')!.dataset.bsTitle).toBe('GrineerGalleonTileset Formatted');
+	});
 });

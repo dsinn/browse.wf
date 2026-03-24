@@ -210,9 +210,6 @@ const ExportBoosters_promise = fetchExport("ExportBoosters");
 
 let latestRenderedNewsTime = 0;
 let renderedAlertOids: Set<string> | undefined;
-let latestRenderedFissureTime = 0;
-let fissuresScheduledExpiries = new Set<number>();
-let weeklyExpiry = 0;
 let renderedGoals = "";
 
 dict_promise.then(dict => { (window as any).dict = dict; });
@@ -388,14 +385,7 @@ function updateBountyCycleLocalised()
 			}
 			if (window.bountyCycle.bounties[syndicateTag][i].ally)
 			{
-				const allyName = allyNames[window.bountyCycle.bounties[syndicateTag][i].ally];
-				const allyCell = rows[i].querySelector(".ally");
-				const allyImg = document.createElement("img");
-				allyImg.className = "ally-icon";
-				setImageSource(allyImg, `/Lotus/Interface/Icons/Player/${allyName}PixelGlyph.png`);
-				addTooltip(allyImg, allyName);
-				allyCell.innerHTML = "";
-				allyCell.appendChild(allyImg);
+				(window as any).renderAllyIcon(allyNames[window.bountyCycle.bounties[syndicateTag][i].ally], rows[i].querySelector(".ally"));
 			}
 			const challenge = ExportChallenges[window.bountyCycle.bounties[syndicateTag][i].challenge];
 			const span = document.createElement("span");
@@ -406,18 +396,7 @@ function updateBountyCycleLocalised()
 			rows[i].querySelector(".challenge").appendChild(span);
 		}
 
-		// Apply tier filters (mutate in place to minimize upstream changes)
-		if ((window as any).getMinimumTier)
-		{
-			const minTier = (window as any).getMinimumTier(syndicateTag);
-			const heading = document.getElementById(syndicateTag + "-name");
-			heading?.classList.toggle("d-none", minTier < 1);
-			for (let i = 0; i < rows.length; ++i)
-			{
-				const tier = i + 1; // Tier 1 is index 0, Tier 2 is index 1, etc.
-				rows[i].classList.toggle("d-none", minTier < 1 || tier < minTier);
-			}
-		}
+		(window as any).applyBountyTierFilter(syndicateTag, rows);
 	}
 }
 
@@ -492,80 +471,13 @@ function updateArby()
 	setTimeout(updateArby, window.arby_expiry - Date.now());
 }
 
-async function updateIncursionsLocalised()
-{
-	// dicts are guaranteed available here
-	await ExportFactions_promise;
-
-	setDatum("incursions-header", toTitleCase(osdict["/Lotus/Language/Labels/SteelPathDailies"]), window.incursions_expiry);
-
-	const elms = document.querySelectorAll("#incursions-body span.d-block");
-	let visibleCount = 0;
-	for (let i = 0; i != elms.length; ++i)
-	{
-		const node = ExportRegions[window.incursions_today[i]];
-
-		// Normalize mission type for filtering (MT_INTEL and MT_SPY both represent "Spy" to players)
-		let canonicalMissionType = node.missionType;
-		if (canonicalMissionType === "MT_INTEL")
-		{
-			canonicalMissionType = "MT_SPY" as TMissionType;
-		}
-
-		// Check if this mission type should be displayed (filter check)
-		const isVisible = isFilterEnabled("incursions", canonicalMissionType);
-
-		if (isVisible)
-		{
-			(elms[i] as HTMLElement).classList.remove('d-none');
-			elms[i].innerHTML = "";
-			const b = document.createElement("b");
-			b.textContent = toTitleCase(dict[node.missionName]);
-			if (node.systemIndex != 21)
-			{
-				b.textContent += " - " + toTitleCase(dict[ExportFactions[node.faction].name]);
-			}
-			elms[i].appendChild(b);
-			elms[i].appendChild(document.createTextNode(` (${100 + node.minEnemyLevel}-${100 + node.maxEnemyLevel}) @ `));
-			const locationAbbr = document.createElement("abbr");
-			locationAbbr.textContent = `${dict[node.name]}, ${dict[node.systemName]}`;
-			const incursionTileset = (window as any).getTileset(node);
-			const formattedIncursionTileset = (window as any).formatTileset(incursionTileset);
-			if (formattedIncursionTileset)
-			{
-				addTooltip(locationAbbr, formattedIncursionTileset);
-			}
-			elms[i].appendChild(locationAbbr);
-			visibleCount++;
-		}
-		else
-		{
-			(elms[i] as HTMLElement).classList.add('d-none');
-		}
-	}
-
-	// Show/hide empty message based on whether any items are visible
-	const emptyMessage = document.getElementById("incursions-empty-message");
-	if (emptyMessage)
-	{
-		if (visibleCount === 0)
-		{
-			emptyMessage.classList.remove('d-none');
-		}
-		else
-		{
-			emptyMessage.classList.add('d-none');
-		}
-	}
-}
-
 function updateIncursions()
 {
 	const today = Math.trunc(Date.now() / 86400000) * 86400;
 	const epochDay = window.incursions[0][0];
 	window.incursions_today = window.incursions[(today - epochDay) / 86400][1].split(",");
 	window.incursions_expiry = (today + 86400) * 1000;
-	updateIncursionsLocalised();
+	void (window as any).updateIncursionsLocalised();
 	setTimeout(updateIncursions, window.incursions_expiry - Date.now());
 }
 
@@ -576,91 +488,6 @@ function addTooltip(elm: HTMLElement, title: string): any
 	return new window.bootstrap.Tooltip(elm);
 }
 
-async function updateWeeklyLocalised()
-{
-	const labConquest = window.worldState.Conquests.find((c: any) => c.Type === "CT_LAB");
-	const hexConquest = window.worldState.Conquests.find((c: any) => c.Type === "CT_HEX");
-
-	const osdict = await getOSDictPromise();
-
-	if (labConquest)
-	{
-		setDatum("labConquest-header", osdict["/Lotus/Language/Conquest/SolarMapLabConquestNode"], weeklyExpiry);
-		document.getElementById("labConquest-header").innerHTML += " ";
-		document.getElementById("labConquest-header").appendChild(createCompletionToggle("labconquest-" + weeklyExpiry));
-		await (window as any).renderArchimedeaTable(
-			document.getElementById("labConquest-body"),
-			labConquest, "CT_LAB", "/Lotus/Language/Conquest/MissionVariant_LabConquest_",
-		);
-	}
-
-	if (hexConquest)
-	{
-		setDatum("hexConquest-header", osdict["/Lotus/Language/1999Echoes/1999HexConquestNode"], weeklyExpiry);
-		document.getElementById("hexConquest-header").innerHTML += " ";
-		document.getElementById("hexConquest-header").appendChild(createCompletionToggle("hexconquest-" + weeklyExpiry));
-		await (window as any).renderArchimedeaTable(
-			document.getElementById("hexConquest-body"),
-			hexConquest, "CT_HEX", "/Lotus/Language/Conquest/MissionVariant_HexConquest_",
-		);
-	}
-}
-
-function updateWeekly()
-{
-	// worldState must be available before calling this
-	if (!window.worldState?.Conquests) {
-		console.error("worldState.Conquests not available for updateWeekly");
-		setTimeout(updateWeekly, STALE_DATA_RETRY_MS);
-		return;
-	}
-
-	Promise.all([dicts_promise, ExportMissionTypes_promise]).then(() =>
-	{
-		const labConquest = window.worldState.Conquests.find((c: any) => c.Type === "CT_LAB");
-		const hexConquest = window.worldState.Conquests.find((c: any) => c.Type === "CT_HEX");
-
-		let newWeeklyExpiry: number;
-		if (labConquest) {
-			newWeeklyExpiry = parseInt(labConquest.Expiry.$date.$numberLong);
-		} else if (hexConquest) {
-			newWeeklyExpiry = parseInt(hexConquest.Expiry.$date.$numberLong);
-		} else {
-			const EPOCH = 1736121600 * 1000;
-			const week = Math.trunc((Date.now() - EPOCH) / 604800000);
-			newWeeklyExpiry = EPOCH + (week + 1) * 604800000;
-		}
-
-		// Skip re-render if we're still in the same week
-		if (newWeeklyExpiry <= Date.now()) {
-			setTimeout(updateWeekly, STALE_DATA_RETRY_MS);
-			return;
-		}
-
-		// New week detected: notify before updating
-		if (weeklyExpiry)
-		{
-			const weekly_notifications_subscribed_to = [];
-			if (localStorage.getItem("live.notif.litesortie"))  weekly_notifications_subscribed_to.push("Archon Hunt");
-			if (localStorage.getItem("live.notif.teshin"))      weekly_notifications_subscribed_to.push("Vendors");
-			if (localStorage.getItem("live.notif.circuit"))     weekly_notifications_subscribed_to.push("Weekly Missions");
-			if (localStorage.getItem("live.notif.labconquest")) weekly_notifications_subscribed_to.push("Deep Archimedea");
-			if (localStorage.getItem("live.notif.hexconquest")) weekly_notifications_subscribed_to.push("Temporal Archimedea");
-			if (weekly_notifications_subscribed_to.length != 0)
-			{
-				sendNotification("It's a new week. " + weekly_notifications_subscribed_to.join(", ") + " refreshed.");
-			}
-		}
-
-		weeklyExpiry = newWeeklyExpiry;
-		updateWeeklyLocalised();
-		setTimeout(updateWeekly, newWeeklyExpiry - Date.now());
-	}).catch(e =>
-	{
-		console.error(e);
-		setTimeout(updateWeekly, STALE_DATA_RETRY_MS);
-	});
-}
 
 function updateNewsTicker(forceRender = false)
 {
@@ -840,7 +667,7 @@ function updateWorldStateLocalised()
 	updateNewsTicker();
 	updateAlerts();
 	updateGoals();
-	updateFissures();
+	void (window as any).updateFissures();
 	updateInvasions();
 }
 
@@ -859,7 +686,7 @@ function initWorldStateCards(): void
 	updateSorties();
 	updateDarvosDeal();
 	updateBaro();
-	updateWeekly();
+	(window as any).updateWeekly();
 	updateCalendarSeason();
 	updateDescendia();
 }
@@ -918,14 +745,7 @@ async function updateSorties()
 		const td = document.createElement("td");
 		td.textContent = sortieModifiers[variant.modifierType];
 
-		// Location and tileset
-		td.appendChild(document.createElement("br"));
-		const node = ExportRegions[variant.node];
-		const locationElem = document.createElement("abbr");
-		locationElem.textContent = `${dict[node.name]}, ${dict[node.systemName]}`;
-		const formattedTileset = (window as any).formatTileset(variant.tileset);
-		addTooltip(locationElem, formattedTileset);
-		td.appendChild(locationElem);
+		(window as any).appendSortieLocation(td, ExportRegions[variant.node], variant.tileset);
 
 		tr.appendChild(td);
 		tbody.appendChild(tr);
@@ -1252,27 +1072,7 @@ function updateCircuitLocalised()
 	document.getElementById("circuit-frames").textContent = [...frameChoices[week % frameChoices.length]].map(x => dict[x]).join(" · ") + " ";
 	document.getElementById("circuit-weapons").textContent = [...weaponChoices[week % weaponChoices.length]].map(x => dict[x]).join(" · ") + " ";
 
-	// Apply weekly missions filters (hide/show entries based on checkbox state)
-	const weeklyMissionsCard = document.querySelector('[data-collapse-toggle="weekly-missions"]')?.closest('.card');
-	if (weeklyMissionsCard) {
-		const entries = weeklyMissionsCard.querySelectorAll('[data-mission]');
-		let visibleCount = 0;
-
-		for (const entry of entries) {
-			const mission = (entry as HTMLElement).getAttribute('data-mission');
-			const isVisible = isFilterEnabled('weekly-missions', mission);
-			(entry as HTMLElement).style.display = isVisible ? '' : 'none';
-			if (isVisible) {
-				visibleCount++;
-			}
-		}
-
-		// Toggle empty state message (show when no missions visible)
-		const emptyMessage = document.getElementById('weekly-missions-empty-state');
-		if (emptyMessage) {
-			emptyMessage.classList.toggle('d-none', visibleCount > 0);
-		}
-	}
+	(window as any).filterWeeklyMissions();
 }
 
 function updateCircuit()
@@ -1393,11 +1193,7 @@ function toggleOidCompletion(oid: string): void
 		arr.push(oid);
 	}
 	localStorage.setItem("oids_completed", JSON.stringify(arr));
-	// Trigger cloud sync if available
-	if ((window as any).triggerCloudSyncWithDebounce)
-	{
-		(window as any).triggerCloudSyncWithDebounce();
-	}
+	(window as any).triggerCloudSyncWithDebounce();
 }
 
 function createCompletionToggle(oid: string): HTMLAnchorElement
@@ -1410,7 +1206,7 @@ function createCompletionToggle(oid: string): HTMLAnchorElement
 	a.onclick = function()
 	{
 		const newCompletedState = !isOidMarkedAsCompleted(oid);
-		setCompletionToggle(a, newCompletedState);
+		(window as any).setCompletionToggle(a, newCompletedState);
 		(window as any).applyCheckboxLinking(a, newCompletedState);
 	};
 	return a;
@@ -1426,191 +1222,6 @@ const fissureTiers = {
 	VoidT6: "Omnia",
 };
 
-async function updateFissures(forceRender = false)
-{
-	await dict_promise;
-	await ExportRegions_promise;
-	await ExportFactions_promise;
-
-	// Skip re-render if no new mission has entered the set
-	// (expiry-based re-renders handle removals; we only need to catch additions here)
-	const now = Date.now();
-	const maxActivation = [...window.worldState.ActiveMissions, ...window.worldState.VoidStorms]
-		.reduce((max, f) => {
-			const activation = parseInt(f.Activation.$date.$numberLong);
-			return activation <= now && now < parseInt(f.Expiry.$date.$numberLong) ? Math.max(max, activation) : max;
-		}, 0);
-	if (!forceRender && maxActivation === latestRenderedFissureTime) return;
-	latestRenderedFissureTime = maxActivation;
-
-	const fissures = [];
-	for (const fissure of window.worldState.ActiveMissions)
-	{
-		fissures.push({
-			Category: fissure.Hard ? "sp-fissures" : "fissures",
-			Hard: fissure.Hard,
-			Activation: fissure.Activation,
-			Expiry: fissure.Expiry,
-			Node: fissure.Node,
-			Modifier: fissure.Modifier,
-		});
-	}
-	for (const fissure of window.worldState.VoidStorms)
-	{
-		fissures.push({
-			Category: "rj-fissures",
-			Hard: false,
-			Activation: fissure.Activation,
-			Expiry: fissure.Expiry,
-			Node: fissure.Node,
-			Modifier: fissure.ActiveMissionTier,
-		});
-	}
-	// Sort by tier first, then by expiry within each tier
-	fissures.sort((a, b) => {
-		const tierDiff = a.Modifier.charCodeAt(5) - b.Modifier.charCodeAt(5);
-		if (tierDiff !== 0) return tierDiff;
-		return parseInt(a.Expiry.$date.$numberLong) - parseInt(b.Expiry.$date.$numberLong);
-	});
-
-	const tbody = {
-		"fissures": document.createElement("tbody"),
-		"sp-fissures": document.createElement("tbody"),
-		"rj-fissures": document.createElement("tbody"),
-	}
-	// Track which tier headings have been rendered for each category
-	const renderedTierHeadings = {
-		"fissures": new Set<string>(),
-		"sp-fissures": new Set<string>(),
-		"rj-fissures": new Set<string>(),
-	}
-
-	// Schedule re-render when each active fissure expires
-	const activeFissureExpiries = new Set(
-		fissures
-			.filter(f => Date.now() >= parseInt(f.Activation.$date.$numberLong) && Date.now() < parseInt(f.Expiry.$date.$numberLong))
-			.map(f => parseInt(f.Expiry.$date.$numberLong))
-	);
-	for (const expiry of activeFissureExpiries) {
-		if (!fissuresScheduledExpiries.has(expiry)) {
-			fissuresScheduledExpiries.add(expiry);
-			setTimeout(function() {
-				fissuresScheduledExpiries.delete(expiry);
-				updateFissures();
-			}, Math.max(0, expiry - Date.now()));
-		}
-	}
-
-	for (const fissure of fissures)
-	{
-		if (Date.now() < fissure.Activation.$date.$numberLong)
-		{
-			// not yet active; expiry-based re-render will handle it when worldState refreshes
-		}
-		else if (Date.now() < fissure.Expiry.$date.$numberLong)
-		{
-			const node = ExportRegions[fissure.Node];
-
-			// Check filters early - skip rendering if filtered out
-			const tier = fissure.Modifier; // VoidT1 = Lith, VoidT2 = Meso, etc.
-			const cardName = fissure.Category; // "fissures", "sp-fissures", or "rj-fissures"
-			// Railjack missions use node.missionName (strip prefix for cleaner localStorage keys)
-			const missionType = cardName === "rj-fissures"
-				? node.missionName.replace("/Lotus/Language/Missions/MissionName_", "")
-				: node.missionType;
-
-			// Normalize mission type for filtering (MT_INTEL and MT_SPY both represent "Spy" to players)
-			let canonicalMissionType = missionType;
-			if (canonicalMissionType === "MT_INTEL")
-			{
-				canonicalMissionType = "MT_SPY" as TMissionType;
-			}
-
-			const tierVisible = isFilterEnabled(cardName, tier);
-			const missionVisible = isFilterEnabled(cardName, canonicalMissionType);
-			if (!tierVisible || !missionVisible) {
-				continue;
-			}
-
-			const tr = document.createElement("tr");
-
-			// Tier column
-			{
-				const th = document.createElement("th");
-				if (!renderedTierHeadings[cardName].has(tier))
-				{
-					th.textContent = fissureTiers[tier] ?? tier;
-					renderedTierHeadings[cardName].add(tier);
-				}
-				tr.appendChild(th);
-			}
-
-			// Expiry column
-			{
-				const td = document.createElement("td");
-				td.appendChild(createExpiryBadge(fissure.Expiry.$date.$numberLong));
-				tr.appendChild(td);
-			}
-
-			// Mission type + Level range column
-			{
-				const td = document.createElement("td");
-				td.textContent = toTitleCase(dict[node.missionName]);
-				if (cardName === "rj-fissures")
-				{
-					// Void Storms: show level range with +10 adjustment
-					const adjustedMin = node.minEnemyLevel + 10;
-					const adjustedMax = node.maxEnemyLevel + 10;
-					td.textContent += ` (${adjustedMin}-${adjustedMax})`;
-				}
-				else
-				{
-					// Normal and Steel Path fissures: omit level range (inconsistent/incorrect data)
-				}
-				tr.appendChild(td);
-			}
-
-			// Faction column (only show when systemIndex != 21)
-			{
-				const td = document.createElement("td");
-				if (node.systemIndex != 21)
-				{
-					td.textContent = dict[ExportFactions[node.faction].name];
-				}
-				tr.appendChild(td);
-			}
-
-			// Location column
-			{
-				const td = document.createElement("td");
-				td.textContent = dict[node.name] + ", " + dict[node.systemName];
-				tr.appendChild(td);
-			}
-
-			tbody[fissure.Category].appendChild(tr);
-		}
-	}
-
-	// Show empty state message if no missions rendered for a category
-	for (const category of Object.keys(tbody))
-	{
-		if (renderedTierHeadings[category].size === 0)
-		{
-			const tr = document.createElement("tr");
-			const td = document.createElement("td");
-			td.textContent = "No missions to display based on the current filters.";
-			tr.appendChild(td);
-			tbody[category].appendChild(tr);
-		}
-	}
-
-	document.getElementById("fissures-table").innerHTML = "";
-	document.getElementById("fissures-table").appendChild(tbody["fissures"]);
-	document.getElementById("sp-fissures-table").innerHTML = "";
-	document.getElementById("sp-fissures-table").appendChild(tbody["sp-fissures"]);
-	document.getElementById("rj-fissures-table").innerHTML = "";
-	document.getElementById("rj-fissures-table").appendChild(tbody["rj-fissures"]);
-}
 
 
 updateBountyCycle();
@@ -1633,11 +1244,11 @@ dicts_promise.then(([dict, osdict]) =>
 		}
 		if (window.incursions)
 		{
-			updateIncursionsLocalised();
+			void (window as any).updateIncursionsLocalised();
 		}
 		if (window.worldState)
 		{
-			updateWeeklyLocalised();
+			(window as any).updateWeekly();
 		}
 		if (window.worldState)
 		{
@@ -1729,11 +1340,7 @@ document.querySelectorAll<HTMLSpanElement>("[data-collapse-toggle]").forEach(elm
 		{
 			localStorage.setItem("live.collapse." + elm.getAttribute("data-collapse-toggle"), "1");
 		}
-		// Trigger cloud sync if available
-		if ((window as any).triggerCloudSyncWithDebounce)
-		{
-			(window as any).triggerCloudSyncWithDebounce();
-		}
+		(window as any).triggerCloudSyncWithDebounce();
 		refreshCollapseStatus(elm);
 	};
 });
@@ -1794,60 +1401,34 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 				});
 			}
 		}
-		// Trigger cloud sync if available
-		if ((window as any).triggerCloudSyncWithDebounce)
-		{
-			(window as any).triggerCloudSyncWithDebounce();
-		}
+		(window as any).triggerCloudSyncWithDebounce();
 		refreshNotifStatus(elm);
 	};
 });
 
 initializeFilterToggles();
 initializeCardFilters('news', () => updateNewsTicker(true));
-initializeCardFilters('incursions', () => updateIncursionsLocalised());
-initializeCardFilters('fissures', () => updateFissures(true));
-initializeCardFilters('sp-fissures', () => updateFissures(true));
-initializeCardFilters('rj-fissures', () => updateFissures(true));
+initializeCardFilters('incursions', () => void (window as any).updateIncursionsLocalised());
+initializeCardFilters('fissures', () => void (window as any).updateFissures(true));
+initializeCardFilters('sp-fissures', () => void (window as any).updateFissures(true));
+initializeCardFilters('rj-fissures', () => void (window as any).updateFissures(true));
 initializeCardFilters('weekly-missions', () => updateCircuitLocalised());
 initializeCardFilters('invasions', () => { void updateInvasions(); });
 
 initializeMarkAsRead();
 initializeBountyFiltersAll();
 updateBountyCheckboxes();
-
 document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm, "Voidplume Quills"));
 
-function setCompletionToggle(elm: HTMLAnchorElement, completed: boolean): void
-{
-	const oid = elm.getAttribute("data-oid");
-	if (!oid) return;
-	if (isOidMarkedAsCompleted(oid) !== completed) toggleOidCompletion(oid);
-	elm.innerHTML = completed ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
-	const tooltip = window.bootstrap?.Tooltip.getInstance(elm);
-	if (tooltip) {
-		tooltip.setContent({ ".tooltip-inner": (completed ? "Unmark as " : "Mark as ") + "completed" });
-	}
-}
-
-// Refresh all completion checkboxes based on current localStorage state
-function refreshAllCompletionToggles(): void
-{
-	document.querySelectorAll<HTMLAnchorElement>(".completion-check").forEach(elm => {
-		const oid = elm.getAttribute("data-oid");
-		if (oid) setCompletionToggle(elm, isOidMarkedAsCompleted(oid));
-	});
-}
 
 // Expose globally for fork code
 (window as any).addTooltip = addTooltip;
 (window as any).createCompletionToggle = createCompletionToggle;
 (window as any).dicts_promise = dicts_promise;
 (window as any).ExportRegions_promise = ExportRegions_promise;
+(window as any).fissureTiers = fissureTiers;
 (window as any).getItemNamePromise = getItemNamePromise;
 (window as any).isOidMarkedAsCompleted = isOidMarkedAsCompleted;
-(window as any).refreshAllCompletionToggles = refreshAllCompletionToggles;
-(window as any).setCompletionToggle = setCompletionToggle;
 (window as any).refreshCollapseStatus = refreshCollapseStatus;
 (window as any).refreshNotifStatus = refreshNotifStatus;
 (window as any).setDatum = setDatum;
@@ -1855,7 +1436,4 @@ function refreshAllCompletionToggles(): void
 (window as any).toTitleCase = toTitleCase;
 (window as any).updateBountyCycleLocalised = updateBountyCycleLocalised;
 (window as any).updateCircuitLocalised = updateCircuitLocalised;
-(window as any).updateFissures = updateFissures;
-(window as any).updateIncursionsLocalised = updateIncursionsLocalised;
 (window as any).updateNewsTicker = updateNewsTicker;
-(window as any).updateWeeklyLocalised = updateWeeklyLocalised;

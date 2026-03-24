@@ -36,40 +36,6 @@ test.describe('Live Page - Bounties Card', () => {
 			expect(await hexDropdown.locator('option').count()).toBe(8); // Tier 1-7 + Hide
 		});
 
-		test('changing dropdown filters bounty tiers', async ({page}) => {
-			await page.waitForSelector('#ZarimanSyndicate-table tr', {timeout: 10_000});
-
-			const bountyFilterToggle = page.locator('[data-filter-toggle="bounties"]');
-			await bountyFilterToggle.click();
-			await expect(page.locator('#bounties-filters')).toBeVisible();
-
-			const initialCount = await page.locator('#ZarimanSyndicate-table tr:visible').count();
-			expect(initialCount).toBeGreaterThan(0);
-
-			await page.locator('#bounty-filter-ZarimanSyndicate').selectOption('3');
-
-			await expect(page.locator('#ZarimanSyndicate-table tr:visible')).toHaveCount(3);
-			await expect(page.locator('#ZarimanSyndicate-table tr').nth(0)).toBeHidden();
-			await expect(page.locator('#ZarimanSyndicate-table tr').nth(1)).toBeHidden();
-			await expect(page.locator('#ZarimanSyndicate-table tr').nth(2)).toBeVisible();
-		});
-
-		test('Hide option hides syndicate heading and all rows', async ({page}) => {
-			await page.waitForSelector('#HexSyndicate-table tr', {timeout: 10_000});
-
-			await page.locator('[data-filter-toggle="bounties"]').click();
-			await expect(page.locator('#bounties-filters')).toBeVisible();
-
-			const hexHeading = page.locator('#HexSyndicate-name');
-			await expect(hexHeading).toBeVisible();
-			await expect(page.locator('#HexSyndicate-table')).toBeVisible();
-
-			await page.locator('#bounty-filter-HexSyndicate').selectOption('-1');
-
-			await expect(hexHeading).toBeHidden();
-			await expect(page.locator('#HexSyndicate-table tr:visible')).toHaveCount(0);
-		});
-
 		test('filter preferences persist in localStorage', async ({page}) => {
 			await page.waitForSelector('#EntratiLabSyndicate-table tr', {timeout: 10_000});
 

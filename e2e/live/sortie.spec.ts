@@ -37,27 +37,6 @@ test.describe('Live Page - Sortie Card', () => {
 		expect(firstModifier).toContain('Energy Reduction');
 	});
 
-	test('displays tileset as tooltip on location', async ({page}) => {
-		await page.waitForSelector('#sortie-table tbody tr', {timeout: 10_000});
-
-		// Check first mission (OrokinMoonTilesetGrineer → "Orokin Moon Grineer")
-		const firstRow = page.locator('#sortie-table tbody tr').nth(0);
-		const locationElement = firstRow.locator('td [data-bs-toggle="tooltip"]');
-		await expect(locationElement).toHaveAttribute('data-bs-title', 'Orokin Moon Grineer');
-	});
-
-	test('formats tileset correctly for different tilesets', async ({page}) => {
-		await page.waitForSelector('#sortie-table tbody tr', {timeout: 10_000});
-
-		// Check second mission: GrineerOceanTileset → "Grineer Ocean"
-		const tooltipTitle2 = await page.locator('#sortie-table tbody tr').nth(1).locator('td [data-bs-toggle="tooltip"]').getAttribute('data-bs-title');
-		expect(tooltipTitle2).toBe('Grineer Ocean');
-
-		// Check third mission: GrineerGalleonTileset → "Grineer Galleon"
-		const tooltipTitle3 = await page.locator('#sortie-table tbody tr').nth(2).locator('td [data-bs-toggle="tooltip"]').getAttribute('data-bs-title');
-		expect(tooltipTitle3).toBe('Grineer Galleon');
-	});
-
 	test('displays all three sortie missions with correct data', async ({page}) => {
 		await page.waitForSelector('#sortie-table tbody tr', {timeout: 10_000});
 

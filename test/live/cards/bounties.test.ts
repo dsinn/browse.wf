@@ -1,71 +1,96 @@
-import {describe, test, expect} from 'vitest';
-import {loadMock} from '../../helpers/api-mocks';
-import {getById} from '../../helpers/dom-helpers';
+import {
+	describe, test, expect, beforeEach, afterEach, vi,
+} from 'vitest';
+import {mockBootstrapTooltip} from '../../helpers/dom-helpers';
+import {renderAllyIcon, applyBountyTierFilter} from '../../../src/live/bounties';
 
-describe('Bounties Card', () => {
-	test('renders bounty rotation information', () => {
-		const bountyCycle = loadMock('bounty-cycle.json');
-
-		expect(bountyCycle.rot).toBe('C');
-		expect(bountyCycle.vaultRot).toBe('B');
-		expect(bountyCycle.expiry).toBeGreaterThan(0);
+describe('bounties', () => {
+	beforeEach(() => {
+		mockBootstrapTooltip();
+		(globalThis as any).setImageSource = vi.fn((img: HTMLImageElement, src: string) => {
+			img.src = src;
+		});
+		(globalThis as any).addTooltip = vi.fn((elm: HTMLElement, title: string) => {
+			elm.dataset.bsTitle = title;
+		});
+		(globalThis as any).getMinimumTier = vi.fn(() => 1);
 	});
 
-	test('displays bounty rotation in DOM', () => {
-		const bountyRot = getById('bounty-rot');
-		const vaultRot = getById('vault-rot');
-
-		const bountyCycle = loadMock('bounty-cycle.json');
-
-		bountyRot.textContent = bountyCycle.rot;
-		vaultRot.textContent = bountyCycle.vaultRot;
-
-		expect(bountyRot.textContent).toBe('C');
-		expect(vaultRot.textContent).toBe('B');
+	afterEach(() => {
+		delete (globalThis as any).setImageSource;
+		delete (globalThis as any).addTooltip;
+		delete (globalThis as any).getMinimumTier;
 	});
 
-	test('renders Zariman bounties from bounty-cycle', () => {
-		const bountyCycle = loadMock('bounty-cycle.json');
-		const zarimanBounties = bountyCycle.bounties.ZarimanSyndicate;
+	describe('renderAllyIcon', () => {
+		test('inserts ally image with correct src into allyCell', () => {
+			const cell = document.createElement('td');
+			renderAllyIcon('Teshin', cell);
+			const img = cell.querySelector('img');
+			expect(img).toBeTruthy();
+			expect(img!.src).toContain('TeshinPixelGlyph.png');
+			expect(img!.className).toBe('ally-icon');
+		});
 
-		expect(Array.isArray(zarimanBounties)).toBe(true);
-		expect(zarimanBounties.length).toBe(5);
+		test('adds tooltip with ally name', () => {
+			const cell = document.createElement('td');
+			renderAllyIcon('Teshin', cell);
+			const img = cell.querySelector('img');
+			expect(img!.dataset.bsTitle).toBe('Teshin');
+		});
 
-		// Each bounty should have node and challenge
-		for (const bounty of zarimanBounties as any[]) {
-			expect(bounty).toHaveProperty('node');
-			expect(bounty).toHaveProperty('challenge');
-			expect(bounty.node).toMatch(/^SolNode\d+$/u);
-			expect(bounty.challenge).toMatch(/^\/Lotus\/Types\/Challenges\//u);
+		test('clears prior cell content before inserting', () => {
+			const cell = document.createElement('td');
+			cell.innerHTML = '<span>old content</span>';
+			renderAllyIcon('Teshin', cell);
+			expect(cell.querySelector('span')).toBeNull();
+		});
+	});
+
+	describe('applyBountyTierFilter', () => {
+		function makeRows(count: number): NodeListOf<Element> {
+			const table = document.createElement('table');
+			for (let i = 0; i < count; i++) {
+				table.append(document.createElement('tr'));
+			}
+
+			document.body.append(table);
+			return table.querySelectorAll('tr');
 		}
-	});
 
-	test('renders Cavia bounties with correct structure', () => {
-		const bountyCycle = loadMock('bounty-cycle.json');
-		const caviaBounties = bountyCycle.bounties.EntratiLabSyndicate;
+		test('hides rows below minTier', () => {
+			(globalThis as any).getMinimumTier = vi.fn(() => 3);
+			const rows = makeRows(5);
+			applyBountyTierFilter('EntratiLabSyndicate', rows);
+			expect(rows[0].classList.contains('d-none')).toBe(true); // Tier 1
+			expect(rows[1].classList.contains('d-none')).toBe(true); // Tier 2
+			expect(rows[2].classList.contains('d-none')).toBe(false); // Tier 3
+			expect(rows[3].classList.contains('d-none')).toBe(false); // Tier 4
+			expect(rows[4].classList.contains('d-none')).toBe(false); // Tier 5
+		});
 
-		expect(Array.isArray(caviaBounties)).toBe(true);
-		expect(caviaBounties.length).toBe(5);
+		test('hides heading and all rows when minTier < 1 (Hide)', () => {
+			(globalThis as any).getMinimumTier = vi.fn(() => -1);
+			const heading = document.querySelector<HTMLElement>('#ZarimanSyndicate-name')!;
+			heading.classList.remove('d-none');
+			const rows = document.querySelector('#ZarimanSyndicate-table')!.querySelectorAll('tr');
+			applyBountyTierFilter('ZarimanSyndicate', rows);
+			expect(heading.classList.contains('d-none')).toBe(true);
+			for (const row of rows) {
+				expect(row.classList.contains('d-none')).toBe(true);
+			}
+		});
 
-		// Verify first bounty structure
-		const firstBounty = caviaBounties[0];
-		expect(firstBounty.node).toBe('SolNode718');
-		expect(firstBounty.challenge).toContain('EntratiLab');
-	});
-
-	test('renders Hex bounties with allies', () => {
-		const bountyCycle = loadMock('bounty-cycle.json');
-		const hexBounties = bountyCycle.bounties.HexSyndicate;
-
-		expect(Array.isArray(hexBounties)).toBe(true);
-		expect(hexBounties.length).toBeGreaterThan(0);
-
-		// Most Hex bounties should have allies
-		const bountiesWithAllies = hexBounties.filter((b: any) => b.ally);
-		expect(bountiesWithAllies.length).toBeGreaterThan(0);
-
-		// Verify ally format
-		const bountyWithAlly = bountiesWithAllies[0];
-		expect(bountyWithAlly.ally).toMatch(/^\/Lotus\/Types\/Gameplay/u);
+		test('shows all rows and heading when minTier is 1', () => {
+			(globalThis as any).getMinimumTier = vi.fn(() => 1);
+			const heading = document.querySelector<HTMLElement>('#ZarimanSyndicate-name')!;
+			heading.classList.add('d-none');
+			const rows = document.querySelector('#ZarimanSyndicate-table')!.querySelectorAll('tr');
+			applyBountyTierFilter('ZarimanSyndicate', rows);
+			expect(heading.classList.contains('d-none')).toBe(false);
+			for (const row of rows) {
+				expect(row.classList.contains('d-none')).toBe(false);
+			}
+		});
 	});
 });

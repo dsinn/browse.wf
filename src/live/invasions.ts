@@ -2,6 +2,7 @@
 
 import {isFilterEnabled} from '../card-filters.js';
 import {addTooltip} from '../tooltip.js';
+import {fetchExport} from '../public-export-fetcher.js';
 
 type InvasionData = {
 	_id: {$oid: string};
@@ -230,8 +231,8 @@ export async function updateInvasions(): Promise<void> {
 
 	const [[dict], ExportRegions, exportImages] = await Promise.all([
 		Promise.all([(globalThis as any).getDictPromise(), (globalThis as any).getOSDictPromise()]),
-		(globalThis as any).fetchExport('ExportRegions'),
-		(globalThis as any).fetchExport('ExportImages'),
+		fetchExport('ExportRegions'),
+		fetchExport('ExportImages'),
 	]);
 	(globalThis as any).ExportImages = exportImages;
 

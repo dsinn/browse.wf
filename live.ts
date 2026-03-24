@@ -1418,6 +1418,7 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 	};
 });
 
+(window as any).initLiveSync();
 initializeFilterToggles();
 initializeCardFilters('news', () => updateNewsTicker(true));
 initializeCardFilters('incursions', () => void (window as any).updateIncursionsLocalised());

@@ -23,8 +23,9 @@ vi.mock('../../src/live/news-mark-read.js', () => ({
 	pruneStaleNewsRead: mockPruneStaleNewsRead,
 }));
 
-// Import the module — this registers the event listeners
-await import('../../src/live/sync.js');
+// Import and call initLiveSync to register event listeners
+const {initLiveSync} = await import('../../src/live/sync.js');
+initLiveSync();
 
 function dispatchBeforePush() {
 	globalThis.dispatchEvent(new CustomEvent('cloud-sync-before-push'));

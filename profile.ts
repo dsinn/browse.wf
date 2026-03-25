@@ -717,7 +717,27 @@ function renderProfile(): void
 				tr.appendChild(document.createElement("td")); // rank cell (populated by observer)
 				{
 					const td = document.createElement("td");
-					td.textContent = dict[type.name];
+					const name = dict[type.name];
+					const archwingPrefix = "<ARCHWING> ";
+					if (name.startsWith(archwingPrefix))
+					{
+						const wrap = document.createElement("div");
+						wrap.className = "item-name-wrap";
+						const img = document.createElement("img");
+						img.className = "item-name-icon";
+						(window as any).setImageSource(img, "/Lotus/Interface/Icons/StoreIcons/Gear/GenericArchwingSystems.png");
+						const iconWrap = document.createElement("span");
+						iconWrap.className = "item-name-icon-wrap";
+						(window as any).addTooltip(iconWrap, "Archwing");
+						iconWrap.appendChild(img);
+						wrap.appendChild(iconWrap);
+						wrap.appendChild(document.createTextNode(name.slice(archwingPrefix.length)));
+						td.appendChild(wrap);
+					}
+					else
+					{
+						td.textContent = name;
+					}
 					tr.appendChild(td);
 				}
 				{

@@ -248,7 +248,7 @@
 
 	function getNodeText(node)
 	{
-		let text = kim_dict[node.Content] ?? node.Content;
+		let text = kim_dict[node.LocTag] ?? node.LocTag ?? node.Content;
 		/*if (node.vars)
 		{
 			for (const [k, v] of Object.entries(node.vars))

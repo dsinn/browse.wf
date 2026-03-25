@@ -212,9 +212,9 @@
 					let text;
 					if (node.type == "/EE/Types/Engine/DialogueNode" || node.type == "/EE/Types/Engine/PlayerChoiceDialogueNode")
 					{
-						if (node.Content)
+						if (node.LocTag ?? node.Content)
 						{
-							text = kim_dict[node.Content] ?? node.Content;
+							text = kim_dict[node.LocTag] ?? node.LocTag ?? node.Content;
 							/*if (node.vars)
 							{
 								for (const [k, v] of Object.entries(node.vars))

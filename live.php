@@ -266,54 +266,11 @@
 						<a class="ms-auto me-2" data-filter-toggle="bounties"></a>
 						<a data-notif-toggle="bounties"></a>
 					</div>
-					<div class="card-filter-panel" id="bounties-filters" style="display: none">
-						<div class="card-body">
-							<table>
-								<tr>
-									<td class="pe-2">The Holdfasts:</td>
-									<td>
-										<select class="form-select form-select-sm" id="bounty-filter-ZarimanSyndicate">
-											<option value="1">Show all tiers</option>
-											<?php foreach (range(2, 4) as $tier): ?>
-												<option value="<?= $tier ?>">Show Tier <?= $tier ?> and up</option>
-											<?php endforeach ?>
-											<option value="5">Show Tier 5 only</option>
-											<option value="-1">Hide all tiers</option>
-										</select>
-									</td>
-								</tr>
-								<tr>
-									<td class="pe-2">Cavia:</td>
-									<td>
-										<select class="form-select form-select-sm" id="bounty-filter-EntratiLabSyndicate">
-											<option value="1">Show all tiers</option>
-											<?php foreach (range(2, 4) as $tier): ?>
-												<option value="<?= $tier ?>">Show Tier <?= $tier ?> and up</option>
-											<?php endforeach ?>
-											<option value="5">Show Tier 5 only</option>
-											<option value="-1">Hide all tiers</option>
-										</select>
-									</td>
-								</tr>
-								<tr>
-									<td class="pe-2">The Hex:</td>
-									<td>
-										<select class="form-select form-select-sm" id="bounty-filter-HexSyndicate">
-											<option value="1">Show all tiers</option>
-											<?php foreach (range(2, 6) as $tier): ?>
-												<option value="<?= $tier ?>">Show Tier <?= $tier ?> and up</option>
-											<?php endforeach ?>
-											<option value="7">Show Tier 7 only</option>
-											<option value="-1">Hide all tiers</option>
-										</select>
-									</td>
-								</tr>
-							</table>
-						</div>
-					</div>
+					<?php require 'components/live/bounty-filters-partial.php'; ?>
 					<div class="card-body overflow-auto" id="bounties-body">
 						<p>Rotation <b id="bounty-rot">?</b> (<span id="bounty-rot-rewards">Loading</span>) &middot; Vault Rotation <b id="vault-rot">?</b> (<span id="vault-rot-rewards">Loading</span>)</p>
 						<h5 id="ZarimanSyndicate-name">The Holdfasts</h5>
+						<p id="ZarimanSyndicate-empty" class="d-none">No bounties match the current filters.</p>
 						<table class="table table-hover table-sm table-borderless" id="ZarimanSyndicate-table">
 							<tr>
 								<th class="mission">Fetching data...</th>
@@ -347,6 +304,7 @@
 							</tr>
 						</table>
 						<h5 id="EntratiLabSyndicate-name">Cavia</h5>
+						<p id="EntratiLabSyndicate-empty" class="d-none">No bounties match the current filters.</p>
 						<table class="table table-hover table-sm table-borderless" id="EntratiLabSyndicate-table">
 							<tr>
 								<th class="mission">Fetching data...</th>
@@ -380,6 +338,7 @@
 							</tr>
 						</table>
 						<h5 id="HexSyndicate-name">The Hex</h5>
+						<p id="HexSyndicate-empty" class="d-none">No bounties match the current filters.</p>
 						<table class="table table-hover table-sm table-borderless mb-0" id="HexSyndicate-table">
 							<tr>
 								<th class="mission">Fetching data...</th>

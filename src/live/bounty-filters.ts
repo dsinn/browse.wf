@@ -17,6 +17,17 @@ const SYNDICATE_TAGS = [
 ];
 
 /**
+ * Check if a mission type is enabled for a given syndicate
+ * @param syndicateTag - The syndicate tag (e.g., "ZarimanSyndicate")
+ * @param missionType - The mission type key (e.g., "MT_CORRUPTION")
+ * @returns true if the mission type should be shown
+ */
+export function isBountyMissionTypeEnabled(syndicateTag: string, missionType: string): boolean {
+	const storageKey = `live.filter.bounties.${syndicateTag}.${missionType}`;
+	return localStorage.getItem(storageKey) !== '0';
+}
+
+/**
  * Get the minimum tier setting for a syndicate
  * @param syndicateTag - The syndicate tag (e.g., "ZarimanSyndicate")
  * @returns The minimum tier to display (-1 = hide, 1 = show all, higher = hide lower tiers)
@@ -37,7 +48,7 @@ export function getMinimumTier(syndicateTag: string): number {
 }
 
 /**
- * Initialize bounty filter dropdowns
+ * Initialize bounty filter dropdowns and mission type checkboxes
  */
 function initializeBountyFilters(): void {
 	for (const syndicateTag of SYNDICATE_TAGS) {
@@ -46,24 +57,38 @@ function initializeBountyFilters(): void {
 			continue;
 		}
 
-		const storageKey = `live.filter.bounties.${syndicateTag}`;
+		const tierStorageKey = `live.filter.bounties.${syndicateTag}`;
 
 		// Load saved state (default to 1 = show all)
-		const savedValue = localStorage.getItem(storageKey);
-		select.value = savedValue === null ? '1' : savedValue; // Default to minimum tier (show all)
+		const savedValue = localStorage.getItem(tierStorageKey);
+		select.value = savedValue === null ? '1' : savedValue;
 
-		// Handle changes
+		// Handle tier dropdown changes
 		select.addEventListener('change', () => {
-			localStorage.setItem(storageKey, select.value);
-
-			// Trigger cloud sync
+			localStorage.setItem(tierStorageKey, select.value);
 			triggerCloudSync();
-
-			// Re-render bounties
 			if ((globalThis as any).updateBountyCycleLocalised) {
 				(globalThis as any).updateBountyCycleLocalised();
 			}
 		});
+
+		// Initialize mission type checkboxes for this syndicate
+		const checkboxes = document.querySelectorAll<HTMLInputElement>(`input[type="checkbox"][data-bounty-syndicate="${syndicateTag}"]`);
+		for (const checkbox of checkboxes) {
+			const missionType = checkbox.dataset.filterType!;
+			const checkboxStorageKey = `live.filter.bounties.${syndicateTag}.${missionType}`;
+
+			// Load saved state (default checked = enabled)
+			checkbox.checked = localStorage.getItem(checkboxStorageKey) !== '0';
+
+			checkbox.addEventListener('change', () => {
+				localStorage.setItem(checkboxStorageKey, checkbox.checked ? '1' : '0');
+				triggerCloudSync();
+				if ((globalThis as any).updateBountyCycleLocalised) {
+					(globalThis as any).updateBountyCycleLocalised();
+				}
+			});
+		}
 	}
 }
 
@@ -77,4 +102,5 @@ export function initializeBountyFiltersAll(): void {
 
 // Expose functions globally for use by non-module scripts
 (globalThis as any).getMinimumTier = getMinimumTier;
+(globalThis as any).isBountyMissionTypeEnabled = isBountyMissionTypeEnabled;
 (globalThis as any).initializeBountyFiltersAll = initializeBountyFiltersAll;

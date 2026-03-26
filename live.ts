@@ -378,6 +378,7 @@ function updateBountyCycleLocalised()
 		for (let i = 0; i != window.bountyCycle.bounties[syndicateTag].length; ++i)
 		{
 			const node = ExportRegions[window.bountyCycle.bounties[syndicateTag][i].node];
+			(rows[i] as HTMLElement).dataset.missionType = node.missionType;
 			rows[i].querySelector(".mission").textContent = dict[node.name];
 			if (["SolNode850", "SolNode853", "SolNode854", "SolNode856"].indexOf(window.bountyCycle.bounties[syndicateTag][i].node) == -1)
 			{
@@ -396,7 +397,7 @@ function updateBountyCycleLocalised()
 			rows[i].querySelector(".challenge").appendChild(span);
 		}
 
-		(window as any).applyBountyTierFilter(syndicateTag, rows);
+		(window as any).applyBountyFilters(syndicateTag, rows);
 	}
 }
 

@@ -8,6 +8,61 @@ test.describe('Live Page - Bounties Card', () => {
 		await expect(page.locator('#bounties-body')).not.toContainText('Fetching data...', {timeout: 10_000});
 	});
 
+	test.describe('Mission Type Filters', () => {
+		test.beforeEach(async ({page}) => {
+			await page.locator('[data-filter-toggle="bounties"]').click();
+			await expect(page.locator('#bounties-filters')).toBeVisible();
+		});
+
+		test('unchecking a mission type hides matching rows', async ({page}) => {
+			// Cavia: T1=Alchemy, T2=Disruption, T3=Survival, T4=Assassination, T5=Exterminate
+			// Uncheck Survival — hides T3 only
+			await page.locator('[data-bounty-syndicate="EntratiLabSyndicate"][data-filter-type="MT_SURVIVAL"]').uncheck();
+			await expect(page.locator('#EntratiLabSyndicate-table tr:visible')).toHaveCount(4);
+		});
+
+		test('unchecking mission types for different syndicates filters independently', async ({page}) => {
+			// Uncheck Exterminate for Zariman (T4) — 4 rows remain
+			await page.locator('[data-bounty-syndicate="ZarimanSyndicate"][data-filter-type="MT_EXTERMINATION"]').uncheck();
+			// Uncheck Assassination for Hex (T4) — Hex has 7 rows; T4 removed → 6 remain
+			await page.locator('[data-bounty-syndicate="HexSyndicate"][data-filter-type="MT_ASSASSINATION"]').uncheck();
+
+			await expect(page.locator('#ZarimanSyndicate-table tr:visible')).toHaveCount(4);
+			await expect(page.locator('#EntratiLabSyndicate-table tr:visible')).toHaveCount(5); // Unchanged
+			await expect(page.locator('#HexSyndicate-table tr:visible')).toHaveCount(6);
+		});
+
+		test('unchecking all mission types for one syndicate shows empty state', async ({page}) => {
+			// Uncheck all Cavia mission types
+			for (const mt of ['MT_ASSASSINATION', 'MT_EXTERMINATION', 'MT_SURVIVAL', 'MT_ALCHEMY', 'MT_DEFENSE', 'MT_ARTIFACT']) {
+				await page.locator(`[data-bounty-syndicate="EntratiLabSyndicate"][data-filter-type="${mt}"]`).uncheck();
+			}
+
+			await expect(page.locator('#EntratiLabSyndicate-empty')).toBeVisible();
+			await expect(page.locator('#EntratiLabSyndicate-table tr:visible')).toHaveCount(0);
+			// Other syndicates unaffected
+			await expect(page.locator('#ZarimanSyndicate-empty')).toBeHidden();
+			await expect(page.locator('#HexSyndicate-empty')).toBeHidden();
+		});
+
+		test('rechecking a mission type restores visibility', async ({page}) => {
+			const checkbox = page.locator('[data-bounty-syndicate="ZarimanSyndicate"][data-filter-type="MT_VOID_CASCADE"]');
+			await checkbox.uncheck();
+			await expect(page.locator('#ZarimanSyndicate-table tr:visible')).toHaveCount(4);
+
+			await checkbox.check();
+			await expect(page.locator('#ZarimanSyndicate-table tr:visible')).toHaveCount(5);
+		});
+
+		test('Hex Survival: unchecking hides all three Survival tiers (T2, T6, T7)', async ({page}) => {
+			// Wait for all 7 Hex rows to have data-mission-type stamped before filtering
+			await expect(page.locator('#HexSyndicate-table tr[data-mission-type]')).toHaveCount(7);
+			// Hex has 7 tiers; T2, T6, T7 are all MT_SURVIVAL
+			await page.locator('[data-bounty-syndicate="HexSyndicate"][data-filter-type="MT_SURVIVAL"]').uncheck();
+			await expect(page.locator('#HexSyndicate-table tr:visible')).toHaveCount(4);
+		});
+	});
+
 	test.describe('Tier Filters', () => {
 		test('clicking gear icon shows bounty filter panel', async ({page}) => {
 			const bountyFilterToggle = page.locator('[data-filter-toggle="bounties"]');

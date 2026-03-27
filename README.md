@@ -108,8 +108,9 @@ Before running this application locally, ensure you have the following installed
    PORT=8080 npm run dev
    ```
 
-   This runs three processes concurrently:
+   This runs four processes concurrently:
    - **TypeScript compiler** (`tsc --watch`): Compiles `.ts` files to `typestripped/`
+   - **esbuild** (`esbuild.config.js --watch`): Bundles fork modules into a single IIFE in `typestripped/`
    - **PHP renderer** (`scripts/render-pages.js --watch`): Renders PHP pages to static HTML in `public/`, re-renders when `.php` files change
    - **Vite dev server**: Serves the site with hot reload for PHP, TypeScript, and CSS changes
 
@@ -129,14 +130,7 @@ Before running this application locally, ensure you have the following installed
 
 ### Testing
 
-The project uses two types of automated tests:
-
-```bash
-npm test              # Run unit tests (Vitest)
-npm run test:e2e      # Run E2E tests (Playwright)
-```
-
-For more commands, debugging options, and testing strategies, see [test/README.md](test/README.md).
+The project uses two types of automated tests: unit tests (Vitest) and E2E tests (Playwright). See [test/README.md](test/README.md) for commands, debugging options, and testing strategies.
 
 ### Warframe API Proxy (Optional)
 
@@ -245,21 +239,33 @@ For detailed setup instructions, see:
 - `*.php` - PHP page templates
 - `*.ts` - TypeScript source files
 - `components/` - Reusable PHP components (navbar, common JS includes)
+- `docs/` - Architecture decision records
+- `e2e/` - Playwright E2E tests
 - `helpers/` - Shared build utilities (PHP server, PHP renderer)
 - `public/` - Pre-rendered HTML for Vite dev server (generated, do not edit)
-- `scripts/` - Dev and build scripts (PHP page renderer)
+- `scripts/` - Dev and build scripts (PHP page renderer, Discord post script)
+- `src/` - Fork-specific TypeScript modules and CSS files
 - `supplemental-data/` - Additional game data and utilities
+- `test/` - Vitest unit tests and test helpers
 - `typestripped/` - Compiled JavaScript output (generated, do not edit)
 
 ## Available Scripts
 
+### Development
+
 - `npm run dev` - Start development server with TypeScript watch mode
 - `npm run lint` - Run ESLint on TypeScript files
-- `npm test` - Run unit tests (Vitest)
-- `npm run test:e2e` - Run E2E tests (Playwright)
+- `npm run typecheck` - Run TypeScript type checking
+- `npm run compile` - Type check and bundle fork modules with esbuild
 - `npm run build` - Build static site for GitHub Pages deployment
 
-See [test/README.md](test/README.md) for additional test commands.
+### Testing
+
+See [test/README.md](test/README.md) for all test commands and options.
+
+### Scripts
+
+- `npm run post-weekly-forecast` - Post the weekly forecast summary to Discord
 
 ## Deployment
 

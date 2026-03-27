@@ -210,6 +210,8 @@ await page.route('**/oracle.browse.wf/new-endpoint', route => {
 ### `helpers/render-php.js`
 - Renders PHP to HTML fixtures (runs automatically before tests)
 - Uses shared `/helpers/php-server.js` module (also used by build script)
+- `npm run render-fixtures` - Render all fixtures once
+- `npm run render-fixtures:watch` - Re-render on PHP file changes
 
 ### `helpers/test-constants.ts`
 - `MOCK_TIMESTAMP` - Constant for mock data time (re-exported from `time-helpers.ts`)

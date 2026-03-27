@@ -1227,16 +1227,16 @@ describe('StorageSyncService', () => {
 		test('should sync dropdown filter values (numeric strings)', async () => {
 			mockFromChain.upsert.mockResolvedValue({error: null});
 
-			localStorage.setItem('live.filter.bounties.ZarimanSyndicate', '3');
-			localStorage.setItem('live.filter.bounties.EntratiLabSyndicate', '5');
-			localStorage.setItem('live.filter.bounties.HexSyndicate', '-1');
+			localStorage.setItem('live.filter.bounties.ZarimanSyndicate.minTier', '3');
+			localStorage.setItem('live.filter.bounties.EntratiLabSyndicate.minTier', '5');
+			localStorage.setItem('live.filter.bounties.HexSyndicate.minTier', '-1');
 
 			await service.pushToDatabase('mock-user-uuid');
 
 			const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
-			expect(call.data.live.filter.bounties.ZarimanSyndicate).toBe('3');
-			expect(call.data.live.filter.bounties.EntratiLabSyndicate).toBe('5');
-			expect(call.data.live.filter.bounties.HexSyndicate).toBe('-1');
+			expect(call.data.live.filter.bounties.ZarimanSyndicate.minTier).toBe('3');
+			expect(call.data.live.filter.bounties.EntratiLabSyndicate.minTier).toBe('5');
+			expect(call.data.live.filter.bounties.HexSyndicate.minTier).toBe('-1');
 		});
 
 		test('should restore dropdown filter values from cloud', async () => {
@@ -1245,9 +1245,9 @@ describe('StorageSyncService', () => {
 				live: {
 					filter: {
 						bounties: {
-							ZarimanSyndicate: '4',
-							EntratiLabSyndicate: '2',
-							HexSyndicate: '7',
+							ZarimanSyndicate: {minTier: '4'},
+							EntratiLabSyndicate: {minTier: '2'},
+							HexSyndicate: {minTier: '7'},
 						},
 					},
 				},
@@ -1262,9 +1262,9 @@ describe('StorageSyncService', () => {
 			await (service as any).pullFromDatabase('test-user-id');
 
 			// Verify dropdown values restored correctly
-			expect(localStorage.getItem('live.filter.bounties.ZarimanSyndicate')).toBe('4');
-			expect(localStorage.getItem('live.filter.bounties.EntratiLabSyndicate')).toBe('2');
-			expect(localStorage.getItem('live.filter.bounties.HexSyndicate')).toBe('7');
+			expect(localStorage.getItem('live.filter.bounties.ZarimanSyndicate.minTier')).toBe('4');
+			expect(localStorage.getItem('live.filter.bounties.EntratiLabSyndicate.minTier')).toBe('2');
+			expect(localStorage.getItem('live.filter.bounties.HexSyndicate.minTier')).toBe('7');
 		});
 
 		test('should handle both checkbox and dropdown filters in same sync', async () => {
@@ -1273,7 +1273,7 @@ describe('StorageSyncService', () => {
 			// Set both checkbox filters (boolean "0"/"1") and dropdown filters (string "0"-"7")
 			localStorage.setItem('live.filter.news.danger', '1');
 			localStorage.setItem('live.filter.news.primary', '0');
-			localStorage.setItem('live.filter.bounties.ZarimanSyndicate', '3');
+			localStorage.setItem('live.filter.bounties.ZarimanSyndicate.minTier', '3');
 
 			await service.pushToDatabase('mock-user-uuid');
 
@@ -1281,7 +1281,7 @@ describe('StorageSyncService', () => {
 			const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
 			expect(call.data.live.filter.news.danger).toBe('1');
 			expect(call.data.live.filter.news.primary).toBe('0');
-			expect(call.data.live.filter.bounties.ZarimanSyndicate).toBe('3');
+			expect(call.data.live.filter.bounties.ZarimanSyndicate.minTier).toBe('3');
 		});
 	});
 
@@ -1327,14 +1327,14 @@ describe('StorageSyncService', () => {
 
 			// Set up: Set various filters
 			localStorage.setItem('live.filter.news.danger', '0');
-			localStorage.setItem('live.filter.bounties.ZarimanSyndicate', '3');
-			localStorage.setItem('live.filter.bounties.HexSyndicate', '-1');
+			localStorage.setItem('live.filter.bounties.ZarimanSyndicate.minTier', '3');
+			localStorage.setItem('live.filter.bounties.HexSyndicate.minTier', '-1');
 
 			// Serialize
 			const serialized = (service as any).localStorageToData();
 			expect(serialized.live.filter.news.danger).toBe('0');
-			expect(serialized.live.filter.bounties.ZarimanSyndicate).toBe('3');
-			expect(serialized.live.filter.bounties.HexSyndicate).toBe('-1');
+			expect(serialized.live.filter.bounties.ZarimanSyndicate.minTier).toBe('3');
+			expect(serialized.live.filter.bounties.HexSyndicate.minTier).toBe('-1');
 
 			// Clear and deserialize
 			localStorage.clear();
@@ -1342,8 +1342,8 @@ describe('StorageSyncService', () => {
 
 			// Verify: Filters restored
 			expect(localStorage.getItem('live.filter.news.danger')).toBe('0');
-			expect(localStorage.getItem('live.filter.bounties.ZarimanSyndicate')).toBe('3');
-			expect(localStorage.getItem('live.filter.bounties.HexSyndicate')).toBe('-1');
+			expect(localStorage.getItem('live.filter.bounties.ZarimanSyndicate.minTier')).toBe('3');
+			expect(localStorage.getItem('live.filter.bounties.HexSyndicate.minTier')).toBe('-1');
 		});
 
 		test('mixed collapse and filter states round-trip correctly', () => {

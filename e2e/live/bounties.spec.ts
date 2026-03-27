@@ -45,6 +45,21 @@ test.describe('Live Page - Bounties Card', () => {
 			await expect(page.locator('#HexSyndicate-empty')).toBeHidden();
 		});
 
+		test('unchecked mission types persist after reload', async ({page}) => {
+			await page.locator('[data-bounty-syndicate="EntratiLabSyndicate"][data-filter-type="MT_SURVIVAL"]').uncheck();
+			await page.locator('[data-bounty-syndicate="HexSyndicate"][data-filter-type="MT_DEFENSE"]').uncheck();
+
+			await page.reload();
+			await expect(page.locator('#bounties-body')).not.toContainText('Fetching data...', {timeout: 10_000});
+			await page.locator('[data-filter-toggle="bounties"]').click();
+			await expect(page.locator('#bounties-filters')).toBeVisible();
+
+			await expect(page.locator('[data-bounty-syndicate="EntratiLabSyndicate"][data-filter-type="MT_SURVIVAL"]')).not.toBeChecked();
+			await expect(page.locator('[data-bounty-syndicate="HexSyndicate"][data-filter-type="MT_DEFENSE"]')).not.toBeChecked();
+			// Unrelated checkbox should remain checked
+			await expect(page.locator('[data-bounty-syndicate="EntratiLabSyndicate"][data-filter-type="MT_ALCHEMY"]')).toBeChecked();
+		});
+
 		test('rechecking a mission type restores visibility', async ({page}) => {
 			const checkbox = page.locator('[data-bounty-syndicate="ZarimanSyndicate"][data-filter-type="MT_VOID_CASCADE"]');
 			await checkbox.uncheck();

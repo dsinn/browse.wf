@@ -33,7 +33,7 @@ export function isBountyMissionTypeEnabled(syndicateTag: string, missionType: st
  * @returns The minimum tier to display (-1 = hide, 1 = show all, higher = hide lower tiers)
  */
 export function getMinimumTier(syndicateTag: string): number {
-	const storageKey = `live.filter.bounties.${syndicateTag}`;
+	const storageKey = `live.filter.bounties.${syndicateTag}.minTier`;
 	const savedValue = localStorage.getItem(storageKey);
 
 	if (savedValue !== null) {
@@ -57,7 +57,7 @@ function initializeBountyFilters(): void {
 			continue;
 		}
 
-		const tierStorageKey = `live.filter.bounties.${syndicateTag}`;
+		const tierStorageKey = `live.filter.bounties.${syndicateTag}.minTier`;
 
 		// Load saved state (default to 1 = show all)
 		const savedValue = localStorage.getItem(tierStorageKey);

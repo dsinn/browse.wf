@@ -1,0 +1,63 @@
+{
+	"WorldSeed": "UPa15UYgB3O0E2JUvA9IXPLuVLZEHs0Iivjv7hi94guvOZdjGOqcA0i1i3yJdomET4F4K8EjzA0lxs/JftHquEINt/6T8ObfzegAYJc+9ZmHZPUX5ZByOyN3qUrpXB08ynY1YfOvutpNuYpIKBoyFto2kxAH8Oeu0ifcX3SO1ME=",
+	"Version": 10,
+	"MobileVersion": "5.3.0.0",
+	"BuildLabel": "2026.01.08.11.06/NTZ6vFwMk1Ch3Dq00lmcvw",
+	"Time": 1768135699,
+	"Events": [],
+	"Goals": [],
+	"Alerts": [],
+	"Sorties": [],
+	"LiteSorties": [],
+	"SyndicateMissions": [],
+	"ActiveMissions": [],
+	"GlobalUpgrades": [],
+	"FlashSales": [],
+	"SkuSales": [],
+	"InGameMarket": {},
+	"Invasions": [],
+	"HubEvents": [],
+	"NodeOverrides": [],
+	"VoidTraders": [
+		{
+			"_id": {
+				"$oid": "5d1e07a0a38e4a4fdd7cefca"
+			},
+			"Activation": {
+				"$date": {
+					"$numberLong": "1775221200000"
+				}
+			},
+			"Expiry": {
+				"$date": {
+					"$numberLong": "1775394000000"
+				}
+			},
+			"Character": "Baro'Ki Teel",
+			"Node": "EarthHUB"
+		}
+	],
+	"PrimeVaultTraders": [],
+	"VoidStorms": [],
+	"PrimeAccessAvailability": {},
+	"PrimeVaultAvailabilities": [],
+	"PrimeTokenAvailability": true,
+	"DailyDeals": [],
+	"LibraryInfo": {},
+	"PVPChallengeInstances": [],
+	"PersistentEnemies": [],
+	"PVPAlternativeModes": [],
+	"PVPActiveTournaments": [],
+	"ProjectPct": [],
+	"ConstructionProjects": [],
+	"TwitchPromos": [],
+	"ExperimentRecommended": [],
+	"EndlessXpChoices": [],
+	"ForceLogoutVersion": 0,
+	"FeaturedGuilds": [],
+	"SeasonInfo": {},
+	"KnownCalendarSeasons": [],
+	"Conquests": [],
+	"Descents": [],
+	"Tmp": "{}"
+}

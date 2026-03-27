@@ -181,6 +181,28 @@ describe('StorageSyncService', () => {
 				expect(localStorage.getItem('sb-test-project-auth-token')).toBe('sensitive-auth-token-value');
 			});
 		});
+
+		test('should exclude profile cache keys from cloud sync', () => {
+			localStorage.setItem('lang', 'en');
+			localStorage.setItem('profile.platform', 'pc');
+			localStorage.setItem('profile.accountId', 'SomeName');
+			localStorage.setItem('profile.data', '{"items":[]}');
+			localStorage.setItem('profile.dataFetchedAt', '1234567890');
+			localStorage.setItem('profile.nextFetchAvailableAt', '9999999999');
+
+			mockFromChain.upsert.mockResolvedValue({error: null});
+
+			return (service as any).pushToDatabase('test-user-uuid').then(() => {
+				const call = vi.mocked(mockFromChain.upsert).mock.calls[0][0];
+
+				expect(call.data.lang).toBe('en');
+				expect(call.data.profile.platform).toBe('pc');
+				expect(call.data.profile.accountId).toBe('SomeName');
+				expect(call.data.profile.nextFetchAvailableAt).toBe('9999999999');
+				expect(call.data.profile.data).toBeUndefined();
+				expect(call.data.profile.dataFetchedAt).toBeUndefined();
+			});
+		});
 	});
 
 	describe('dataToLocalStorage', () => {

@@ -61,10 +61,12 @@ export class StorageSyncService {
 
 	private static instance: StorageSyncService;
 
-	// LocalStorage key patterns
+	// LocalStorage keys excluded from cloud sync:
+	// - sb-*-auth-token: Supabase session token; sensitive, must never leave the device
+	// - profile.data*: Large Warframe profile JSON cache; device-specific, not user preferences
 	private static get localOnlyKeyRegex() {
-		return /^sb-.*-auth-token$/u;
-	} // Supabase auth token - never sync to cloud
+		return /^(?:sb-.*-auth-token|profile\.data)/u;
+	}
 
 	private static get heartbeatIntervalMs() {
 		return 5000;

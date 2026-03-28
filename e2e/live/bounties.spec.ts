@@ -14,6 +14,12 @@ test.describe('Live Page - Bounties Card', () => {
 			await expect(page.locator('#bounties-filters')).toBeVisible();
 		});
 
+		test.afterEach(async ({page}) => {
+			await page.evaluate(() => {
+				localStorage.clear();
+			});
+		});
+
 		test('unchecking a mission type hides matching rows', async ({page}) => {
 			// Cavia: T1=Alchemy, T2=Disruption, T3=Survival, T4=Assassination, T5=Exterminate
 			// Uncheck Survival — hides T3 only

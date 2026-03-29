@@ -25,7 +25,8 @@ CREATE TABLE user_data (
   -- Profile request rate limiting (used by the front proxy Cloudflare Worker)
   -- next_profile_request_available_at: the earliest time the next fetch is permitted
   next_profile_request_available_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  profile_request_count INTEGER NOT NULL DEFAULT 0
+  profile_request_count INTEGER NOT NULL DEFAULT 0,
+  CONSTRAINT user_data_size_limit CHECK (octet_length(data::text) < 42069)
 );
 
 -- ============================================

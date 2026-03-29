@@ -167,8 +167,8 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 		await callUpdateInvasions();
 		const th = document.querySelector('#invasions-table tbody tr:not(.d-none) th');
 		expect(th?.textContent).toContain('💥');
-		const tooltipElement = th?.querySelector('[data-bs-title]');
-		expect((tooltipElement as HTMLElement)?.dataset.bsTitle).toBe('Sabotage');
+		const sabotageSpan = th?.querySelector('span[data-bs-title="Sabotage"]');
+		expect(sabotageSpan).toBeTruthy();
 	});
 
 	test('Assassination invasion shows Phorid sigil icon with tooltip in node header', async () => {
@@ -195,8 +195,117 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 		expect(img!.dataset.bsTitle).toBe('Assassination (Phorid)');
 	});
 
+	test('Assassination node shows Grineer Asteroid tileset tooltip regardless of node tileset field', async () => {
+		(globalThis as any).dict['/Lotus/Language/Locations/Exta'] = 'Exta';
+		(globalThis as any).dict['/Lotus/Language/Locations/Ceres'] = 'Ceres';
+		(globalThis as any).worldState.Invasions = [{
+			_id: {$oid: 'aabbccddeeff001122334455'},
+			Node: 'SolNode144',
+			Completed: false,
+			Count: -20_000,
+			Goal: 39_000,
+			Faction: 'FC_INFESTATION',
+			DefenderFaction: 'FC_GRINEER',
+			Activation: {$date: {$numberLong: '1769982001914'}},
+			AttackerReward: [],
+			DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Items/Research/BioComponent', ItemCount: 3}]},
+		}];
+		await callUpdateInvasions();
+		const th = document.querySelector('#invasions-table tbody tr:not(.d-none) th');
+		const labelSpan = th?.querySelector<HTMLElement>('span[data-bs-title]');
+		expect(labelSpan?.dataset.bsTitle).toBe('Grineer Asteroid');
+	});
+
+	test('non-assassination node shows tileset from ExportRegions as tooltip', async () => {
+		await callUpdateInvasions();
+		const headers = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none) th')];
+		const oriasHeader = headers.find(th => th.textContent?.includes('Orias'));
+		const labelSpan = oriasHeader?.querySelector<HTMLElement>('span[data-bs-title]');
+		expect(labelSpan?.dataset.bsTitle).toBe('Corpus Ice Planet');
+	});
+
+	test('percentage cell shows activation tooltip with elapsed time under 1 hour', async () => {
+		const thirtyMinutesAgo = 1_768_087_200_000 - (30 * 60_000);
+		(globalThis as any).worldState.Invasions = [{
+			_id: {$oid: 'aabbccddeeff001122334455'},
+			Node: 'SolNode181',
+			Completed: false,
+			Count: -15_000,
+			Goal: 33_000,
+			Faction: 'FC_CORPUS',
+			DefenderFaction: 'FC_GRINEER',
+			Activation: {$date: {$numberLong: String(thirtyMinutesAgo)}},
+			AttackerReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint', ItemCount: 1}]},
+			DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver', ItemCount: 1}]},
+		}];
+		await callUpdateInvasions();
+		const span = document.querySelector<HTMLElement>('#invasions-table .invasion-percentage');
+		expect(span?.dataset.bsTitle).toMatch(/Up since .+ \(30m.ago\); 18,000.runs.left/u);
+	});
+
+	test('percentage cell shows elapsed hours and minutes when under 24 hours', async () => {
+		await callUpdateInvasions();
+		const headers = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none) th')];
+		const oriasRow = headers.find(th => th.textContent?.includes('Orias'))?.closest('tr');
+		const span = oriasRow?.querySelector<HTMLElement>('.invasion-percentage');
+		expect(span?.dataset.bsTitle).toMatch(/Up since .+ \(15h.50m.ago\); 26,000.runs.left/u);
+	});
+
+	test('percentage cell shows days when invasion has been up over 24 hours', async () => {
+		await callUpdateInvasions();
+		const headers = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none) th')];
+		const adaroRow = headers.find(th => th.textContent?.includes('Adaro'))?.closest('tr');
+		const span = adaroRow?.querySelector<HTMLElement>('.invasion-percentage');
+		expect(span?.dataset.bsTitle).toMatch(/Up since .+ \(2d.4h.19m.ago\); 18,000.runs.left/u);
+	});
+
+	test('percentage cell tooltip shows "run" (singular) when exactly 1 run remains', async () => {
+		(globalThis as any).worldState.Invasions = [{
+			_id: {$oid: 'aabbccddeeff001122334455'},
+			Node: 'SolNode181',
+			Completed: false,
+			Count: -(33_000 - 1),
+			Goal: 33_000,
+			Faction: 'FC_CORPUS',
+			DefenderFaction: 'FC_GRINEER',
+			Activation: {$date: {$numberLong: '1768030142526'}},
+			AttackerReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint', ItemCount: 1}]},
+			DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver', ItemCount: 1}]},
+		}];
+		await callUpdateInvasions();
+		const span = document.querySelector<HTMLElement>('#invasions-table .invasion-percentage');
+		expect(span?.dataset.bsTitle).toMatch(/; 1.run.left$/u);
+	});
+
+	test('percentage cell tooltip clamps runs to 0 when Count exceeds Goal', async () => {
+		(globalThis as any).worldState.Invasions = [{
+			_id: {$oid: 'aabbccddeeff001122334455'},
+			Node: 'SolNode181',
+			Completed: false,
+			Count: -99_999,
+			Goal: 33_000,
+			Faction: 'FC_CORPUS',
+			DefenderFaction: 'FC_GRINEER',
+			Activation: {$date: {$numberLong: '1768030142526'}},
+			AttackerReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint', ItemCount: 1}]},
+			DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver', ItemCount: 1}]},
+		}];
+		await callUpdateInvasions();
+		const span = document.querySelector<HTMLElement>('#invasions-table .invasion-percentage');
+		expect(span?.dataset.bsTitle).toMatch(/; 0.runs.left$/u);
+	});
+
+	test('duplicate-node invasion does not show activation tooltip on hourglass', async () => {
+		(globalThis as any).worldState = loadMock('worldState-duplicate-invasion-node.json');
+		await callUpdateInvasions();
+		const allRows = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none):not(.invasion-defender-reward)')];
+		const lastRow = allRows.at(-1)!;
+		const hourglassSpan = lastRow.querySelector<HTMLElement>('td:nth-child(2) span');
+		expect(hourglassSpan?.dataset.bsTitle).toContain('Will unlock');
+		expect(hourglassSpan?.dataset.bsTitle).not.toContain('Up since');
+	});
+
 	test('reward text omits "1x" prefix when ItemCount is 1', async () => {
-		// WorldState-invasions.json has ItemCount: 1 for all rewards
 		await callUpdateInvasions();
 		const rewardCells = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none) td:nth-child(3)')];
 		expect(rewardCells.length).toBeGreaterThan(0);

@@ -3,6 +3,7 @@
 import {isFilterEnabled} from '../card-filters.js';
 import {addTooltip} from '../tooltip.js';
 import {fetchExport} from '../public-export-fetcher.js';
+import {formatTileset, getTileset} from '../helpers/tileset-helpers.js';
 
 type InvasionData = {
 	_id: {$oid: string};
@@ -97,7 +98,7 @@ export function isInvasionRewardShown(itemType: string): boolean {
 	return isFilterEnabled('invasions', `reward-${invasionRewardFilterKey(itemType)}`);
 }
 
-function buildPercentageCell(percentage: number, isDuplicate: boolean, nodeLabel: string): HTMLTableCellElement {
+function buildPercentageCell(percentage: number, isDuplicate: boolean, nodeLabel: string, invasion: InvasionData): HTMLTableCellElement {
 	const td = document.createElement('td');
 	td.className = 'text-end';
 	const span = document.createElement('span');
@@ -107,6 +108,29 @@ function buildPercentageCell(percentage: number, isDuplicate: boolean, nodeLabel
 	} else {
 		span.className = 'invasion-percentage';
 		span.textContent = `${percentage.toFixed(1)}%`;
+
+		const activationMs = Number.parseInt(invasion.Activation.$date.$numberLong, 10);
+		const activationDate = new Date(activationMs);
+		const totalMinutes = Math.floor((Date.now() - activationMs) / 60_000);
+		const days = Math.floor(totalMinutes / 1440);
+		const hours = Math.floor(totalMinutes / 60);
+		const nbsp = String.fromCodePoint(160);
+		let elapsedString: string;
+		let activationLabel: string;
+		const timeString = activationDate.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}).replace(/ ([ap])/u, `${nbsp}$1`);
+		if (days >= 1) {
+			elapsedString = `${days}d${nbsp}${Math.floor((totalMinutes - (days * 1440)) / 60)}h${nbsp}${totalMinutes % 60}m`;
+			const dateString = activationDate.toLocaleDateString([], {month: 'short', day: 'numeric'});
+			activationLabel = `${dateString} @ ${timeString}`;
+		} else {
+			elapsedString = hours >= 1
+				? `${hours}h${nbsp}${totalMinutes % 60}m`
+				: `${totalMinutes}m`;
+			activationLabel = timeString;
+		}
+
+		const runsRemaining = Math.max(0, invasion.Goal - Math.abs(invasion.Count));
+		addTooltip(span, `Up since ${activationLabel} (${elapsedString}${nbsp}ago); ${runsRemaining.toLocaleString()}${nbsp}${runsRemaining === 1 ? 'run' : 'runs'}${nbsp}left`);
 	}
 
 	td.append(span);
@@ -130,7 +154,18 @@ function buildToggleCell(invasion: InvasionData, isDuplicate: boolean): HTMLTabl
 
 function buildInvasionHeading(invasion: InvasionData, node: any, nodeLabel: string, percentage: number): HTMLTableCellElement {
 	const th = document.createElement('th');
-	th.textContent = nodeLabel;
+	const tileset = node.missionType === 'MT_ASSASSINATION'
+		? 'GrineerAsteroidTileset'
+		: getTileset(node);
+	if (tileset) {
+		const labelSpan = document.createElement('span');
+		labelSpan.textContent = nodeLabel;
+		addTooltip(labelSpan, formatTileset(tileset));
+		th.append(labelSpan);
+	} else {
+		th.textContent = nodeLabel;
+	}
+
 	if (node.missionType === 'MT_ASSASSINATION') {
 		const img = document.createElement('img');
 		img.className = 'invasion-boss-icon ms-1';
@@ -191,7 +226,7 @@ async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowE
 
 		// Th: node name + special mission icon + progress bar
 		tr.append(buildInvasionHeading(invasion, node, nodeLabel, percentage));
-		tr.append(buildPercentageCell(percentage, isDuplicate, nodeLabel));
+		tr.append(buildPercentageCell(percentage, isDuplicate, nodeLabel, invasion));
 		tr.append(await buildRewardCell(row1Item));
 		tr.append(buildToggleCell(invasion, isDuplicate));
 

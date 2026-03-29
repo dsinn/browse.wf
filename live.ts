@@ -764,30 +764,38 @@ async function updateSorties()
 
 async function updateArchonHunt()
 {
-	await dicts_promise;
-	await ExportMissionTypes_promise;
+	try
+	{
+		await dicts_promise;
+		await ExportMissionTypes_promise;
 
-	const litesortie = window.worldState.LiteSorties.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
-	if (!litesortie)
+		const litesortie = window.worldState.LiteSorties.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
+		if (!litesortie)
+		{
+			setTimeout(updateArchonHunt, STALE_DATA_RETRY_MS);
+			return;
+		}
+		setDatum("litesortie-header", osdict["/Lotus/Language/WorldStateWindow/LiteSortieMissionName"], parseInt(litesortie.Expiry.$date.$numberLong));
+		document.getElementById("litesortie-header").innerHTML += " ";
+		document.getElementById("litesortie-header").appendChild(createCompletionToggle(litesortie._id.$oid));
+		const mission_names = [];
+		for (const mission of litesortie.Missions)
+		{
+			mission_names.push(toTitleCase(dict[ExportMissionTypes[mission.missionType].name]));
+		}
+		const span = document.createElement("span");
+		span.textContent = toTitleCase(litesortie.Boss.substring(12));
+		span.className = "text-" + { "Amar": "danger", "Nira": "warning", "Boreal": "info" }[span.textContent];
+		document.getElementById("litesortie-body").innerHTML = "";
+		document.getElementById("litesortie-body").appendChild(span);
+		document.getElementById("litesortie-body").innerHTML += " • " + mission_names.join(", ");
+		setTimeout(updateArchonHunt, parseInt(litesortie.Expiry.$date.$numberLong) - Date.now());
+	}
+	catch (e)
 	{
+		console.error(e);
 		setTimeout(updateArchonHunt, STALE_DATA_RETRY_MS);
-		return;
 	}
-	setDatum("litesortie-header", osdict["/Lotus/Language/WorldStateWindow/LiteSortieMissionName"], parseInt(litesortie.Expiry.$date.$numberLong));
-	document.getElementById("litesortie-header").innerHTML += " ";
-	document.getElementById("litesortie-header").appendChild(createCompletionToggle(litesortie._id.$oid));
-	const mission_names = [];
-	for (const mission of litesortie.Missions)
-	{
-		mission_names.push(toTitleCase(dict[ExportMissionTypes[mission.missionType].name]));
-	}
-	const span = document.createElement("span");
-	span.textContent = toTitleCase(litesortie.Boss.substring(12));
-	span.className = "text-" + { "Amar": "danger", "Nira": "warning", "Boreal": "info" }[span.textContent];
-	document.getElementById("litesortie-body").innerHTML = "";
-	document.getElementById("litesortie-body").appendChild(span);
-	document.getElementById("litesortie-body").innerHTML += " • " + mission_names.join(", ");
-	setTimeout(updateArchonHunt, parseInt(litesortie.Expiry.$date.$numberLong) - Date.now());
 }
 
 async function updateDarvosDeal()

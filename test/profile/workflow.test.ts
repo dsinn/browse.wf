@@ -18,6 +18,7 @@ function setupGlobals() {
 	(globalThis as any).triggerCloudSync = vi.fn();
 	(globalThis as any).createShortTimerBadge = vi.fn(() => document.createTextNode('21h'));
 	(globalThis as any).__showAutoFetchFlow = false;
+	globalThis.HTMLElement.prototype.scrollIntoView = vi.fn<() => void>();
 }
 
 async function freshWorkflow() {

@@ -330,6 +330,7 @@ async function loadProfile(file?: File): Promise<void> {
 		document.querySelector('#profile-nav')?.classList.remove('d-none');
 		(globalThis as any).activateTab(parameters.has('tab') ? parameters.get('tab') : 'fashion');
 		(globalThis as any).renderProfile();
+		document.querySelector('#profile-name')?.scrollIntoView({behavior: 'smooth'});
 
 		profileLoadedManually = true;
 		updateStepStatus('#step4-container', true);

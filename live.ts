@@ -1428,6 +1428,7 @@ initializeCardFilters('sp-fissures', () => void (window as any).updateFissures(t
 initializeCardFilters('rj-fissures', () => void (window as any).updateFissures(true));
 initializeCardFilters('weekly-missions', () => updateCircuitLocalised());
 initializeCardFilters('invasions', () => { void updateInvasions(); });
+initializeCardFilters('calendar-season', () => {});
 
 initializeMarkAsRead();
 initializeBountyFiltersAll();

@@ -1,23 +1,15 @@
 /**
  * Tests for src/live/calendar-seasons.ts — updateCalendarSeason()
- *
- * The global test setup (setup.ts) loads live.html as the DOM fixture, which already
- * contains #calendar-season-expiry, #calendar-season-checks, and #calendar-season-body.
- * We use those elements directly.
- *
- * Covers:
- *  - Retry when worldState is empty (setTimeout)
- *  - Retry when no active season found (stale worldState)
- *  - Active season: expiry badge, completion toggle, season pane injected
- *  - Re-render scheduled at season expiry
- *  - Missing DOM elements handled gracefully
  */
 import {
 	describe, test, expect, beforeAll, beforeEach, afterEach, vi,
 } from 'vitest';
+import {testCardFilters} from '../card-filters-factory';
 import {updateCalendarSeason} from '../../../src/live/calendar-seasons';
 import {loadMock} from '../../helpers/api-mocks';
 import {freezeTime, MOCK_TIMESTAMP} from '../../helpers/time-helpers';
+
+testCardFilters('calendar-season');
 
 // Captured before any fake timers are installed
 const realNow = Date.now();

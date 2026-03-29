@@ -126,6 +126,53 @@ test.describe('Live Page - 1999 Calendar Card', () => {
 		});
 	});
 
+	test.describe('Filters', () => {
+		test('gear icon is present in the card header', async ({page}) => {
+			const card = page.locator('#calendar-season-card');
+			await expect(card.locator('[data-filter-toggle="calendar-season"]')).toBeVisible();
+		});
+
+		test('filter panel is hidden by default', async ({page}) => {
+			await expect(page.locator('#calendar-season-filters')).toBeHidden();
+		});
+
+		test('clicking gear icon opens the filter panel', async ({page}) => {
+			await page.locator('[data-filter-toggle="calendar-season"]').click();
+			await expect(page.locator('#calendar-season-filters')).toBeVisible();
+		});
+
+		test('filter panel has three event type checkboxes, all checked by default', async ({page}) => {
+			await page.locator('[data-filter-toggle="calendar-season"]').click();
+			const checkboxes = page.locator('#calendar-season-filters input[type="checkbox"]');
+			await expect(checkboxes).toHaveCount(3);
+			for (const checkbox of await checkboxes.all()) {
+				await expect(checkbox).toBeChecked();
+			}
+		});
+
+		test('"No event types checked" message is hidden when all types are checked', async ({page}) => {
+			await expect(page.locator('.calendar-season-no-events')).toBeHidden();
+		});
+
+		test('"No event types checked" message appears when all types are unchecked', async ({page}) => {
+			await page.locator('[data-filter-toggle="calendar-season"]').click();
+			await page.locator('#filter-calendar-season-type-CET_CHALLENGE').uncheck();
+			await page.locator('#filter-calendar-season-type-CET_REWARD').uncheck();
+			await page.locator('#filter-calendar-season-type-CET_UPGRADE').uncheck();
+			await expect(page.locator('.calendar-season-no-events')).toBeVisible();
+		});
+
+		test('filter state persists after page reload', async ({page}) => {
+			await page.locator('[data-filter-toggle="calendar-season"]').click();
+			await page.locator('#filter-calendar-season-type-CET_UPGRADE').uncheck();
+
+			await reloadWithFrozenClock(page);
+			await page.waitForSelector('#calendar-season-body .calendar-season-date', {timeout: 10_000});
+
+			await expect(page.locator('#filter-calendar-season-type-CET_UPGRADE')).not.toBeChecked();
+		});
+	});
+
 	test.describe('Day Rows', () => {
 		test('renders calendar season content', async ({page}) => {
 			const cardBody = page.locator('#calendar-season-body');

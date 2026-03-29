@@ -31,7 +31,8 @@ export async function renderCalendarSeasonPane(season: any): Promise<HTMLDivElem
 	for (const dayData of resolvedDays) {
 		// Two-column layout on md+: date label on left, events stacked on right
 		const row = document.createElement('div');
-		row.className = 'd-md-flex mb-3';
+		row.className = 'd-md-flex mb-3 calendar-season-event';
+		row.dataset.eventType = dayData.events[0].type;
 
 		const dateCol = document.createElement('div');
 		dateCol.className = 'fw-bold small me-3 calendar-season-date';

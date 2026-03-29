@@ -1,9 +1,6 @@
 name: Post Weekly Forecast to Discord
 
 on:
-  schedule:
-    # Every Sunday at 23:02 UTC (forecast published at 23:00, proxy caches flush by 23:02)
-    - cron: '2 23 * * 0'
   workflow_dispatch:
     inputs:
       dry_run:

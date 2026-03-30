@@ -35,9 +35,9 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 		await filterToggle.click();
 		await expect(filterPanel).toBeVisible();
 
-		// All 25 mission type checkboxes should be present
+		// All 26 mission type checkboxes should be present
 		const checkboxes = await page.locator('#incursions-filters input[type="checkbox"]').count();
-		expect(checkboxes).toBe(25);
+		expect(checkboxes).toBe(26);
 	});
 
 	test('filter preference persists across page reload', async ({page}) => {

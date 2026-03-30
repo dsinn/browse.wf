@@ -1,6 +1,5 @@
 import {isFilterEnabled} from '../card-filters.js';
 import {fetchExport} from '../public-export-fetcher.js';
-import {canonicalizeMissionType} from '../helpers/mission-helpers.js';
 
 export async function updateIncursionsLocalised() {
 	const [[dict, osdict], ExportRegions, ExportFactions] = await Promise.all([
@@ -17,7 +16,8 @@ export async function updateIncursionsLocalised() {
 		const node = ExportRegions[(globalThis as any).incursions_today[i]];
 
 		// Check if this mission type should be displayed (filter check)
-		const isVisible = isFilterEnabled('incursions', canonicalizeMissionType(node.missionType));
+		const filterKey = node.missionName.replace('/Lotus/Language/Missions/MissionName_', '');
+		const isVisible = isFilterEnabled('incursions', filterKey);
 
 		if (isVisible) {
 			(elms[i] as HTMLElement).classList.remove('d-none');

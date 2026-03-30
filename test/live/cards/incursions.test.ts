@@ -33,31 +33,32 @@ describe('Incursions Card - DOM Structure', () => {
 
 	test('filter panel has checkboxes for all expected mission types', () => {
 		const expectedTypes = [
-			'MT_ALCHEMY',
-			'MT_ASCENSION',
-			'MT_ASSASSINATION',
-			'MT_ASSAULT',
-			'MT_CAPTURE',
-			'MT_EVACUATION',
-			'MT_DEFENSE',
-			'MT_ARTIFACT',
-			'MT_EXCAVATE',
-			'MT_EXTERMINATION',
-			'MT_RETRIEVAL',
-			'MT_HIVE',
-			'MT_PURIFY',
-			'MT_TERRITORY',
-			'MT_MOBILE_DEFENSE',
-			'MT_PURSUIT',
-			'MT_RESCUE',
-			'MT_RUSH',
-			'MT_SABOTAGE',
-			'MT_OFFERING',
-			'MT_SPY',
-			'MT_SURVIVAL',
-			'MT_ARMAGEDDON',
-			'MT_VOID_CASCADE',
-			'MT_CORRUPTION',
+			'Alchemy',
+			'Ascension',
+			'Assassination',
+			'Assault',
+			'Capture',
+			'Evacuation',
+			'Defense',
+			'Artifact',
+			'Excavation',
+			'Exterminate',
+			'Retrieval',
+			'Hive',
+			'Purify',
+			'Territory',
+			'MobileDefense',
+			'DualDefense',
+			'Pursuit',
+			'Rescue',
+			'Rush',
+			'Sabotage',
+			'Offering',
+			'Spy',
+			'Survival',
+			'Armageddon',
+			'VoidCascade',
+			'Corruption',
 		];
 		for (const type of expectedTypes) {
 			const checkbox = document.querySelector(`#incursions-filters input[data-filter-type="${type}"]`);
@@ -66,7 +67,7 @@ describe('Incursions Card - DOM Structure', () => {
 	});
 });
 
-// Six nodes from ExportRegions with varied mission types; SolNode225 is MT_INTEL (tests canonicalization)
+// Six nodes from ExportRegions with varied mission types; SolNode225 is MT_INTEL but missionName Spy
 const MOCK_INCURSIONS_TODAY = ['SolNode94', 'SolNode130', 'SolNode119', 'SolNode12', 'SolNode103', 'SolNode225'];
 
 function setupIncursionsGlobals() {
@@ -147,18 +148,18 @@ describe('Incursions Card - updateIncursionsLocalised', () => {
 
 		// Find what mission type the first slot has
 		const firstNode = ExportRegions[MOCK_INCURSIONS_TODAY[0]];
-		const missionType = firstNode.missionType === 'MT_INTEL' ? 'MT_SPY' : firstNode.missionType;
+		const filterKey = firstNode.missionName.replace('/Lotus/Language/Missions/MissionName_', '');
 
 		// Disable that mission type
-		localStorage.setItem(`live.filter.incursions.${missionType}`, '0');
+		localStorage.setItem(`live.filter.incursions.${filterKey}`, '0');
 		await updateIncursionsLocalised();
 
 		// Count how many slots have that mission type (should all be hidden)
 		let expectedHidden = 0;
 		for (const nodeId of MOCK_INCURSIONS_TODAY) {
 			const node = ExportRegions[nodeId];
-			const mt = node.missionType === 'MT_INTEL' ? 'MT_SPY' : node.missionType;
-			if (mt === missionType) {
+			const mt = node.missionName.replace('/Lotus/Language/Missions/MissionName_', '');
+			if (mt === filterKey) {
 				expectedHidden++;
 			}
 		}
@@ -168,33 +169,34 @@ describe('Incursions Card - updateIncursionsLocalised', () => {
 	});
 
 	test('empty message shown when all mission types are filtered out', async () => {
-		// Disable all 25 mission types
+		// Disable all 26 mission types
 		const allMissionTypes = [
-			'MT_ALCHEMY',
-			'MT_ASCENSION',
-			'MT_ASSASSINATION',
-			'MT_ASSAULT',
-			'MT_CAPTURE',
-			'MT_EVACUATION',
-			'MT_DEFENSE',
-			'MT_ARTIFACT',
-			'MT_EXCAVATE',
-			'MT_EXTERMINATION',
-			'MT_RETRIEVAL',
-			'MT_HIVE',
-			'MT_PURIFY',
-			'MT_TERRITORY',
-			'MT_MOBILE_DEFENSE',
-			'MT_PURSUIT',
-			'MT_RESCUE',
-			'MT_RUSH',
-			'MT_SABOTAGE',
-			'MT_OFFERING',
-			'MT_SPY',
-			'MT_SURVIVAL',
-			'MT_ARMAGEDDON',
-			'MT_VOID_CASCADE',
-			'MT_CORRUPTION',
+			'Alchemy',
+			'Ascension',
+			'Assassination',
+			'Assault',
+			'Capture',
+			'Evacuation',
+			'Defense',
+			'Artifact',
+			'Excavation',
+			'Exterminate',
+			'Retrieval',
+			'Hive',
+			'Purify',
+			'Territory',
+			'MobileDefense',
+			'DualDefense',
+			'Pursuit',
+			'Rescue',
+			'Rush',
+			'Sabotage',
+			'Offering',
+			'Spy',
+			'Survival',
+			'Armageddon',
+			'VoidCascade',
+			'Corruption',
 		];
 		for (const mt of allMissionTypes) {
 			localStorage.setItem(`live.filter.incursions.${mt}`, '0');
@@ -206,28 +208,16 @@ describe('Incursions Card - updateIncursionsLocalised', () => {
 		expect(document.querySelector('#incursions-empty-message')?.classList.contains('d-none')).toBe(false);
 	});
 
-	test('MT_INTEL is treated as MT_SPY for filter purposes', async () => {
+	test('MT_INTEL nodes use Spy filter key (via missionName)', async () => {
 		const ExportRegions = loadExportJson('ExportRegions.json');
 
-		// Find a node with MT_INTEL if one exists in our test set, else skip with a note
+		// SolNode225 is MT_INTEL but has missionName MissionName_Spy
 		const intelNode = MOCK_INCURSIONS_TODAY.find(id => ExportRegions[id]?.missionType === 'MT_INTEL');
-
 		if (!intelNode) {
-			// No MT_INTEL in current test nodes — just verify the filter key used is MT_SPY for spy nodes
-			const spyNode = MOCK_INCURSIONS_TODAY.find(id => ExportRegions[id]?.missionType === 'MT_SPY');
-			if (spyNode) {
-				localStorage.setItem('live.filter.incursions.MT_SPY', '0');
-				await updateIncursionsLocalised();
-				const idx = MOCK_INCURSIONS_TODAY.indexOf(spyNode);
-				const span = document.querySelectorAll('#incursions-body span.d-block')[idx];
-				expect((span as HTMLElement).classList.contains('d-none')).toBe(true);
-			}
-
 			return;
 		}
 
-		// Disabling MT_SPY should also hide MT_INTEL nodes
-		localStorage.setItem('live.filter.incursions.MT_SPY', '0');
+		localStorage.setItem('live.filter.incursions.Spy', '0');
 		await updateIncursionsLocalised();
 		const idx = MOCK_INCURSIONS_TODAY.indexOf(intelNode);
 		const span = document.querySelectorAll('#incursions-body span.d-block')[idx];

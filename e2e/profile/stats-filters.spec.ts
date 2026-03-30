@@ -75,11 +75,13 @@ test.describe('Profile Stats Filters', () => {
 
 		test('all rows visible initially', async ({page}) => {
 			const visibleRows = page.locator('#equipment-stats tr:visible');
+			await expect(visibleRows.first()).toBeVisible();
 			expect(await visibleRows.count()).toBeGreaterThan(0);
 		});
 
 		test('clicking a category button filters the table', async ({page}) => {
 			const bar = page.locator('#equipment-filter-bar');
+			await expect(page.locator('#equipment-stats tr').first()).toBeVisible();
 			const totalRows = await page.locator('#equipment-stats tr').count();
 
 			// Click the first non-All button

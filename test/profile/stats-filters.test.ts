@@ -212,16 +212,6 @@ describe('profile-stats-filters', () => {
 			expect(alphaBtn!.classList.contains('active')).toBe(true);
 		});
 
-		it('clicking the active filter button again resets to "All"', () => {
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
-			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
-			alphaBtn!.click();
-			alphaBtn!.click();
-			expect(tbody.dataset.filter).toBeUndefined();
-			const allBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter=""]');
-			expect(allBtn!.classList.contains('active')).toBe(true);
-		});
-
 		it('clicking "All" clears the filter', () => {
 			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');

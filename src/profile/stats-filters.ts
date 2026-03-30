@@ -133,7 +133,7 @@ export function initStatsFilterBar(
 		}
 
 		btn.addEventListener('click', () => {
-			applyFilter(tbody.dataset.filter === key ? '' : key);
+			applyFilter(key);
 		});
 		filterBar.append(btn);
 		addTooltip(btn, tooltip);

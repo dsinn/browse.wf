@@ -103,18 +103,6 @@ test.describe('Profile Stats Filters', () => {
 			expect(visibleCount).toBe(matchCount);
 		});
 
-		test('clicking active filter button again resets to All', async ({page}) => {
-			const bar = page.locator('#equipment-filter-bar');
-			const firstCatBtn = bar.locator('button:not([data-filter=""])').first();
-			const totalRows = await page.locator('#equipment-stats tr').count();
-
-			await firstCatBtn.click();
-			await firstCatBtn.click();
-
-			await expect(bar.locator('button[data-filter=""]')).toHaveClass(/active/u);
-			await expect(page.locator('#equipment-stats tr:visible')).toHaveCount(totalRows);
-		});
-
 		test('switching between category buttons updates the filter', async ({page}) => {
 			const bar = page.locator('#equipment-filter-bar');
 			const catButtons = bar.locator('button:not([data-filter=""])');
@@ -166,18 +154,6 @@ test.describe('Profile Stats Filters', () => {
 			expect(matchCount).toBeLessThanOrEqual(totalRows);
 			await expect(page.locator('#enemy-stats tr:visible')).toHaveCount(matchCount);
 		});
-
-		test('clicking active faction button again resets to All', async ({page}) => {
-			const bar = page.locator('#enemy-filter-bar');
-			const firstFactionBtn = bar.locator('button:not([data-filter=""])').first();
-			const totalRows = await page.locator('#enemy-stats tr').count();
-
-			await firstFactionBtn.click();
-			await firstFactionBtn.click();
-
-			await expect(bar.locator('button[data-filter=""]')).toHaveClass(/active/u);
-			await expect(page.locator('#enemy-stats tr:visible')).toHaveCount(totalRows);
-		});
 	});
 
 	const checkSequentialRanks = (page: any, tbodyId: string) =>
@@ -223,7 +199,7 @@ test.describe('Profile Stats Filters', () => {
 		test('ranks restore after clearing filter', async ({page}) => {
 			const firstCatBtn = page.locator('#equipment-filter-bar button:not([data-filter=""])').first();
 			await firstCatBtn.click();
-			await firstCatBtn.click(); // Toggle back to All
+			await page.locator('#equipment-filter-bar button[data-filter=""]').click(); // Reset to All
 			const {count, errors} = await checkSequentialRanks(page, 'equipment-stats');
 			expect(count).toBeGreaterThan(0);
 			expect(errors).toEqual([]);

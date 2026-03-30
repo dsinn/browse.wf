@@ -9,9 +9,8 @@ import {createClient} from '@supabase/supabase-js';
 import {logger} from '../logger.js';
 
 // Environment variables - support both local dev and production
-// Local dev (PHP server): env-config.php reads from .env file
-// Production (GitHub Pages): env-config.php reads from GitHub Actions environment
-// Both inject window.__ENV__ which gets baked into the static HTML
+// Local dev: scripts/render-pages.js generates env-config.js from .env
+// Production (GitHub Pages): build-gh-pages.js generates env-config.js from GitHub Actions env vars
 const databaseUrl = (globalThis as any).__ENV__?.VITE_DATABASE_URL;
 const databaseKey = (globalThis as any).__ENV__?.VITE_DATABASE_ANON_KEY;
 

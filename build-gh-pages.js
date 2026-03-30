@@ -38,8 +38,6 @@ function fixPathsForGitHubPages(html) {
 		.replaceAll(/href="\/"(?=[^/]|")/gu, `href="${BASE_PATH}/"`)
 	// Fix script sources (e.g., src="/common.js" → src="/browse.wf/common.js")
 		.replaceAll(/src="\/([^"]+\.js)"/gu, `src="${BASE_PATH}/$1"`)
-	// Fix env-config.php to env-config.js (PHP won't execute on GitHub Pages)
-		.replaceAll('src="env-config.php"', 'src="env-config.js"')
 	// GitHub Pages caches assets for 10 minutes; append cache-buster to all local assets
 		.replaceAll(/src="((?:typestripped\/|common\.js|env-config\.js|supplemental-data\/)[^"?]*)(?:\?[^"]*)?"/gu, `src="$1?${CACHE_BUSTER}"`)
 		.replaceAll(/href="(src\/[^"?]+\.css)(?:\?[^"]*)?"/gu, `href="$1?${CACHE_BUSTER}"`);

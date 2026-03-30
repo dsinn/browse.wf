@@ -11,12 +11,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
+import {loadEnv} from 'vite';
 import {
 	discoverPhpPages,
 	renderPhpFiles,
 	startPhpServer,
 	stopPhpServer,
-	fetchHtml,
 } from '../helpers/php-renderer.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -26,14 +26,27 @@ const PHP_PORT = Number.parseInt(process.env.PHP_RENDER_PORT || '62969', 10);
 
 /**
  * Strip .php extensions from links so Vite can serve extensionless URLs.
- * Also inject env vars from .env for local dev.
  */
 function transformForDev(html) {
 	return html
 	// Strip .php from internal links (Vite serves extensionless)
-		.replaceAll(/href="\/([^"]+)\.php"/gu, 'href="/$1"')
-	// Env-config.php is a PHP script that outputs JS; rewrite to the pre-rendered .js file
-		.replaceAll('src="env-config.php"', 'src="env-config.js"');
+		.replaceAll(/href="\/([^"]+)\.php"/gu, 'href="/$1"');
+}
+
+/**
+ * Generate env-config.js from .env / environment variables.
+ */
+function generateEnvConfig() {
+	const ENV_KEYS = [
+		'VITE_DATABASE_URL',
+		'VITE_DATABASE_ANON_KEY',
+		'WARFRAME_API_FRONT_PROXY_BASE_URL',
+		'WARFRAME_API_FRONT_PROXY_TOKEN',
+	];
+	const env = loadEnv('', rootDir, '');
+	const values = Object.fromEntries(ENV_KEYS.map(k => [k, env[k] || process.env[k] || '']));
+
+	return `window.__ENV__ = ${JSON.stringify(values)};\n`;
 }
 
 async function renderOnce(serverAlreadyRunning = false) {
@@ -52,10 +65,8 @@ async function renderOnce(serverAlreadyRunning = false) {
 			keepServerRunning: true, // We manage the server ourselves
 		});
 
-		// Render env-config.php (outputs JS, loaded as <script src="env-config.php">)
-		const envJs = await fetchHtml('/env-config.php', PHP_PORT);
-		fs.writeFileSync(path.join(OUTPUT_DIR, 'env-config.js'), envJs);
-		console.log('  env-config.php -> env-config.js');
+		fs.writeFileSync(path.join(OUTPUT_DIR, 'env-config.js'), generateEnvConfig());
+		console.log('  env-config.js generated');
 
 		console.log('Done.\n');
 	} finally {
@@ -83,10 +94,10 @@ async function watchMode() {
 	// Initial render (server already running)
 	await renderOnce(true);
 
-	console.log('Watching PHP files for changes...\n');
+	console.log('Watching for changes...\n');
 
 	const IGNORED_DIRS = /\.git|dist|node_modules|public|test|typestripped|vendor/u;
-	const watcher = chokidar.default.watch(rootDir, {
+	const phpWatcher = chokidar.default.watch(rootDir, {
 		ignored(filePath, stats) {
 			if (!stats) {
 				return false;
@@ -108,12 +119,31 @@ async function watchMode() {
 		clearTimeout(renderTimer);
 		renderTimer = setTimeout(async () => {
 			await renderOnce(true);
-			console.log('Watching PHP files for changes...\n');
+			console.log('Watching for changes...\n');
 		}, 300);
 	};
 
-	watcher.on('change', scheduleRender);
-	watcher.on('add', scheduleRender);
+	phpWatcher.on('change', scheduleRender);
+	phpWatcher.on('add', scheduleRender);
+
+	const envWatcher = chokidar.default.watch(path.join(rootDir, '.env'), {
+		persistent: true,
+		ignoreInitial: true,
+	});
+
+	let envTimer;
+	const scheduleEnvRegen = filePath => {
+		console.log(`Changed: ${filePath}`);
+		clearTimeout(envTimer);
+		envTimer = setTimeout(() => {
+			fs.writeFileSync(path.join(OUTPUT_DIR, 'env-config.js'), generateEnvConfig());
+			console.log('  env-config.js regenerated');
+			console.log('Watching for changes...\n');
+		}, 300);
+	};
+
+	envWatcher.on('change', scheduleEnvRegen);
+	envWatcher.on('add', scheduleEnvRegen);
 }
 
 // CLI

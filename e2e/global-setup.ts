@@ -4,11 +4,15 @@
  * This file sets up safeguards to prevent tests from hitting production domains.
  */
 import {Buffer} from 'node:buffer';
+import {execSync} from 'node:child_process';
+import process from 'node:process';
 import {chromium, type FullConfig} from '@playwright/test';
 import {isBlockedDomain, isImageRequest} from '../test/helpers/domain-blocker';
 
 export default async function globalSetup(config: FullConfig) {
 	console.log('🔒 Setting up E2E test safeguards...');
+
+	execSync('node scripts/render-pages.js', {cwd: process.cwd(), stdio: 'inherit'});
 
 	// Launch a browser to verify the safeguard works
 	const browser = await chromium.launch();

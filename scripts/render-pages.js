@@ -1,42 +1,127 @@
 #!/usr/bin/env node
 /**
- * Renders PHP pages to static HTML in public/ for the Vite dev server.
+ * Renders PHP pages to static HTML in public/ for the Vite dev server and tests.
  *
  * Usage:
  *   node scripts/render-pages.js           # Render once
  *   node scripts/render-pages.js --watch   # Watch PHP files and re-render on change
+ *
+ * Exports: generateEnvConfig, discoverPhpPages, renderPhpFiles,
+ *          transformPhpLinks, startPhpServer, stopPhpServer, fetchHtml
  */
 
+import {execSync} from 'node:child_process';
 import fs from 'node:fs';
+import http from 'node:http';
 import path from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 import {loadEnv} from 'vite';
-import {
-	discoverPhpPages,
-	renderPhpFiles,
-	startPhpServer,
-	stopPhpServer,
-} from '../helpers/php-renderer.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, '..');
 const OUTPUT_DIR = path.join(rootDir, 'public');
 const PHP_PORT = Number.parseInt(process.env.PHP_RENDER_PORT || '62969', 10);
 
+// PHP files in the root directory that are not standalone pages
+const EXCLUDED_PHP_FILES = new Set([
+	'404.php', // Error handler, not a browseable page
+]);
+
 /**
- * Strip .php extensions from links so Vite can serve extensionless URLs.
+ * Start PHP built-in server
  */
-function transformForDev(html) {
-	return html
-	// Strip .php from internal links (Vite serves extensionless)
-		.replaceAll(/href="\/([^"]+)\.php"/gu, 'href="/$1"');
+export function startPhpServer(options) {
+	const {port, cwd, startupDelay = 1000} = options;
+
+	execSync(`php -S localhost:${port} -t . > /dev/null 2>&1 &`, {cwd});
+
+	return new Promise(resolve => {
+		setTimeout(resolve, startupDelay);
+	});
 }
 
 /**
- * Generate env-config.js from .env / environment variables.
+ * Stop PHP server
  */
-function generateEnvConfig() {
+export function stopPhpServer(port) {
+	try {
+		execSync(`lsof -ti:${port} | xargs kill -9 2>/dev/null`);
+	} catch {
+		// Server wasn't running
+	}
+}
+
+/**
+ * Fetch HTML from PHP server
+ */
+export function fetchHtml(url, port) {
+	return new Promise((resolve, reject) => {
+		http.get(`http://localhost:${port}${url}`, response => {
+			let data = '';
+			response.on('data', chunk => {
+				data += chunk;
+			});
+			response.on('end', () => resolve(data));
+		}).on('error', reject);
+	});
+}
+
+/**
+ * Discover top-level PHP page files (excludes components and non-page files)
+ */
+export function discoverPhpPages() {
+	return fs.readdirSync(rootDir).filter(f => f.endsWith('.php') && !EXCLUDED_PHP_FILES.has(f));
+}
+
+/**
+ * Render PHP files to static HTML
+ */
+export async function renderPhpFiles(options) {
+	const {files, outputDir, port, transform, keepServerRunning = false} = options;
+
+	if (!fs.existsSync(outputDir)) {
+		fs.mkdirSync(outputDir, {recursive: true});
+	}
+
+	if (!keepServerRunning) {
+		await startPhpServer({port, cwd: rootDir});
+	}
+
+	try {
+		for (const phpFile of files) {
+			const url = `/${phpFile}`;
+			const htmlFile = phpFile.replace('.php', '.html');
+			const outputPath = path.join(outputDir, htmlFile);
+
+			// eslint-disable-next-line no-await-in-loop
+			let html = await fetchHtml(url, port);
+			if (transform) {
+				html = transform(html);
+			}
+
+			fs.writeFileSync(outputPath, html);
+			console.log(`  ${phpFile} -> ${htmlFile}`);
+		}
+	} finally {
+		if (!keepServerRunning) {
+			stopPhpServer(port);
+		}
+	}
+}
+
+/**
+ * Transform PHP links to HTML links in rendered output.
+ * Applied universally so all environments (dev, test, GitHub Pages) serve .html URLs.
+ */
+export function transformPhpLinks(html) {
+	return html.replaceAll(/href="\/([^"]+)\.php"/gu, 'href="/$1.html"');
+}
+
+/**
+ * Generate env-config.js content from .env / environment variables.
+ */
+export function generateEnvConfig() {
 	const ENV_KEYS = [
 		'VITE_DATABASE_URL',
 		'VITE_DATABASE_ANON_KEY',
@@ -61,9 +146,14 @@ async function renderOnce(serverAlreadyRunning = false) {
 			files,
 			outputDir: OUTPUT_DIR,
 			port: PHP_PORT,
-			transform: transformForDev,
+			transform: transformPhpLinks,
 			keepServerRunning: true, // We manage the server ourselves
 		});
+
+		// Also render the navbar component (used by tests)
+		const navbarHtml = transformPhpLinks(await fetchHtml('/components/navbar.php', PHP_PORT));
+		fs.writeFileSync(path.join(OUTPUT_DIR, 'navbar.html'), navbarHtml);
+		console.log('  components/navbar.php -> navbar.html');
 
 		fs.writeFileSync(path.join(OUTPUT_DIR, 'env-config.js'), generateEnvConfig());
 		console.log('  env-config.js generated');
@@ -146,17 +236,19 @@ async function watchMode() {
 	envWatcher.on('add', scheduleEnvRegen);
 }
 
-// CLI
-if (process.argv.includes('--watch') || process.argv.includes('-w')) {
-	// eslint-disable-next-line unicorn/prefer-top-level-await
-	watchMode();
-} else {
-	renderOnce().then(() => {
-		process.exit(0);
+// CLI - only run when executed directly, not when imported as a module
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+	if (process.argv.includes('--watch') || process.argv.includes('-w')) {
 		// eslint-disable-next-line unicorn/prefer-top-level-await
-	}).catch(error => {
-		console.error('Render failed:', error);
+		watchMode();
+	} else {
+		renderOnce().then(() => {
+			process.exit(0);
+			// eslint-disable-next-line unicorn/prefer-top-level-await
+		}).catch(error => {
+			console.error('Render failed:', error);
 
-		process.exit(1);
-	});
+			process.exit(1);
+		});
+	}
 }

@@ -31,7 +31,7 @@ test.describe('Profile Page (/profile.php)', () => {
 	});
 
 	test('loads without JavaScript errors', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 
 		// Wait for the profile to auto-load
 		await page.waitForSelector('#profile-nav:not(.d-none)', {timeout: 10_000});
@@ -49,7 +49,7 @@ test.describe('Profile Page (/profile.php)', () => {
 	});
 
 	test('displays profile information correctly', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.waitForSelector('#profile-nav:not(.d-none)', {timeout: 10_000});
 
 		// Verify profile name is displayed
@@ -65,7 +65,7 @@ test.describe('Profile Page (/profile.php)', () => {
 	});
 
 	test('displays missions table with data', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.waitForSelector('#profile-nav:not(.d-none)', {timeout: 10_000});
 
 		// Navigate to Missions tab
@@ -90,7 +90,7 @@ test.describe('Profile Page (/profile.php)', () => {
 	});
 
 	test('displays syndicates with standings', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.waitForSelector('#profile-nav:not(.d-none)', {timeout: 10_000});
 
 		// Syndicates tab should be active by default (or navigate to it)
@@ -103,7 +103,7 @@ test.describe('Profile Page (/profile.php)', () => {
 	});
 
 	test('tab navigation works correctly', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.waitForSelector('#profile-nav:not(.d-none)', {timeout: 10_000});
 
 		const tabs = [

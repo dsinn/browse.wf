@@ -8,7 +8,7 @@ import {expiryBadge} from './helpers';
 
 test.beforeEach(async ({page}) => {
 	await setupMockRoutes(page);
-	await page.goto('/live.php');
+	await page.goto('/live');
 	// Wait for "Fetching data..." placeholder to be replaced by rendered tables
 	await page.waitForSelector('#labConquest-body table', {timeout: 15_000});
 	await page.waitForSelector('#hexConquest-body table', {timeout: 15_000});

@@ -9,21 +9,21 @@ test.describe('Live Page - Invasions Card', () => {
 
 	test.beforeEach(async ({page}) => {
 		await setupMockRoutes(page);
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await page.evaluate(() => {
 			localStorage.clear();
 		});
 	});
 
 	test('renders invasion rows end-to-end', async ({page}) => {
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await waitForInvasionsTable(page);
 		expect(await page.locator('#invasions-table tbody tr:visible').count()).toBeGreaterThan(0);
 	});
 
 	test('unchecking a reward filter hides rows and re-checking restores them', async ({page}) => {
 		await setupMockRoutes(page, {worldStateFile: 'worldState-invasions.json'});
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await waitForInvasionsTable(page);
 
 		const rowsBefore = await page.locator('#invasions-table tbody tr:visible').count();
@@ -40,7 +40,7 @@ test.describe('Live Page - Invasions Card', () => {
 		test.beforeEach(async ({page}) => {
 			await setupMockRoutes(page, {worldStateFile: 'worldState-invasions.json'});
 			await mockExportData(page, ['ExportImages']);
-			await page.goto('/live.php');
+			await page.goto('/live');
 			await waitForInvasionsTable(page);
 		});
 

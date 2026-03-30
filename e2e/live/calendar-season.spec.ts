@@ -6,7 +6,7 @@ test.describe('Live Page - 1999 Calendar Card', () => {
 	test.beforeEach(async ({page}) => {
 		await setupMockRoutes(page);
 		await mockLiveExports(page);
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await page.waitForSelector('#calendar-season-body .calendar-season-date', {timeout: 10_000});
 	});
 

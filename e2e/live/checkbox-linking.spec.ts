@@ -3,7 +3,7 @@ import {setupMockRoutes} from '../helpers/api-mocks';
 
 async function setupPage(page: any) {
 	await setupMockRoutes(page);
-	await page.goto('/live.php');
+	await page.goto('/live');
 	await page.waitForSelector('#netracell-checks .completion-check', {timeout: 15_000});
 	await page.waitForSelector('#labConquest-header .completion-check', {timeout: 15_000});
 	await page.waitForSelector('#hexConquest-header .completion-check', {timeout: 15_000});

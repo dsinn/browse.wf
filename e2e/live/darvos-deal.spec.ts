@@ -11,7 +11,7 @@ const DARVO_ACTIVE_TIMESTAMP = 1_768_135_860_000; // 2026-01-11T12:51:00Z — in
 test.describe('Darvo\'s Deal', () => {
 	test('shows active deal with pricing and stock', async ({page}) => {
 		await setupMockRoutes(page, {frozenTime: DARVO_ACTIVE_TIMESTAMP});
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await page.waitForSelector('#darvo-header .badge[data-expiry]', {timeout: 10_000});
 
 		await expect(expiryBadge(page.locator('#darvo-header'))).toBeVisible();

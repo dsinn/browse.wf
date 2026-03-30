@@ -22,7 +22,7 @@ const NIGHTTIME_TIMESTAMP = 1_768_099_122_118; // 2026-01-11T02:38:42Z
 test.describe('Day/Night Cycles', () => {
 	test('daytime: POE shows Day with expiry badge, Cambion Drift shows Fass', async ({page}) => {
 		await setupMockRoutes(page, {frozenTime: MOCK_TIMESTAMP});
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await page.waitForSelector('#poe:not(:has-text("Fetching data..."))', {timeout: 10_000});
 
 		await expect(page.locator('#poe')).toHaveText(/^☀️ Day/u);
@@ -32,7 +32,7 @@ test.describe('Day/Night Cycles', () => {
 
 	test('nighttime: POE shows Night, Cambion Drift shows Vome', async ({page}) => {
 		await setupMockRoutes(page, {frozenTime: NIGHTTIME_TIMESTAMP});
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await page.waitForSelector('#poe:not(:has-text("Fetching data..."))', {timeout: 10_000});
 
 		await expect(page.locator('#poe')).toHaveText(/^🌑 Night/u);
@@ -41,7 +41,7 @@ test.describe('Day/Night Cycles', () => {
 
 	test('Orb Vallis shows cycle state with expiry badge', async ({page}) => {
 		await setupMockRoutes(page, {frozenTime: MOCK_TIMESTAMP});
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await page.waitForSelector('#vallis:not(:has-text("Fetching data..."))', {timeout: 10_000});
 
 		await expect(page.locator('#vallis')).toHaveText(/^(?:❄️ Cold|☀️ Warm)/u);
@@ -50,7 +50,7 @@ test.describe('Day/Night Cycles', () => {
 
 	test('Duviri shows a named mood with expiry badge', async ({page}) => {
 		await setupMockRoutes(page, {frozenTime: MOCK_TIMESTAMP});
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await page.waitForSelector('#duviri:not(:has-text("Fetching data..."))', {timeout: 10_000});
 
 		await expect(page.locator('#duviri')).toHaveText(/^(?:Sorrow|Fear|Joy|Anger|Envy)/u);

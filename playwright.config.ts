@@ -23,9 +23,9 @@ export default defineConfig({
 		},
 	],
 
-	// Run local dev server before tests
+	// Run Vite dev server before tests (serves pre-rendered HTML from public/)
 	webServer: {
-		command: String.raw`php -S localhost:61969 2>&1 | grep -v "^\[.*\] \[200\]: GET " | grep -v "^\[.*\] Accepted$" | grep -v "^\[.*\] Closing$"`,
+		command: 'vite --config vitest.config.ts --port 61969',
 		url: 'http://localhost:61969',
 		reuseExistingServer: !process.env.CI,
 		timeout: 120_000,

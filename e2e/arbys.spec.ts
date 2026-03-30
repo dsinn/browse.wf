@@ -6,7 +6,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		// Mock API responses for deterministic, fast, offline-capable tests
 		await setupMockRoutes(page);
 
-		await page.goto('/arbys.php');
+		await page.goto('/arbys');
 		// Wait for the page to load and render data
 		await page.waitForSelector('#log:not(:has-text("Loading, please wait..."))');
 	});
@@ -180,7 +180,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 	test.describe('URL fragment parameters', () => {
 		test('loads with days parameter from URL', async ({page}) => {
-			await page.goto('/arbys.php');
+			await page.goto('/arbys');
 			await page.waitForSelector('#log:not(:has-text("Loading, please wait..."))');
 
 			// Set hash and reload to apply parameters
@@ -195,7 +195,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		});
 
 		test('loads with timezone parameter from URL', async ({page}) => {
-			await page.goto('/arbys.php');
+			await page.goto('/arbys');
 			await page.waitForSelector('#log:not(:has-text("Loading, please wait..."))');
 
 			await page.evaluate(() => {
@@ -213,7 +213,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		});
 
 		test('loads with hour format parameter from URL', async ({page}) => {
-			await page.goto('/arbys.php');
+			await page.goto('/arbys');
 			await page.waitForSelector('#log:not(:has-text("Loading, please wait..."))');
 
 			await page.evaluate(() => {
@@ -231,7 +231,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		});
 
 		test('loads with exclude parameter unchecking filters', async ({page}) => {
-			await page.goto('/arbys.php');
+			await page.goto('/arbys');
 			await page.waitForSelector('#log:not(:has-text("Loading, please wait..."))');
 
 			await page.evaluate(() => {
@@ -249,7 +249,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		});
 
 		test('loads with combined parameters', async ({page}) => {
-			await page.goto('/arbys.php');
+			await page.goto('/arbys');
 			await page.waitForSelector('#log:not(:has-text("Loading, please wait..."))');
 
 			await page.evaluate(() => {
@@ -440,7 +440,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			});
 
 			const mobilePage = await mobileContext.newPage();
-			await mobilePage.goto('/arbys.php');
+			await mobilePage.goto('/arbys');
 			await mobilePage.waitForSelector('#log [data-timestamp]');
 
 			// Should default to 1 day (24 hours) on mobile

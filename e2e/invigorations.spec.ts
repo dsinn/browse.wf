@@ -17,7 +17,7 @@ test.describe('Invigorations Page (/invigorations.php)', () => {
 		// Freeze time to prevent flakiness on weekly boundaries
 		await setupMockRoutes(page, {freezeTime: true, frozenTime: FROZEN_TIME});
 
-		await page.goto('/invigorations.php');
+		await page.goto('/invigorations');
 
 		// Clear localStorage after page loads
 		await page.evaluate(() => {

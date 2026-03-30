@@ -49,7 +49,7 @@ test.describe('Profile Stats Filters', () => {
 			});
 		});
 
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.selectOption('#platform-select', 'pc');
 		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
 		await page.setInputFiles('#ee-log-file', eeLogPath);

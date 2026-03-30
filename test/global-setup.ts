@@ -24,7 +24,7 @@ function regenerateFixtures() {
 		isRegenerating = true;
 		console.log('\n🔄 Regenerating PHP fixtures...');
 
-		execSync('node test/helpers/render-php.js', {
+		execSync('node scripts/render-pages.js', {
 			cwd: process.cwd(),
 			stdio: 'inherit',
 		});
@@ -70,7 +70,7 @@ export async function setup() {
 				regenerateFixtures();
 
 				// Vitest will automatically re-run tests when fixtures change
-				// No need to manually trigger - it watches test/__fixtures__/**
+				// No need to manually trigger - it watches public/**
 			}, 300);
 		});
 	}

@@ -10,7 +10,7 @@ test.describe('Baro Ki\'Teer (Void Trader)', () => {
 		// MOCK_TIMESTAMP falls inside this window.
 		test.beforeEach(async ({page}) => {
 			await setupMockRoutes(page, {frozenTime: MOCK_TIMESTAMP});
-			await page.goto('/live.php');
+			await page.goto('/live');
 			await page.waitForSelector('#baro-table tbody tr', {timeout: 10_000});
 		});
 
@@ -29,7 +29,7 @@ test.describe('Baro Ki\'Teer (Void Trader)', () => {
 		// Next activation: 1775221200000 (2026-04-03T13:00:00Z)
 		test.beforeEach(async ({page}) => {
 			await setupMockRoutes(page, {worldStateFile: 'worldState-baro-absent.json', frozenTime: MOCK_TIMESTAMP});
-			await page.goto('/live.php');
+			await page.goto('/live');
 			await page.waitForSelector('.baro-where:visible', {timeout: 10_000});
 		});
 

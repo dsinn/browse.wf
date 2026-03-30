@@ -68,7 +68,7 @@ test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () 
 	});
 
 	test('completes full workflow with EE.log upload', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 
 		await expect(page.locator('#steps')).toBeVisible();
 
@@ -99,7 +99,7 @@ test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () 
 	});
 
 	test('persists profile data in localStorage after EE.log auto-fetch', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 
 		await expect(page.locator('#steps')).toBeVisible();
 		await page.selectOption('#platform-select', 'pc');
@@ -136,7 +136,7 @@ test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () 
 
 	test('auto-loads profile from localStorage on page load', async ({page}) => {
 		// First, set up localStorage with profile data
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.evaluate(() => {
 			localStorage.setItem('profile.data', JSON.stringify({
 				Results: [{
@@ -162,7 +162,7 @@ test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () 
 	});
 
 	test('shows refresh alert when localStorage has account ID', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.evaluate(() => {
 			localStorage.setItem('profile.platform', 'pc');
 			localStorage.setItem('profile.accountId', '55540360384632532d7b23c6');
@@ -193,7 +193,7 @@ test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () 
 			void route.fulfill({status: 500, body: 'error'});
 		});
 
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.selectOption('#platform-select', 'pc');
 		await page.click('button:has-text("Click Me")');
 
@@ -221,7 +221,7 @@ test.describe('Profile Workflow - Unauthenticated', () => {
 	});
 
 	test('shows manual download/upload steps after EE.log upload', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.selectOption('#platform-select', 'pc');
 
 		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
@@ -239,7 +239,7 @@ test.describe('Profile Workflow - Unauthenticated', () => {
 			void route.fulfill({status: 200, contentType: 'application/json', body: wrappedProfileResponse()});
 		});
 
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.evaluate(() => {
 			localStorage.setItem('profile.platform', 'pc');
 			localStorage.setItem('profile.accountId', '55540360384632532d7b23c6');
@@ -261,7 +261,7 @@ test.describe('Profile Workflow - Unauthenticated', () => {
 			void route.fulfill({status: 200, contentType: 'application/json', body: wrappedProfileResponse()});
 		});
 
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.selectOption('#platform-select', 'pc');
 
 		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
@@ -283,7 +283,7 @@ test.describe('Profile Workflow - Rate Limited', () => {
 	});
 
 	test('shows rate limit notice with time remaining', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.evaluate(ts => {
 			localStorage.setItem('profile.nextFetchAvailableAt', ts.toString());
 			localStorage.setItem('profile.platform', 'pc');
@@ -299,7 +299,7 @@ test.describe('Profile Workflow - Rate Limited', () => {
 	});
 
 	test('does not show Fetch Profile button when rate-limited', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.evaluate(ts => {
 			localStorage.setItem('profile.nextFetchAvailableAt', ts.toString());
 			localStorage.setItem('profile.platform', 'pc');
@@ -315,7 +315,7 @@ test.describe('Profile Workflow - Rate Limited', () => {
 	});
 
 	test('shows manual download steps as fallback when rate-limited', async ({page}) => {
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.evaluate(ts => {
 			localStorage.setItem('profile.nextFetchAvailableAt', ts.toString());
 			localStorage.setItem('profile.platform', 'pc');
@@ -338,7 +338,7 @@ test.describe('Profile Workflow - Rate Limited', () => {
 			void route.fulfill({status: 200, contentType: 'application/json', body: wrappedProfileResponse()});
 		});
 
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.evaluate(ts => {
 			localStorage.setItem('profile.nextFetchAvailableAt', ts.toString());
 		}, FUTURE_TIMESTAMP);
@@ -368,7 +368,7 @@ test.describe('Profile Workflow - 429 Fallback', () => {
 			void route.fulfill({status: 429, body: 'Too Many Requests'});
 		});
 
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.selectOption('#platform-select', 'pc');
 
 		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
@@ -383,7 +383,7 @@ test.describe('Profile Workflow - 429 Fallback', () => {
 			void route.fulfill({status: 429, body: 'Too Many Requests'});
 		});
 
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.selectOption('#platform-select', 'pc');
 
 		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');

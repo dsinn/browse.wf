@@ -9,7 +9,7 @@ test.describe('News Card (/live)', () => {
 		// Mock API responses for deterministic, fast, offline-capable tests
 		await setupMockRoutes(page);
 
-		await page.goto('/live.php');
+		await page.goto('/live');
 
 		// Clear localStorage after page loads but before tests run
 		await page.evaluate(() => {

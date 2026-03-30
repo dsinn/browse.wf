@@ -7,7 +7,7 @@ import process from 'node:process';
 
 // Use project root to avoid issues with typestripped compiled output
 const projectRoot = process.cwd();
-const FIXTURES_DIR = path.join(projectRoot, 'test', '__fixtures__');
+const FIXTURES_DIR = path.join(projectRoot, 'public');
 
 /**
  * Load a pre-rendered HTML fixture
@@ -23,9 +23,7 @@ export function loadFixture(name: string): string {
 	const fixturePath = path.join(FIXTURES_DIR, `${name}.html`);
 
 	if (!fs.existsSync(fixturePath)) {
-		throw new Error(`Fixture "${name}" not found at ${fixturePath}\n\n`
-			+ 'Run: npm run render-fixtures\n'
-			+ `Or: node test/helpers/render-php.js ${name}`);
+		throw new Error(`Fixture "${name}" not found at ${fixturePath}\n\nRun: node scripts/render-pages.js`);
 	}
 
 	return fs.readFileSync(fixturePath, 'utf8');

@@ -11,8 +11,6 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "test:api-validation": "API_VALIDATION=1 vitest run test/api-validation.test.ts",
-    "render-fixtures": "node test/helpers/render-php.js",
-    "render-fixtures:watch": "node test/helpers/render-php.js --watch",
     "typecheck": "tsc && tsc -p tsconfig.lint.json",
     "compile": "npm run typecheck && node esbuild.config.js",
     "build": "node build-gh-pages.js",

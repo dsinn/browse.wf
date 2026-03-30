@@ -10,7 +10,7 @@ import {setupMockRoutes} from '../helpers/api-mocks';
 test.describe('Syndicates tab (/profile.php)', () => {
 	test.beforeEach(async ({page}) => {
 		await setupMockRoutes(page);
-		await page.goto('/profile.php');
+		await page.goto('/profile');
 		await page.waitForSelector('#profile-nav:not(.d-none)', {timeout: 10_000});
 		await page.click('a[data-tab="syndicates"]');
 		await page.waitForSelector('#syndicates:not(.d-none)');

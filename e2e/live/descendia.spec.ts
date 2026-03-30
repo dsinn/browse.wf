@@ -6,7 +6,7 @@ test.describe('Live Page - Descendia Card', () => {
 	test.beforeEach(async ({page}) => {
 		// Mock API responses for deterministic, fast, offline-capable tests
 		await setupMockRoutes(page);
-		await page.goto('/live.php');
+		await page.goto('/live');
 
 		// Wait for initial data to load
 		await page.waitForSelector('#arby-what:not(:has-text("Loading..."))', {timeout: 10_000});

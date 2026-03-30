@@ -198,20 +198,15 @@ await page.route('**/oracle.browse.wf/new-endpoint', route => {
 - `mockEndpointError(url, status)` - Mock failed response
 
 ### `helpers/fixture-loader.ts`
-- `loadFixture(name)` - Load pre-rendered PHP HTML for tests
-- Fixtures auto-regenerate via `global-setup.ts`
+- `loadFixture(name)` - Load pre-rendered PHP HTML from `public/` for tests
+- Fixtures are rendered by `scripts/render-pages.js` (external dev script, not a test helper)
+- Auto-regenerates before each test run via `global-setup.ts`; `npm run dev` keeps them fresh in watch mode
 
 ### `helpers/dom-helpers.ts`
 - `mockBootstrapTooltip()` - Mock Bootstrap tooltip for testing
 - `getById<T>(id)` - Type-safe element query
 - `elementExists(id)` - Check element presence
 - `loadCommonJsFunctions(names)` - Load upstream `common.js` functions into window scope
-
-### `helpers/render-php.js`
-- Renders PHP to HTML fixtures (runs automatically before tests)
-- Uses shared `/helpers/php-server.js` module (also used by build script)
-- `npm run render-fixtures` - Render all fixtures once
-- `npm run render-fixtures:watch` - Re-render on PHP file changes
 
 ### `helpers/test-constants.ts`
 - `MOCK_TIMESTAMP` - Constant for mock data time (re-exported from `time-helpers.ts`)

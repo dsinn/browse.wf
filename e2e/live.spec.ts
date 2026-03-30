@@ -6,7 +6,7 @@ test.describe('Live Page (/live)', () => {
 		// Mock API responses for deterministic, fast, offline-capable tests
 		await setupMockRoutes(page);
 
-		await page.goto('/live.php');
+		await page.goto('/live');
 		// Wait for initial data to load (arbitration card loads quickly)
 		await page.waitForSelector('#arby-what:not(:has-text("Loading..."))', {timeout: 10_000});
 	});

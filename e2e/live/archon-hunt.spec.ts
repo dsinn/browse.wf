@@ -6,7 +6,7 @@ test.describe('Live Page - Archon Hunt Card', () => {
 	test.beforeEach(async ({page}) => {
 		await setupMockRoutes(page);
 
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await page.waitForSelector('#arby-what:not(:has-text("Loading..."))', {timeout: 10_000});
 	});
 

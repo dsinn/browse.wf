@@ -4,7 +4,7 @@ import {setupMockRoutes} from '../helpers/api-mocks';
 test.describe('Live Page - Steel Path Incursions Card', () => {
 	test.beforeEach(async ({page}) => {
 		await setupMockRoutes(page);
-		await page.goto('/live.php');
+		await page.goto('/live');
 		// Incursions are loaded via sp-incursions.txt (static file, always has current data).
 		// Resume real time so the time-based lookup into the file works correctly.
 		await page.clock.resume();

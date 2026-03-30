@@ -3,7 +3,7 @@ import {setupMockRoutes} from './helpers/api-mocks';
 
 async function setupPage(page: Page) {
 	await setupMockRoutes(page);
-	await page.goto('/weekly-forecast.php');
+	await page.goto('/weekly-forecast');
 
 	// Wait for content to be populated by weekly-forecast.ts
 	await page.waitForSelector('#deep-archimedea-tabs .nav-link', {timeout: 15_000});

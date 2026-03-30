@@ -7,7 +7,7 @@ const FISSURE_ACTIVE_TIMESTAMP = 1_768_135_860_000;
 test.describe('Fissures (/live)', () => {
 	test.beforeEach(async ({page}) => {
 		await setupMockRoutes(page, {frozenTime: FISSURE_ACTIVE_TIMESTAMP});
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await page.waitForSelector('#fissures-table tbody tr:not(:has-text("Loading..."))', {timeout: 10_000});
 	});
 
@@ -37,7 +37,7 @@ test.describe('Fissures (/live)', () => {
 test.describe('Void Storms (Railjack Fissures)', () => {
 	test.beforeEach(async ({page}) => {
 		await setupMockRoutes(page, {frozenTime: FISSURE_ACTIVE_TIMESTAMP});
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await page.waitForSelector('#rj-fissures-table tbody tr', {timeout: 10_000});
 	});
 

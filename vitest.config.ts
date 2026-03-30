@@ -60,8 +60,6 @@ function phpPagesPlugin(): Plugin {
 
 				if (urlPath === '/') {
 					htmlFile = 'index.html';
-				} else if (urlPath.endsWith('.php')) {
-					htmlFile = urlPath.slice(1).replace(/\.php$/u, '.html');
 				} else if (urlPath.endsWith('.html')) {
 					htmlFile = urlPath.slice(1);
 				} else if (!path.extname(urlPath)) {

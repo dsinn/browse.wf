@@ -4,7 +4,7 @@ import {setupMockRoutes} from '../helpers/api-mocks';
 test.describe('Live Page - Bounties Card', () => {
 	test.beforeEach(async ({page}) => {
 		await setupMockRoutes(page);
-		await page.goto('/live.php');
+		await page.goto('/live');
 		await expect(page.locator('#bounties-body')).not.toContainText('Fetching data...', {timeout: 10_000});
 	});
 

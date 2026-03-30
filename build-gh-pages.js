@@ -14,8 +14,8 @@ import path from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 import {
-	discoverPhpPages, startPhpServer, stopPhpServer, fetchHtml,
-} from './helpers/php-renderer.js';
+	discoverPhpPages, startPhpServer, stopPhpServer, fetchHtml, transformPhpLinks,
+} from './scripts/render-pages.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,9 +31,9 @@ const CACHE_BUSTER = process.env.GITHUB_SHA?.slice(0, 8) ?? Date.now().toString(
 function fixPathsForGitHubPages(html) {
 	const BASE_PATH = '/browse.wf';
 
-	return html
-	// Fix .php links to .html (e.g., href="/live.php" → href="/browse.wf/live.html")
-		.replaceAll(/href="\/([^"]+\.php)"/gu, (match, file) => `href="${BASE_PATH}/${file.replace('.php', '.html')}"`)
+	return transformPhpLinks(html)
+	// Fix .html links to include base path (e.g., href="/live.html" → href="/browse.wf/live.html")
+		.replaceAll(/href="\/([^"]+\.html)"/gu, `href="${BASE_PATH}/$1"`)
 	// Fix root path (e.g., href="/" → href="/browse.wf/")
 		.replaceAll(/href="\/"(?=[^/]|")/gu, `href="${BASE_PATH}/"`)
 	// Fix script sources (e.g., src="/common.js" → src="/browse.wf/common.js")

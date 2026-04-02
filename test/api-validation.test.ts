@@ -62,14 +62,16 @@ describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', 
 		expect(Object.keys(realData).sort()).toEqual(Object.keys(mockData).sort());
 
 		// Validate critical arrays exist
-		expect(Array.isArray(realData.Events)).toBe(true);
-		expect(Array.isArray(realData.Goals)).toBe(true);
 		expect(Array.isArray(realData.Alerts)).toBe(true);
-		expect(Array.isArray(realData.SyndicateMissions)).toBe(true);
-		expect(Array.isArray(realData.Sorties)).toBe(true);
-		expect(Array.isArray(realData.Invasions)).toBe(true);
-		expect(Array.isArray(realData.FlashSales)).toBe(true);
 		expect(Array.isArray(realData.DailyDeals)).toBe(true);
+		expect(Array.isArray(realData.EndlessXpChoices)).toBe(true);
+		expect(Array.isArray(realData.EndlessXpSchedule)).toBe(true);
+		expect(Array.isArray(realData.Events)).toBe(true);
+		expect(Array.isArray(realData.FlashSales)).toBe(true);
+		expect(Array.isArray(realData.Goals)).toBe(true);
+		expect(Array.isArray(realData.Invasions)).toBe(true);
+		expect(Array.isArray(realData.Sorties)).toBe(true);
+		expect(Array.isArray(realData.SyndicateMissions)).toBe(true);
 
 		// Validate timestamp exists
 		expect(typeof realData.Time).toBe('number');

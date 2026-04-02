@@ -2163,5 +2163,8 @@
     },
     "/Lotus/Types/StoreItems/AvatarImages/AvatarImageMarieLerouxMistletoeGlyph": {
         "promo_code": "MISTLETOE2025"
+    },
+    "/Lotus/Types/StoreItems/AvatarImages/Warframes/VorunaActionGlyph": {
+        "promo_code": "VORUNA"
     }
 }

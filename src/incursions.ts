@@ -513,7 +513,6 @@ export async function loadData(): Promise<void> {
 
 	// Derive year range from data
 	const firstDate = new Date(incursions[0][0] * 1000);
-	// eslint-disable-next-line unicorn/prefer-at
 	const lastDate = new Date(incursions[incursions.length - 1][0] * 1000);
 	dataStartYear = firstDate.getUTCFullYear();
 	dataEndYear = lastDate.getUTCFullYear();

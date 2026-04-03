@@ -53,6 +53,8 @@ const config = [
 			'import-x/extensions': 'off',
 			// Array#toSorted() requires ES2023 but tsconfig targets ES2021
 			'unicorn/no-array-sort': 'off',
+			// Array#at() requires ES2022 but tsconfig targets ES2021
+			'unicorn/prefer-at': 'off',
 			// Allow SCREAMING_SNAKE_CASE for module-level constants; disable for object properties
 			// since Warframe API uses PascalCase keys that can't be renamed
 			'@typescript-eslint/naming-convention': [

@@ -25,7 +25,7 @@ type IResolvedCalendarDay = {
 export const SEASON_LABELS: Record<string, string> = {
 	CST_SPRING: '🌸 Spring',
 	CST_SUMMER: '🌻 Summer',
-	CST_FALL: '🍁 Autumn',
+	CST_FALL: '🍂 Autumn',
 	CST_WINTER: '❄️ Winter',
 };
 

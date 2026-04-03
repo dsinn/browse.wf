@@ -328,7 +328,7 @@ describe('formatCalendarSeason', () => {
 	test('formats header with season label, no timestamp', async () => {
 		const result = await formatCalendarSeason(worldState);
 		// WorldState mock has CST_FALL
-		expect(result).toMatch(/^## 1999 Calendar: 🍁 Autumn$/mu);
+		expect(result).toMatch(/^## 1999 Calendar: 🍂 Autumn$/mu);
 	});
 
 	test('uses raw season key as fallback when not in SEASON_LABELS', async () => {

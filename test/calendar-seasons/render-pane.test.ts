@@ -380,9 +380,9 @@ describe('getSeasonLabel', () => {
 			expect(label).toBe('🌻 Summer');
 		});
 
-		test('CST_FALL returns "🍁 Autumn"', () => {
+		test('CST_FALL returns "🍂 Autumn"', () => {
 			const label = getSeasonLabel('CST_FALL');
-			expect(label).toBe('🍁 Autumn');
+			expect(label).toBe('🍂 Autumn');
 		});
 
 		test('CST_WINTER returns "❄️ Winter"', () => {

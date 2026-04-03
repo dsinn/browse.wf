@@ -42,7 +42,7 @@ export const ARENA_EMOJI: Record<string, string> = {
 	ArenaMelon: '🍈',
 	ArenaPeach: '🍑',
 	ArenaWaffle: '🧇',
-	BossArenaSmall: '⛽︎',
+	BossArenaSmall: '🐙',
 	BossArenaUriel: '😈',
 	ProtoframeRoomHarrow: '👲🏼',
 	ProtoframeRoomWisp: '👰🏼‍♀️',

@@ -10,7 +10,7 @@ declare function toTitleCase(str: string): string;
 declare const arbyTiers: Record<string, string>;
 
 // short-timer-badge.js
-declare function createShortTimerBadge(timestamp: number, expiredLabel: string): HTMLSpanElement;
+declare function createShortTimerBadge(timestamp: number, expiredLabel: string, extraClasses?: string): HTMLSpanElement;
 declare function initializeShortTimerBadges(): void;
 
 // fetch
@@ -230,7 +230,7 @@ function updateLog(): void
 		span.textContent += ")";
 		document.getElementById("log").appendChild(span);
 
-		span.prepend(createShortTimerBadge(arr[0], 'Started'));
+		span.prepend(createShortTimerBadge(arr[0], 'Started', 'me-2'));
 	}
 	if (document.getElementById("log").children.length == 0)
 	{

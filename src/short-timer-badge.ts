@@ -107,14 +107,13 @@ function scheduleShortTimerUpdate(elm: HTMLElement): void {
 /**
  * Creates a countdown badge element for a given timestamp
  */
-export function createShortTimerBadge(timestamp: number, expiredLabel: string): HTMLSpanElement {
+export function createShortTimerBadge(timestamp: number, expiredLabel: string, extraClasses?: string): HTMLSpanElement {
 	const span = document.createElement('span');
 	span.dataset.shortTimerExpiry = timestamp.toString();
 	span.dataset.shortTimerExpiredLabel = expiredLabel;
-	span.className = 'badge text-bg-secondary me-2';
-	// Override the #log span { display: block } CSS rule and set fixed width
+	span.className = `badge text-bg-secondary ${extraClasses ?? ''}`;
 	span.style.display = 'inline-block';
-	span.style.width = '5.5em'; // Wide enough for "99d 99h"
+	span.style.minWidth = '5.5em'; // Wide enough for "99d 99h"
 	span.style.textAlign = 'center';
 	span.textContent = formatShortTimerCountdown(timestamp, expiredLabel);
 	// Schedule first update

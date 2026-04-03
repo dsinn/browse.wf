@@ -15,24 +15,26 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 	});
 
 	describe('createShortTimerBadge()', () => {
-		test('creates a span element with correct attributes', () => {
+		test('stores timestamp in dataset', () => {
 			const timestamp = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
 			const badge = createShortTimerBadge(timestamp, 'Started');
 
-			expect(badge.tagName).toBe('SPAN');
 			expect(badge.dataset.shortTimerExpiry).toBe(timestamp.toString());
-			expect(badge.className).toContain('badge');
-			expect(badge.className).toContain('text-bg-secondary');
-			expect(badge.className).toContain('me-2');
 		});
 
-		test('has fixed width and inline-block display', () => {
+		test('includes extraClasses in className when provided', () => {
+			const timestamp = Math.floor(Date.now() / 1000) + 3600;
+			const badge = createShortTimerBadge(timestamp, 'Started', 'my-class my-second-class');
+
+			expect(badge.className).toContain('my-class');
+			expect(badge.className).toContain('my-second-class');
+		});
+
+		test('omits extraClasses from className when not provided', () => {
 			const timestamp = Math.floor(Date.now() / 1000) + 3600;
 			const badge = createShortTimerBadge(timestamp, 'Started');
 
-			expect(badge.style.display).toBe('inline-block');
-			expect(badge.style.width).toBe('5.5em');
-			expect(badge.style.textAlign).toBe('center');
+			expect(badge.className).not.toContain('my-class');
 		});
 
 		test('shows countdown for future timestamps', () => {

@@ -201,7 +201,7 @@ declare global {
 	var initStatsFilterBar: ((...args: any[]) => void) | undefined;
 
 	// src/short-timer-badge.ts
-	var createShortTimerBadge: ((timestamp: number, expiredLabel: string) => HTMLSpanElement) | undefined;
+	var createShortTimerBadge: ((timestamp: number, expiredLabel: string, extraClasses?: string) => HTMLSpanElement) | undefined;
 	var initializeShortTimerBadges: (() => void) | undefined;
 
 	// src/warframe-api-proxy-client.ts

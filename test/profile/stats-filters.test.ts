@@ -92,15 +92,16 @@ describe('profile-stats-filters', () => {
 
 				const img = document.createElement('img');
 				(globalThis as any).setImageSource(img, value.icon);
-				expect(img.src, key).not.toMatch(/^https:\/\/browse\.wf\//u);
+				expect(img.src, key).not.toContain('browse.wf');
 			}
 		});
 
 		it('every enemy faction icon produces a content.warframe.com URL', () => {
 			for (const entry of ENEMY_FACTIONS) {
+				expect(entry.icon, entry.tooltip).toBeTruthy();
 				const img = document.createElement('img');
 				(globalThis as any).setImageSource(img, entry.icon);
-				expect(img.src, entry.tooltip).not.toMatch(/^https:\/\/browse\.wf\//u);
+				expect(img.src, entry.tooltip).not.toContain('browse.wf');
 			}
 		});
 	});

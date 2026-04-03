@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {pluralize} from '../../src/helpers/string-helpers';
+import {pluralize, escapeHtml} from '../../src/helpers/string-helpers';
 
 describe('string-helpers', () => {
 	describe('pluralize', () => {
@@ -29,6 +29,18 @@ describe('string-helpers', () => {
 			expect(pluralize(1, 'ox', 'oxen')).toBe('1 ox');
 			expect(pluralize(2, 'ox', 'oxen')).toBe('2 oxen');
 			expect(pluralize(0, 'ox', 'oxen')).toBe('0 oxen');
+		});
+	});
+
+	describe('escapeHtml', () => {
+		it('leaves plain text unchanged', () => {
+			expect(escapeHtml('hello world')).toBe('hello world');
+		});
+
+		it('escapes special HTML characters', () => {
+			expect(escapeHtml('<script>')).toBe('&lt;script&gt;');
+			expect(escapeHtml('a & b')).toBe('a &amp; b');
+			expect(escapeHtml('"quoted"')).toBe('"quoted"');
 		});
 	});
 });

@@ -41,14 +41,15 @@ $ext = substr($_SERVER["SERVER_SOFTWARE"] ?? "", 0, 3) == "PHP" ? ".php" : "";
 					</ul>
 				</li>
 				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle<?=(preg_match('#^/(glyphs|prime-vault|text-icons|platform-suffix|invigorations|weekly-forecast)(?:$|[/?.])#', $_SERVER["REQUEST_URI"]) ? " active" : ""); ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">More Tools</a>
+					<a class="nav-link dropdown-toggle<?=((substr($_SERVER["REQUEST_URI"], 0, 7) == "/glyphs" || substr($_SERVER["REQUEST_URI"], 0, 12) == "/prime-vault" || substr($_SERVER["REQUEST_URI"], 0, 11) == "/text-icons" || substr($_SERVER["REQUEST_URI"], 0, 16) == "/platform-suffix" || substr($_SERVER["REQUEST_URI"], 0, 14) == "/invigorations") ? " active" : ""); ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">More Tools</a>
 					<ul class="dropdown-menu">
 						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 7) == "/glyphs" ? " active" : ""); ?>" href="/glyphs<?=$ext;?>">Glyphs</a></li>
 						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 16) == "/platform-suffix" ? " active" : ""); ?>" href="/platform-suffix<?=$ext;?>">Platform Suffix</a></li>
 						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 12) == "/prime-vault" ? " active" : ""); ?>" href="/prime-vault<?=$ext;?>">Prime Vault</a></li>
 						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 11) == "/text-icons" ? " active" : ""); ?>" href="/text-icons<?=$ext;?>">Text Icons</a></li>
 						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 14) == "/invigorations" ? " active" : ""); ?>" href="/invigorations<?=$ext;?>">Invigorations</a></li>
-						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 16) == "/weekly-forecast" ? " active" : ""); ?>" href="/weekly-forecast<?=$ext;?>">Weekly Forecast</a></li>
+						<li><a class="dropdown-item" href="/weekly-forecast<?=$ext;?>">Weekly Forecast</a></li>
+						<li><a class="dropdown-item" href="/incursions<?=$ext;?>">Incursion Schedule</a></li>
 					</ul>
 				</li>
 				<a class="nav-link<?=(substr($_SERVER["REQUEST_URI"], 0, 6) == "/about" ? " active" : ""); ?>" href="/about<?=$ext;?>">About</a>

@@ -51,6 +51,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 
 - **Weekly forecast**: Dedicated page (`/weekly-forecast`) showing the upcoming week's mission rotation
 - **Invigorations**: Response caching so that info is preserved on refresh and next week
+- **Steel Path Incursion Schedule**: Dedicated page (`/incursions`) showing the full historical and upcoming Steel Path incursion schedule with list, table, and calendar views
 
 ### For developers
 

@@ -1,3 +1,9 @@
+export function escapeHtml(string_: string): string {
+	const span = document.createElement('span');
+	span.textContent = string_;
+	return span.innerHTML;
+}
+
 /**
  * Returns `count` followed by the correctly pluralized form of `word`.
  * By default appends "s" for the plural; pass a custom plural as the third argument.
@@ -16,5 +22,6 @@ export function toTitleCase(string_: string): string {
 	return string_.replaceAll(/[^\s-]+/gu, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
 }
 
+(globalThis as any).escapeHtml = escapeHtml;
 (globalThis as any).pluralize = pluralize;
 (globalThis as any).toTitleCase = toTitleCase;

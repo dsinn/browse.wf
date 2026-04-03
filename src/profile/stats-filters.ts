@@ -6,6 +6,7 @@
  */
 
 import {addTooltip} from '../tooltip.js';
+import {getFactionIconPath} from '../faction-icons.js';
 
 /** Maps productCategory values (from ExportWeapons/ExportWarframes/ExportSentinels) to display metadata. */
 export const EQUIPMENT_CATEGORIES: Record<string, {tooltip: string; icon: string; displayText?: string}> = {
@@ -26,22 +27,25 @@ export const EQUIPMENT_CATEGORIES: Record<string, {tooltip: string; icon: string
 	SpecialItems: {tooltip: 'Special', icon: '', displayText: '🤷‍♀️'},
 };
 
+const STALKER_ICON = '/Lotus/Interface/Icons/MarkedForDeathStalker.png';
+
 /**
  * Maps faction strings (from ExportEnemies.avatars[x].faction) to display metadata.
  * Multiple source faction strings may map to the same display bucket.
+ * Icons are sourced from faction-icons.ts; Stalker is a special case with no TFaction.
  */
-export const ENEMY_FACTIONS: Array<{tooltip: string; icon: string; factions: string[]}> = [
-	{tooltip: 'Grineer', icon: '/Lotus/Interface/Icons/Player/FactionGrineer.png', factions: ['Grineer']},
-	{tooltip: 'Corpus', icon: '/Lotus/Interface/Icons/Player/FactionCorpus.png', factions: ['Corpus']},
-	{tooltip: 'Infested', icon: '/Lotus/Interface/Icons/Player/FactionInfested.png', factions: ['Infestation', 'Infested']},
-	{tooltip: 'Orokin', icon: '/Lotus/Interface/Icons/Player/FactionOrokin.png', factions: ['Orokin', 'Orokin Empire', 'OrokinEmpire']},
-	{tooltip: 'Sentient', icon: '/Lotus/Interface/Icons/SentientFactionIcon.png', factions: ['Sentient']},
-	{tooltip: 'Narmer', icon: '/Lotus/Interface/Icons/Player/NarmerEyeGlyph.png', factions: ['Narmer', 'NarmerVeil']},
-	{tooltip: 'Murmur', icon: '/Lotus/Interface/Icons/Player/FactionMurmur.png', factions: ['MITW']},
-	{tooltip: 'Scaldra', icon: '/Lotus/Interface/Icons/Player/FactionScaldra.png', factions: ['Scaldra']},
-	{tooltip: 'Techrot', icon: '/Lotus/Interface/Icons/Player/FactionTechrot.png', factions: ['Techrot']},
-	{tooltip: 'Duviri', icon: '/Lotus/Interface/Graphics/StartingZoneChoice/DuviriStartingZoneIconParadox.png', factions: ['Duviri']},
-	{tooltip: 'Stalker', icon: '/Lotus/Interface/Icons/MarkedForDeathStalker.png', factions: ['Stalker']},
+export const ENEMY_FACTIONS: Array<{tooltip: string; icon?: string; factions: string[]}> = [
+	{tooltip: 'Grineer', icon: getFactionIconPath('Grineer'), factions: ['Grineer']},
+	{tooltip: 'Corpus', icon: getFactionIconPath('Corpus'), factions: ['Corpus']},
+	{tooltip: 'Infested', icon: getFactionIconPath('Infestation'), factions: ['Infestation', 'Infested']},
+	{tooltip: 'Orokin', icon: getFactionIconPath('Orokin'), factions: ['Orokin', 'Orokin Empire', 'OrokinEmpire']},
+	{tooltip: 'Sentient', icon: getFactionIconPath('Sentient'), factions: ['Sentient']},
+	{tooltip: 'Narmer', icon: getFactionIconPath('Narmer'), factions: ['Narmer', 'NarmerVeil']},
+	{tooltip: 'Murmur', icon: getFactionIconPath('MITW'), factions: ['MITW']},
+	{tooltip: 'Scaldra', icon: getFactionIconPath('Scaldra'), factions: ['Scaldra']},
+	{tooltip: 'Techrot', icon: getFactionIconPath('Techrot'), factions: ['Techrot']},
+	{tooltip: 'Duviri', icon: getFactionIconPath('Duviri'), factions: ['Duviri']},
+	{tooltip: 'Stalker', icon: STALKER_ICON, factions: ['Stalker']},
 ];
 
 /** Returns the display tooltip for a productCategory, or undefined if unrecognised. */
@@ -77,7 +81,7 @@ export function getEnemyFactionLabel(faction: string): string | undefined {
 export function initStatsFilterBar(
 	filterBar: HTMLElement,
 	tbody: HTMLElement,
-	entries: Array<{key: string; tooltip: string; icon: string; displayText?: string}>,
+	entries: Array<{key: string; tooltip: string; icon?: string; displayText?: string}>,
 	presentKeys: Set<string>,
 	onFilter?: () => void,
 ): void {

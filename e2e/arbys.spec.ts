@@ -1,5 +1,13 @@
-import {test, expect, Page} from '@playwright/test';
-import {setupMockRoutes} from './helpers/api-mocks';
+import {test, expect, type Page} from '@playwright/test';
+import {setupMockRoutes, MOCK_TIMESTAMP} from './helpers/api-mocks';
+
+const NEXT_HOUR_MS = MOCK_TIMESTAMP + 3_600_000;
+const ACTIVE_TITLE = /^🔴 /u;
+
+async function advanceToNextHour(page: Page): Promise<void> {
+	await page.clock.setFixedTime(new Date(NEXT_HOUR_MS));
+	await page.clock.runFor(1100);
+}
 
 test.describe('Arbitration Schedule (/arbys)', () => {
 	test.beforeEach(async ({page}) => {
@@ -733,6 +741,51 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			await expect(page).toHaveURL(/exclude=/u);
 			await expect(page).toHaveURL(/MT_DEFENSE/u);
 			await expect(page).toHaveURL(/MT_SURVIVAL/u);
+		});
+	});
+
+	test.describe('Page title active indicator', () => {
+		test('shows active indicator on page load when a matching arbitration is live', async ({page}) => {
+			await expect(page).toHaveTitle(ACTIVE_TITLE);
+		});
+
+		test('removes active indicator when the current arbitration is filtered out', async ({page}) => {
+			await page.locator('#filter-MT_SURVIVAL').uncheck();
+			await expect(page).not.toHaveTitle(ACTIVE_TITLE);
+		});
+
+		test('removes active indicator when the current faction is filtered out', async ({page}) => {
+			await page.locator('#filter-FC_CORPUS').uncheck();
+			await expect(page).not.toHaveTitle(ACTIVE_TITLE);
+		});
+
+		test('removes active indicator when the current tier is filtered out', async ({page}) => {
+			await page.locator('#filter-tier-F').uncheck();
+			await expect(page).not.toHaveTitle(ACTIVE_TITLE);
+		});
+
+		test('restores active indicator when filter is re-enabled', async ({page}) => {
+			await page.locator('#filter-MT_SURVIVAL').uncheck();
+			await expect(page).not.toHaveTitle(ACTIVE_TITLE);
+
+			await page.locator('#filter-MT_SURVIVAL').check();
+			await expect(page).toHaveTitle(ACTIVE_TITLE);
+		});
+
+		test('removes active indicator after the hour rolls over to a non-matching arbitration', async ({page}) => {
+			await page.locator('#filter-MT_TERRITORY').uncheck();
+			await expect(page).toHaveTitle(ACTIVE_TITLE);
+
+			await advanceToNextHour(page);
+			await expect(page).not.toHaveTitle(ACTIVE_TITLE);
+		});
+
+		test('adds active indicator after the hour rolls over to a matching arbitration', async ({page}) => {
+			await page.locator('#filter-MT_SURVIVAL').uncheck();
+			await expect(page).not.toHaveTitle(ACTIVE_TITLE);
+
+			await advanceToNextHour(page);
+			await expect(page).toHaveTitle(ACTIVE_TITLE);
 		});
 	});
 

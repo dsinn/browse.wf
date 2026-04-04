@@ -168,6 +168,7 @@ function updateLog(): void
 	const currentYear = zulu ? new Date().getUTCFullYear() : new Date().getFullYear();
 	let remainingArbys = parseInt((document.getElementById("select-days") as HTMLSelectElement).value) * 24;
 	let lastArbyDay = -1;
+	let isFirstArbyActive = false;
 	document.getElementById("log").innerHTML = "";
 	for (let i = currentHourIndex; i != arbys.length && remainingArbys-- > 0; ++i)
 	{
@@ -215,6 +216,10 @@ function updateLog(): void
 			document.getElementById("log").appendChild(h3);
 		}
 
+		if (arr[0] === currentHour)
+		{
+			isFirstArbyActive = true;
+		}
 		let span = document.createElement(arr[0] == currentHour ? "b" : "span");
 		span.setAttribute("data-timestamp", arr[0].toString());
 		span.textContent = formathour(thisArbyHour) + " • " + toTitleCase(loc(node.missionName)) + " - " + dict[ExportFactions[node.faction].name] + " @ " + loc(node.name) + ", " + loc(node.systemName) + " (" + thisArbyGrade + " tier";
@@ -238,6 +243,8 @@ function updateLog(): void
 		span.textContent = "I've looked through " + (arbys.length - currentHourIndex) + " arbitrations but not a one matches your filters. :/";
 		document.getElementById("log").appendChild(span);
 	}
+
+	document.title = (isFirstArbyActive ? "🔴 " : "") + "Arbitration Schedule | browse.wf";
 
 	// Update table (skip category heading rows)
 	document.querySelectorAll("table tbody tr:not(.category-heading)").forEach(tr => {

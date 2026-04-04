@@ -2,6 +2,7 @@ import {
 	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {loadMock, setupMockFetch} from '../../helpers/api-mocks';
+import {mockBootstrapTooltip} from '../../helpers/dom-helpers';
 import {testCardFilters} from '../card-filters-factory';
 import {updateFissures} from '../../../src/live/fissures';
 
@@ -172,6 +173,7 @@ describe('Void Fissures Card', () => {
 describe('Void Fissures - updateFissures rendering', () => {
 	beforeEach(() => {
 		setupMockFetch();
+		mockBootstrapTooltip();
 		localStorage.clear();
 
 		(globalThis as any).worldState = loadMock('worldState.json');
@@ -263,5 +265,18 @@ describe('Void Fissures - updateFissures rendering', () => {
 		expect(tbody!.textContent).toContain('No missions to display based on the current filters.');
 		const headings = [...tbody!.querySelectorAll('th')].filter(th => th.textContent);
 		expect(headings.length).toBe(0);
+	});
+
+	test('location cell has tileset tooltip on abbr element', async () => {
+		await updateFissures(true);
+		const tbody = document.querySelector('#fissures-table tbody');
+		const rows = tbody!.querySelectorAll('tr');
+		expect(rows.length).toBeGreaterThan(0);
+
+		const locationCell = rows[0].querySelectorAll('td')[3];
+		const abbr = locationCell?.querySelector('abbr');
+		expect(abbr, 'location should be wrapped in <abbr> with tileset tooltip').toBeTruthy();
+		const title = abbr!.dataset.bsTitle;
+		expect(title, 'tileset tooltip should be non-empty').toBeTruthy();
 	});
 });

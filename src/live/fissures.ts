@@ -1,6 +1,8 @@
 import {isFilterEnabled} from '../card-filters.js';
 import {fetchExport} from '../public-export-fetcher.js';
 import {canonicalizeMissionType} from '../helpers/mission-helpers.js';
+import {getTileset, formatTileset} from '../helpers/tileset-helpers.js';
+import {addTooltip} from '../tooltip.js';
 
 let latestRenderedFissureTime = 0;
 const fissuresScheduledExpiries = new Set<number>();
@@ -159,7 +161,17 @@ export async function updateFissures(forceRender = false) {
 			// Location column
 			{
 				const td = document.createElement('td');
-				td.textContent = dict[node.name] + ', ' + dict[node.systemName];
+				const locationText = dict[node.name] + ', ' + dict[node.systemName];
+				const tileset = getTileset(node);
+				if (tileset) {
+					const abbr = document.createElement('abbr');
+					abbr.textContent = locationText;
+					addTooltip(abbr, formatTileset(tileset));
+					td.append(abbr);
+				} else {
+					td.textContent = locationText;
+				}
+
 				tr.append(td);
 			}
 

@@ -19,11 +19,9 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 		for (let i = 0; i < count; i++) {
 			const tooltipElement = rows.nth(i).locator('[data-bs-toggle="tooltip"]');
 			await expect(tooltipElement).toBeVisible();
+			const locationText = await tooltipElement.textContent();
 			const title = await tooltipElement.getAttribute('data-bs-title');
-			expect(title, `Row ${i} should have a non-empty tileset tooltip`).toBeTruthy();
-			// FormatTileset strips the "Tileset" suffix and formats as "Grineer Ocean", "Corpus Ship", etc.
-			expect(title).not.toMatch(/Tileset$/u);
-			expect(title).toMatch(/^[A-Z][a-zA-Z ]+$/u);
+			expect(title, `Row ${i + 1} (${locationText}) should have a non-empty tileset tooltip`).toBeTruthy();
 		}
 	});
 

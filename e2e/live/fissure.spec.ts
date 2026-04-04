@@ -29,8 +29,23 @@ test.describe('Fissures (/live)', () => {
 		await expect(page.locator('#fissures-table tbody tr')).not.toHaveCount(0);
 
 		// Check first data row (skip heading-only rows by looking for rows with ≥3 tds)
-		const firstDataRow = page.locator('#fissures-table tbody tr:has(td ~ td ~ td)').first();
+		const firstDataRow = page.locator('#fissures-table tbody tr').first();
 		await expect(firstDataRow.locator('td').nth(1)).not.toBeEmpty();
+	});
+
+	test('fissure location has tileset tooltip', async ({page}) => {
+		const dataRows = page.locator('#fissures-table tbody tr');
+		const count = await dataRows.count();
+		expect(count).toBeGreaterThan(0);
+
+		for (let i = 0; i < count; i++) {
+			const locationCell = dataRows.nth(i).locator('td').nth(3);
+			const locationText = await locationCell.textContent();
+			const abbr = locationCell.locator('abbr[data-bs-toggle="tooltip"]');
+			await expect(abbr).toBeVisible();
+			const title = await abbr.getAttribute('data-bs-title');
+			expect(title, `Row ${i + 1} (${locationText}) should have a non-empty tileset tooltip`).toBeTruthy();
+		}
 	});
 });
 

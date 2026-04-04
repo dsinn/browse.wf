@@ -56,7 +56,7 @@
 					<tbody>
 						<!-- Mission Types heading -->
 						<tr class="category-heading">
-							<th colspan="3" class="ps-4"><span style="color: #ff3333; font-size: 1.2em;">⌖</span> Mission Types</th>
+							<th colspan="3" class="bg-secondary-subtle"><span style="color: #ff3333; font-size: 1.2em;">⌖</span> Mission Types</th>
 						</tr>
 						<tr id="next-MT_SURVIVAL"><th><input id="filter-MT_SURVIVAL" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_SURVIVAL">Survival</label></th><td></td><td></td></tr>
 						<tr id="next-MT_DEFENSE"><th><input id="filter-MT_DEFENSE" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_DEFENSE">Defense</label></th><td></td><td></td></tr>
@@ -72,7 +72,7 @@
 
 						<!-- Tiers heading -->
 						<tr class="category-heading">
-							<th colspan="3" class="ps-4">📊 Tiers</th>
+							<th colspan="3" class="bg-secondary-subtle">📊 Tiers</th>
 						</tr>
 						<tr id="next-tier-S"><th><input id="filter-tier-S" type="checkbox" class="form-check-input" checked /> <label for="filter-tier-S">S Tier</label></th><td></td><td></td></tr>
 						<tr id="next-tier-A"><th><input id="filter-tier-A" type="checkbox" class="form-check-input" checked /> <label for="filter-tier-A">A Tier</label></th><td></td><td></td></tr>
@@ -83,7 +83,7 @@
 
 						<!-- Factions heading -->
 						<tr class="category-heading">
-							<th colspan="3" class="ps-4">👥 Factions</th>
+							<th colspan="3" class="bg-secondary-subtle">👥 Factions</th>
 						</tr>
 						<tr id="next-FC_GRINEER"><th><input id="filter-FC_GRINEER" type="checkbox" class="form-check-input" checked /> <label for="filter-FC_GRINEER">Grineer</label></th><td></td><td></td></tr>
 						<tr id="next-FC_CORPUS"><th><input id="filter-FC_CORPUS" type="checkbox" class="form-check-input" checked /> <label for="filter-FC_CORPUS">Corpus</label></th><td></td><td></td></tr>
@@ -93,7 +93,7 @@
 
 						<!-- Tilesets heading -->
 						<tr class="category-heading">
-							<th colspan="3" class="ps-4">🌎 Tilesets</th>
+							<th colspan="3" class="bg-secondary-subtle">🌎 Tilesets</th>
 						</tr>
 						<?php
 						$tilesets = [

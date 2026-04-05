@@ -7,6 +7,91 @@ import {addTooltip} from '../tooltip.js';
 let latestRenderedFissureTime = 0;
 const fissuresScheduledExpiries = new Set<number>();
 
+function buildFissureRow(
+	dict: Record<string, string>,
+	exports: {regions: any; factions: any; tiers: any},
+	renderedTierHeadings: Record<string, Set<string>>,
+	fissure: any,
+): HTMLTableRowElement | undefined {
+	const node = exports.regions[fissure.Node];
+	const tier = fissure.Modifier; // VoidT1 = Lith, VoidT2 = Meso, etc.
+	const cardName = fissure.Category; // "fissures", "sp-fissures", or "rj-fissures"
+	// Railjack missions use node.missionName (strip prefix for cleaner localStorage keys)
+	const missionType = cardName === 'rj-fissures'
+		? node.missionName.replace('/Lotus/Language/Missions/MissionName_', '')
+		: node.missionType;
+
+	if (!isFilterEnabled(cardName, tier) || !isFilterEnabled(cardName, canonicalizeMissionType(missionType))) {
+		return undefined;
+	}
+
+	const tr = document.createElement('tr');
+
+	// Tier column
+	{
+		const th = document.createElement('th');
+		if (!renderedTierHeadings[cardName].has(tier)) {
+			th.textContent = exports.tiers[tier] ?? tier;
+			renderedTierHeadings[cardName].add(tier);
+		}
+
+		tr.append(th);
+	}
+
+	// Expiry column
+	{
+		const td = document.createElement('td');
+		td.append((globalThis as any).createExpiryBadge(fissure.Expiry.$date.$numberLong));
+		tr.append(td);
+	}
+
+	// Mission type + Level range column
+	{
+		const td = document.createElement('td');
+		td.textContent = (globalThis as any).toTitleCase(dict[node.missionName]);
+		if (cardName === 'rj-fissures') {
+			// Void Storms: show level range with +10 adjustment
+			const adjustedMin = (node.minEnemyLevel as number) + 10;
+			const adjustedMax = (node.maxEnemyLevel as number) + 10;
+			td.textContent += ` (${adjustedMin}-${adjustedMax})`;
+		} else {
+			// Normal and Steel Path fissures: omit level range (inconsistent/incorrect data)
+		}
+
+		tr.append(td);
+	}
+
+	// Faction column (only show when systemIndex != 21)
+	{
+		const td = document.createElement('td');
+		if (node.systemIndex !== 21) {
+			td.textContent = dict[exports.factions[node.faction].name];
+		}
+
+		tr.append(td);
+	}
+
+	tr.append(buildLocationCell(dict, node));
+
+	return tr;
+}
+
+function buildLocationCell(dict: Record<string, string>, node: any): HTMLTableCellElement {
+	const td = document.createElement('td');
+	const locationText = dict[node.name] + ', ' + dict[node.systemName];
+	const tileset = getTileset(node);
+	if (tileset) {
+		const abbr = document.createElement('abbr');
+		abbr.textContent = locationText;
+		addTooltip(abbr, formatTileset(tileset));
+		td.append(abbr);
+	} else {
+		td.textContent = locationText;
+	}
+
+	return td;
+}
+
 export async function updateFissures(forceRender = false) {
 	const [dict, ExportRegions, ExportFactions] = await Promise.all([
 		(globalThis as any).getDictPromise() as Promise<Record<string, string>>,
@@ -96,86 +181,10 @@ export async function updateFissures(forceRender = false) {
 		if (Date.now() < Number.parseInt(fissure.Activation.$date.$numberLong, 10)) {
 			// Not yet active; expiry-based re-render will handle it when worldState refreshes
 		} else if (Date.now() < Number.parseInt(fissure.Expiry.$date.$numberLong, 10)) {
-			const node = ExportRegions[fissure.Node];
-
-			// Check filters early - skip rendering if filtered out
-			const tier = fissure.Modifier; // VoidT1 = Lith, VoidT2 = Meso, etc.
-			const cardName = fissure.Category; // "fissures", "sp-fissures", or "rj-fissures"
-			// Railjack missions use node.missionName (strip prefix for cleaner localStorage keys)
-			const missionType = cardName === 'rj-fissures'
-				? node.missionName.replace('/Lotus/Language/Missions/MissionName_', '')
-				: node.missionType;
-
-			const tierVisible = isFilterEnabled(cardName, tier);
-			const missionVisible = isFilterEnabled(cardName, canonicalizeMissionType(missionType));
-			if (!tierVisible || !missionVisible) {
-				continue;
+			const row = buildFissureRow(dict, {regions: ExportRegions, factions: ExportFactions, tiers: fissureTiers}, renderedTierHeadings, fissure);
+			if (row) {
+				tbody[fissure.Category as keyof typeof tbody].append(row);
 			}
-
-			const tr = document.createElement('tr');
-
-			// Tier column
-			{
-				const th = document.createElement('th');
-				if (!renderedTierHeadings[cardName].has(tier)) {
-					th.textContent = fissureTiers[tier] ?? tier;
-					renderedTierHeadings[cardName].add(tier);
-				}
-
-				tr.append(th);
-			}
-
-			// Expiry column
-			{
-				const td = document.createElement('td');
-				td.append((globalThis as any).createExpiryBadge(fissure.Expiry.$date.$numberLong));
-				tr.append(td);
-			}
-
-			// Mission type + Level range column
-			{
-				const td = document.createElement('td');
-				td.textContent = (globalThis as any).toTitleCase(dict[node.missionName]);
-				if (cardName === 'rj-fissures') {
-					// Void Storms: show level range with +10 adjustment
-					const adjustedMin = (node.minEnemyLevel as number) + 10;
-					const adjustedMax = (node.maxEnemyLevel as number) + 10;
-					td.textContent += ` (${adjustedMin}-${adjustedMax})`;
-				} else {
-					// Normal and Steel Path fissures: omit level range (inconsistent/incorrect data)
-				}
-
-				tr.append(td);
-			}
-
-			// Faction column (only show when systemIndex != 21)
-			{
-				const td = document.createElement('td');
-				if (node.systemIndex !== 21) {
-					td.textContent = dict[ExportFactions[node.faction].name];
-				}
-
-				tr.append(td);
-			}
-
-			// Location column
-			{
-				const td = document.createElement('td');
-				const locationText = dict[node.name] + ', ' + dict[node.systemName];
-				const tileset = getTileset(node);
-				if (tileset) {
-					const abbr = document.createElement('abbr');
-					abbr.textContent = locationText;
-					addTooltip(abbr, formatTileset(tileset));
-					td.append(abbr);
-				} else {
-					td.textContent = locationText;
-				}
-
-				tr.append(td);
-			}
-
-			tbody[fissure.Category as keyof typeof tbody].append(tr);
 		}
 	}
 

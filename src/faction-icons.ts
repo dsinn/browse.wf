@@ -13,6 +13,7 @@ export const FACTION_ICON_PATHS: Record<TFaction, string> = {
 	FC_SCALDRA: '/Lotus/Interface/Icons/Player/FactionScaldra.png',
 	FC_SENTIENT: '/Lotus/Interface/Icons/SentientFactionIcon.png',
 	FC_TECHROT: '/Lotus/Interface/Icons/Player/FactionTechrot.png',
+	FC_TENNO: '/Lotus/Interface/Icons/Player/LotusSymbol.png',
 };
 
 /**

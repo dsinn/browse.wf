@@ -122,9 +122,15 @@ function goToToday(): void {
 }
 
 function makeFactionIcon(node: IRegion): HTMLElement {
-	const factionName = node.faction ? (dict[ExportFactions[node.faction]?.name] ?? node.faction) : '';
+	let factionName = '';
+	let iconPath: string | undefined;
+	if (node.faction) {
+		const factionEntry = ExportFactions[node.faction];
+		factionName = (factionEntry?.name ? dict[factionEntry.name] : undefined) ?? node.faction;
+		iconPath = FACTION_ICON_PATHS[node.faction];
+	}
+
 	const levelRange = `${100 + node.minEnemyLevel}-${100 + node.maxEnemyLevel}`;
-	const iconPath = node.faction ? FACTION_ICON_PATHS[node.faction] : undefined;
 
 	if (iconPath) {
 		const img = document.createElement('img');

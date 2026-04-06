@@ -9,6 +9,10 @@ beforeAll(() => {
 		return;
 	}
 
+	window.scrollTo = () => {
+		// Suppress jsdom "Not implemented" warnings; only Playwright would ever care about scrolling
+	};
+
 	(globalThis as any).LIVE_VERSION = 0;
 	(globalThis as any).dict = {};
 	(globalThis as any).osdict = {};

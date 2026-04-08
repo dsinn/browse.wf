@@ -2,7 +2,7 @@
   "name": "browse.wf",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npx tsc --watch\" \"node esbuild.config.js --watch\" \"node scripts/render-pages.js --watch\" \"vite --config vitest.config.ts\"",
+    "dev": "node scripts/dev.js",
     "lint": "eslint",
     "test": "vitest",
     "test:ui": "vitest --ui",

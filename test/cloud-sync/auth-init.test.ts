@@ -32,8 +32,8 @@ vi.mock('../../src/cloud-sync/auth', () => ({
 	},
 }));
 
-vi.mock('../../src/cloud-sync/storage-sync', () => ({
-	StorageSyncService: {
+vi.mock('../../src/cloud-sync/manager', () => ({
+	CloudSyncManager: {
 		getInstance: vi.fn(() => ({})),
 	},
 }));

@@ -80,7 +80,7 @@ describe('handleAuthChange — SIGNED_IN', () => {
 		expect(events).toHaveLength(0);
 	});
 
-	test('dispatches auth-signed-in on every SIGNED_IN (idempotency handled by StorageSyncService)', async () => {
+	test('dispatches auth-signed-in on every SIGNED_IN (idempotency handled by CloudSyncManager)', async () => {
 		const {call} = await initService();
 		const session = {user: {id: 'user-1'}};
 		const events: string[] = [];

@@ -51,8 +51,8 @@ vi.mock('../../src/cloud-sync/auth', () => ({
 	},
 }));
 
-vi.mock('../../src/cloud-sync/storage-sync', () => ({
-	StorageSyncService: {
+vi.mock('../../src/cloud-sync/manager', () => ({
+	CloudSyncManager: {
 		getInstance: vi.fn(() => ({
 			pushToDatabase: mockPushToDatabase,
 		})),
@@ -405,8 +405,8 @@ describe('auth-signed-out handler', () => {
 
 	test('flushes and unsubscribes when userId is set', async () => {
 		const mockUnsubscribe = vi.fn();
-		const {StorageSyncService} = await import('../../src/cloud-sync/storage-sync');
-		vi.mocked(StorageSyncService.getInstance).mockReturnValue({
+		const {CloudSyncManager} = await import('../../src/cloud-sync/manager');
+		vi.mocked(CloudSyncManager.getInstance).mockReturnValue({
 			unsubscribeFromRealtimeUpdates: mockUnsubscribe,
 		} as any);
 		mockGetUserId.mockReturnValue('user-123');
@@ -441,8 +441,8 @@ describe('auth-signed-in handler', () => {
 		mockGetCurrentUser.mockReturnValue(null);
 
 		const mockHandleLogin = vi.fn();
-		const {StorageSyncService} = await import('../../src/cloud-sync/storage-sync');
-		vi.mocked(StorageSyncService.getInstance).mockReturnValue({
+		const {CloudSyncManager} = await import('../../src/cloud-sync/manager');
+		vi.mocked(CloudSyncManager.getInstance).mockReturnValue({
 			handleLogin: mockHandleLogin,
 		} as any);
 

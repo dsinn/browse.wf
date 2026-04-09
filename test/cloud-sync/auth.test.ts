@@ -21,9 +21,9 @@ vi.mock('../../src/cloud-sync/database', () => ({
 	isDatabaseConfigured: vi.fn(() => true),
 }));
 
-// Mock the storage-sync module
-vi.mock('../../src/cloud-sync/storage-sync', () => ({
-	StorageSyncService: {
+// Mock the manager module
+vi.mock('../../src/cloud-sync/manager', () => ({
+	CloudSyncManager: {
 		getInstance: vi.fn(() => ({
 			handleLogin: vi.fn(),
 			unsubscribeFromRealtimeUpdates: vi.fn(),

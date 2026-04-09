@@ -2244,5 +2244,8 @@
     },
     "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageLuality": {
         "promo_code": "LUALITY"
+    },
+    "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageJustHailey": {
+        "promo_code": "JustHailey"
     }
 }

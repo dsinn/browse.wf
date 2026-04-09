@@ -15,10 +15,23 @@ test.describe('Weekly Missions (/live)', () => {
 		}
 	});
 
-	test('circuit frames are populated from dict', async ({page}) => {
-		// Circuit-frames is filled by updateCircuitLocalised with frame names from dict
+	test('card header shows expiry badge', async ({page}) => {
+		await expect(page.locator('#circuit-header [data-expiry]')).toBeVisible();
+	});
+
+	test('Circuit frames are populated from worldState', async ({page}) => {
 		const circuitFrames = page.locator('#circuit-frames');
-		await expect(circuitFrames).not.toBeEmpty();
-		await expect(circuitFrames).not.toHaveText('Loading...');
+		await expect(circuitFrames).toContainText('Nidus');
+		await expect(circuitFrames).toContainText('Octavia');
+		await expect(circuitFrames).toContainText('Harrow');
+	});
+
+	test('Circuit steel path weapons are populated from worldState', async ({page}) => {
+		const circuitWeapons = page.locator('#circuit-weapons');
+		await expect(circuitWeapons).toContainText('Braton');
+		await expect(circuitWeapons).toContainText('Lato');
+		await expect(circuitWeapons).toContainText('Skana');
+		await expect(circuitWeapons).toContainText('Paris');
+		await expect(circuitWeapons).toContainText('Kunai');
 	});
 });

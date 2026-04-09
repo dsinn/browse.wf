@@ -26,6 +26,7 @@ import './live/bounties.js';
 import './live/bounty-filters.js';
 import './live/calendar-seasons.js';
 import './live/checkbox-linking.js';
+import './live/circuit.js';
 import './live/completion-toggles.js';
 import './live/fissures.js';
 import './live/incursions.js';

@@ -1,5 +1,5 @@
 import {describe, it, expect} from 'vitest';
-import {pluralize, escapeHtml} from '../../src/helpers/string-helpers';
+import {pluralize, escapeHtml, pascalToTitleCase} from '../../src/helpers/string-helpers';
 
 describe('string-helpers', () => {
 	describe('pluralize', () => {
@@ -29,6 +29,20 @@ describe('string-helpers', () => {
 			expect(pluralize(1, 'ox', 'oxen')).toBe('1 ox');
 			expect(pluralize(2, 'ox', 'oxen')).toBe('2 oxen');
 			expect(pluralize(0, 'ox', 'oxen')).toBe('0 oxen');
+		});
+	});
+
+	describe('pascalToTitleCase', () => {
+		it('inserts spaces before uppercase letters following lowercase', () => {
+			expect(pascalToTitleCase('NamiSolo')).toBe('Nami Solo');
+			expect(pascalToTitleCase('DualIchor')).toBe('Dual Ichor');
+			expect(pascalToTitleCase('DualToxocyst')).toBe('Dual Toxocyst');
+			expect(pascalToTitleCase('AckAndBrunt')).toBe('Ack And Brunt');
+		});
+
+		it('leaves single words unchanged', () => {
+			expect(pascalToTitleCase('Braton')).toBe('Braton');
+			expect(pascalToTitleCase('Kunai')).toBe('Kunai');
 		});
 	});
 

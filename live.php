@@ -237,7 +237,7 @@
 								<p class="mb-1" data-mission="clem">Help Clem <span id="clem-check"></span></p>
 								<p class="mb-1" data-mission="maroo">Ayatan Treasure Hunt <span id="maroo-check"></span></p>
 								<p class="mb-1" data-mission="circuit-normal">The Circuit (Normal): <b id="circuit-frames">Loading...</b> <span id="circuit-frames-check"></span></p>
-								<p class="mb-1" data-mission="circuit-sp">The Circuit (Steel Path): <b id="circuit-weapons"></b> <span id="circuit-weapons-check"></span></p>
+								<p class="mb-1" data-mission="circuit-sp">The Circuit (Steel Path): <b id="circuit-weapons">Loading...</b> <span id="circuit-weapons-check"></span></p>
 								<p class="mb-1" data-mission="netracells">Netracells <span id="netracell-checks" data-checkbox-group></span></p>
 								<p class="mb-0" data-mission="kahl">Break Narmer <span id="kahl-checks" data-checkbox-group></span></p>
 								<p class="mb-0 text-muted d-none" id="weekly-missions-empty-state">No missions to display based on the current filters.</p>

@@ -82,9 +82,9 @@ export function initializeFilterToggles(): void {
 /**
  * Initialize filter checkboxes for a specific card
  * @param cardName - The name of the card (e.g., "news")
- * @param onFilterChange - Optional callback when filters change
+ * @param onFilterChange - Optional callback when filters change (omit for CSS-filtered cards)
  */
-export function initializeCardFilters(cardName: string, onFilterChange: () => void): void {
+export function initializeCardFilters(cardName: string, onFilterChange?: () => void): void {
 	for (const checkbox of document.querySelectorAll<HTMLInputElement>(`#${cardName}-filters input[type=checkbox]`)) {
 		const {filterType} = checkbox.dataset;
 		const storageKey = `live.filter.${cardName}.${filterType}`;
@@ -106,7 +106,6 @@ export function initializeCardFilters(cardName: string, onFilterChange: () => vo
 			// Trigger cloud sync if available
 			triggerCloudSync();
 
-			// Call the update callback if provided
 			if (onFilterChange) {
 				onFilterChange();
 			}

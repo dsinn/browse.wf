@@ -47,7 +47,7 @@ declare function updateInvasions(): Promise<void>;
 
 // card-filters.ts
 declare function isFilterEnabled(cardName: string, filterType: string): boolean;
-declare function initializeCardFilters(cardName: string, onFilterChange: () => void): void;
+declare function initializeCardFilters(cardName: string, onFilterChange?: () => void): void;
 declare function initializeFilterToggles(): void;
 
 // news-mark-read.ts
@@ -1344,7 +1344,7 @@ initializeCardFilters('sp-fissures', () => void (window as any).updateFissures(t
 initializeCardFilters('rj-fissures', () => void (window as any).updateFissures(true));
 initializeCardFilters('weekly-missions', () => (window as any).filterWeeklyMissions());
 initializeCardFilters('invasions', () => { void updateInvasions(); });
-initializeCardFilters('calendar-season', () => {});
+initializeCardFilters('calendar-season');
 
 initializeMarkAsRead();
 initializeBountyFiltersAll();

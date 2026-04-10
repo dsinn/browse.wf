@@ -100,6 +100,11 @@ function phpPagesPlugin(): Plugin {
 }
 
 export default defineConfig({
+	resolve: {
+		alias: {
+			'@test': path.resolve('test'),
+		},
+	},
 	// Don't use publicDir — we serve HTML through the plugin above so that
 	// Vite's HTML transform pipeline injects the HMR client script.
 	publicDir: false,
@@ -139,7 +144,7 @@ export default defineConfig({
 		globals: true,
 		setupFiles: ['./test/setup.ts'],
 		globalSetup: ['./test/global-setup.ts'],
-		include: ['test/**/*.{test,spec}.{ts,tsx}'],
+		include: ['test/**/*.{test,spec}.{ts,tsx}', 'src/**/*.{test,spec}.{ts,tsx}', 'scripts/**/*.{test,spec}.{ts,tsx}'],
 		exclude: ['**/dist/**', '**/e2e/**', '**/node_modules/**', '**/typestripped/**'],
 		coverage: {
 			provider: 'v8',

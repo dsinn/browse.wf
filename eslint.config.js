@@ -73,9 +73,10 @@ const config = [
 	},
 	// No-await-in-loop is often intentional for sequential processing in tests
 	{
-		files: ['test/**/*.ts', 'test/**/*.js', 'e2e/**/*.ts'],
+		files: ['test/**/*.ts', 'test/**/*.js', 'e2e/**/*.ts', 'src/**/*.test.ts', 'scripts/**/*.test.ts'],
 		rules: {
 			'no-await-in-loop': 'off',
+			'@typescript-eslint/restrict-plus-operands': 'off',
 		},
 	},
 ];

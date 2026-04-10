@@ -3,7 +3,11 @@
   "compilerOptions": {
     "strict": true,
     "noEmit": true,
-    "lib": ["es2023", "dom"]
+    "lib": ["es2023", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@test/*": ["./test/*"]
+    }
   },
   "include": ["*.d.ts", "*.config.ts", "src/**/*", "test/**/*", "e2e/**/*", "helpers/**/*", "scripts/**/*"],
   "exclude": ["dist/**/*"]

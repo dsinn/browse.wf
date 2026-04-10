@@ -11,6 +11,7 @@
  */
 
 /* eslint-disable import-x/no-unassigned-import */
+// Keep imports in alphabetical order
 import './archimedea/helpers.js';
 import './calendar-seasons/data.js';
 import './calendar-seasons/index.js';
@@ -33,6 +34,7 @@ import './live/incursions.js';
 import './live/invasions.js';
 import './live/news-mark-read.js';
 import './live/prune-stale-data.js';
+import './live/red-text.js';
 import './live/sortie.js';
 import './live/sync.js';
 import './live/weekly.js';

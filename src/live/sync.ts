@@ -12,6 +12,7 @@ import {refreshFilterStatus} from '../card-filters.js';
 import {initializeBountyFiltersAll} from './bounty-filters.js';
 import {pruneStaleNewsRead} from './news-mark-read.js';
 import {pruneStaleOids} from './prune-stale-data.js';
+import {updateRedText} from './red-text.js';
 
 export function initLiveSync() {
 	globalThis.addEventListener('cloud-sync-before-push', () => {
@@ -62,6 +63,8 @@ export function initLiveSync() {
 		initializeBountyFiltersAll();
 
 		// Refresh card content to apply filters
+		updateRedText();
+
 		if ((globalThis as any).updateNewsTicker) {
 			(globalThis as any).updateNewsTicker();
 		}

@@ -492,21 +492,6 @@ function addTooltip(elm: HTMLElement, title: string): any
 
 function updateNewsTicker(forceRender = false)
 {
-	if (!window.redtext && isFilterEnabled("news", "danger"))
-	{
-		window.redtext = []; // sentinel: fetch in-flight, prevents duplicate fetches
-		fetch("https://oracle.browse.wf/redtext.json").then(res => res.json()).then(redtext =>
-		{
-			window.redtext = redtext;
-			updateNewsTicker();
-		}).catch(e =>
-		{
-			console.error(e);
-			window.redtext = undefined; // allow retry on next trigger
-		});
-		return;
-	}
-
 	let highest_time = 0;
 	const items = [];
 	if (window.worldState)
@@ -532,25 +517,6 @@ function updateNewsTicker(forceRender = false)
 						link: event.Prop
 					});
 				}
-			}
-		}
-	}
-	if (window.redtext)
-	{
-		const cutoff = (Date.now() / 1000) - (30 * 86400);
-		for (const event of window.redtext)
-		{
-			if (event.time > cutoff)
-			{
-				if (event.time > highest_time)
-				{
-					highest_time = event.time;
-				}
-				items.push({
-					type: "danger",
-					data: event.data.split("WALLOPS :")[1],
-					time: event.time
-				});
 			}
 		}
 	}
@@ -580,7 +546,7 @@ function updateNewsTicker(forceRender = false)
 			}
 		}
 	}
-	if (window.worldState && window.redtext)
+	if (window.worldState)
 	{
 		window.news_notify_after = highest_time;
 	}
@@ -604,8 +570,6 @@ function updateNewsTicker(forceRender = false)
 	document.getElementById("news-body").innerHTML = "";
 	for (let i = 0; i != items.length; ++i)
 	{
-		const isRedText = items[i].type === "danger";
-
 		const p = document.createElement("p");
 		p.className = `card-text mb-1 news-item news-${items[i].type}`;
 		{
@@ -617,18 +581,10 @@ function updateNewsTicker(forceRender = false)
 		}
 		{
 			const span = document.createElement("span");
-			if (isRedText)
-			{
-				span.className = "text-danger";
-			}
 			span.textContent = " ";
 			if (items[i].link)
 			{
 				const a = document.createElement("a");
-				if (isRedText)
-				{
-					a.className = "text-danger";
-				}
 				a.textContent = items[i].data;
 				a.href = items[i].link;
 				a.target = "_blank";
@@ -641,22 +597,19 @@ function updateNewsTicker(forceRender = false)
 			p.appendChild(span);
 		}
 
-		// Only add mark-as-read functionality to primary/success items (exclude danger)
-		if (!isRedText) {
-			const newsKey = generateNewsItemKey(items[i]);
-			p.setAttribute("data-news-key", newsKey);
+		const newsKey = generateNewsItemKey(items[i]);
+		p.setAttribute("data-news-key", newsKey);
 
-			// Add read state class if already marked as read
-			if (isNewsItemRead(newsKey)) {
-				p.classList.add("news-read");
-			}
-
-			// Add click handler to mark as read
-			p.style.cursor = "pointer";
-			p.addEventListener("click", () => {
-				markNewsItemAsRead(newsKey, p);
-			});
+		// Add read state class if already marked as read
+		if (isNewsItemRead(newsKey)) {
+			p.classList.add("news-read");
 		}
+
+		// Add click handler to mark as read
+		p.style.cursor = "pointer";
+		p.addEventListener("click", () => {
+			markNewsItemAsRead(newsKey, p);
+		});
 
 		document.getElementById("news-body").appendChild(p);
 	}
@@ -1249,9 +1202,9 @@ dicts_promise.then(([dict, osdict]) =>
 	});
 });
 
-// Initial worldState fetch + redtext
 // Initial worldState fetch: initialize all expiry-based card lifecycles once data is available
 fetchWorldState().then(initWorldStateCards);
+(window as any).updateRedText();
 
 // Active-tab polling: fetch worldState every minute and update poll-driven cards
 setInterval(function()

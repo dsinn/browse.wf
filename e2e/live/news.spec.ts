@@ -43,7 +43,6 @@ test.describe('News Card (/live)', () => {
 			await expect(page.locator('#news-filters')).toBeVisible();
 
 			// Check which filter type has items we can test with
-			const dangerCount = await page.locator('#news-body .news-item.news-danger').count();
 			const primaryCount = await page.locator('#news-body .news-item.news-primary').count();
 			const successCount = await page.locator('#news-body .news-item.news-success').count();
 
@@ -52,11 +51,7 @@ test.describe('News Card (/live)', () => {
 			let newsItemClass: string;
 			let initialFilteredCount: number;
 
-			if (dangerCount > 0) {
-				filterSelector = '#filter-news-danger';
-				newsItemClass = '.news-item.news-danger';
-				initialFilteredCount = dangerCount;
-			} else if (primaryCount > 0) {
+			if (primaryCount > 0) {
 				filterSelector = '#filter-news-primary';
 				newsItemClass = '.news-item.news-primary';
 				initialFilteredCount = primaryCount;
@@ -97,10 +92,10 @@ test.describe('News Card (/live)', () => {
 			await newsFilterToggle.click();
 			await expect(page.locator('#news-filters')).toBeVisible();
 
-			// Uncheck red text filter
-			const redtextFilter = page.locator('#filter-news-danger');
-			await redtextFilter.uncheck();
-			await expect(redtextFilter).not.toBeChecked();
+			// Uncheck primary filter
+			const primaryFilter = page.locator('#filter-news-primary');
+			await primaryFilter.uncheck();
+			await expect(primaryFilter).not.toBeChecked();
 
 			// Reload page
 			await page.reload();
@@ -111,7 +106,7 @@ test.describe('News Card (/live)', () => {
 			await expect(page.locator('#news-filters')).toBeVisible();
 
 			// Verify state persisted (should still be unchecked)
-			await expect(redtextFilter).not.toBeChecked();
+			await expect(primaryFilter).not.toBeChecked();
 		});
 	});
 
@@ -185,23 +180,6 @@ test.describe('News Card (/live)', () => {
 			});
 
 			expect(readItems.length).toBeGreaterThan(0);
-		});
-
-		test('danger items (red text) have no mark-as-read functionality', async ({page}) => {
-			// Wait for news items to load
-			await page.waitForSelector('#news-body .news-item', {timeout: 10_000});
-
-			// Find a danger news item
-			const dangerItem = page.locator('#news-body .news-item.news-danger').first();
-
-			if (await dangerItem.count() === 0) {
-				test.skip();
-				return;
-			}
-
-			// Verify danger item has no data-news-key attribute
-			const hasNewsKey = await dangerItem.evaluate(element => Object.hasOwn(element.dataset, 'newsKey'));
-			expect(hasNewsKey).toBe(false);
 		});
 
 		test('read state persists after page reload', async ({page}) => {
@@ -280,78 +258,15 @@ test.describe('News Card (/live)', () => {
 		test('correct CSS classes applied to news items', async ({page}) => {
 			await page.waitForSelector('#news-body .news-item', {timeout: 10_000});
 
-			// Verify news items have correct type classes
 			const primaryItems = page.locator('#news-body .news-item.news-primary');
 			const successItems = page.locator('#news-body .news-item.news-success');
-			const dangerItems = page.locator('#news-body .news-item.news-danger');
 
-			// At least one type should exist
-			const totalItems = await primaryItems.count() + await successItems.count() + await dangerItems.count();
+			const totalItems = await primaryItems.count() + await successItems.count();
 			expect(totalItems).toBeGreaterThan(0);
 
-			// Primary/success items should have data-news-key (danger should not)
 			if (await primaryItems.count() > 0) {
-				const firstPrimary = primaryItems.first();
-				await expect(firstPrimary).toHaveAttribute('data-news-key');
+				await expect(primaryItems.first()).toHaveAttribute('data-news-key');
 			}
-
-			if (await dangerItems.count() > 0) {
-				const firstDanger = dangerItems.first();
-				const hasNewsKey = await firstDanger.evaluate(element => Object.hasOwn(element.dataset, 'newsKey'));
-				expect(hasNewsKey).toBe(false);
-			}
-		});
-	});
-
-	test.describe('API optimization', () => {
-		test('disabling danger filter skips redtext API call', async ({page}) => {
-			// Disable danger filter BEFORE page load
-			await page.evaluate(() => {
-				localStorage.setItem('live.filter.news.danger', '0');
-			});
-
-			// Now reload and check if redtext API is NOT called
-			const redtextRequestPromise = page.waitForRequest(
-				request => request.url().includes('redtext.json'),
-				{timeout: 5000},
-			).catch(() => null); // Catch timeout - we EXPECT no request
-
-			await page.reload();
-			await page.waitForSelector('#arby-what:not(:has-text("Loading..."))', {timeout: 10_000});
-
-			const redtextRequest = await redtextRequestPromise;
-
-			// Should not have called redtext API
-			expect(redtextRequest).toBeNull();
-		});
-
-		test('enabling danger filter fetches redtext', async ({page}) => {
-			// Disable danger filter initially
-			await page.evaluate(() => {
-				localStorage.setItem('live.filter.news.danger', '0');
-			});
-
-			await page.reload();
-			await page.waitForSelector('#arby-what:not(:has-text("Loading..."))', {timeout: 10_000});
-
-			// Wait for redtext API call after enabling filter
-			const redtextRequestPromise = page.waitForRequest(
-				request => request.url().includes('redtext.json'),
-				{timeout: 5000},
-			);
-
-			// Open filter panel
-			const newsFilterToggle = page.locator('[data-filter-toggle="news"]');
-			await newsFilterToggle.click();
-			await expect(page.locator('#news-filters')).toBeVisible();
-
-			// Enable danger filter
-			const dangerFilter = page.locator('#filter-news-danger');
-			await dangerFilter.check();
-
-			// Should have called redtext API when filter enabled
-			const redtextRequest = await redtextRequestPromise;
-			expect(redtextRequest).toBeTruthy();
 		});
 	});
 });

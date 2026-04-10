@@ -140,7 +140,7 @@ export async function setupMockRoutes(page: Page, options?: {worldStateFile?: st
 		});
 	});
 
-	// Mock oracle.browse.wf/redtext.json (used in live.ts:841)
+	// Mock oracle.browse.wf/redtext.json (used in src/live/red-text.ts)
 	await page.route('**/oracle.browse.wf/redtext.json', route => {
 		void route.fulfill({
 			status: 200,

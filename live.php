@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="src/card-filters.css">
 	<link rel="stylesheet" href="src/live/invasions.css">
 	<link rel="stylesheet" href="src/live/news-card.css">
+	<link rel="stylesheet" href="src/live/red-text.css">
 	<link rel="stylesheet" href="src/tooltip.css">
 	<style>
 		[data-notif-toggle], [data-notif-toggle] > span, .completion-check { text-decoration:none;cursor:pointer;color:inherit }
@@ -73,6 +74,7 @@
 								</table>
 							</div>
 						</div>
+						<?php require "components/live/red-text-card.php"; ?>
 						<div class="card mb-3">
 							<div class="card-header d-flex align-items-center">
 								<h5 class="mb-0"><span data-collapse-toggle="news"></span> News</h5>
@@ -85,20 +87,14 @@
 							<div class="card-filter-panel" id="news-filters" style="display:none">
 								<div class="card-body py-2">
 									<div class="form-check">
-										<input class="form-check-input" type="checkbox" id="filter-news-danger" data-filter-type="danger" checked>
-										<label class="form-check-label text-danger" for="filter-news-danger">
-											Red text
-										</label>
-									</div>
-									<div class="form-check">
 										<input class="form-check-input" type="checkbox" id="filter-news-primary" data-filter-type="primary" checked>
-										<label class="form-check-label text-primary" for="filter-news-primary">
+										<label class="form-check-label text-primary-emphasis" for="filter-news-primary">
 											Regular events
 										</label>
 									</div>
 									<div class="form-check">
 										<input class="form-check-input" type="checkbox" id="filter-news-success" data-filter-type="success" checked>
-										<label class="form-check-label text-success" for="filter-news-success">
+										<label class="form-check-label text-success-emphasis" for="filter-news-success">
 											Community events
 										</label>
 									</div>

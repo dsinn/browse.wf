@@ -3,9 +3,6 @@
  *
  * Provides dropdown-based filtering for bounty tiers per syndicate.
  * Integrates with the card-filters system and cloud sync.
- *
- * This module exposes functions globally via window object for compatibility
- * with non-module scripts.
  */
 
 import {triggerCloudSyncWithDebounce as triggerCloudSync} from '../cloud-sync/trigger.js';
@@ -100,7 +97,6 @@ export function initializeBountyFiltersAll(): void {
 	initializeBountyFilters();
 }
 
-// Expose functions globally for use by non-module scripts
 (globalThis as any).getMinimumTier = getMinimumTier;
 (globalThis as any).isBountyMissionTypeEnabled = isBountyMissionTypeEnabled;
 (globalThis as any).initializeBountyFiltersAll = initializeBountyFiltersAll;

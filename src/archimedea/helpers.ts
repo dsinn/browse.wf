@@ -100,7 +100,6 @@ export async function renderArchimedeaTable(
 	container.append(fvTable);
 }
 
-// Expose globally for use by live.ts and other non-module scripts
 (globalThis as any).renderArchimedeaTable = renderArchimedeaTable;
 (globalThis as any).renderArchimedeaMissions = renderArchimedeaMissions;
 (globalThis as any).renderArchimedeaFrameVariables = renderArchimedeaFrameVariables;

@@ -41,6 +41,5 @@ export async function flushDebounce(): Promise<void> {
 	}
 }
 
-// Expose globally for non-module scripts
 (globalThis as any).triggerCloudSync = triggerCloudSync;
 (globalThis as any).triggerCloudSyncWithDebounce = triggerCloudSyncWithDebounce;

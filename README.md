@@ -59,7 +59,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 - **Vite dev server**: Replaced `php-ts-dev` with Vite for local development; fixes quirks mode issues and broken tooltips, and hot reload ignores test file changes
 - **Automated testing**: Vitest and Playwright test infrastructure (mainly for the `/live` page so far); CI publishes a coverage report
 - **esbuild bundling**: Fork modules are bundled into a single IIFE, simplifying script loading and enabling direct TypeScript imports in tests
-- **Modular architecture**: Non-trivial fork features are extracted into isolated ES modules in `src/` rather than added inline to upstream files, keeping the diff footprint small for easier merge conflict resolution; as a result, `live.ts` is smaller than upstream despite the fork having many more features
+- **Modular architecture**: Non-trivial fork features are extracted into isolated ES modules in `src/` rather than added inline to upstream files, keeping the diff footprint small for easier merge conflict resolution; as a result, `live.ts` is smaller than upstream despite the fork having many more features; modules expose functions via `globalThis` for compatibility with non-module scripts
 - **TypeScript strict mode + XO linting**: Strict mode enabled for all fork-specific files; XO enforces consistent code style and quality across the codebase
 - **Event-driven live page updates**: Replaced 500ms polling loops with longer intervals, timeouts, and event listeners; also consolidated `/invasions` and `/min` API calls into `worldState`
 - **Lazy-loaded images**: Images load on demand rather than all at page load

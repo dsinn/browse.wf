@@ -131,6 +131,5 @@ export function initializeShortTimerBadges(): void {
 	}
 }
 
-// Expose functions globally for non-module scripts
 (globalThis as any).createShortTimerBadge = createShortTimerBadge;
 (globalThis as any).initializeShortTimerBadges = initializeShortTimerBadges;

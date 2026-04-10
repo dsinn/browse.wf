@@ -263,7 +263,6 @@ export function initInvigorationsFromCache(inventoryDataUsed: boolean): void {
 	}
 }
 
-// Expose globally for use by the non-module inline script
 (globalThis as any).getWeekIndex = getWeekIndex;
 (globalThis as any).initInvigorations = initInvigorations;
 (globalThis as any).initInvigorationsFromCache = initInvigorationsFromCache;

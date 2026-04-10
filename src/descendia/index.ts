@@ -147,6 +147,5 @@ export function renderDescentChallenges(descent: IDescent, dict: Record<string, 
 	return tbody;
 }
 
-// Expose functions globally for use by non-module scripts
 (globalThis as any).updateDescendia = updateDescendia;
 (globalThis as any).renderDescentChallenges = renderDescentChallenges;

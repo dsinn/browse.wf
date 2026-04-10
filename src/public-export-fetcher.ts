@@ -31,7 +31,6 @@ export async function fetchExport(name: string): Promise<any> {
 	return promise;
 }
 
-// Expose globally for non-module scripts
 if (globalThis.window !== undefined) {
 	(globalThis as any).fetchExport = fetchExport;
 }

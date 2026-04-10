@@ -52,6 +52,5 @@ export function formatTileset(tileset: string | undefined): string {
 		.replaceAll(/(?<=[a-z])(?=[A-Z])/gu, ' ');
 }
 
-// Expose functions globally for non-module scripts
 (globalThis as any).getTileset = getTileset;
 (globalThis as any).formatTileset = formatTileset;

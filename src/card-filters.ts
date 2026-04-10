@@ -3,9 +3,6 @@
  *
  * Provides accordion-based filtering for card widgets with gear icon toggle
  * and checkbox-based filter controls. Integrates with cloud sync system.
- *
- * This module exposes functions globally via window object for compatibility
- * with non-module scripts.
  */
 
 import {triggerCloudSyncWithDebounce as triggerCloudSync} from './cloud-sync/trigger.js';
@@ -127,7 +124,6 @@ export function isFilterEnabled(cardName: string, filterType: string): boolean {
 	return filterState !== '0';
 }
 
-// Expose functions globally for use by non-module scripts
 (globalThis as any).refreshFilterStatus = refreshFilterStatus;
 (globalThis as any).isFilterEnabled = isFilterEnabled;
 (globalThis as any).initializeCardFilters = initializeCardFilters;

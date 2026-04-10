@@ -329,7 +329,6 @@ export async function updateInvasions(): Promise<void> {
 	}
 }
 
-// Expose functions globally for non-module scripts
 (globalThis as any).calculatePercentage = calculatePercentage;
 (globalThis as any).createInvasionProgressBar = createInvasionProgressBar;
 (globalThis as any).isInvasionRewardShown = isInvasionRewardShown;

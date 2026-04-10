@@ -182,7 +182,6 @@ export function initializeMarkAsRead(): void {
 	}
 }
 
-// Expose functions globally for non-module scripts
 (globalThis as any).generateNewsItemKey = generateNewsItemKey;
 (globalThis as any).isNewsItemRead = isNewsItemRead;
 (globalThis as any).markNewsItemAsRead = markNewsItemAsRead;

@@ -203,11 +203,23 @@ async function watchMode() {
 		ignoreInitial: true,
 	});
 
+	const isPhpServerAlive = () => new Promise(resolve => {
+		http.get(`http://localhost:${PHP_PORT}/`, response => {
+			response.resume();
+			resolve(true);
+		}).on('error', () => resolve(false));
+	});
+
 	let renderTimer;
 	const scheduleRender = filePath => {
 		console.log(`Changed: ${filePath}`);
 		clearTimeout(renderTimer);
 		renderTimer = setTimeout(async () => {
+			if (!await isPhpServerAlive()) {
+				console.error('PHP server is not responding; restarting render process...');
+				process.exit(1);
+			}
+
 			await renderOnce(true);
 			console.log('Watching for changes...\n');
 		}, 300);

@@ -711,7 +711,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			await loadBtn.click();
 
 			// Wait for button to show "Loaded!"
-			await expect(loadBtn).toContainText('Load');
+			await expect(loadBtn).toContainText('Loaded!');
 
 			// Settings should be restored
 			await expect(page.locator('#select-days')).toHaveValue('30');

@@ -11,7 +11,7 @@ test.describe('Live Page - Bounties Card', () => {
 	test.describe('Mission Type Filters', () => {
 		test.beforeEach(async ({page}) => {
 			await page.locator('[data-filter-toggle="bounties"]').click();
-			await expect(page.locator('#bounties-filters')).toBeVisible();
+			await expect(page.locator('[data-bounty-syndicate="HexSyndicate"][data-filter-type="MT_SURVIVAL"]')).toBeVisible();
 		});
 
 		test.afterEach(async ({page}) => {
@@ -151,7 +151,7 @@ test.describe('Live Page - Bounties Card', () => {
 	test.describe('Deimos Bounties Filter', () => {
 		test.beforeEach(async ({page}) => {
 			await page.locator('[data-filter-toggle="bounties"]').click();
-			await expect(page.locator('#bounties-filters')).toBeVisible();
+			await expect(page.locator('[data-bounty-syndicate="HexSyndicate"][data-filter-type="MT_SURVIVAL"]')).toBeVisible();
 		});
 
 		test.afterEach(async ({page}) => {

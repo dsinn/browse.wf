@@ -90,7 +90,7 @@ test.describe('News Card (/live)', () => {
 			// Open News filter panel
 			const newsFilterToggle = page.locator('[data-filter-toggle="news"]');
 			await newsFilterToggle.click();
-			await expect(page.locator('#news-filters')).toBeVisible();
+			await expect(page.locator('#filter-news-success')).toBeVisible();
 
 			// Uncheck primary filter
 			const primaryFilter = page.locator('#filter-news-primary');

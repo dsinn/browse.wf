@@ -156,6 +156,7 @@ test.describe('Live Page - 1999 Calendar Card', () => {
 
 		test('"No event types checked" message appears when all types are unchecked', async ({page}) => {
 			await page.locator('[data-filter-toggle="calendar-season"]').click();
+			await expect(page.locator('#filter-calendar-season-type-CET_UPGRADE')).toBeVisible();
 			await page.locator('#filter-calendar-season-type-CET_CHALLENGE').uncheck();
 			await page.locator('#filter-calendar-season-type-CET_REWARD').uncheck();
 			await page.locator('#filter-calendar-season-type-CET_UPGRADE').uncheck();
@@ -164,6 +165,7 @@ test.describe('Live Page - 1999 Calendar Card', () => {
 
 		test('filter state persists after page reload', async ({page}) => {
 			await page.locator('[data-filter-toggle="calendar-season"]').click();
+			await expect(page.locator('#filter-calendar-season-type-CET_UPGRADE')).toBeVisible();
 			await page.locator('#filter-calendar-season-type-CET_UPGRADE').uncheck();
 
 			await reloadWithFrozenClock(page);

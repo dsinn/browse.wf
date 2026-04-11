@@ -1,21 +1,17 @@
 /**
- * Tests for News card mark-as-read functionality
- *
- * Note: Content filtering behavior (updateNewsTicker) is not tested here to avoid
- * test drift. The mock implementation would need to duplicate production logic,
- * and any divergence would give false confidence.
- *
- * Content filtering logic should be tested via E2E tests or manual testing.
+ * Tests for the News card — rendering (updateNewsTicker) and mark-as-read
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
+import {loadMock} from '@test/helpers/api-mocks';
 import {getById} from '@test/helpers/dom-helpers';
 import {testCardFilters} from '@test/live/card-filters-factory';
 import * as triggerModule from '../cloud-sync/trigger.js';
 import {
 	setNewsItemData, isNewsItemRead, markNewsItemAsRead, markAllNewsAsRead, pruneStaleNewsRead, initializeMarkAsRead,
 } from './news-mark-read';
+import {updateNewsTicker, resetNewsState} from './news';
 
 vi.mock('../cloud-sync/trigger.js', () => ({
 	triggerCloudSyncWithDebounce: vi.fn(),
@@ -24,6 +20,16 @@ vi.mock('../cloud-sync/trigger.js', () => ({
 // Test generic card filter integration for News card
 // This verifies: gear icon, accordion, checkboxes, localStorage persistence, auto-expand
 testCardFilters('news');
+
+const worldState = loadMock('worldState.json');
+const worldStateEmptyEvents = loadMock('worldState-empty-events.json');
+
+// Helper to create news item elements
+function createNewsItem(type: 'primary' | 'success'): HTMLParagraphElement {
+	const element = document.createElement('p');
+	element.className = `news-item news-${type}`;
+	return element;
+}
 
 describe('News Card - Basic Structure', () => {
 	test('news body element exists', () => {
@@ -63,12 +69,254 @@ describe('News Card - Basic Structure', () => {
 	});
 });
 
-// Helper to create news item elements
-function createNewsItem(type: 'primary' | 'success'): HTMLParagraphElement {
-	const element = document.createElement('p');
-	element.className = `news-item news-${type}`;
-	return element;
-}
+describe('updateNewsTicker', () => {
+	beforeEach(() => {
+		document.body.innerHTML = '<div id="news-body">Loading...</div>';
+		localStorage.clear();
+		resetNewsState();
+
+		(globalThis as any).worldState = worldState;
+		(globalThis as any).sendNotification = vi.fn();
+		(globalThis as any).formatActivation = vi.fn((ms: number) => `${ms}ms`);
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+		delete (globalThis as any).worldState;
+		delete (globalThis as any).sendNotification;
+		delete (globalThis as any).formatActivation;
+	});
+
+	describe('no worldState', () => {
+		test('shows "no news items available" when worldState is absent', () => {
+			(globalThis as any).worldState = undefined;
+			updateNewsTicker();
+			expect(document.querySelector('#news-body')!.innerHTML).toBe('No news items available.');
+		});
+
+		test('shows "no news items available" when Events is empty', () => {
+			(globalThis as any).worldState = worldStateEmptyEvents;
+			updateNewsTicker();
+			expect(document.querySelector('#news-body')!.innerHTML).toBe('No news items available.');
+		});
+	});
+
+	describe('rendering items', () => {
+		test('renders news items from worldState', () => {
+			updateNewsTicker();
+			const items = document.querySelectorAll('#news-body .news-item');
+			expect(items.length).toBeGreaterThan(0);
+		});
+
+		test('renders community events as news-success', () => {
+			updateNewsTicker();
+			// The worldState has Community=true events e.g. "Known Issues List" and "Community Stream"
+			expect(document.querySelector('#news-body .news-success')).toBeTruthy();
+		});
+
+		test('renders non-community events as news-primary', () => {
+			updateNewsTicker();
+			// The worldState has non-community events e.g. "Instantly Acquire The Old Peace Packs Now"
+			expect(document.querySelector('#news-body .news-primary')).toBeTruthy();
+		});
+
+		test('renders item with Prop as anchor tag', () => {
+			updateNewsTicker();
+			// All rendered items have Prop URLs
+			const anchor = document.querySelector<HTMLAnchorElement>('#news-body a');
+			expect(anchor).toBeTruthy();
+			expect(anchor!.target).toBe('_blank');
+		});
+
+		test('renders item without Prop as plain text', () => {
+			(globalThis as any).worldState = {
+				Events: [{
+					Date: {$date: {$numberLong: '1765387020000'}},
+					Messages: [{LanguageCode: 'en', Message: 'Plain text event'}],
+				}],
+			};
+			updateNewsTicker();
+			expect(document.querySelector('#news-body a')).toBeNull();
+			expect(document.querySelector('#news-body')!.textContent).toContain('Plain text event');
+		});
+
+		test('renders badge with data-activation attribute', () => {
+			updateNewsTicker();
+			const badge = document.querySelector<HTMLElement>('#news-body .badge');
+			expect(badge?.dataset.activation).toMatch(/^\d+$/u);
+		});
+
+		test('uses formatActivation for badge text', () => {
+			updateNewsTicker();
+			expect((globalThis as any).formatActivation).toHaveBeenCalled();
+		});
+
+		test('falls back to toLocaleString when formatActivation is absent', () => {
+			delete (globalThis as any).formatActivation;
+			updateNewsTicker();
+			const badge = document.querySelector('#news-body .badge');
+			expect(badge?.textContent).toBeTruthy();
+		});
+
+		test('renders items newest-first', () => {
+			updateNewsTicker();
+			const badges = document.querySelectorAll<HTMLElement>('#news-body .badge');
+			const times = [...badges].map(b => Number(b.dataset.activation));
+			for (let i = 1; i < times.length; i++) {
+				expect(times[i]).toBeLessThanOrEqual(times[i - 1]);
+			}
+		});
+
+		test('adds news-read class when item is already read', () => {
+			// Mark all items as read via threshold
+			localStorage.setItem('live.news.all_read_timestamp', String(Number.MAX_SAFE_INTEGER));
+			updateNewsTicker();
+			const items = document.querySelectorAll('#news-body .news-item');
+			for (const item of items) {
+				expect(item.classList.contains('news-read')).toBe(true);
+			}
+		});
+
+		test('does not add news-read class for unread items', () => {
+			updateNewsTicker();
+			expect(document.querySelector('#news-body .news-read')).toBeNull();
+		});
+
+		test('click handler marks item as read', () => {
+			updateNewsTicker();
+			const item = document.querySelector<HTMLElement>('#news-body .news-item');
+			item!.click();
+			expect(item!.classList.contains('news-read')).toBe(true);
+		});
+
+		test('skips JoinDiscord events', () => {
+			updateNewsTicker();
+			const body = document.querySelector('#news-body')!;
+			expect(body.textContent).not.toContain('JoinDiscord');
+		});
+
+		test('skips events without a Date field', () => {
+			// The worldState has community events without Date (e.g. the wiki/forums links near the top)
+			// Those should not appear; only events with Date are rendered
+			updateNewsTicker();
+			// All rendered items must have data-activation set by badge
+			const itemsWithoutBadge = [...document.querySelectorAll('#news-body .news-item')]
+				.filter(p => !p.querySelector('.badge'));
+			expect(itemsWithoutBadge).toHaveLength(0);
+		});
+	});
+
+	describe('language selection', () => {
+		test('uses the en Messages entry when lang=en', () => {
+			localStorage.setItem('lang', 'en');
+			updateNewsTicker();
+			// "Known Issues List" is an en-only event in worldState.json
+			expect(document.querySelector('#news-body')!.textContent).toContain('Known Issues List');
+		});
+
+		test('uses a localised Messages entry when lang matches', () => {
+			localStorage.setItem('lang', 'de');
+			updateNewsTicker();
+			// "Instantly Acquire The Old Peace Packs Now" has a de translation
+			expect(document.querySelector('#news-body')!.textContent)
+				.toContain('Sichert euch jetzt sofort die Pakete zum Alten Frieden');
+		});
+
+		test('defaults to en when no lang in localStorage', () => {
+			updateNewsTicker();
+			expect(document.querySelector('#news-body')!.textContent).toContain('Known Issues List');
+		});
+	});
+
+	describe('filtering', () => {
+		test('skips items filtered out by isFilterEnabled', () => {
+			localStorage.setItem('live.filter.news.primary', '0');
+			updateNewsTicker();
+			expect(document.querySelector('#news-body .news-primary')).toBeNull();
+			expect(document.querySelector('#news-body .news-success')).toBeTruthy();
+		});
+
+		test('shows "no items based on filters" when all filtered out', () => {
+			localStorage.setItem('live.filter.news.primary', '0');
+			localStorage.setItem('live.filter.news.success', '0');
+			updateNewsTicker();
+			expect(document.querySelector('#news-body')!.textContent).toContain('current filters');
+		});
+
+		test('forceRender=true re-renders even when time unchanged', () => {
+			updateNewsTicker();
+			document.querySelector('#news-body')!.innerHTML = 'modified';
+			updateNewsTicker(true);
+			expect(document.querySelectorAll('#news-body .news-item').length).toBeGreaterThan(0);
+		});
+
+		test('skips re-render when highestTime unchanged and forceRender is false', () => {
+			updateNewsTicker();
+			document.querySelector('#news-body')!.innerHTML = 'modified';
+			updateNewsTicker();
+			expect(document.querySelector('#news-body')!.innerHTML).toBe('modified');
+		});
+	});
+
+	const oldEventWorldState = {
+		Events: [{
+			Date: {$date: {$numberLong: '1000000'}},
+			Messages: [{LanguageCode: 'en', Message: 'Old event'}],
+		}],
+	};
+
+	describe('notifications', () => {
+		test('sends notification for new items when notif enabled', () => {
+			// Prime newsNotifyAfter with an old event, then render newer events with notif on
+			(globalThis as any).worldState = oldEventWorldState;
+			updateNewsTicker();
+
+			localStorage.setItem('live.notif.news', '1');
+			(globalThis as any).worldState = worldState;
+			updateNewsTicker(true);
+			expect((globalThis as any).sendNotification).toHaveBeenCalled();
+		});
+
+		test('does not send notification for items at or before newsNotifyAfter', () => {
+			// Prime newsNotifyAfter past all worldState event times
+			(globalThis as any).worldState = {
+				Events: [{
+					Date: {$date: {$numberLong: String(Number.MAX_SAFE_INTEGER)}},
+					Messages: [{LanguageCode: 'en', Message: 'Far future event'}],
+				}],
+			};
+			updateNewsTicker();
+
+			localStorage.setItem('live.notif.news', '1');
+			(globalThis as any).worldState = worldState;
+			updateNewsTicker(true);
+			expect((globalThis as any).sendNotification).not.toHaveBeenCalled();
+		});
+
+		test('does not send notification when notif not enabled in localStorage', () => {
+			// Prime newsNotifyAfter with an old event
+			(globalThis as any).worldState = oldEventWorldState;
+			updateNewsTicker();
+
+			(globalThis as any).worldState = worldState;
+			updateNewsTicker(true);
+			expect((globalThis as any).sendNotification).not.toHaveBeenCalled();
+		});
+
+		test('does not send notification for filtered-out items', () => {
+			// Prime newsNotifyAfter with an old event
+			(globalThis as any).worldState = oldEventWorldState;
+			updateNewsTicker();
+
+			localStorage.setItem('live.notif.news', '1');
+			localStorage.setItem('live.filter.news.primary', '0');
+			localStorage.setItem('live.filter.news.success', '0');
+			(globalThis as any).worldState = worldState;
+			updateNewsTicker(true);
+			expect((globalThis as any).sendNotification).not.toHaveBeenCalled();
+		});
+	});
+});
 
 describe('News Card - Mark as Read Module', () => {
 	beforeEach(() => {

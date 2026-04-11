@@ -32,6 +32,7 @@ import './live/completion-toggles.js';
 import './live/fissures.js';
 import './live/incursions.js';
 import './live/invasions.js';
+import './live/news.js';
 import './live/news-mark-read.js';
 import './live/prune-stale-data.js';
 import './live/red-text.js';

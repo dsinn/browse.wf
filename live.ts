@@ -185,7 +185,6 @@ declare global {
 			Tmp: string;
 		}
 		redtext: { data: string; time: number }[];
-		news_notify_after: number;
 		dailyDeal: IDailyDeal;
 		last_sortie: string;
 		last_darvo_deal: string;
@@ -208,7 +207,6 @@ const ExportBundles_promise = fetchExport("ExportBundles");
 const ExportBoosterPacks_promise = fetchExport("ExportBoosterPacks");
 const ExportBoosters_promise = fetchExport("ExportBoosters");
 
-let latestRenderedNewsTime = 0;
 let renderedAlertOids: Set<string> | undefined;
 let renderedGoals = "";
 
@@ -489,135 +487,9 @@ function addTooltip(elm: HTMLElement, title: string): any
 	return new window.bootstrap.Tooltip(elm);
 }
 
-
-function updateNewsTicker(forceRender = false)
-{
-	let highest_time = 0;
-	const items = [];
-	if (window.worldState)
-	{
-		const LanguageCode = (localStorage.getItem("lang") ?? "en");
-		for (const event of window.worldState.Events)
-		{
-			if (event.Date)
-			{
-				const time = Math.trunc(event.Date.$date.$numberLong / 1000);
-				if (time > highest_time)
-				{
-					highest_time = time;
-				}
-				let msg = event.Messages.find(x => x.LanguageCode == LanguageCode)?.Message;
-				msg ??= event.Msg;
-				if (msg && msg != "/Lotus/Language/CommunityMessages/JoinDiscord")
-				{
-					items.push({
-						type: event.Community ? "success" : "primary",
-						data: msg,
-						time: time,
-						link: event.Prop
-					});
-				}
-			}
-		}
-	}
-	items.sort((a, b) => b.time - a.time);
-
-	// Handle case where API returned no items
-	if (items.length === 0)
-	{
-		document.getElementById("news-body").innerHTML = "No news items available.";
-		return;
-	}
-
-	// Skip re-render if data hasn't changed
-	if (!forceRender && latestRenderedNewsTime === highest_time) return;
-
-	latestRenderedNewsTime = highest_time;
-
-	if (window.news_notify_after && localStorage.getItem("live.notif.news"))
-	{
-		for (let i = items.length; i-- != 0; )
-		{
-			// Only notify for items that pass the filter
-			if (items[i].time > window.news_notify_after &&
-			    (isFilterEnabled("news", items[i].type)))
-			{
-				sendNotification(items[i].data);
-			}
-		}
-	}
-	if (window.worldState)
-	{
-		window.news_notify_after = highest_time;
-	}
-
-	// Filter items based on user preferences (mutate in place to minimize upstream changes)
-	for (let i = items.length; i-- > 0; )
-	{
-		if (!(isFilterEnabled("news", items[i].type)))
-		{
-			items.splice(i, 1);
-		}
-	}
-
-	// Handle case where all items were filtered out
-	if (items.length === 0)
-	{
-		document.getElementById("news-body").innerHTML = "No news items to display based on the current filters.";
-		return;
-	}
-
-	document.getElementById("news-body").innerHTML = "";
-	for (let i = 0; i != items.length; ++i)
-	{
-		const p = document.createElement("p");
-		p.className = `card-text mb-1 news-item news-${items[i].type}`;
-		{
-			const span = document.createElement("span");
-			span.className = "badge text-bg-secondary";
-			span.setAttribute("data-activation", (items[i].time * 1000).toString());
-			span.textContent = formatActivation(items[i].time * 1000);
-			p.appendChild(span);
-		}
-		{
-			const span = document.createElement("span");
-			span.textContent = " ";
-			if (items[i].link)
-			{
-				const a = document.createElement("a");
-				a.textContent = items[i].data;
-				a.href = items[i].link;
-				a.target = "_blank";
-				span.appendChild(a);
-			}
-			else
-			{
-				span.textContent += items[i].data;
-			}
-			p.appendChild(span);
-		}
-
-		setNewsItemData(items[i], p);
-
-		// Add read state class if already marked as read
-		if (isNewsItemRead(items[i])) {
-			p.classList.add("news-read");
-		}
-
-		// Add click handler to mark as read
-		p.style.cursor = "pointer";
-		p.addEventListener("click", () => {
-			markNewsItemAsRead(items[i], p);
-		});
-
-		document.getElementById("news-body").appendChild(p);
-	}
-	document.querySelector("#news-body > :last-child").classList.remove("mb-1");
-}
-
 function updateWorldStateLocalised()
 {
-	updateNewsTicker();
+	void (window as any).updateNewsTicker();
 	updateAlerts();
 	updateGoals();
 	void (window as any).updateFissures();
@@ -1336,7 +1208,7 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 
 (window as any).initLiveSync();
 initializeFilterToggles();
-initializeCardFilters('news', () => updateNewsTicker(true));
+initializeCardFilters('news', () => void (window as any).updateNewsTicker(true));
 initializeCardFilters('incursions', () => void (window as any).updateIncursionsLocalised());
 initializeCardFilters('fissures', () => void (window as any).updateFissures(true));
 initializeCardFilters('sp-fissures', () => void (window as any).updateFissures(true));
@@ -1365,4 +1237,3 @@ document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm
 (window as any).toggleOidCompletion = toggleOidCompletion;
 (window as any).toTitleCase = toTitleCase;
 (window as any).updateBountyCycleLocalised = updateBountyCycleLocalised;
-(window as any).updateNewsTicker = updateNewsTicker;

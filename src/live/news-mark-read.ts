@@ -6,7 +6,7 @@
 
 import {triggerCloudSyncWithDebounce as triggerCloudSync} from '../cloud-sync/trigger.js';
 
-type NewsItem = {
+export type NewsItem = {
 	type: 'primary' | 'success';
 	data: string;
 	time: number;

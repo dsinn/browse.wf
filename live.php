@@ -9,7 +9,7 @@
 	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
 	<link rel="stylesheet" href="src/card-filters.css">
 	<link rel="stylesheet" href="src/live/invasions.css">
-	<link rel="stylesheet" href="src/live/news-card.css">
+	<link rel="stylesheet" href="src/live/news.css">
 	<link rel="stylesheet" href="src/live/red-text.css">
 	<link rel="stylesheet" href="src/tooltip.css">
 	<style>

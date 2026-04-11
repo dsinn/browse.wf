@@ -21,13 +21,6 @@ type IWorldStateInvasion = {
 	DefenderReward: {countedItems: Array<{ItemType: string; ItemCount: number}>} | never[];
 };
 
-type INewsItem = {
-	type: string;
-	data: string;
-	time: number;
-	link?: string;
-};
-
 type IDescent = {
 	Activation: IMongoDate;
 	Expiry: IMongoDate;
@@ -194,11 +187,8 @@ declare global {
 
 	// src/live/news-mark-read.ts
 	var initializeMarkAsRead: (() => void) | undefined;
-	var isNewsItemRead: ((item: INewsItem) => boolean) | undefined;
 	var markAllNewsAsRead: (() => void) | undefined;
-	var markNewsItemAsRead: ((item: INewsItem, element: HTMLElement) => void) | undefined;
 	var pruneStaleNewsRead: (() => void) | undefined;
-	var setNewsItemData: ((item: INewsItem, element: HTMLElement) => void) | undefined;
 
 	// src/profile/stats-filters.ts
 	var ENEMY_FACTIONS: Array<{tooltip: string; icon: string; factions: string[]}> | undefined;

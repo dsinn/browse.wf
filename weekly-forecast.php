@@ -1,3 +1,4 @@
+<?php require_once "helpers.php"; ?>
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
 <head>
@@ -5,9 +6,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
-	<link rel="stylesheet" href="src/tooltip.css">
-	<link rel="stylesheet" href="src/descendia/descendia.css">
-	<link rel="stylesheet" href="src/calendar-seasons/calendar-seasons.css">
+	<?php asyncStylesheet("src/tooltip.css"); ?>
+	<?php asyncStylesheet("src/descendia/descendia.css"); ?>
+	<?php asyncStylesheet("src/calendar-seasons/calendar-seasons.css"); ?>
 </head>
 <body data-bs-theme="dark">
 	<?php require "components/navbar.php"; ?>

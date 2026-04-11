@@ -51,10 +51,10 @@ declare function initializeCardFilters(cardName: string, onFilterChange?: () => 
 declare function initializeFilterToggles(): void;
 
 // news-mark-read.ts
-declare function generateNewsItemKey(item: any): string;
-declare function isNewsItemRead(key: string): boolean;
-declare function markNewsItemAsRead(key: string, element: HTMLElement): void;
 declare function initializeMarkAsRead(): void;
+declare function isNewsItemRead(item: any): boolean;
+declare function markNewsItemAsRead(item: any, element: HTMLElement): void;
+declare function setNewsItemData(item: any, element: HTMLElement): void;
 
 // bounty-filters.ts
 declare function initializeBountyFiltersAll(): void;
@@ -597,18 +597,17 @@ function updateNewsTicker(forceRender = false)
 			p.appendChild(span);
 		}
 
-		const newsKey = generateNewsItemKey(items[i]);
-		p.setAttribute("data-news-key", newsKey);
+		setNewsItemData(items[i], p);
 
 		// Add read state class if already marked as read
-		if (isNewsItemRead(newsKey)) {
+		if (isNewsItemRead(items[i])) {
 			p.classList.add("news-read");
 		}
 
 		// Add click handler to mark as read
 		p.style.cursor = "pointer";
 		p.addEventListener("click", () => {
-			markNewsItemAsRead(newsKey, p);
+			markNewsItemAsRead(items[i], p);
 		});
 
 		document.getElementById("news-body").appendChild(p);

@@ -8,13 +8,18 @@
  * Content filtering logic should be tested via E2E tests or manual testing.
  */
 import {
-	describe, test, expect, beforeEach, afterEach,
+	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {getById} from '@test/helpers/dom-helpers';
 import {testCardFilters} from '@test/live/card-filters-factory';
+import * as triggerModule from '../cloud-sync/trigger.js';
 import {
-	generateNewsItemKey, isNewsItemRead, markNewsItemAsRead, markAllNewsAsRead, pruneStaleNewsRead, initializeMarkAsRead,
+	setNewsItemData, isNewsItemRead, markNewsItemAsRead, markAllNewsAsRead, pruneStaleNewsRead, initializeMarkAsRead,
 } from './news-mark-read';
+
+vi.mock('../cloud-sync/trigger.js', () => ({
+	triggerCloudSyncWithDebounce: vi.fn(),
+}));
 
 // Test generic card filter integration for News card
 // This verifies: gear icon, accordion, checkboxes, localStorage persistence, auto-expand
@@ -59,13 +64,9 @@ describe('News Card - Basic Structure', () => {
 });
 
 // Helper to create news item elements
-function createNewsItem(type: 'primary' | 'success' | 'danger', key?: string): HTMLParagraphElement {
+function createNewsItem(type: 'primary' | 'success'): HTMLParagraphElement {
 	const element = document.createElement('p');
 	element.className = `news-item news-${type}`;
-	if (key && type !== 'danger') {
-		element.dataset.newsKey = key;
-	}
-
 	return element;
 }
 
@@ -78,87 +79,141 @@ describe('News Card - Mark as Read Module', () => {
 		initializeMarkAsRead();
 	});
 
-	describe('generateNewsItemKey', () => {
-		test('generates key with link and timestamp', () => {
+	describe('setNewsItemData', () => {
+		test('sets data-news-key with link and timestamp', () => {
 			const item = {
-				type: 'primary' as const,
-				data: 'Test event',
-				time: 1_234_567_890,
-				link: 'https://example.com',
+				type: 'primary' as const, data: 'Test event', time: 1_234_567_890, link: 'https://example.com',
 			};
+			const element = createNewsItem('primary');
 
-			const key = generateNewsItemKey(item);
-			expect(key).toBe('https://example.com|1234567890');
+			setNewsItemData(item, element);
+
+			expect(element.dataset.newsKey).toBe('https://example.com|1234567890');
+			expect(element.dataset.newsTime).toBe('1234567890');
 		});
 
-		test('generates key without link (empty string for URL part)', () => {
-			const item = {
-				type: 'primary' as const,
-				data: 'Test event',
-				time: 1_234_567_890,
-			};
+		test('sets data-news-key without link', () => {
+			const item = {type: 'primary' as const, data: 'Test event', time: 1_234_567_890};
+			const element = createNewsItem('primary');
 
-			const key = generateNewsItemKey(item);
-			expect(key).toBe('|1234567890');
+			setNewsItemData(item, element);
+
+			expect(element.dataset.newsKey).toBe('|1234567890');
+			expect(element.dataset.newsTime).toBe('1234567890');
 		});
 
-		test('handles different timestamps correctly', () => {
+		test('different timestamps produce different keys', () => {
 			const item1 = {
-				type: 'primary' as const,
-				data: 'Event 1',
-				time: 1_000_000_000,
-				link: 'https://example.com',
+				type: 'primary' as const, data: 'Event 1', time: 1_000_000_000, link: 'https://example.com',
 			};
-
 			const item2 = {
-				type: 'primary' as const,
-				data: 'Event 2',
-				time: 2_000_000_000,
-				link: 'https://example.com',
+				type: 'primary' as const, data: 'Event 2', time: 2_000_000_000, link: 'https://example.com',
 			};
+			const element1 = createNewsItem('primary');
+			const element2 = createNewsItem('primary');
 
-			const key1 = generateNewsItemKey(item1);
-			const key2 = generateNewsItemKey(item2);
+			setNewsItemData(item1, element1);
+			setNewsItemData(item2, element2);
 
-			expect(key1).not.toBe(key2);
-			expect(key1).toBe('https://example.com|1000000000');
-			expect(key2).toBe('https://example.com|2000000000');
+			expect(element1.dataset.newsKey).not.toBe(element2.dataset.newsKey);
+		});
+
+		test('round trip: isNewsItemRead returns true after setNewsItemData and markNewsItemAsRead', () => {
+			const item = {
+				type: 'primary' as const, data: 'Test event', time: 1_234_567_890, link: 'https://example.com',
+			};
+			const element = createNewsItem('primary');
+
+			setNewsItemData(item, element);
+			markNewsItemAsRead(item, element);
+
+			expect(isNewsItemRead(item)).toBe(true);
+		});
+
+		test('skips element with empty data-news-time', () => {
+			const newsBody = getById('news-body');
+			newsBody.innerHTML = '';
+
+			const item = document.createElement('p');
+			item.className = 'news-item news-primary';
+			item.dataset.newsTime = '';
+			newsBody.append(item);
+
+			markAllNewsAsRead();
+
+			expect(localStorage.getItem('live.news.all_read_timestamp')).toBeNull();
 		});
 	});
 
 	describe('isNewsItemRead', () => {
 		test('returns false when no items are read', () => {
-			const result = isNewsItemRead('test-key|123');
-			expect(result).toBe(false);
+			expect(isNewsItemRead({
+				type: 'primary', data: 'x', time: 123, link: 'test-key',
+			})).toBe(false);
 		});
 
-		test('returns true when item is marked as read', () => {
+		test('returns true when item is in key array', () => {
 			localStorage.setItem('news_items_read', JSON.stringify(['test-key|123']));
 
-			const result = isNewsItemRead('test-key|123');
-			expect(result).toBe(true);
+			expect(isNewsItemRead({
+				type: 'primary', data: 'x', time: 123, link: 'test-key',
+			})).toBe(true);
 		});
 
 		test('returns false for different key', () => {
 			localStorage.setItem('news_items_read', JSON.stringify(['test-key|123']));
 
-			const result = isNewsItemRead('different-key|456');
-			expect(result).toBe(false);
+			expect(isNewsItemRead({
+				type: 'primary', data: 'x', time: 456, link: 'different-key',
+			})).toBe(false);
 		});
 
 		test('handles corrupted localStorage gracefully', () => {
 			localStorage.setItem('news_items_read', 'invalid json');
 
-			const result = isNewsItemRead('test-key|123');
-			expect(result).toBe(false);
+			expect(isNewsItemRead({
+				type: 'primary', data: 'x', time: 123, link: 'test-key',
+			})).toBe(false);
+		});
+
+		test('returns true when item time is at or before threshold', () => {
+			localStorage.setItem('live.news.all_read_timestamp', '1000');
+
+			expect(isNewsItemRead({type: 'primary', data: 'x', time: 1000})).toBe(true);
+			expect(isNewsItemRead({type: 'primary', data: 'x', time: 999})).toBe(true);
+		});
+
+		test('returns false when item time is after threshold', () => {
+			localStorage.setItem('live.news.all_read_timestamp', '1000');
+
+			expect(isNewsItemRead({type: 'primary', data: 'x', time: 1001})).toBe(false);
+		});
+
+		test('threshold takes priority over key array check', () => {
+			localStorage.setItem('live.news.all_read_timestamp', '1000');
+			// Key is NOT in the array, but time is within threshold
+
+			expect(isNewsItemRead({type: 'primary', data: 'x', time: 500})).toBe(true);
+		});
+
+		test('falls through to key array when item time exceeds threshold', () => {
+			localStorage.setItem('live.news.all_read_timestamp', '1000');
+			localStorage.setItem('news_items_read', JSON.stringify(['test-key|2000']));
+
+			expect(isNewsItemRead({
+				type: 'primary', data: 'x', time: 2000, link: 'test-key',
+			})).toBe(true);
 		});
 	});
 
 	describe('markNewsItemAsRead', () => {
 		test('marks item as read in localStorage', () => {
-			const element = createNewsItem('primary', 'test-key|123');
+			const item = {
+				type: 'primary' as const, data: 'x', time: 123, link: 'test-key',
+			};
+			const element = createNewsItem('primary');
 
-			markNewsItemAsRead('test-key|123', element);
+			markNewsItemAsRead(item, element);
 
 			const stored = localStorage.getItem('news_items_read');
 			expect(stored).toBeTruthy();
@@ -166,30 +221,39 @@ describe('News Card - Mark as Read Module', () => {
 		});
 
 		test('adds news-read class to element', () => {
-			const element = createNewsItem('primary', 'test-key|123');
+			const item = {
+				type: 'primary' as const, data: 'x', time: 123, link: 'test-key',
+			};
+			const element = createNewsItem('primary');
 
-			markNewsItemAsRead('test-key|123', element);
+			markNewsItemAsRead(item, element);
 
 			expect(element.classList.contains('news-read')).toBe(true);
 		});
 
 		test('does not duplicate keys in localStorage when marking different elements', () => {
-			const element1 = createNewsItem('primary', 'test-key|123');
-			const element2 = createNewsItem('success', 'test-key|123');
+			const item = {
+				type: 'primary' as const, data: 'x', time: 123, link: 'test-key',
+			};
+			const element1 = createNewsItem('primary');
+			const element2 = createNewsItem('success');
 
-			markNewsItemAsRead('test-key|123', element1);
-			markNewsItemAsRead('test-key|123', element2);
+			markNewsItemAsRead(item, element1);
+			markNewsItemAsRead(item, element2);
 
 			const stored = localStorage.getItem('news_items_read');
 			expect(JSON.parse(stored!)).toEqual(['test-key|123']);
 		});
 
 		test('does not re-mark already read items', () => {
+			const item = {
+				type: 'primary' as const, data: 'x', time: 123, link: 'test-key',
+			};
 			localStorage.setItem('news_items_read', JSON.stringify(['test-key|123']));
-			const element = createNewsItem('primary', 'test-key|123');
+			const element = createNewsItem('primary');
 			element.classList.add('news-read');
 
-			markNewsItemAsRead('test-key|123', element);
+			markNewsItemAsRead(item, element);
 
 			const stored = localStorage.getItem('news_items_read');
 			expect(JSON.parse(stored!)).toEqual(['test-key|123']);
@@ -198,9 +262,12 @@ describe('News Card - Mark as Read Module', () => {
 		test('appends to existing read items', () => {
 			localStorage.setItem('news_items_read', JSON.stringify(['existing-key|111']));
 
-			const element = createNewsItem('primary', 'new-key|222');
+			const item = {
+				type: 'primary' as const, data: 'x', time: 222, link: 'new-key',
+			};
+			const element = createNewsItem('primary');
 
-			markNewsItemAsRead('new-key|222', element);
+			markNewsItemAsRead(item, element);
 
 			const stored = localStorage.getItem('news_items_read');
 			expect(JSON.parse(stored!)).toEqual(['existing-key|111', 'new-key|222']);
@@ -208,41 +275,87 @@ describe('News Card - Mark as Read Module', () => {
 	});
 
 	describe('markAllNewsAsRead', () => {
-		test('marks all visible primary/success items as read', () => {
+		test('sets threshold to first (newest) item time and clears key array', () => {
 			const newsBody = getById('news-body');
 			newsBody.innerHTML = '';
 
-			// Create primary item
-			const primary = document.createElement('p');
-			primary.className = 'news-item news-primary';
-			primary.dataset.newsKey = 'primary-key|123';
-			newsBody.append(primary);
-
-			// Create success item
+			// Items are in descending time order, as rendered by live.ts
 			const success = document.createElement('p');
 			success.className = 'news-item news-success';
-			success.dataset.newsKey = 'success-key|456';
+			setNewsItemData({
+				type: 'success', data: 'x', time: 456, link: 'success-key',
+			}, success);
 			newsBody.append(success);
 
-			// Create danger item (should be ignored)
-			const danger = document.createElement('p');
-			danger.className = 'news-item news-danger';
-			// No data-news-key attribute (danger items don't have it)
-			newsBody.append(danger);
+			const primary = document.createElement('p');
+			primary.className = 'news-item news-primary';
+			setNewsItemData({
+				type: 'primary', data: 'x', time: 123, link: 'primary-key',
+			}, primary);
+			newsBody.append(primary);
+
+			// Pre-populate key array — should be cleared
+			localStorage.setItem('news_items_read', JSON.stringify(['old-key|100']));
 
 			markAllNewsAsRead();
 
-			const stored = localStorage.getItem('news_items_read');
-			expect(stored).toBeTruthy();
-			const readItems = JSON.parse(stored!);
-			expect(readItems).toContain('primary-key|123');
-			expect(readItems).toContain('success-key|456');
-			expect(readItems.length).toBe(2);
+			expect(localStorage.getItem('live.news.all_read_timestamp')).toBe('456');
+			expect(localStorage.getItem('news_items_read')).toBeNull();
 
-			// Check UI classes
-			expect(primary.classList.contains('news-read')).toBe(true);
 			expect(success.classList.contains('news-read')).toBe(true);
-			expect(danger.classList.contains('news-read')).toBe(false);
+			expect(primary.classList.contains('news-read')).toBe(true);
+		});
+
+		test('does not lower an existing threshold', () => {
+			const newsBody = getById('news-body');
+			newsBody.innerHTML = '';
+
+			localStorage.setItem('live.news.all_read_timestamp', '9999');
+
+			const older = document.createElement('p');
+			older.className = 'news-item news-primary';
+			setNewsItemData({
+				type: 'primary', data: 'x', time: 100, link: 'test-key',
+			}, older);
+			newsBody.append(older);
+
+			const newer = document.createElement('p');
+			newer.className = 'news-item news-primary';
+			setNewsItemData({
+				type: 'primary', data: 'x', time: 20_000, link: 'test-key-2',
+			}, newer);
+			newsBody.prepend(newer);
+
+			// Newer item (20000) should raise threshold above old (9999)
+			markAllNewsAsRead();
+			expect(localStorage.getItem('live.news.all_read_timestamp')).toBe('20000');
+
+			// Re-running with only old items should not lower the threshold
+			newsBody.innerHTML = '';
+			newsBody.append(older);
+			markAllNewsAsRead();
+			expect(localStorage.getItem('live.news.all_read_timestamp')).toBe('20000');
+		});
+
+		test('does not trigger cloud sync when threshold is unchanged', () => {
+			const newsBody = getById('news-body');
+			newsBody.innerHTML = '';
+
+			localStorage.setItem('live.news.all_read_timestamp', '9999');
+
+			const item = document.createElement('p');
+			item.className = 'news-item news-primary';
+			setNewsItemData({
+				type: 'primary', data: 'x', time: 100, link: 'test-key',
+			}, item);
+			newsBody.append(item);
+
+			const syncSpy = vi.mocked(triggerModule.triggerCloudSyncWithDebounce);
+			syncSpy.mockClear();
+
+			markAllNewsAsRead();
+
+			expect(syncSpy).not.toHaveBeenCalled();
 		});
 
 		test('does nothing when news body is empty', () => {
@@ -251,8 +364,19 @@ describe('News Card - Mark as Read Module', () => {
 
 			markAllNewsAsRead();
 
-			const stored = localStorage.getItem('news_items_read');
-			expect(stored).toBeFalsy();
+			expect(localStorage.getItem('live.news.all_read_timestamp')).toBeNull();
+		});
+
+		test('does nothing when news-body element is absent', () => {
+			const newsBody = getById('news-body');
+			const newsParent = newsBody.parentElement;
+			newsBody.remove();
+
+			markAllNewsAsRead();
+
+			expect(localStorage.getItem('live.news.all_read_timestamp')).toBeNull();
+
+			newsParent?.append(newsBody);
 		});
 
 		test('mark all button click handler works', () => {
@@ -261,15 +385,15 @@ describe('News Card - Mark as Read Module', () => {
 
 			const item = document.createElement('p');
 			item.className = 'news-item news-primary';
-			item.dataset.newsKey = 'test-key|123';
+			setNewsItemData({
+				type: 'primary', data: 'x', time: 123, link: 'test-key',
+			}, item);
 			newsBody.append(item);
 
 			const markAllBtn = getById('news-mark-all-read');
 			markAllBtn.click();
 
-			const stored = localStorage.getItem('news_items_read');
-			expect(stored).toBeTruthy();
-			expect(JSON.parse(stored!)).toEqual(['test-key|123']);
+			expect(localStorage.getItem('live.news.all_read_timestamp')).toBe('123');
 			expect(item.classList.contains('news-read')).toBe(true);
 		});
 	});
@@ -289,7 +413,9 @@ describe('News Card - Mark as Read Module', () => {
 			// Only add one current item to DOM
 			const item = document.createElement('p');
 			item.className = 'news-item news-primary';
-			item.dataset.newsKey = 'current-key|222';
+			setNewsItemData({
+				type: 'primary', data: 'x', time: 222, link: 'current-key',
+			}, item);
 			newsBody.append(item);
 
 			pruneStaleNewsRead();
@@ -308,7 +434,9 @@ describe('News Card - Mark as Read Module', () => {
 			// Add a different item to DOM
 			const item = document.createElement('p');
 			item.className = 'news-item news-primary';
-			item.dataset.newsKey = 'different-key|222';
+			setNewsItemData({
+				type: 'primary', data: 'x', time: 222, link: 'different-key',
+			}, item);
 			newsBody.append(item);
 
 			pruneStaleNewsRead();
@@ -355,7 +483,9 @@ describe('News Card - Mark as Read Module', () => {
 			newsBody.innerHTML = '';
 
 			const item = document.createElement('p');
-			item.dataset.newsKey = 'test-key|123';
+			setNewsItemData({
+				type: 'primary', data: 'x', time: 123, link: 'test-key',
+			}, item);
 			newsBody.append(item);
 
 			// Should not throw
@@ -367,11 +497,15 @@ describe('News Card - Mark as Read Module', () => {
 
 	describe('localStorage integration', () => {
 		test('appends multiple read items to array', () => {
-			const element1 = createNewsItem('primary', 'key-1|123');
-			const element2 = createNewsItem('success', 'key-2|456');
+			const item1 = {
+				type: 'primary' as const, data: 'x', time: 123, link: 'key-1',
+			};
+			const item2 = {
+				type: 'success' as const, data: 'y', time: 456, link: 'key-2',
+			};
 
-			markNewsItemAsRead('key-1|123', element1);
-			markNewsItemAsRead('key-2|456', element2);
+			markNewsItemAsRead(item1, createNewsItem('primary'));
+			markNewsItemAsRead(item2, createNewsItem('success'));
 
 			const stored = localStorage.getItem('news_items_read');
 			expect(stored).toBeTruthy();
@@ -389,7 +523,9 @@ describe('News Card - Mark as Read Module', () => {
 
 			// Add different item, making old key stale
 			const item = document.createElement('p');
-			item.dataset.newsKey = 'new-key|222';
+			setNewsItemData({
+				type: 'primary', data: 'x', time: 222, link: 'new-key',
+			}, item);
 			newsBody.append(item);
 
 			pruneStaleNewsRead();

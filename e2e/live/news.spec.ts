@@ -173,13 +173,10 @@ test.describe('News Card (/live)', () => {
 			// All previously unread items should now have news-read class
 			await expect(unreadItems).toHaveCount(0);
 
-			// Verify localStorage was updated
-			const readItems = await page.evaluate(() => {
-				const stored = localStorage.getItem('news_items_read');
-				return stored ? JSON.parse(stored) : [];
-			});
-
-			expect(readItems.length).toBeGreaterThan(0);
+			// Verify localStorage threshold was set
+			const threshold = await page.evaluate(() => localStorage.getItem('live.news.all_read_timestamp'));
+			expect(threshold).toBeTruthy();
+			expect(Number(threshold)).toBeGreaterThan(0);
 		});
 
 		test('read state persists after page reload', async ({page}) => {

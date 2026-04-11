@@ -1,48 +1,65 @@
 /**
  * News Mark as Read System
  * Fork-specific feature to track which news items have been read
- * Excludes red text (danger) items - only applies to primary/success
+ * Only applies to primary/success items; red text has its own card
  */
 
 import {triggerCloudSyncWithDebounce as triggerCloudSync} from '../cloud-sync/trigger.js';
 
 type NewsItem = {
-	type: 'danger' | 'primary' | 'success';
+	type: 'primary' | 'success';
 	data: string;
 	time: number;
 	link?: string;
 };
 
-const STORAGE_KEY = 'news_items_read';
+const ALL_READ_TIMESTAMP_KEY = 'live.news.all_read_timestamp';
+const READ_COLLECTION_KEY = 'news_items_read';
 
 /**
  * Generate unique key for a news item
  * Format: {link}|{timestamp}
  * Items without links use empty string for URL part
  */
-export function generateNewsItemKey(item: NewsItem): string {
+function generateNewsItemKey(item: NewsItem): string {
 	const linkPart = item.link || '';
 	return `${linkPart}|${item.time}`;
 }
 
 /**
- * Check if a news item is marked as read
+ * Set data attributes on a news item element for use by the mark-as-read system
  */
-export function isNewsItemRead(key: string): boolean {
-	const readItems = getReadItems();
-	return readItems.includes(key);
+export function setNewsItemData(item: NewsItem, element: HTMLElement): void {
+	element.dataset.newsKey = generateNewsItemKey(item);
+	element.dataset.newsTime = item.time.toString();
+}
+
+/**
+ * Check if a news item is marked as read.
+ * Returns true if the item's timestamp is at or before the bulk-read threshold,
+ * or if its key was individually marked as read.
+ */
+export function isNewsItemRead(item: NewsItem): boolean {
+	const key = generateNewsItemKey(item);
+	const threshold = getAllReadThreshold();
+	if (threshold !== undefined && item.time <= threshold) {
+		return true;
+	}
+
+	return getReadItems().includes(key);
 }
 
 /**
  * Mark a news item as read
  * Updates localStorage, triggers cloud sync, and updates UI
  */
-export function markNewsItemAsRead(key: string, element: HTMLElement): void {
+export function markNewsItemAsRead(item: NewsItem, element: HTMLElement): void {
 	// Don't re-mark already read items
 	if (element.classList.contains('news-read')) {
 		return;
 	}
 
+	const key = generateNewsItemKey(item);
 	const readItems = getReadItems();
 
 	// Add to read items if not already present
@@ -59,8 +76,11 @@ export function markNewsItemAsRead(key: string, element: HTMLElement): void {
 }
 
 /**
- * Mark all currently visible primary/success news items as read
- * Excludes danger (red text) items
+ * Mark all currently visible primary/success news items as read.
+ * Sets a timestamp threshold: all items at or before this time are considered read.
+ * Also clears the individual key array since the threshold covers everything.
+ * Pre-condition: news items are rendered in reverse chronological order (live.ts sorts before rendering),
+ * so the first [data-news-key] element has the highest timestamp.
  */
 export function markAllNewsAsRead(): void {
 	const newsBody = document.querySelector('#news-body');
@@ -68,40 +88,35 @@ export function markAllNewsAsRead(): void {
 		return;
 	}
 
-	const readItems = getReadItems();
-	let hasChanges = false;
+	const firstItem = newsBody.querySelector<HTMLElement>('[data-news-time]');
+	if (!firstItem) {
+		return;
+	}
 
-	// Find all primary/success news items (those with data-news-key attribute)
+	const newestTime = Number(firstItem.dataset.newsTime);
+	if (!newestTime) {
+		return;
+	}
+
 	for (const element of newsBody.querySelectorAll<HTMLElement>('[data-news-key]')) {
-		const key = element.dataset.newsKey;
-		if (!key) {
-			continue;
-		}
-
-		// Add to read items if not already present
-		if (!readItems.includes(key)) {
-			readItems.push(key);
-			hasChanges = true;
-		}
-
-		// Update UI
-		if (!element.classList.contains('news-read')) {
-			element.classList.add('news-read');
-		}
+		element.classList.add('news-read');
 	}
 
-	if (hasChanges) {
-		saveReadItems(readItems);
-
-		// Trigger cloud sync
-		triggerCloudSync();
+	const currentThreshold = getAllReadThreshold();
+	const newThreshold = currentThreshold === undefined ? newestTime : Math.max(currentThreshold, newestTime);
+	if (newThreshold === currentThreshold) {
+		return;
 	}
+
+	localStorage.setItem(ALL_READ_TIMESTAMP_KEY, String(newThreshold));
+	localStorage.removeItem(READ_COLLECTION_KEY);
+	triggerCloudSync();
 }
 
 /**
- * Remove read items that no longer exist in current news data
- * Called before cloud sync to prevent stale data accumulation
- * Only runs if News card is present in DOM
+ * Remove read items that no longer exist in current news data, or are covered by the threshold.
+ * Called before cloud sync to prevent stale data accumulation.
+ * Only runs if News card is present in DOM.
  */
 export function pruneStaleNewsRead(): void {
 	const newsBody = document.querySelector('#news-body');
@@ -136,7 +151,7 @@ export function pruneStaleNewsRead(): void {
 	if (cleanedRead.length > 0) {
 		saveReadItems(cleanedRead);
 	} else {
-		localStorage.removeItem(STORAGE_KEY);
+		localStorage.removeItem(READ_COLLECTION_KEY);
 	}
 }
 
@@ -144,7 +159,7 @@ export function pruneStaleNewsRead(): void {
  * Get read items from localStorage
  */
 function getReadItems(): string[] {
-	const stored = localStorage.getItem(STORAGE_KEY);
+	const stored = localStorage.getItem(READ_COLLECTION_KEY);
 	if (!stored) {
 		return [];
 	}
@@ -158,13 +173,26 @@ function getReadItems(): string[] {
 }
 
 /**
+ * Get the bulk-read timestamp threshold from localStorage, or undefined if not set
+ */
+function getAllReadThreshold(): number | undefined {
+	const stored = localStorage.getItem(ALL_READ_TIMESTAMP_KEY);
+	if (!stored) {
+		return undefined;
+	}
+
+	const value = Number(stored);
+	return Number.isNaN(value) ? undefined : value;
+}
+
+/**
  * Save read items to localStorage
  */
 function saveReadItems(items: string[]): void {
 	if (items.length > 0) {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+		localStorage.setItem(READ_COLLECTION_KEY, JSON.stringify(items));
 	} else {
-		localStorage.removeItem(STORAGE_KEY);
+		localStorage.removeItem(READ_COLLECTION_KEY);
 	}
 }
 
@@ -182,9 +210,9 @@ export function initializeMarkAsRead(): void {
 	}
 }
 
-(globalThis as any).generateNewsItemKey = generateNewsItemKey;
-(globalThis as any).isNewsItemRead = isNewsItemRead;
-(globalThis as any).markNewsItemAsRead = markNewsItemAsRead;
-(globalThis as any).markAllNewsAsRead = markAllNewsAsRead;
-(globalThis as any).pruneStaleNewsRead = pruneStaleNewsRead;
 (globalThis as any).initializeMarkAsRead = initializeMarkAsRead;
+(globalThis as any).isNewsItemRead = isNewsItemRead;
+(globalThis as any).markAllNewsAsRead = markAllNewsAsRead;
+(globalThis as any).markNewsItemAsRead = markNewsItemAsRead;
+(globalThis as any).pruneStaleNewsRead = pruneStaleNewsRead;
+(globalThis as any).setNewsItemData = setNewsItemData;

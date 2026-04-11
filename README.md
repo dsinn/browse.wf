@@ -63,7 +63,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 - **TypeScript strict mode + XO linting**: Strict mode enabled for all fork-specific files; XO enforces consistent code style and quality across the codebase
 - **Event-driven live page updates**: Replaced 500ms polling loops with longer intervals, timeouts, and event listeners; also consolidated `/invasions` and `/min` API calls into `worldState`
 - **Lazy-loaded images**: Images load on demand rather than all at page load
-- **Profile rate limiting**: Front proxy enforces a 23-hour per-user rate limit on profile fetch requests for logged-in users
+- **Profile rate limiting**: Front proxy enforces a 23-hour per-user rate limit on profile fetch requests for logged-in users, plus a global limit of 10 requests per hour across all users
 - **Weekly forecast Discord script**: Script for posting weekly forecast summaries to a Discord webhook; runs automatically via GitHub Actions ~1 hour before the weekly reset
 
 ## Tech Stack
@@ -150,7 +150,7 @@ flowchart LR
 | Component | Responsibilities |
 |---|---|
 | **browse.wf** | Initiates API requests; supplies auth token |
-| **Front proxy** | Enforces CORS, validates the auth token, validates and routes requests to the private proxy; for `/profile` requests, requires `DATABASE_URL` to be configured, verifies Discord login, and enforces a 23-hour rate limit per user |
+| **Front proxy** | Enforces CORS, validates the auth token, validates and routes requests to the private proxy; for `/profile` requests, requires `DATABASE_URL` to be configured, verifies Discord login, and enforces a 23-hour per-user rate limit and a global limit of 10 requests per hour |
 | **Private proxy** | Forwards requests to the Warframe API via plain HTTP fetch from a non-Cloudflare IP |
 | **Warframe API** | Source of world state and player profile data |
 

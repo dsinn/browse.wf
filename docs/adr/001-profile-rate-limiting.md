@@ -19,14 +19,16 @@ with an auto-fetch via the proxy, creating the abuse surface.
 Enforce the following at the front proxy (Cloudflare Worker) level:
 
 1. `/profile` requests require a valid Supabase JWT (`Authorization: Bearer`) — only Discord-authenticated users can trigger upstream fetches.
-2. Each Discord user is rate-limited to one upstream profile fetch per 23 hours, tracked in the Supabase database.
-3. The number of lifetime upstream fetches per user is recorded for monitoring.
-4. Users who are not logged in, or who have exhausted their rate limit, fall back to the manual download-and-upload flow that existed before `296aa61`.
+2. A global rate limit of 10 upstream profile fetches per hour across all users is enforced to protect the private proxy.
+3. Each Discord user is rate-limited to one upstream profile fetch per 23 hours, tracked in the Supabase database.
+4. The number of lifetime upstream fetches per user is recorded for monitoring.
+5. Users who are not logged in, or who have exhausted their rate limit, fall back to the manual download-and-upload flow that existed before `296aa61`.
 
 ## Rate Limit State Storage
 
 The database stores the exact time when the next upstream fetch is permitted for each user.
-The cooldown duration (23 hours) lives exclusively in the Postgres RPC function `try_profile_request`.
+The per-user cooldown (23 hours) lives exclusively in `try_profile_request`; the global hourly
+threshold (10 requests) and window (1 hour) live exclusively in `is_global_profile_rate_limited`.
 
 **Alternatives considered:**
 
@@ -79,7 +81,8 @@ also fail, so the auto-fetch flow would not succeed anyway.
 
 - Users must be logged in with Discord to use the auto-fetch flow. ✓ (rate limit protection)
 - Each Discord account is limited to one upstream profile fetch per 23 hours. ✓
+- A global cap of 10 requests per hour protects the private proxy's IP reputation. ✓
 - Non-authenticated users retain full functionality via the manual download/upload flow. ✓
-- The cooldown duration is configurable by changing one line in the Postgres function. ✓
+- Both rate limit thresholds are configurable by changing constants in their respective Postgres functions. ✓
 - Two additional Cloudflare Worker secrets are required (`DATABASE_URL`, `DATABASE_SERVICE_ROLE_KEY`). ✗ (operational overhead, but manageable)
-- The front proxy makes two additional network calls per allowed `/profile` request (auth check + RPC). ✗ (latency cost; acceptable given the infrequency of profile fetches)
+- The front proxy makes three additional network calls per allowed `/profile` request (auth check + global RPC + per-user RPC). ✗ (latency cost; acceptable given the infrequency of profile fetches)

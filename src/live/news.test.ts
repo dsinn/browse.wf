@@ -5,7 +5,7 @@ import {
 	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {loadMock} from '@test/helpers/api-mocks';
-import {getById} from '@test/helpers/dom-helpers';
+import {getById, mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {testCardFilters} from '@test/live/card-filters-factory';
 import * as triggerModule from '../cloud-sync/trigger.js';
 import {
@@ -75,6 +75,7 @@ describe('updateNewsTicker', () => {
 		localStorage.clear();
 		resetNewsState();
 
+		mockBootstrapTooltip();
 		(globalThis as any).worldState = worldState;
 		(globalThis as any).sendNotification = vi.fn();
 		(globalThis as any).formatActivation = vi.fn((ms: number) => `${ms}ms`);
@@ -82,6 +83,7 @@ describe('updateNewsTicker', () => {
 
 	afterEach(() => {
 		vi.restoreAllMocks();
+		delete (globalThis as any).bootstrap;
 		delete (globalThis as any).worldState;
 		delete (globalThis as any).sendNotification;
 		delete (globalThis as any).formatActivation;
@@ -185,7 +187,7 @@ describe('updateNewsTicker', () => {
 		test('click handler marks item as read', () => {
 			updateNewsTicker();
 			const item = document.querySelector<HTMLElement>('#news-body .news-item');
-			item!.click();
+			item!.querySelector<HTMLElement>('a')!.dispatchEvent(new MouseEvent('click', {bubbles: true}));
 			expect(item!.classList.contains('news-read')).toBe(true);
 		});
 

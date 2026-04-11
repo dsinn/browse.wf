@@ -1,18 +1,44 @@
 /* News Card Styling - Fork-specific visual enhancements */
 
-/* Only apply border and padding to primary and success items (exclude danger/red text) */
+/* Diamond column indicator for primary and success items (exclude danger/red text) */
 #news-body .news-item.news-primary,
 #news-body .news-item.news-success {
-  border-left: 4px solid;
-  padding-left: 12px;
+  display: grid;
+  grid-template-columns: 1em auto 1fr;
+  align-items: baseline;
 }
 
-#news-body .news-item.news-primary {
-  border-color: var(--bs-primary);
+#news-body .news-item .news-diamond {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.5em;
+  transform: rotate(45deg);
+  align-self: start;
+  justify-self: center;
+  margin-top: 0.6em;
+  cursor: help;
 }
 
-#news-body .news-item.news-success {
-  border-color: var(--bs-success);
+#news-body .news-item.news-primary .news-diamond {
+  background-color: var(--bs-primary);
+}
+
+#news-body .news-item.news-success .news-diamond {
+  background-color: var(--bs-success);
+}
+
+/* Time badges: fixed minimum width so all strings up to "99d" render the same badge width */
+#news-body .news-item .badge {
+  display: inline-block;
+  width: 3em;
+  text-align: center;
+  margin: 0 0.3em 0 0.2em;
+}
+
+
+/* Pointer cursor on plain-text items that haven't been marked as read */
+#news-body .news-item:not(.news-read) .news-text:not(:has(a)) {
+  cursor: pointer;
 }
 
 /* Override default link color to inherit from parent (allows animations to work) */

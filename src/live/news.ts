@@ -6,6 +6,7 @@
  * worldState.
  */
 
+import {addTooltip} from '../tooltip.js';
 import {isFilterEnabled} from '../card-filters.js';
 import {
 	isNewsItemRead, markNewsItemAsRead, setNewsItemData, type NewsItem,
@@ -92,6 +93,14 @@ export function updateNewsTicker(forceRender = false): void {
 		const p = document.createElement('p');
 		p.className = `card-text mb-1 news-item news-${items[i].type}`;
 
+		if (items[i].type === 'primary' || items[i].type === 'success') {
+			const diamond = document.createElement('span');
+			diamond.className = 'news-diamond';
+			const label = items[i].type === 'success' ? 'Community event' : 'Regular event';
+			addTooltip(diamond, label);
+			p.append(diamond);
+		}
+
 		{
 			const span = document.createElement('span');
 			span.className = 'badge text-bg-secondary';
@@ -104,6 +113,7 @@ export function updateNewsTicker(forceRender = false): void {
 
 		{
 			const span = document.createElement('span');
+			span.className = 'news-text';
 			span.textContent = ' ';
 
 			// Prop may be an empty string in upstream data; falsy check mirrors upstream behaviour
@@ -112,9 +122,15 @@ export function updateNewsTicker(forceRender = false): void {
 				a.textContent = items[i].data;
 				a.href = items[i].link!;
 				a.target = '_blank';
+				a.addEventListener('click', () => {
+					markNewsItemAsRead(items[i], p);
+				});
 				span.append(a);
 			} else {
 				span.textContent += items[i].data;
+				span.addEventListener('click', () => {
+					markNewsItemAsRead(items[i], p);
+				});
 			}
 
 			p.append(span);
@@ -126,12 +142,6 @@ export function updateNewsTicker(forceRender = false): void {
 		if (isNewsItemRead(items[i])) {
 			p.classList.add('news-read');
 		}
-
-		// Add click handler to mark as read
-		p.style.cursor = 'pointer';
-		p.addEventListener('click', () => {
-			markNewsItemAsRead(items[i], p);
-		});
 
 		document.querySelector('#news-body')!.append(p);
 	}

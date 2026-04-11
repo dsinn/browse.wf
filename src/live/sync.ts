@@ -9,7 +9,7 @@
  */
 
 import {refreshFilterStatus} from '../card-filters.js';
-import {initializeBountyFiltersAll} from './bounty-filters.js';
+import {initializeBountyFilters} from './bounty-filters.js';
 import {pruneStaleNewsRead} from './news-mark-read.js';
 import {pruneStaleOids} from './prune-stale-data.js';
 import {updateRedText} from './red-text.js';
@@ -60,7 +60,7 @@ export function initLiveSync() {
 		}
 
 		// Refresh bounty filter dropdowns
-		initializeBountyFiltersAll();
+		initializeBountyFilters();
 
 		// Refresh card content to apply filters
 		updateRedText();

@@ -57,7 +57,7 @@ declare function markNewsItemAsRead(item: any, element: HTMLElement): void;
 declare function setNewsItemData(item: any, element: HTMLElement): void;
 
 // bounty-filters.ts
-declare function initializeBountyFiltersAll(): void;
+declare function initializeBountyFilters(): void;
 
 // bounty-checkboxes.ts
 declare function updateBountyCheckboxes(): void;
@@ -1218,7 +1218,7 @@ initializeCardFilters('invasions', () => { void updateInvasions(); });
 initializeCardFilters('calendar-season');
 
 initializeMarkAsRead();
-initializeBountyFiltersAll();
+initializeBountyFilters();
 updateBountyCheckboxes();
 document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm, "Voidplume Quills"));
 

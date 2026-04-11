@@ -10,14 +10,14 @@ import {
 import {MOCK_TIMESTAMP} from '@test/helpers/test-constants';
 
 const mockRefreshFilterStatus = vi.fn();
-const mockInitializeBountyFiltersAll = vi.fn();
+const mockInitializeBountyFilters = vi.fn();
 const mockPruneStaleNewsRead = vi.fn();
 
 vi.mock('../../src/card-filters.js', () => ({
 	refreshFilterStatus: mockRefreshFilterStatus,
 }));
 vi.mock('../../src/live/bounty-filters.js', () => ({
-	initializeBountyFiltersAll: mockInitializeBountyFiltersAll,
+	initializeBountyFilters: mockInitializeBountyFilters,
 }));
 vi.mock('../../src/live/news-mark-read.js', () => ({
 	pruneStaleNewsRead: mockPruneStaleNewsRead,
@@ -369,9 +369,9 @@ describe('cloud-sync-pulled', () => {
 		expect(checkbox.checked).toBe(true);
 	});
 
-	test('calls initializeBountyFiltersAll', () => {
+	test('calls initializeBountyFilters', () => {
 		dispatchPulled();
-		expect(mockInitializeBountyFiltersAll).toHaveBeenCalledOnce();
+		expect(mockInitializeBountyFilters).toHaveBeenCalledOnce();
 	});
 
 	test('calls updateNewsTicker when defined', () => {

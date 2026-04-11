@@ -257,7 +257,7 @@
 				</div>
 			</div>
 			<div class="col-xl-8">
-				<div class="card mb-3">
+				<div class="card mb-3" id="bounties-card">
 					<div class="card-header d-flex">
 						<h5 class="mb-0"><span data-collapse-toggle="bounties"></span> <span id="bounties-header">Bounties</h5>
 						<a class="ms-auto me-2" data-filter-toggle="bounties"></a>
@@ -265,10 +265,11 @@
 					</div>
 					<?php require 'components/live/bounty-filters-partial.php'; ?>
 					<div class="card-body overflow-auto" id="bounties-body">
-						<p>Rotation <b id="bounty-rot">?</b> (<span id="bounty-rot-rewards">Loading</span>) &middot; Vault Rotation <b id="vault-rot">?</b> (<span id="vault-rot-rewards">Loading</span>)</p>
-						<h5 id="ZarimanSyndicate-name">The Holdfasts</h5>
-						<p id="ZarimanSyndicate-empty" class="d-none">No bounties match the current filters.</p>
-						<table class="table table-hover table-sm table-borderless" id="ZarimanSyndicate-table">
+						<p id="deimos-bounty-row" class="mb-0">Rotation <b id="bounty-rot">?</b> (<span id="bounty-rot-rewards">Loading</span>) &middot; Vault Rotation <b id="vault-rot">?</b> (<span id="vault-rot-rewards">Loading</span>)</p>
+						<div class="bounties-all-hidden">No bounties to display based on the current filters.</div>
+						<h5 id="ZarimanSyndicate-name" class="mt-3">The Holdfasts</h5>
+						<div id="ZarimanSyndicate-empty" class="d-none">No bounties match the current filters.</div>
+						<table class="table table-hover table-sm table-borderless mb-0" id="ZarimanSyndicate-table">
 							<tr>
 								<th class="mission">Fetching data...</th>
 								<td class="challenge"></td>
@@ -300,9 +301,9 @@
 								<td>5/8&nbsp;<abbr class="vq-abbr">VQ</abbr></td>
 							</tr>
 						</table>
-						<h5 id="EntratiLabSyndicate-name">Cavia</h5>
-						<p id="EntratiLabSyndicate-empty" class="d-none">No bounties match the current filters.</p>
-						<table class="table table-hover table-sm table-borderless" id="EntratiLabSyndicate-table">
+						<h5 id="EntratiLabSyndicate-name" class="mt-3">Cavia</h5>
+						<div id="EntratiLabSyndicate-empty" class="d-none">No bounties match the current filters.</div>
+						<table class="table table-hover table-sm table-borderless mb-0" id="EntratiLabSyndicate-table">
 							<tr>
 								<th class="mission">Fetching data...</th>
 								<td class="challenge"></td>
@@ -334,8 +335,8 @@
 								<td>5000/<wbr/>7500</td>
 							</tr>
 						</table>
-						<h5 id="HexSyndicate-name">The Hex</h5>
-						<p id="HexSyndicate-empty" class="d-none">No bounties match the current filters.</p>
+						<h5 id="HexSyndicate-name" class="mt-3">The Hex</h5>
+						<div id="HexSyndicate-empty" class="d-none">No bounties match the current filters.</div>
 						<table class="table table-hover table-sm table-borderless mb-0" id="HexSyndicate-table">
 							<tr>
 								<th class="mission">Fetching data...</th>
@@ -453,6 +454,7 @@
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="src/calendar-seasons/calendar-seasons.css" media="print" onload="this.media='all'">
 	<link rel="stylesheet" href="src/descendia/descendia.css" media="print" onload="this.media='all'">
+	<link rel="stylesheet" href="src/live/bounty-filters.css" media="print" onload="this.media='all'">
 	<!-- live.js must come last as it calls functions defined in the fork bundle loaded from commonjs.html -->
 	<script src="typestripped/live.js?lv0"></script>
 </body>

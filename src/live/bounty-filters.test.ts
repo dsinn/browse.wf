@@ -13,7 +13,7 @@ import {
 	describe, test, expect, beforeEach, afterEach,
 } from 'vitest';
 import {loadFixture} from '@test/helpers/fixture-loader';
-import {initializeBountyFiltersAll, getMinimumTier, isBountyMissionTypeEnabled} from './bounty-filters';
+import {initializeBountyFilters, getMinimumTier, isBountyMissionTypeEnabled} from './bounty-filters';
 
 describe('Bounty Filters', () => {
 	beforeEach(() => {
@@ -24,7 +24,7 @@ describe('Bounty Filters', () => {
 		document.body.innerHTML = loadFixture('live');
 
 		// Initialize the filters
-		initializeBountyFiltersAll();
+		initializeBountyFilters();
 	});
 
 	afterEach(() => {
@@ -67,7 +67,7 @@ describe('Bounty Filters', () => {
 			localStorage.setItem('live.filter.bounties.EntratiLabSyndicate.minTier', '4');
 
 			// Reinitialize
-			initializeBountyFiltersAll();
+			initializeBountyFilters();
 
 			const dropdown = document.querySelector<HTMLSelectElement>('#bounty-filter-EntratiLabSyndicate');
 			expect(dropdown!.value).toBe('4');
@@ -109,7 +109,7 @@ describe('Bounty Filters', () => {
 
 		test('rechecking saves 1 to localStorage', () => {
 			localStorage.setItem('live.filter.bounties.HexSyndicate.MT_SURVIVAL', '0');
-			initializeBountyFiltersAll();
+			initializeBountyFilters();
 			const checkbox = document.querySelector<HTMLInputElement>('input[type="checkbox"][data-bounty-syndicate="HexSyndicate"][data-filter-type="MT_SURVIVAL"]');
 			checkbox!.checked = true;
 			checkbox!.dispatchEvent(new Event('change'));
@@ -118,7 +118,7 @@ describe('Bounty Filters', () => {
 
 		test('checkbox state persists from localStorage on init', () => {
 			localStorage.setItem('live.filter.bounties.ZarimanSyndicate.MT_ARMAGEDDON', '0');
-			initializeBountyFiltersAll();
+			initializeBountyFilters();
 			const checkbox = document.querySelector<HTMLInputElement>('input[type="checkbox"][data-bounty-syndicate="ZarimanSyndicate"][data-filter-type="MT_ARMAGEDDON"]');
 			expect(checkbox!.checked).toBe(false);
 		});
@@ -154,6 +154,37 @@ describe('Bounty Filters', () => {
 			expect(isBountyMissionTypeEnabled('EntratiLabSyndicate', 'MT_EXTERMINATION')).toBe(false);
 			expect(isBountyMissionTypeEnabled('ZarimanSyndicate', 'MT_EXTERMINATION')).toBe(true);
 			expect(isBountyMissionTypeEnabled('HexSyndicate', 'MT_EXTERMINATION')).toBe(true);
+		});
+	});
+
+	describe('Deimos Checkbox', () => {
+		test('Deimos checkbox defaults to checked', () => {
+			const checkbox = document.querySelector<HTMLInputElement>('#bounty-filter-deimos');
+			expect(checkbox).not.toBeNull();
+			expect(checkbox!.checked).toBe(true);
+		});
+
+		test('unchecking saves 0 to localStorage', () => {
+			const checkbox = document.querySelector<HTMLInputElement>('#bounty-filter-deimos');
+			checkbox!.checked = false;
+			checkbox!.dispatchEvent(new Event('change'));
+			expect(localStorage.getItem('live.filter.bounties.deimos')).toBe('0');
+		});
+
+		test('rechecking saves 1 to localStorage', () => {
+			localStorage.setItem('live.filter.bounties.deimos', '0');
+			initializeBountyFilters();
+			const checkbox = document.querySelector<HTMLInputElement>('#bounty-filter-deimos');
+			checkbox!.checked = true;
+			checkbox!.dispatchEvent(new Event('change'));
+			expect(localStorage.getItem('live.filter.bounties.deimos')).toBe('1');
+		});
+
+		test('checkbox state persists from localStorage on init', () => {
+			localStorage.setItem('live.filter.bounties.deimos', '0');
+			initializeBountyFilters();
+			const checkbox = document.querySelector<HTMLInputElement>('#bounty-filter-deimos');
+			expect(checkbox!.checked).toBe(false);
 		});
 	});
 

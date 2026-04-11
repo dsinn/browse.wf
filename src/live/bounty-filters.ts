@@ -45,9 +45,29 @@ export function getMinimumTier(syndicateTag: string): number {
 }
 
 /**
+ * Initialize the Deimos bounties checkbox
+ */
+function initializeDeimosFilter(): void {
+	const checkbox = document.querySelector<HTMLInputElement>('#bounty-filter-deimos');
+	if (!checkbox) {
+		return;
+	}
+
+	const storageKey = 'live.filter.bounties.deimos';
+	checkbox.checked = localStorage.getItem(storageKey) !== '0';
+
+	checkbox.addEventListener('change', () => {
+		localStorage.setItem(storageKey, checkbox.checked ? '1' : '0');
+		triggerCloudSync();
+	});
+}
+
+/**
  * Initialize bounty filter dropdowns and mission type checkboxes
  */
-function initializeBountyFilters(): void {
+export function initializeBountyFilters(): void {
+	initializeDeimosFilter();
+
 	for (const syndicateTag of SYNDICATE_TAGS) {
 		const select = document.querySelector<HTMLSelectElement>(`#bounty-filter-${syndicateTag}`);
 		if (!select) {
@@ -89,14 +109,6 @@ function initializeBountyFilters(): void {
 	}
 }
 
-/**
- * Initialize all bounty filter functionality
- * Call this after the DOM is loaded
- */
-export function initializeBountyFiltersAll(): void {
-	initializeBountyFilters();
-}
-
 (globalThis as any).getMinimumTier = getMinimumTier;
 (globalThis as any).isBountyMissionTypeEnabled = isBountyMissionTypeEnabled;
-(globalThis as any).initializeBountyFiltersAll = initializeBountyFiltersAll;
+(globalThis as any).initializeBountyFilters = initializeBountyFilters;

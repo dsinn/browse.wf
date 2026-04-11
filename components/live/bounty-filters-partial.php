@@ -38,6 +38,10 @@ $syndicates = [
 ?>
 <div class="card-filter-panel" id="bounties-filters" style="display: none">
 	<div class="card-body">
+		<div class="form-check mb-3">
+			<input class="form-check-input" type="checkbox" id="bounty-filter-deimos" checked>
+			<label class="form-check-label" for="bounty-filter-deimos">Deimos bounties</label>
+		</div>
 		<div class="row g-3">
 			<?php foreach ($syndicates as $tag => $syndicate): ?>
 			<div class="col-12 col-sm-6 col-md-4">

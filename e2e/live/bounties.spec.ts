@@ -148,6 +148,64 @@ test.describe('Live Page - Bounties Card', () => {
 		});
 	});
 
+	test.describe('Deimos Bounties Filter', () => {
+		test.beforeEach(async ({page}) => {
+			await page.locator('[data-filter-toggle="bounties"]').click();
+			await expect(page.locator('#bounties-filters')).toBeVisible();
+		});
+
+		test.afterEach(async ({page}) => {
+			await page.evaluate(() => {
+				localStorage.clear();
+			});
+		});
+
+		test('Deimos rotation row is visible by default', async ({page}) => {
+			await expect(page.locator('#deimos-bounty-row')).toBeVisible();
+		});
+
+		test('unchecking Deimos bounties hides the rotation row; rechecking restores it', async ({page}) => {
+			await page.locator('#bounty-filter-deimos').uncheck();
+			await expect(page.locator('#deimos-bounty-row')).toBeHidden();
+			await page.locator('#bounty-filter-deimos').check();
+			await expect(page.locator('#deimos-bounty-row')).toBeVisible();
+		});
+
+		test('"no bounties" message appears when Deimos unchecked and all syndicates hidden', async ({page}) => {
+			const allHiddenElement = page.locator('.bounties-all-hidden');
+			await expect(allHiddenElement).toBeHidden();
+			await page.locator('#bounty-filter-deimos').uncheck();
+			await expect(allHiddenElement).toBeHidden();
+			await page.locator('#bounty-filter-ZarimanSyndicate').selectOption('-1');
+			await expect(allHiddenElement).toBeHidden();
+			await page.locator('#bounty-filter-EntratiLabSyndicate').selectOption('-1');
+			await expect(allHiddenElement).toBeHidden();
+			await page.locator('#bounty-filter-HexSyndicate').selectOption('-1');
+			await expect(allHiddenElement).toBeVisible();
+		});
+
+		test('"no bounties" message hidden when Deimos is checked', async ({page}) => {
+			await page.locator('#bounty-filter-ZarimanSyndicate').selectOption('-1');
+			await page.locator('#bounty-filter-EntratiLabSyndicate').selectOption('-1');
+			await page.locator('#bounty-filter-HexSyndicate').selectOption('-1');
+			await expect(page.locator('.bounties-all-hidden')).toBeHidden();
+		});
+
+		test('"no bounties" message hidden when at least one syndicate is visible', async ({page}) => {
+			await page.locator('#bounty-filter-deimos').uncheck();
+			await page.locator('#bounty-filter-ZarimanSyndicate').selectOption('-1');
+			await page.locator('#bounty-filter-EntratiLabSyndicate').selectOption('-1');
+			await expect(page.locator('.bounties-all-hidden')).toBeHidden();
+		});
+
+		test('Deimos filter preference persists after reload', async ({page}) => {
+			await page.locator('#bounty-filter-deimos').uncheck();
+			await page.reload();
+			await expect(page.locator('#bounties-body')).not.toContainText('Fetching data...', {timeout: 10_000});
+			await expect(page.locator('#deimos-bounty-row')).toBeHidden();
+		});
+	});
+
 	test.describe('Bounty Checkboxes', () => {
 		test.beforeEach(async ({page}) => {
 			await page.waitForSelector('#EntratiLabSyndicate-name .completion-check', {timeout: 10_000});

@@ -12,6 +12,8 @@
 
 /* eslint-disable import-x/no-unassigned-import */
 // Keep imports in alphabetical order
+import './arbys/settings.js';
+import './arbys/tilesets.js';
 import './archimedea/helpers.js';
 import './calendar-seasons/data.js';
 import './calendar-seasons/index.js';

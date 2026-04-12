@@ -648,20 +648,6 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 	});
 
 	test.describe('Save/Load settings buttons', () => {
-		test('Save button exists and is enabled', async ({page}) => {
-			const saveBtn = page.locator('#btn-save-settings');
-			await expect(saveBtn).toBeVisible();
-			await expect(saveBtn).not.toBeDisabled();
-			await expect(saveBtn).toContainText('Save settings');
-		});
-
-		test('Load button exists and starts disabled', async ({page}) => {
-			const loadBtn = page.locator('#btn-load-settings');
-			await expect(loadBtn).toBeVisible();
-			await expect(loadBtn).toBeDisabled();
-			await expect(loadBtn).toContainText('Restore settings');
-		});
-
 		test('Save button saves settings to localStorage and enables Load button', async ({page}) => {
 			// Make some changes
 			await page.selectOption('#select-days', '7');

@@ -87,7 +87,21 @@ describe('WarframeApiFrontProxyClient.fetchWorldState', () => {
 			);
 		});
 
-		it.todo('falls back to the default URL when WARFRAME_API_FRONT_PROXY_BASE_URL is empty string');
+		it('falls back to the default URL when WARFRAME_API_FRONT_PROXY_BASE_URL is empty string', async () => {
+			(globalThis as any).__ENV__ = {WARFRAME_API_FRONT_PROXY_BASE_URL: ''};
+
+			vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+				ok: true,
+				json: async () => MOCK_WORLD_STATE,
+			} as Response);
+
+			await WarframeApiFrontProxyClient.fetchWorldState();
+
+			expect(fetch).toHaveBeenCalledWith(
+				`${DEFAULT_BASE_URL}/worldState`,
+				expect.anything(),
+			);
+		});
 	});
 
 	it('never sends Authorization header even when __getSupabaseAccessToken returns a token', async () => {

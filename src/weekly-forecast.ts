@@ -10,6 +10,7 @@ import {renderArchimedeaTable} from './archimedea/helpers.js';
 import {renderDescentChallenges} from './descendia/index.js';
 import {getSeasonLabel} from './calendar-seasons/data.js';
 import {renderCalendarSeasonPane} from './calendar-seasons/index.js';
+import {getNextWeeklyResetMs, MILLIS_PER_WEEK} from './helpers/time-helpers.js';
 import {createShortTimerBadge} from './short-timer-badge.js';
 import {WarframeApiFrontProxyClient} from './warframe-api-proxy-client.js';
 import {fetchExport} from './public-export-fetcher.js';
@@ -245,28 +246,11 @@ async function renderCalendarSeasonTabs(
  * proxy hops (up to 1 minute cache each) have had time to refresh.
  * If today is Sunday and it's before 23:02 UTC, returns today's target time.
  */
-export function nextForecastPublishedSeconds(): number {
-	const now = new Date();
-	// GetUTCDay(): 0 = Sunday, 1 = Monday, ..., 6 = Saturday
-	const dayOfWeek = now.getUTCDay();
-	const daysUntilSunday = (7 - dayOfWeek) % 7;
-
-	const target = new Date(Date.UTC(
-		now.getUTCFullYear(),
-		now.getUTCMonth(),
-		now.getUTCDate() + daysUntilSunday,
-		23,
-		2,
-		0,
-		0,
-	));
-
-	// If it's Sunday but already past 23:02, go to next week
-	if (target.getTime() <= Date.now()) {
-		target.setUTCDate(target.getUTCDate() + 7);
-	}
-
-	return Math.floor(target.getTime() / 1000);
+export function nextForecastPublishedMs(): number {
+	// The forecast is published at Sunday 23:02 UTC, which is 58 minutes before the Monday 00:00 weekly reset.
+	const candidate = getNextWeeklyResetMs() - (58 * 60 * 1000);
+	// If we're in the 58-minute window between Sunday 23:02 and Monday 00:00, candidate is in the past.
+	return candidate > Date.now() ? candidate : candidate + MILLIS_PER_WEEK;
 }
 
 /**
@@ -278,12 +262,12 @@ export function initWeeklyMissionsNotice(): void {
 		return;
 	}
 
-	const expirySeconds = nextForecastPublishedSeconds();
-	const badge = createShortTimerBadge(expirySeconds, 'Pending Refresh');
+	const expiryMs = nextForecastPublishedMs();
+	const badge = createShortTimerBadge(expiryMs / 1000, 'Pending Refresh');
 	timerElement.append(badge);
 	setTimeout(() => {
 		location.reload();
-	}, (expirySeconds * 1000) - Date.now());
+	}, expiryMs - Date.now());
 }
 
 export async function initWeeklyForecast(isRefresh = false): Promise<void> {
@@ -348,10 +332,10 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 		);
 	}
 
-	// Schedule next refresh at 00:01 UTC
+	// Schedule next refresh at Sunday 23:02 UTC (when the forecast is expected to be published)
 	setTimeout(() => {
 		void initWeeklyForecast(true).catch(console.error);
-	}, (nextForecastPublishedSeconds() * 1000) - Date.now());
+	}, nextForecastPublishedMs() - Date.now());
 }
 
 initWeeklyMissionsNotice();

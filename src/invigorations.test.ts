@@ -8,9 +8,10 @@ import {
 	ENTRY_RHINO_FROST_LOKI,
 } from '@test/invigorations/cache-fixtures';
 import {
-	getWeekIndex, loadCache, saveToCache, preFillForm, showResults, showHistory,
+	loadCache, saveToCache, preFillForm, showResults, showHistory,
 	showCacheAlert, initInvigorationsFromCache, initInvigorations,
 } from './invigorations';
+import {getWeekIndex, getNextWeeklyResetMs} from './helpers/time-helpers';
 import {registerSyncHandler} from './cloud-sync/trigger';
 
 type InvigorationCacheEntry = typeof ENTRY_MAG_VOLT_EXCALIBUR;
@@ -36,23 +37,6 @@ function makeHistoryDOM() {
 	(globalThis as any).dict = {};
 	initInvigorations({});
 }
-
-describe('getWeekIndex()', () => {
-	test('increments by 1 per week', () => {
-		const oneWeek = 7 * 24 * 60 * 60 * 1000;
-		expect(getWeekIndex(Date.now() + oneWeek)).toBe(CURRENT_WEEK + 1);
-		expect(getWeekIndex(Date.now() + (2 * oneWeek))).toBe(CURRENT_WEEK + 2);
-	});
-
-	test('known timestamps', () => {
-		expect(getWeekIndex(Date.UTC(2026, 1, 7))).toBe(625);
-		expect(getWeekIndex(Date.UTC(2026, 1, 14))).toBe(626);
-	});
-
-	test('returns -1 for one week before Warframe epoch', () => {
-		expect(getWeekIndex((1_391_990_400 - 604_800) * 1000)).toBe(-1);
-	});
-});
 
 describe('loadCache()', () => {
 	beforeEach(() => {
@@ -452,7 +436,7 @@ describe('initInvigorationsFromCache()', () => {
 		vi.stubGlobal('location', {reload: reloadMock});
 		initInvigorationsFromCache(false);
 		// Advance time past the week boundary
-		const weekEnd = (((getWeekIndex(Date.now()) + 1) * 604_800) + 1_391_990_400) * 1000;
+		const weekEnd = getNextWeeklyResetMs();
 		vi.advanceTimersByTime(weekEnd - Date.now() + 1000);
 		expect(reloadMock).toHaveBeenCalled();
 	});

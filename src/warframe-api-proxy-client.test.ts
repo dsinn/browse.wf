@@ -2,6 +2,7 @@ import {
 	describe, it, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {TEST_FRONT_PROXY_BASE_URL as DEFAULT_BASE_URL} from '@test/helpers/test-constants';
+import {MILLIS_PER_HOUR} from './helpers/time-helpers';
 import {WarframeApiFrontProxyClient} from './warframe-api-proxy-client';
 
 const CUSTOM_BASE_URL = 'https://front-proxy.test';
@@ -9,7 +10,7 @@ const PROXY_TOKEN = 'test-token';
 const MOCK_WORLD_STATE = {timestamp: 1_234_567_890, alerts: []};
 const MOCK_PROFILE_DATA = {Results: [{DisplayName: 'TestUser', PlayerLevel: 30}]};
 const MOCK_NEXT_FETCH_HTTP_DATE = new Date(Date.now() + (23 * 60 * 60 * 1000)).toUTCString();
-const MOCK_NEXT_FETCH_EPOCH_MS = new Date(MOCK_NEXT_FETCH_HTTP_DATE).getTime();
+const MOCK_NEXT_FETCH_EXPIRY_MS = new Date(MOCK_NEXT_FETCH_HTTP_DATE).getTime();
 
 beforeEach(() => {
 	delete (globalThis as any).__ENV__;
@@ -231,7 +232,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
 
 		expect(result.status).toBe(200);
 		expect(result.data).toEqual(MOCK_PROFILE_DATA);
-		expect(result.nextFetchAvailableAt).toBe(MOCK_NEXT_FETCH_EPOCH_MS);
+		expect(result.nextFetchAvailableAt).toBe(MOCK_NEXT_FETCH_EXPIRY_MS);
 	});
 
 	it('returns status 429 with null data on rate limit', async () => {
@@ -249,7 +250,7 @@ describe('WarframeApiFrontProxyClient.fetchProfile', () => {
 	});
 
 	it('converts Retry-After HTTP date to epoch ms as nextFetchAvailableAt on 429', async () => {
-		const retryAfterHttpDate = new Date(Date.now() + (3600 * 1000)).toUTCString();
+		const retryAfterHttpDate = new Date(Date.now() + (MILLIS_PER_HOUR)).toUTCString();
 		vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
 			ok: false,
 			status: 429,

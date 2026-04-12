@@ -2,6 +2,7 @@ import {
 	describe, test, expect, beforeEach, vi, afterEach,
 } from 'vitest';
 import {createShortTimerBadge, initializeShortTimerBadges} from './short-timer-badge';
+import {SECONDS_PER_DAY, SECONDS_PER_HOUR} from './helpers/time-helpers';
 
 describe('Short Timer Badge (/arbys timer badges)', () => {
 	beforeEach(() => {
@@ -16,14 +17,14 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 
 	describe('createShortTimerBadge()', () => {
 		test('stores timestamp in dataset', () => {
-			const timestamp = Math.floor(Date.now() / 1000) + 3600; // 1 hour from now
+			const timestamp = Math.floor(Date.now() / 1000) + SECONDS_PER_HOUR; // 1 hour from now
 			const badge = createShortTimerBadge(timestamp, 'Started');
 
 			expect(badge.dataset.shortTimerExpiry).toBe(timestamp.toString());
 		});
 
 		test('includes extraClasses in className when provided', () => {
-			const timestamp = Math.floor(Date.now() / 1000) + 3600;
+			const timestamp = Math.floor(Date.now() / 1000) + SECONDS_PER_HOUR;
 			const badge = createShortTimerBadge(timestamp, 'Started', 'my-class my-second-class');
 
 			expect(badge.className).toContain('my-class');
@@ -31,7 +32,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 		});
 
 		test('omits extraClasses from className when not provided', () => {
-			const timestamp = Math.floor(Date.now() / 1000) + 3600;
+			const timestamp = Math.floor(Date.now() / 1000) + SECONDS_PER_HOUR;
 			const badge = createShortTimerBadge(timestamp, 'Started');
 
 			expect(badge.className).not.toContain('my-class');
@@ -42,7 +43,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			vi.setSystemTime(now);
 
 			// Test: 2 days + 5 hours from now
-			const timestamp = Math.floor(now / 1000) + (2 * 86_400) + (5 * 3600);
+			const timestamp = Math.floor(now / 1000) + (2 * SECONDS_PER_DAY) + (5 * SECONDS_PER_HOUR);
 			const badge = createShortTimerBadge(timestamp, 'Started');
 
 			expect(badge.textContent).toMatch(/2d \d+h/u);
@@ -52,7 +53,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			const now = Date.now();
 			vi.setSystemTime(now);
 
-			const timestamp = Math.floor(now / 1000) - 3600;
+			const timestamp = Math.floor(now / 1000) - SECONDS_PER_HOUR;
 
 			expect(createShortTimerBadge(timestamp, 'Started').textContent).toBe('Started');
 			expect(createShortTimerBadge(timestamp, 'Pending Refresh').textContent).toBe('Pending Refresh');
@@ -65,7 +66,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			vi.setSystemTime(now);
 
 			// 5 days + 3 hours + 45 minutes + 30 seconds
-			const timestamp = Math.floor(now / 1000) + (5 * 86_400) + (3 * 3600) + (45 * 60) + 30;
+			const timestamp = Math.floor(now / 1000) + (5 * SECONDS_PER_DAY) + (3 * SECONDS_PER_HOUR) + (45 * 60) + 30;
 			const badge = createShortTimerBadge(timestamp, 'Started');
 
 			// Should show only days + hours, not minutes or seconds
@@ -77,7 +78,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			vi.setSystemTime(now);
 
 			// 5 hours + 23 minutes + 45 seconds
-			const timestamp = Math.floor(now / 1000) + (5 * 3600) + (23 * 60) + 45;
+			const timestamp = Math.floor(now / 1000) + (5 * SECONDS_PER_HOUR) + (23 * 60) + 45;
 			const badge = createShortTimerBadge(timestamp, 'Started');
 
 			// Should show only hours + minutes, not seconds
@@ -136,7 +137,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			vi.setSystemTime(now);
 
 			// 2 days + 30 minutes from now (showing days+hours)
-			const timestamp = Math.floor(now / 1000) + (2 * 86_400) + (30 * 60);
+			const timestamp = Math.floor(now / 1000) + (2 * SECONDS_PER_DAY) + (30 * 60);
 			const badge = createShortTimerBadge(timestamp, 'Started');
 			document.body.append(badge);
 
@@ -156,7 +157,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			vi.setSystemTime(now);
 
 			// 5 hours + 30 seconds from now (showing hours+minutes)
-			const timestamp = Math.floor(now / 1000) + (5 * 3600) + 30;
+			const timestamp = Math.floor(now / 1000) + (5 * SECONDS_PER_HOUR) + 30;
 			const badge = createShortTimerBadge(timestamp, 'Started');
 			document.body.append(badge);
 
@@ -238,8 +239,8 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			vi.setSystemTime(now);
 
 			// Create multiple badges manually
-			const timestamp1 = Math.floor(now / 1000) + 3600; // 1 hour
-			const timestamp2 = Math.floor(now / 1000) + 7200; // 2 hours
+			const timestamp1 = Math.floor(now / 1000) + SECONDS_PER_HOUR; // 1 hour ahead
+			const timestamp2 = Math.floor(now / 1000) + (2 * SECONDS_PER_HOUR); // 2 hours ahead
 
 			const badge1 = document.createElement('span');
 			badge1.dataset.shortTimerExpiry = timestamp1.toString();
@@ -273,7 +274,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			const now = Date.now();
 			vi.setSystemTime(now);
 
-			const timestamp = Math.floor(now / 1000) + 86_400;
+			const timestamp = Math.floor(now / 1000) + SECONDS_PER_DAY;
 			const badge = createShortTimerBadge(timestamp, 'Started');
 
 			expect(badge.textContent).toBe('1d 0h');
@@ -283,7 +284,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			const now = Date.now();
 			vi.setSystemTime(now);
 
-			const timestamp = Math.floor(now / 1000) + 3600;
+			const timestamp = Math.floor(now / 1000) + SECONDS_PER_HOUR;
 			const badge = createShortTimerBadge(timestamp, 'Started');
 
 			expect(badge.textContent).toBe('1h 0m');
@@ -304,7 +305,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			vi.setSystemTime(now);
 
 			// 150 days
-			const timestamp = Math.floor(now / 1000) + (150 * 86_400);
+			const timestamp = Math.floor(now / 1000) + (150 * SECONDS_PER_DAY);
 			const badge = createShortTimerBadge(timestamp, 'Started');
 
 			expect(badge.textContent).toMatch(/150d \d+h/u);

@@ -14,6 +14,7 @@
 
 import process from 'node:process';
 import {dict_en as dictEn} from 'warframe-public-export-plus';
+import {MILLIS_PER_WEEK} from '../src/helpers/time-helpers.js';
 import {resolveCalendarSeasonDays, getSeasonLabel} from '../src/calendar-seasons/data.js';
 import {resolveDescentChallenges} from '../src/descendia/data.js';
 import {resolveArchimedea} from '../src/archimedea/data.js';
@@ -50,14 +51,12 @@ function mongoMs(d: AnyRecord) {
 	return Number.parseInt(d.$date.$numberLong, 10);
 }
 
-const ONE_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-
 // Returns the entry whose Activation is in the future and within one week, or null.
 function findWeekly(items: AnyRecord[]) {
 	const now = Date.now();
 	return items.find(x => {
 		const ms = mongoMs(x.Activation);
-		return ms > now && ms <= now + ONE_WEEK_MS;
+		return ms > now && ms <= now + MILLIS_PER_WEEK;
 	});
 }
 

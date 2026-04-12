@@ -1,7 +1,7 @@
 import type {IFaction, IRegion, TFaction} from 'warframe-public-export-plus';
 import {makeArchwingIcon} from './archwing-icon.js';
 import {escapeHtml} from './helpers/string-helpers.js';
-import {getDaysInMonth, localDateToUtcDayTimestamp} from './helpers/time-helpers.js';
+import {getDaysInMonth, localDateToUtcDayTimestamp, SECONDS_PER_DAY} from './helpers/time-helpers.js';
 import {FACTION_ICON_PATHS} from './faction-icons.js';
 
 // `common.js`
@@ -22,7 +22,6 @@ declare function formatTileset(tileset: string | undefined): string | undefined;
 // `tooltip.js` (from bundle)
 declare function addTooltip(element: HTMLElement, title: string): void;
 
-const SECONDS_PER_DAY = 86_400;
 const DATE_HEADING_FORMAT = new Intl.DateTimeFormat(undefined, {weekday: 'short', month: 'short', day: 'numeric'});
 
 // Incursion data: [timestamp_seconds, "node1,node2,...,node6"]

@@ -8,6 +8,7 @@ import {
 	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {MOCK_TIMESTAMP} from '@test/helpers/test-constants';
+import {MILLIS_PER_DAY, MILLIS_PER_WEEK} from '../helpers/time-helpers';
 
 const mockRefreshFilterStatus = vi.fn();
 const mockInitializeBountyFilters = vi.fn();
@@ -68,7 +69,7 @@ describe('cloud-sync-before-push', () => {
 	// -------------------------------------------------------------------------
 
 	test('keeps future circuit-hard OID', () => {
-		const futureMs = MOCK_TIMESTAMP + 604_800_000;
+		const futureMs = MOCK_TIMESTAMP + MILLIS_PER_WEEK;
 		localStorage.setItem('oids_completed', JSON.stringify([`circuit-hard-${futureMs}`]));
 		dispatchBeforePush();
 		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`circuit-hard-${futureMs}`]);
@@ -82,7 +83,7 @@ describe('cloud-sync-before-push', () => {
 	});
 
 	test('keeps future kahl OID', () => {
-		const futureMs = MOCK_TIMESTAMP + 604_800_000;
+		const futureMs = MOCK_TIMESTAMP + MILLIS_PER_WEEK;
 		localStorage.setItem('oids_completed', JSON.stringify([`kahl-${futureMs}`]));
 		dispatchBeforePush();
 		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`kahl-${futureMs}`]);
@@ -96,7 +97,7 @@ describe('cloud-sync-before-push', () => {
 	});
 
 	test('keeps future teshin OID', () => {
-		const futureMs = MOCK_TIMESTAMP + 604_800_000;
+		const futureMs = MOCK_TIMESTAMP + MILLIS_PER_WEEK;
 		localStorage.setItem('oids_completed', JSON.stringify([`teshin-${futureMs}`]));
 		dispatchBeforePush();
 		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`teshin-${futureMs}`]);
@@ -110,7 +111,7 @@ describe('cloud-sync-before-push', () => {
 	});
 
 	test('keeps future HexSyndicate-check OID', () => {
-		const futureMs = MOCK_TIMESTAMP + 86_400_000;
+		const futureMs = MOCK_TIMESTAMP + MILLIS_PER_DAY;
 		localStorage.setItem('oids_completed', JSON.stringify([`HexSyndicate-check-${futureMs}`]));
 		dispatchBeforePush();
 		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`HexSyndicate-check-${futureMs}`]);
@@ -124,14 +125,14 @@ describe('cloud-sync-before-push', () => {
 	});
 
 	test('keeps future EntratiLabSyndicate-check OID', () => {
-		const futureMs = MOCK_TIMESTAMP + 86_400_000;
+		const futureMs = MOCK_TIMESTAMP + MILLIS_PER_DAY;
 		localStorage.setItem('oids_completed', JSON.stringify([`EntratiLabSyndicate-check-${futureMs}`]));
 		dispatchBeforePush();
 		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`EntratiLabSyndicate-check-${futureMs}`]);
 	});
 
 	test('keeps future hexconquest OID', () => {
-		const futureMs = MOCK_TIMESTAMP + 604_800_000;
+		const futureMs = MOCK_TIMESTAMP + MILLIS_PER_WEEK;
 		localStorage.setItem('oids_completed', JSON.stringify([`hexconquest-${futureMs}`]));
 		dispatchBeforePush();
 		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`hexconquest-${futureMs}`]);
@@ -145,7 +146,7 @@ describe('cloud-sync-before-push', () => {
 	});
 
 	test('keeps future calendarseason OID', () => {
-		const futureMs = MOCK_TIMESTAMP + 604_800_000;
+		const futureMs = MOCK_TIMESTAMP + MILLIS_PER_WEEK;
 		localStorage.setItem('oids_completed', JSON.stringify([`calendarseason-${futureMs}`]));
 		dispatchBeforePush();
 		expect(JSON.parse(localStorage.getItem('oids_completed')!)).toEqual([`calendarseason-${futureMs}`]);

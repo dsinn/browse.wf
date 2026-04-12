@@ -1,7 +1,7 @@
 /**
  * Unit tests for pure utility functions in src/weekly-forecast.ts.
  *
- * Covers: mongoMs, formatTabDate, nextForecastPublishedSeconds,
+ * Covers: mongoMs, formatTabDate, nextForecastPublishedMs,
  *         buildTab, getActiveTabActivation, restoreActiveTab.
  *
  * warframe-api-proxy-client is mocked to prevent the module's top-level await from firing.
@@ -15,7 +15,7 @@ import {
 	buildTab,
 	getActiveTabActivation,
 	restoreActiveTab,
-	nextForecastPublishedSeconds,
+	nextForecastPublishedMs,
 } from './weekly-forecast.js';
 
 vi.mock('./warframe-api-proxy-client', () => ({
@@ -55,42 +55,37 @@ describe('formatTabDate', () => {
 	});
 });
 
-describe('nextForecastPublishedSeconds', () => {
+describe('nextForecastPublishedMs', () => {
 	afterEach(() => {
 		vi.useRealTimers();
 	});
 
-	test('returns a future timestamp (seconds)', () => {
+	test('returns a future timestamp (milliseconds)', () => {
 		vi.useFakeTimers();
 		// Wednesday, so next Sunday is 4 days away
 		vi.setSystemTime(new Date('2026-03-18T12:00:00Z'));
-		const result = nextForecastPublishedSeconds();
-		expect(result).toBeGreaterThan(Date.now() / 1000);
+		const result = nextForecastPublishedMs();
+		expect(result).toBeGreaterThan(Date.now());
 	});
 
 	test('when it is Sunday before 23:02 UTC, returns today', () => {
 		vi.useFakeTimers();
 		// Sunday 2026-03-22 at 20:00 UTC — still before 23:02
 		vi.setSystemTime(new Date('2026-03-22T20:00:00Z'));
-		const result = nextForecastPublishedSeconds();
-		const target = new Date('2026-03-22T23:02:00Z');
-		expect(result).toBe(Math.floor(target.getTime() / 1000));
+		expect(nextForecastPublishedMs()).toBe(new Date('2026-03-22T23:02:00Z').getTime());
 	});
 
 	test('when it is Sunday after 23:02 UTC, returns next Sunday', () => {
 		vi.useFakeTimers();
 		// Sunday 2026-03-22 at 23:30 UTC — after 23:02
 		vi.setSystemTime(new Date('2026-03-22T23:30:00Z'));
-		const result = nextForecastPublishedSeconds();
-		const nextSunday = new Date('2026-03-29T23:02:00Z');
-		expect(result).toBe(Math.floor(nextSunday.getTime() / 1000));
+		expect(nextForecastPublishedMs()).toBe(new Date('2026-03-29T23:02:00Z').getTime());
 	});
 
 	test('result time is always 23:02 UTC', () => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date('2026-03-20T10:00:00Z')); // Friday
-		const result = nextForecastPublishedSeconds();
-		const date = new Date(result * 1000);
+		const date = new Date(nextForecastPublishedMs());
 		expect(date.getUTCHours()).toBe(23);
 		expect(date.getUTCMinutes()).toBe(2);
 		expect(date.getUTCSeconds()).toBe(0);
@@ -99,9 +94,14 @@ describe('nextForecastPublishedSeconds', () => {
 	test('result day is always Sunday', () => {
 		vi.useFakeTimers();
 		vi.setSystemTime(new Date('2026-03-20T10:00:00Z')); // Friday
-		const result = nextForecastPublishedSeconds();
-		const date = new Date(result * 1000);
-		expect(date.getUTCDay()).toBe(0); // Sunday
+		expect(new Date(nextForecastPublishedMs()).getUTCDay()).toBe(0);
+	});
+
+	test('when in the Sunday 23:02–Monday 00:00 window, returns next Sunday', () => {
+		vi.useFakeTimers();
+		// Sunday 2026-03-22 at 23:45 UTC — past 23:02, before Monday reset
+		vi.setSystemTime(new Date('2026-03-22T23:45:00Z'));
+		expect(nextForecastPublishedMs()).toBe(new Date('2026-03-29T23:02:00Z').getTime());
 	});
 });
 

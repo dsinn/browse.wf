@@ -3,11 +3,13 @@
  * Resets at midnight UTC, matching the Steel Path Incursions timer.
  */
 
+import {getNextDailyResetMs} from '../helpers/time-helpers.js';
+
 let dailyResetTimer: ReturnType<typeof setTimeout> | undefined;
 
 export function updateBountyCheckboxes(): void {
 	// Next daily reset in milliseconds — used as the OID suffix so pruning can compare directly to Date.now()
-	const nextDailyReset = (Math.trunc(Date.now() / 86_400_000) + 1) * 86_400_000;
+	const nextDailyReset = getNextDailyResetMs();
 
 	for (const headingId of ['EntratiLabSyndicate-name', 'HexSyndicate-name']) {
 		const heading = document.querySelector<HTMLElement>(`#${headingId}`);

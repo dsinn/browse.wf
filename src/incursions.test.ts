@@ -15,6 +15,7 @@ import {JSDOM} from 'jsdom';
 import {loadFixture} from '@test/helpers/fixture-loader';
 import {setupMockFetch, mockEndpoint} from '@test/helpers/api-mocks';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
+import {SECONDS_PER_DAY} from './helpers/time-helpers';
 
 describe('Steel Path Incursion Schedule (/incursions) - HTML structure', () => {
 	let dom: JSDOM;
@@ -95,8 +96,6 @@ describe('Steel Path Incursion Schedule (/incursions) - HTML structure', () => {
 });
 
 // ========== Pure function tests ==========
-
-const SECONDS_PER_DAY = 86_400;
 
 // `getIncursionsForDay` uses module-level state (epochDay, incursions),
 // so a standalone pure version is used to allow controlled input in unit tests.

@@ -1,3 +1,4 @@
+import {getWeekIndex, getNextWeeklyResetSeconds} from './helpers/time-helpers.js';
 import {triggerCloudSync} from './cloud-sync/trigger.js';
 import {createShortTimerBadge} from './short-timer-badge.js';
 
@@ -25,10 +26,6 @@ let invigorationNames: Record<string, string> = {};
 export function initInvigorations(names: Record<string, string>): void {
 	invigorationNames = names;
 	initInvigorationTimer();
-}
-
-export function getWeekIndex(timestamp: number): number {
-	return Math.trunc(((timestamp / 1000) - 1_391_990_400) / 604_800);
 }
 
 export function loadCache(): InvigorationCache {
@@ -184,13 +181,13 @@ export function initInvigorationTimer(): void {
 		return;
 	}
 
-	const weekEnd = ((getWeekIndex(Date.now()) + 1) * 604_800) + 1_391_990_400;
+	const weekEnd = getNextWeeklyResetSeconds();
 	const badge = createShortTimerBadge(weekEnd, 'Pending Refresh');
 	timerElement.append(badge);
 }
 
 export function scheduleInvigorationReload(): void {
-	const weekEnd = ((getWeekIndex(Date.now()) + 1) * 604_800) + 1_391_990_400;
+	const weekEnd = getNextWeeklyResetSeconds();
 	setTimeout(() => {
 		location.reload();
 	}, (weekEnd * 1000) - Date.now());

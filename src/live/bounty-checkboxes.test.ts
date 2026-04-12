@@ -10,9 +10,8 @@ import {
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {freezeTime} from '@test/helpers/time-helpers';
 import {MOCK_TIMESTAMP} from '@test/helpers/test-constants';
+import {MILLIS_PER_DAY} from '../helpers/time-helpers';
 import {updateBountyCheckboxes} from './bounty-checkboxes';
-
-const DAY_MS = 86_400_000;
 
 describe('Bounty Checkboxes', () => {
 	beforeEach(() => {
@@ -34,7 +33,7 @@ describe('Bounty Checkboxes', () => {
 	test('OID changes after a daily reset', () => {
 		const oidBefore = (globalThis as any).createCompletionToggle.mock.calls[0][0];
 
-		freezeTime(MOCK_TIMESTAMP + DAY_MS);
+		freezeTime(MOCK_TIMESTAMP + MILLIS_PER_DAY);
 		(globalThis as any).createCompletionToggle.mockClear();
 		updateBountyCheckboxes();
 

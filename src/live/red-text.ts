@@ -5,6 +5,8 @@
  * #red-text-body element, independent of the News card.
  */
 
+import {SECONDS_PER_DAY} from '../helpers/time-helpers.js';
+
 async function fetchRedText(): Promise<void> {
 	(globalThis as any).redtext = []; // Sentinel: prevents duplicate fetches
 	return fetch('https://oracle.browse.wf/redtext.json')
@@ -30,7 +32,7 @@ export function updateRedText(): void {
 		return;
 	}
 
-	const cutoff = (Date.now() / 1000) - (30 * 86_400);
+	const cutoff = (Date.now() / 1000) - (30 * SECONDS_PER_DAY);
 	const items = ((globalThis as any).redtext as Array<{data: string; time: number}>)
 		.filter(item => item.time > cutoff)
 		.map(item => ({data: item.data.split('WALLOPS :')[1], time: item.time}))

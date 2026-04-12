@@ -6,6 +6,7 @@ import {loadFixture} from '@test/helpers/fixture-loader';
 // so we spy on the globally-registered instance instead of the static import.
 // A static import here lets TypeScript resolve types.
 import type {WarframeApiFrontProxyClient as _WarframeApiFrontProxyClient} from '../warframe-api-proxy-client';
+import {MILLIS_PER_DAY, MILLIS_PER_HOUR} from '../helpers/time-helpers';
 
 const VALID_ACCOUNT_ID = '55540360384632532d7b23c6';
 const MOCK_PROFILE_DATA = {Results: [{DisplayName: 'TestUser', PlayerLevel: 30, AccountId: {$oid: VALID_ACCOUNT_ID}}]};
@@ -123,7 +124,7 @@ describe('profileWorkflowReady', () => {
 	});
 
 	it('shows rate-limit notice when syncResult is complete and nextFetch is in the future', () => {
-		const futureTs = Date.now() + 3_600_000;
+		const futureTs = Date.now() + MILLIS_PER_HOUR;
 		localStorage.setItem('profile.nextFetchAvailableAt', futureTs.toString());
 		(globalThis as any).profileWorkflowReady('complete', false);
 		expect(document.querySelector('#rate-limit-notice')?.classList.contains('d-none')).toBe(false);
@@ -440,7 +441,7 @@ describe('loadProfile', () => {
 // ─── fetchAndRenderProfile (via globalThis.fetchProfile) ─────────────────────
 
 describe('fetchAndRenderProfile', () => {
-	const NEXT_FETCH = Date.now() + 3_600_000;
+	const NEXT_FETCH = Date.now() + MILLIS_PER_HOUR;
 
 	beforeEach(async () => {
 		await freshWorkflow();
@@ -572,25 +573,25 @@ describe('updateProfileAge', () => {
 	});
 
 	it('shows singular "hour" at exactly 1 hour ago', () => {
-		localStorage.setItem('profile.dataFetchedAt', (Date.now() - 3_600_000).toString());
+		localStorage.setItem('profile.dataFetchedAt', (Date.now() - MILLIS_PER_HOUR).toString());
 		(globalThis as any).updateProfileAge();
 		expect(document.querySelector('#profile-fetched span')?.textContent).toBe('1 hour ago');
 	});
 
 	it('shows plural "hours" at 3 hours ago', () => {
-		localStorage.setItem('profile.dataFetchedAt', (Date.now() - (3 * 3_600_000)).toString());
+		localStorage.setItem('profile.dataFetchedAt', (Date.now() - (3 * MILLIS_PER_HOUR)).toString());
 		(globalThis as any).updateProfileAge();
 		expect(document.querySelector('#profile-fetched span')?.textContent).toBe('3 hours ago');
 	});
 
 	it('shows "1 day ago" at exactly 24 hours ago', () => {
-		localStorage.setItem('profile.dataFetchedAt', (Date.now() - 86_400_000).toString());
+		localStorage.setItem('profile.dataFetchedAt', (Date.now() - MILLIS_PER_DAY).toString());
 		(globalThis as any).updateProfileAge();
 		expect(document.querySelector('#profile-fetched span')?.textContent).toBe('1 day ago');
 	});
 
 	it('shows plural "days" at 2 days ago', () => {
-		localStorage.setItem('profile.dataFetchedAt', (Date.now() - (2 * 86_400_000)).toString());
+		localStorage.setItem('profile.dataFetchedAt', (Date.now() - (2 * MILLIS_PER_DAY)).toString());
 		(globalThis as any).updateProfileAge();
 		expect(document.querySelector('#profile-fetched span')?.textContent).toBe('2 days ago');
 	});

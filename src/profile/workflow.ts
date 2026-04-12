@@ -9,6 +9,7 @@
 
 // `alert()` is used intentionally for user-facing error messages
 /* eslint-disable no-alert */
+import {MILLIS_PER_DAY, MILLIS_PER_HOUR} from '../helpers/time-helpers.js';
 import {WarframeApiFrontProxyClient} from '../warframe-api-proxy-client.js';
 
 // Keep in sync with VALID_PLAYER_ID_REGEX in warframe-api-front-proxy/profile.js
@@ -90,10 +91,10 @@ function updateRefreshAlert(): void {
 	document.querySelector('#refresh-alert')?.classList.toggle('d-none', !currentAccountId);
 }
 
-function showRateLimitNotice(epochMs: number): void {
+function showRateLimitNotice(expiryMs: number): void {
 	const countdown = document.querySelector('#rate-limit-countdown');
 	if (countdown) {
-		countdown.replaceChildren((globalThis as any).createShortTimerBadge(Math.floor(epochMs / 1000), 'Pending Refresh'));
+		countdown.replaceChildren((globalThis as any).createShortTimerBadge(Math.floor(expiryMs / 1000), 'Pending Refresh'));
 	}
 
 	document.querySelector('#rate-limit-notice')?.classList.remove('d-none');
@@ -138,8 +139,8 @@ function updateProfileAge(): void {
 	const fetchDate = new Date(Number.parseInt(fetchedAt, 10));
 	const diffMs = Date.now() - fetchDate.getTime();
 	const diffMins = Math.floor(diffMs / 60_000);
-	const diffHours = Math.floor(diffMs / 3_600_000);
-	const diffDays = Math.floor(diffMs / 86_400_000);
+	const diffHours = Math.floor(diffMs / MILLIS_PER_HOUR);
+	const diffDays = Math.floor(diffMs / MILLIS_PER_DAY);
 
 	let timeAgo: string;
 	let nextUpdateMs: number;
@@ -152,10 +153,10 @@ function updateProfileAge(): void {
 		nextUpdateMs = 60_000 - (diffMs % 60_000);
 	} else if (diffHours < 24) {
 		timeAgo = `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
-		nextUpdateMs = 3_600_000 - (diffMs % 3_600_000);
+		nextUpdateMs = MILLIS_PER_HOUR - (diffMs % MILLIS_PER_HOUR);
 	} else {
 		timeAgo = `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
-		nextUpdateMs = 86_400_000 - (diffMs % 86_400_000);
+		nextUpdateMs = MILLIS_PER_DAY - (diffMs % MILLIS_PER_DAY);
 	}
 
 	const absoluteTime = fetchDate.toLocaleString(undefined, {

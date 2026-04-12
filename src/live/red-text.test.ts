@@ -4,6 +4,7 @@
 import {
 	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
+import {SECONDS_PER_DAY} from '../helpers/time-helpers';
 import {updateRedText} from './red-text';
 
 const NOW_S = 1_768_087_200; // 2026-01-10 12:00:00 UTC in seconds
@@ -53,7 +54,7 @@ describe('updateRedText', () => {
 	});
 
 	test('shows empty message when no items within 30 days', () => {
-		const oldTime = NOW_S - (31 * 86_400);
+		const oldTime = NOW_S - (31 * SECONDS_PER_DAY);
 		(globalThis as any).redtext = [{data: 'WALLOPS :old message', time: oldTime}];
 		updateRedText();
 		expect(document.querySelector('#red-text-body')!.textContent).toBe('No red text in the past 30 days.');

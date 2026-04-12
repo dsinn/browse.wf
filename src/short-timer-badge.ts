@@ -2,6 +2,8 @@
  * Short timer badge: countdown badge showing only two units (e.g., "1h 23m" instead of "1h 23m 45s")
  */
 
+import {SECONDS_PER_DAY, SECONDS_PER_HOUR} from './helpers/time-helpers.js';
+
 /**
  * Converts seconds to a human-readable format with only TWO units
  * Examples:
@@ -15,19 +17,19 @@ function deltaToTwoUnits(deltaSeconds: number): string[] {
 	const units: string[] = [];
 
 	// Days
-	if (deltaSeconds >= 86_400) {
-		units.push(Math.trunc(deltaSeconds / 86_400) + 'd');
-		deltaSeconds %= 86_400;
+	if (deltaSeconds >= SECONDS_PER_DAY) {
+		units.push(Math.trunc(deltaSeconds / SECONDS_PER_DAY) + 'd');
+		deltaSeconds %= SECONDS_PER_DAY;
 	}
 
 	// Hours
-	if (deltaSeconds >= 3600 || units.length > 0) {
-		units.push(Math.trunc(deltaSeconds / 3600) + 'h');
+	if (deltaSeconds >= SECONDS_PER_HOUR || units.length > 0) {
+		units.push(Math.trunc(deltaSeconds / SECONDS_PER_HOUR) + 'h');
 		if (units.length >= 2) {
 			return units;
 		}
 
-		deltaSeconds %= 3600;
+		deltaSeconds %= SECONDS_PER_HOUR;
 	}
 
 	// Minutes (always show when showing seconds to maintain two units)
@@ -74,13 +76,13 @@ function scheduleShortTimerUpdate(elm: HTMLElement): void {
 	elm.textContent = formatShortTimerCountdown(timestamp, expiredLabel);
 
 	// Calculate delay until next update based on which units are showing
-	if (deltaSeconds >= 86_400) {
+	if (deltaSeconds >= SECONDS_PER_DAY) {
 		// Showing days + hours: update at top of next hour
-		const delayMs = (3600 - (deltaSeconds % 3600)) * 1000;
+		const delayMs = (SECONDS_PER_HOUR - (deltaSeconds % SECONDS_PER_HOUR)) * 1000;
 		setTimeout(() => {
 			scheduleShortTimerUpdate(elm);
 		}, delayMs);
-	} else if (deltaSeconds >= 3600) {
+	} else if (deltaSeconds >= SECONDS_PER_HOUR) {
 		// Showing hours + minutes: update at top of next minute
 		const delayMs = (60 - (deltaSeconds % 60)) * 1000;
 		setTimeout(() => {

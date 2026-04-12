@@ -7,6 +7,7 @@ import {
 import {getById, mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {setupMockFetch, loadExportJson} from '@test/helpers/api-mocks';
 import {testCardFilters} from '@test/live/card-filters-factory';
+import {MILLIS_PER_DAY} from '../helpers/time-helpers';
 import {updateIncursionsLocalised} from './incursions';
 
 // Test generic card filter integration for Incursions card
@@ -75,7 +76,7 @@ function setupIncursionsGlobals() {
 	mockBootstrapTooltip();
 
 	(globalThis as any).incursions_today = MOCK_INCURSIONS_TODAY;
-	(globalThis as any).incursions_expiry = Date.now() + 86_400_000;
+	(globalThis as any).incursions_expiry = Date.now() + MILLIS_PER_DAY;
 
 	(globalThis as any).toTitleCase = (s: string) => s
 		.split(' ')

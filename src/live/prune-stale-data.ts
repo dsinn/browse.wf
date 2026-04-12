@@ -4,10 +4,11 @@
  * Runs periodically, a few seconds after a successful worldState fetch.
  */
 
+import {MILLIS_PER_DAY} from '../helpers/time-helpers.js';
 import {pruneStaleNewsRead} from './news-mark-read.js';
 
 const PRUNE_DELAY_MS = 5000;
-const PRUNE_INTERVAL_MS = 86_400_000; // 24 hours
+const PRUNE_INTERVAL_MS = MILLIS_PER_DAY;
 let lastPruneTime = 0;
 
 export function pruneStaleOids(): void {

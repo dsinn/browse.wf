@@ -1,3 +1,4 @@
+import {getNextWeeklyResetMs} from '../helpers/time-helpers.js';
 import {isFilterEnabled} from '../card-filters.js';
 
 const STALE_DATA_RETRY_MS = 5000;
@@ -21,9 +22,7 @@ export function updateWeekly(): void {
 		} else if (hexConquest) {
 			newWeeklyExpiry = Number.parseInt(hexConquest.Expiry.$date.$numberLong, 10);
 		} else {
-			const EPOCH = 1_736_121_600 * 1000;
-			const week = Math.trunc((Date.now() - EPOCH) / 604_800_000);
-			newWeeklyExpiry = EPOCH + ((week + 1) * 604_800_000);
+			newWeeklyExpiry = getNextWeeklyResetMs();
 		}
 
 		if (newWeeklyExpiry <= Date.now()) {

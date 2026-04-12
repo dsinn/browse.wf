@@ -1206,7 +1206,6 @@ document.querySelectorAll<HTMLAnchorElement>("[data-notif-toggle]").forEach(elm 
 	};
 });
 
-(window as any).initLiveSync();
 initializeFilterToggles();
 initializeCardFilters('news', () => void (window as any).updateNewsTicker(true));
 initializeCardFilters('incursions', () => void (window as any).updateIncursionsLocalised());
@@ -1237,3 +1236,5 @@ document.querySelectorAll<HTMLElement>(".vq-abbr").forEach(elm => addTooltip(elm
 (window as any).toggleOidCompletion = toggleOidCompletion;
 (window as any).toTitleCase = toTitleCase;
 (window as any).updateBountyCycleLocalised = updateBountyCycleLocalised;
+
+(window as any).initLiveSync();

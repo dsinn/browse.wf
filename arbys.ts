@@ -83,6 +83,11 @@ cloudSyncEvent.then(() => {
 	checkLoadButtonState();
 });
 
+// Re-check on subsequent pulls (e.g. real-time sync from another device)
+window.addEventListener('cloud-sync-pulled', () => {
+	checkLoadButtonState();
+});
+
 const params = new URLSearchParams(location.hash.replace("#", ""));
 if (params.has("days"))
 {
@@ -432,9 +437,6 @@ function checkLoadButtonState(): void
 
 	btnLoad.disabled = shouldDisable
 }
-
-// Expose checkLoadButtonState globally for cloud sync to call
-(window as any).checkLoadButtonState = checkLoadButtonState;
 
 // Save button handler
 document.getElementById("btn-save-settings")?.addEventListener("click", function() {

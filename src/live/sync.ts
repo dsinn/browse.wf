@@ -10,7 +10,10 @@
 
 import {refreshFilterStatus} from '../card-filters.js';
 import {initializeBountyFilters} from './bounty-filters.js';
+import {refreshAllCompletionToggles} from './completion-toggles.js';
+import {updateIncursionsLocalised} from './incursions.js';
 import {pruneStaleNewsRead} from './news-mark-read.js';
+import {updateNewsTicker} from './news.js';
 import {pruneStaleOids} from './prune-stale-data.js';
 import {updateRedText} from './red-text.js';
 
@@ -22,9 +25,7 @@ export function initLiveSync() {
 
 	globalThis.addEventListener('cloud-sync-pulled', () => {
 		// Refresh completion checkboxes (objectives)
-		if ((globalThis as any).refreshAllCompletionToggles) {
-			(globalThis as any).refreshAllCompletionToggles();
-		}
+		refreshAllCompletionToggles();
 
 		// Refresh collapse states
 		if ((globalThis as any).refreshCollapseStatus) {
@@ -65,22 +66,13 @@ export function initLiveSync() {
 		// Refresh card content to apply filters
 		updateRedText();
 
-		if ((globalThis as any).updateNewsTicker) {
-			(globalThis as any).updateNewsTicker();
-		}
+		updateNewsTicker();
 
-		if ((globalThis as any).updateBountyCycleLocalised) {
+		if ((globalThis as any).bountyCycle) {
 			(globalThis as any).updateBountyCycleLocalised();
 		}
 
-		if ((globalThis as any).updateIncursionsLocalised) {
-			(globalThis as any).updateIncursionsLocalised();
-		}
-
-		// Refresh arbys Load button state (enable/disable based on saved settings)
-		if ((globalThis as any).checkLoadButtonState) {
-			(globalThis as any).checkLoadButtonState();
-		}
+		void updateIncursionsLocalised();
 	});
 }
 

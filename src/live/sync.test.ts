@@ -12,6 +12,9 @@ import {MILLIS_PER_DAY, MILLIS_PER_WEEK} from '../helpers/time-helpers';
 
 const mockRefreshFilterStatus = vi.fn();
 const mockInitializeBountyFilters = vi.fn();
+const mockRefreshAllCompletionToggles = vi.fn();
+const mockUpdateIncursionsLocalised = vi.fn();
+const mockUpdateNewsTicker = vi.fn();
 const mockPruneStaleNewsRead = vi.fn();
 
 vi.mock('../../src/card-filters.js', () => ({
@@ -19,6 +22,15 @@ vi.mock('../../src/card-filters.js', () => ({
 }));
 vi.mock('../../src/live/bounty-filters.js', () => ({
 	initializeBountyFilters: mockInitializeBountyFilters,
+}));
+vi.mock('../../src/live/completion-toggles.js', () => ({
+	refreshAllCompletionToggles: mockRefreshAllCompletionToggles,
+}));
+vi.mock('../../src/live/incursions.js', () => ({
+	updateIncursionsLocalised: mockUpdateIncursionsLocalised,
+}));
+vi.mock('../../src/live/news.js', () => ({
+	updateNewsTicker: mockUpdateNewsTicker,
 }));
 vi.mock('../../src/live/news-mark-read.js', () => ({
 	pruneStaleNewsRead: mockPruneStaleNewsRead,
@@ -257,21 +269,9 @@ describe('cloud-sync-pulled', () => {
 		document.body.innerHTML = '';
 	});
 
-	test('calls refreshAllCompletionToggles when defined', () => {
-		const fn = vi.fn();
-		(globalThis as any).refreshAllCompletionToggles = fn;
-
+	test('calls refreshAllCompletionToggles', () => {
 		dispatchPulled();
-
-		expect(fn).toHaveBeenCalledOnce();
-		delete (globalThis as any).refreshAllCompletionToggles;
-	});
-
-	test('does not throw when refreshAllCompletionToggles is undefined', () => {
-		delete (globalThis as any).refreshAllCompletionToggles;
-		expect(() => {
-			dispatchPulled();
-		}).not.toThrow();
+		expect(mockRefreshAllCompletionToggles).toHaveBeenCalledOnce();
 	});
 
 	test('calls refreshCollapseStatus for each [data-collapse-toggle] element', () => {
@@ -375,51 +375,40 @@ describe('cloud-sync-pulled', () => {
 		expect(mockInitializeBountyFilters).toHaveBeenCalledOnce();
 	});
 
-	test('calls updateNewsTicker when defined', () => {
+	test('calls updateNewsTicker', () => {
+		dispatchPulled();
+		expect(mockUpdateNewsTicker).toHaveBeenCalledOnce();
+	});
+
+	test('calls updateBountyCycleLocalised when bountyCycle is set', () => {
 		const fn = vi.fn();
-		(globalThis as any).updateNewsTicker = fn;
+		(globalThis as any).updateBountyCycleLocalised = fn;
+		(globalThis as any).bountyCycle = {rot: 'A', vaultRot: 'A', expiry: Date.now() + 3_600_000};
 
 		dispatchPulled();
 
 		expect(fn).toHaveBeenCalledOnce();
-		delete (globalThis as any).updateNewsTicker;
+		delete (globalThis as any).updateBountyCycleLocalised;
+		delete (globalThis as any).bountyCycle;
 	});
 
-	test('calls updateBountyCycleLocalised when defined', () => {
+	test('does not call updateBountyCycleLocalised when bountyCycle is not yet set', () => {
 		const fn = vi.fn();
 		(globalThis as any).updateBountyCycleLocalised = fn;
 
 		dispatchPulled();
 
-		expect(fn).toHaveBeenCalledOnce();
+		expect(fn).not.toHaveBeenCalled();
 		delete (globalThis as any).updateBountyCycleLocalised;
 	});
 
-	test('calls updateIncursionsLocalised when defined', () => {
-		const fn = vi.fn();
-		(globalThis as any).updateIncursionsLocalised = fn;
-
+	test('calls updateIncursionsLocalised', () => {
 		dispatchPulled();
-
-		expect(fn).toHaveBeenCalledOnce();
-		delete (globalThis as any).updateIncursionsLocalised;
-	});
-
-	test('calls checkLoadButtonState when defined', () => {
-		const fn = vi.fn();
-		(globalThis as any).checkLoadButtonState = fn;
-
-		dispatchPulled();
-
-		expect(fn).toHaveBeenCalledOnce();
-		delete (globalThis as any).checkLoadButtonState;
+		expect(mockUpdateIncursionsLocalised).toHaveBeenCalledOnce();
 	});
 
 	test('does not throw when all optional globals are undefined', () => {
-		delete (globalThis as any).updateNewsTicker;
 		delete (globalThis as any).updateBountyCycleLocalised;
-		delete (globalThis as any).updateIncursionsLocalised;
-		delete (globalThis as any).checkLoadButtonState;
 
 		expect(() => {
 			dispatchPulled();

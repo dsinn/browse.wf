@@ -175,6 +175,29 @@ test.describe('Profile Stats Filters', () => {
 			return {count: rows.length, errors};
 		}, tbodyId);
 
+	const defaultSortColumns: Record<string, string> = {
+		'#equipment-stats': 'Hours',
+		'#enemy-stats': 'Kills',
+	};
+	for (const [tbodySelector, columnHeader] of Object.entries(defaultSortColumns)) {
+		test(`${tbodySelector} "${columnHeader}" column is in non-increasing order by default`, async ({page}) => {
+			const tbody = page.locator(tbodySelector);
+			const headings = await tbody.locator('xpath=ancestor::table').locator('thead th').allTextContents();
+			const sortedColIndex = headings.indexOf(columnHeader);
+			const rows = tbody.locator('tr');
+			const count = await rows.count();
+			let previousValue = Infinity;
+			for (let i = 0; i < count; i++) {
+				const row = rows.nth(i);
+				const name = await row.locator('td').nth(1).textContent() ?? '';
+				const rawValue = await row.locator('td').nth(sortedColIndex).textContent() ?? '';
+				const value = Number(rawValue.replaceAll(',', ''));
+				expect(value, `row ${i + 1} "${name}" (${value}) > row ${i} (${previousValue})`).toBeLessThanOrEqual(previousValue);
+				previousValue = value;
+			}
+		});
+	}
+
 	test.describe('Equipment rank column', () => {
 		test('shows sequential ranks starting at 1', async ({page}) => {
 			const {count, errors} = await checkSequentialRanks(page, 'equipment-stats');

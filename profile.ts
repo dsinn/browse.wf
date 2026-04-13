@@ -618,7 +618,7 @@ function renderProfile(): void
 	if (profile.Stats && profile.Stats.Weapons)
 	{
 		profile.Stats.Weapons
-		.sort((a, b) => b.equipTime - a.equipTime)
+		.sort((a, b) => (b.equipTime ?? 0) - (a.equipTime ?? 0))
 		.forEach(item =>
 		{
 			const type = ExportWarframes[item.type] ?? ExportWeapons[item.type] ?? ExportSentinels[item.type];
@@ -666,7 +666,7 @@ function renderProfile(): void
 	if (profile.Stats && profile.Stats.Enemies)
 	{
 		profile.Stats.Enemies
-		.sort((a, b) => b.kills - a.kills)
+		.sort((a, b) => (b.kills ?? 0) - (a.kills ?? 0))
 		.forEach(enemy =>
 		{
 			const type = ExportEnemies.avatars[enemy.type];

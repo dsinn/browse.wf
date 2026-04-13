@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test';
 import {setupMockRoutes, reloadWithFrozenClock} from '../helpers/api-mocks';
+import {openFilterPanel} from '../helpers/dom-helpers';
 import {expiryBadge, mockLiveExports} from './helpers';
 
 test.describe('Live Page - 1999 Calendar Card', () => {
@@ -137,12 +138,12 @@ test.describe('Live Page - 1999 Calendar Card', () => {
 		});
 
 		test('clicking gear icon opens the filter panel', async ({page}) => {
-			await page.locator('[data-filter-toggle="calendar-season"]').click();
+			await openFilterPanel(page, 'calendar-season');
 			await expect(page.locator('#calendar-season-filters')).toBeVisible();
 		});
 
 		test('filter panel has three event type checkboxes, all checked by default', async ({page}) => {
-			await page.locator('[data-filter-toggle="calendar-season"]').click();
+			await openFilterPanel(page, 'calendar-season');
 			const checkboxes = page.locator('#calendar-season-filters input[type="checkbox"]');
 			await expect(checkboxes).toHaveCount(3);
 			for (const checkbox of await checkboxes.all()) {
@@ -155,8 +156,7 @@ test.describe('Live Page - 1999 Calendar Card', () => {
 		});
 
 		test('"No event types checked" message appears when all types are unchecked', async ({page}) => {
-			await page.locator('[data-filter-toggle="calendar-season"]').click();
-			await expect(page.locator('#filter-calendar-season-type-CET_UPGRADE')).toBeVisible();
+			await openFilterPanel(page, 'calendar-season');
 			await page.locator('#filter-calendar-season-type-CET_CHALLENGE').uncheck();
 			await page.locator('#filter-calendar-season-type-CET_REWARD').uncheck();
 			await page.locator('#filter-calendar-season-type-CET_UPGRADE').uncheck();
@@ -164,8 +164,7 @@ test.describe('Live Page - 1999 Calendar Card', () => {
 		});
 
 		test('filter state persists after page reload', async ({page}) => {
-			await page.locator('[data-filter-toggle="calendar-season"]').click();
-			await expect(page.locator('#filter-calendar-season-type-CET_UPGRADE')).toBeVisible();
+			await openFilterPanel(page, 'calendar-season');
 			await page.locator('#filter-calendar-season-type-CET_UPGRADE').uncheck();
 
 			await reloadWithFrozenClock(page);

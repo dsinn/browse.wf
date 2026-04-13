@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test';
 import {setupMockRoutes} from '../helpers/api-mocks';
+import {openFilterPanel} from '../helpers/dom-helpers';
 
 // Timestamp within the mock worldState's fissure and void storm active windows (Jan 11 2026 12:51 UTC)
 const FISSURE_ACTIVE_TIMESTAMP = 1_768_135_860_000;
@@ -60,7 +61,7 @@ test.describe('Void Storms (Railjack Fissures)', () => {
 		const initialCount = await page.locator('#rj-fissures-table tbody tr:visible').count();
 		expect(initialCount).toBeGreaterThan(0);
 
-		await page.locator('[data-filter-toggle="rj-fissures"]').click();
+		await openFilterPanel(page, 'rj-fissures');
 		await page.locator('#rj-fissures-filters input[type=checkbox][data-filter-type="VoidT1"]').uncheck();
 
 		await expect(page.locator('#rj-fissures-table tbody tr:visible')).not.toHaveCount(initialCount);

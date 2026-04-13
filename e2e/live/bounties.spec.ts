@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test';
 import {setupMockRoutes} from '../helpers/api-mocks';
+import {openFilterPanel} from '../helpers/dom-helpers';
 
 test.describe('Live Page - Bounties Card', () => {
 	test.beforeEach(async ({page}) => {
@@ -10,8 +11,7 @@ test.describe('Live Page - Bounties Card', () => {
 
 	test.describe('Mission Type Filters', () => {
 		test.beforeEach(async ({page}) => {
-			await page.locator('[data-filter-toggle="bounties"]').click();
-			await expect(page.locator('[data-bounty-syndicate="HexSyndicate"][data-filter-type="MT_SURVIVAL"]')).toBeVisible();
+			await openFilterPanel(page, 'bounties');
 		});
 
 		test.afterEach(async ({page}) => {
@@ -57,8 +57,7 @@ test.describe('Live Page - Bounties Card', () => {
 
 			await page.reload();
 			await expect(page.locator('#bounties-body')).not.toContainText('Fetching data...', {timeout: 10_000});
-			await page.locator('[data-filter-toggle="bounties"]').click();
-			await expect(page.locator('#bounties-filters')).toBeVisible();
+			await openFilterPanel(page, 'bounties');
 
 			await expect(page.locator('[data-bounty-syndicate="EntratiLabSyndicate"][data-filter-type="MT_SURVIVAL"]')).not.toBeChecked();
 			await expect(page.locator('[data-bounty-syndicate="HexSyndicate"][data-filter-type="MT_DEFENSE"]')).not.toBeChecked();
@@ -86,18 +85,15 @@ test.describe('Live Page - Bounties Card', () => {
 
 	test.describe('Tier Filters', () => {
 		test('clicking gear icon shows bounty filter panel', async ({page}) => {
-			const bountyFilterToggle = page.locator('[data-filter-toggle="bounties"]');
 			const filterPanel = page.locator('#bounties-filters');
 
 			await expect(filterPanel).toBeHidden();
-			await bountyFilterToggle.click();
+			await openFilterPanel(page, 'bounties');
 			await expect(filterPanel).toBeVisible();
 		});
 
 		test('all three syndicate dropdowns exist with correct options', async ({page}) => {
-			const bountyFilterToggle = page.locator('[data-filter-toggle="bounties"]');
-			await bountyFilterToggle.click();
-			await expect(page.locator('#bounties-filters')).toBeVisible();
+			await openFilterPanel(page, 'bounties');
 
 			const holdfastDropdown = page.locator('#bounty-filter-ZarimanSyndicate');
 			await expect(holdfastDropdown).toBeVisible();
@@ -114,10 +110,7 @@ test.describe('Live Page - Bounties Card', () => {
 
 		test('filter preferences persist in localStorage', async ({page}) => {
 			await page.waitForSelector('#EntratiLabSyndicate-table tr', {timeout: 10_000});
-
-			const bountyFilterToggle = page.locator('[data-filter-toggle="bounties"]');
-			await bountyFilterToggle.click();
-			await expect(page.locator('#bounties-filters')).toBeVisible();
+			await openFilterPanel(page, 'bounties');
 
 			const caviaDropdown = page.locator('#bounty-filter-EntratiLabSyndicate');
 			await caviaDropdown.selectOption('4');
@@ -126,17 +119,14 @@ test.describe('Live Page - Bounties Card', () => {
 			await page.reload();
 			await expect(page.locator('#bounties-body')).not.toContainText('Fetching data...', {timeout: 10_000});
 
-			await bountyFilterToggle.click();
-			await expect(page.locator('#bounties-filters')).toBeVisible();
+			await openFilterPanel(page, 'bounties');
 			expect(await caviaDropdown.inputValue()).toBe('4');
 			expect(await page.locator('#EntratiLabSyndicate-table tr:visible').count()).toBe(2); // Only Tier 4 and 5 visible
 		});
 
 		test('different syndicates filter independently', async ({page}) => {
 			await page.waitForSelector('#ZarimanSyndicate-table tr', {timeout: 10_000});
-
-			await page.locator('[data-filter-toggle="bounties"]').click();
-			await expect(page.locator('#bounties-filters')).toBeVisible();
+			await openFilterPanel(page, 'bounties');
 
 			await page.locator('#bounty-filter-ZarimanSyndicate').selectOption('3');
 			await page.locator('#bounty-filter-EntratiLabSyndicate').selectOption('5');
@@ -150,8 +140,7 @@ test.describe('Live Page - Bounties Card', () => {
 
 	test.describe('Deimos Bounties Filter', () => {
 		test.beforeEach(async ({page}) => {
-			await page.locator('[data-filter-toggle="bounties"]').click();
-			await expect(page.locator('[data-bounty-syndicate="HexSyndicate"][data-filter-type="MT_SURVIVAL"]')).toBeVisible();
+			await openFilterPanel(page, 'bounties');
 		});
 
 		test.afterEach(async ({page}) => {

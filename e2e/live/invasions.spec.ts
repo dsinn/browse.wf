@@ -1,5 +1,6 @@
 import {test, expect, type Page} from '@playwright/test';
 import {setupMockRoutes, mockExportData} from '../helpers/api-mocks';
+import {openFilterPanel} from '../helpers/dom-helpers';
 
 test.describe('Live Page - Invasions Card', () => {
 	// Wait for actual invasion data rows to appear (not the "Loading..." placeholder)
@@ -28,7 +29,7 @@ test.describe('Live Page - Invasions Card', () => {
 
 		const rowsBefore = await page.locator('#invasions-table tbody tr:visible').count();
 
-		await page.locator('[data-filter-toggle="invasions"]').click();
+		await openFilterPanel(page, 'invasions');
 		await page.locator('#filter-invasions-reward-KarakWraith').uncheck();
 		await expect(page.locator('#invasions-table tbody tr:visible')).not.toHaveCount(rowsBefore);
 

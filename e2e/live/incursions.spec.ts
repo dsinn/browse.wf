@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test';
 import {setupMockRoutes} from '../helpers/api-mocks';
+import {openFilterPanel} from '../helpers/dom-helpers';
 
 test.describe('Live Page - Steel Path Incursions Card', () => {
 	test.beforeEach(async ({page}) => {
@@ -26,11 +27,10 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 	});
 
 	test('filter gear icon toggles filter panel visibility', async ({page}) => {
-		const filterToggle = page.locator('[data-filter-toggle="incursions"]');
 		const filterPanel = page.locator('#incursions-filters');
 
 		await expect(filterPanel).toBeHidden();
-		await filterToggle.click();
+		await openFilterPanel(page, 'incursions');
 		await expect(filterPanel).toBeVisible();
 
 		// All 26 mission type checkboxes should be present
@@ -39,8 +39,7 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 	});
 
 	test('filter preference persists across page reload', async ({page}) => {
-		await page.locator('[data-filter-toggle="incursions"]').click();
-		await expect(page.locator('#incursions-filters')).toBeVisible();
+		await openFilterPanel(page, 'incursions');
 
 		const firstCheckbox = page.locator('#incursions-filters input[type="checkbox"]').first();
 		const checkboxId = await firstCheckbox.getAttribute('id');
@@ -58,8 +57,7 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 		await page.clock.resume();
 		await expect(page.locator('#incursions-body').getByText('Fetching')).toBeHidden({timeout: 10_000});
 
-		await page.locator('[data-filter-toggle="incursions"]').click();
-		await expect(page.locator('#incursions-filters')).toBeVisible();
+		await openFilterPanel(page, 'incursions');
 		await expect(page.locator(`#${checkboxId}`)).not.toBeChecked();
 	});
 });

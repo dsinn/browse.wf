@@ -1,5 +1,6 @@
 import {test, expect} from '@playwright/test';
 import {setupMockRoutes} from '../helpers/api-mocks';
+import {openFilterPanel} from '../helpers/dom-helpers';
 
 test.describe('News Card (/live)', () => {
 	test.beforeEach(async ({page, context}) => {
@@ -22,25 +23,14 @@ test.describe('News Card (/live)', () => {
 
 	test.describe('News card filters', () => {
 		test('clicking gear icon shows filter panel', async ({page}) => {
-			// Find the News card filter toggle
-			const newsFilterToggle = page.locator('[data-filter-toggle="news"]');
-
-			// Filter panel should not be visible initially
 			const filterPanel = page.locator('#news-filters');
 			await expect(filterPanel).toBeHidden();
-
-			// Click gear icon
-			await newsFilterToggle.click();
-
-			// Filter panel should now be visible
+			await openFilterPanel(page, 'news');
 			await expect(filterPanel).toBeVisible();
 		});
 
 		test('unchecking filter checkbox filters content', async ({page}) => {
-			// Open News filter panel
-			const newsFilterToggle = page.locator('[data-filter-toggle="news"]');
-			await newsFilterToggle.click();
-			await expect(page.locator('#news-filters')).toBeVisible();
+			await openFilterPanel(page, 'news');
 
 			// Check which filter type has items we can test with
 			const primaryCount = await page.locator('#news-body .news-item.news-primary').count();
@@ -87,10 +77,7 @@ test.describe('News Card (/live)', () => {
 		});
 
 		test('filter preferences persist in localStorage', async ({page}) => {
-			// Open News filter panel
-			const newsFilterToggle = page.locator('[data-filter-toggle="news"]');
-			await newsFilterToggle.click();
-			await expect(page.locator('#filter-news-success')).toBeVisible();
+			await openFilterPanel(page, 'news');
 
 			// Uncheck primary filter
 			const primaryFilter = page.locator('#filter-news-primary');
@@ -102,8 +89,7 @@ test.describe('News Card (/live)', () => {
 			await page.waitForSelector('#arby-what:not(:has-text("Loading..."))', {timeout: 10_000});
 
 			// Open filter panel again
-			await newsFilterToggle.click();
-			await expect(page.locator('#news-filters')).toBeVisible();
+			await openFilterPanel(page, 'news');
 
 			// Verify state persisted (should still be unchecked)
 			await expect(primaryFilter).not.toBeChecked();

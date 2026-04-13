@@ -6,6 +6,8 @@
  * state after cloud sync events.
  */
 
+import {waitForCloudSync} from '../cloud-sync/trigger.js';
+
 type ArbysSettings = {
 	select_days?: string;
 	select_tz?: string;
@@ -157,28 +159,9 @@ export function initializeSettingsButtons(): void {
 	});
 }
 
-// Wait for cloud sync to emit one of its events (or timeout), then check Load button state.
 // `.then()` is used instead of top-level await to avoid blocking the rest of module initialization.
-const cloudSyncEvent = new Promise<string>(resolve => {
-	globalThis.addEventListener('cloud-sync-complete', () => {
-		resolve('complete');
-	}, {once: true});
-	globalThis.addEventListener('cloud-sync-unavailable', () => {
-		resolve('unavailable');
-	}, {once: true});
-	globalThis.addEventListener('cloud-sync-unauthenticated', () => {
-		resolve('unauthenticated');
-	}, {once: true});
-	globalThis.addEventListener('cloud-sync-error', () => {
-		resolve('error');
-	}, {once: true});
-	setTimeout(() => {
-		resolve('timeout');
-	}, 3000);
-});
-
 /* eslint-disable unicorn/prefer-top-level-await */
-cloudSyncEvent.then(() => {
+waitForCloudSync().then(() => {
 	checkLoadButtonState();
 }).catch((error: unknown) => {
 	console.error('Unexpected cloud sync event error:', error);

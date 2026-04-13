@@ -6,6 +6,7 @@ import {
 	triggerCloudSync,
 	triggerCloudSyncWithDebounce,
 	flushDebounce,
+	waitForCloudSync,
 } from './trigger';
 
 describe('trigger', () => {
@@ -74,6 +75,26 @@ describe('trigger', () => {
 			triggerCloudSyncWithDebounce();
 			await vi.runAllTimersAsync();
 			expect(mockHandler).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('waitForCloudSync', () => {
+		test('resolves with event type on cloud-sync-complete', async () => {
+			const promise = waitForCloudSync();
+			globalThis.dispatchEvent(new Event('cloud-sync-complete'));
+			await expect(promise).resolves.toBe('complete');
+		});
+
+		test('resolves with event type on cloud-sync-error', async () => {
+			const promise = waitForCloudSync();
+			globalThis.dispatchEvent(new Event('cloud-sync-error'));
+			await expect(promise).resolves.toBe('error');
+		});
+
+		test('resolves with timeout after 5 seconds', async () => {
+			const promise = waitForCloudSync();
+			vi.advanceTimersByTime(5000);
+			await expect(promise).resolves.toBe('timeout');
 		});
 	});
 

@@ -11,6 +11,7 @@
 /* eslint-disable no-alert */
 import {MILLIS_PER_DAY, MILLIS_PER_HOUR} from '../helpers/time-helpers.js';
 import {WarframeApiFrontProxyClient} from '../warframe-api-proxy-client.js';
+import {waitForCloudSync} from '../cloud-sync/trigger.js';
 
 // Keep in sync with VALID_PLAYER_ID_REGEX in warframe-api-front-proxy/profile.js
 const VALID_PLAYER_ID_REGEX = /^[\da-f]{24}$/u;
@@ -26,17 +27,7 @@ const platformSelect = document.querySelector<HTMLSelectElement>('#platform-sele
 let currentAccountId = '';
 
 // Wait for cloud sync to emit one of its events (or timeout)
-const cloudSyncEvent = new Promise<string>(resolve => {
-	for (const type of ['cloud-sync-complete', 'cloud-sync-unavailable', 'cloud-sync-unauthenticated', 'cloud-sync-error']) {
-		globalThis.addEventListener(type, () => {
-			resolve(type.replace('cloud-sync-', ''));
-		}, {once: true});
-	}
-
-	setTimeout(() => {
-		resolve('timeout');
-	}, 3000);
-});
+const cloudSyncEvent = waitForCloudSync();
 
 // Get initial profile (from localStorage or fallback).
 // `.then()` is used instead of `await` because this is a non-module script — top-level await is unavailable.

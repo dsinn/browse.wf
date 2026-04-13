@@ -41,5 +41,24 @@ export async function flushDebounce(): Promise<void> {
 	}
 }
 
+/**
+ * Returns a promise that resolves when cloud sync emits a status event,
+ * or 'timeout' if no event fires. Used to gate initialization on cloud sync
+ * readiness.
+ */
+export async function waitForCloudSync(): Promise<string> {
+	return new Promise<string>(resolve => {
+		for (const type of ['cloud-sync-complete', 'cloud-sync-unavailable', 'cloud-sync-unauthenticated', 'cloud-sync-error']) {
+			globalThis.addEventListener(type, () => {
+				resolve(type.replace('cloud-sync-', ''));
+			}, {once: true});
+		}
+
+		setTimeout(() => {
+			resolve('timeout');
+		}, 5000);
+	});
+}
+
 (globalThis as any).triggerCloudSync = triggerCloudSync;
 (globalThis as any).triggerCloudSyncWithDebounce = triggerCloudSyncWithDebounce;

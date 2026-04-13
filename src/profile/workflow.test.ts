@@ -370,6 +370,8 @@ describe('loadEELog', () => {
 describe('loadProfile', () => {
 	beforeEach(async () => {
 		await freshWorkflow();
+		// `trigger.ts` overwrites globalThis.triggerCloudSync on import; re-spy after freshWorkflow
+		(globalThis as any).triggerCloudSync = vi.fn();
 		document.querySelector<HTMLSelectElement>('#platform-select')!.value = 'pc';
 	});
 
@@ -445,6 +447,8 @@ describe('fetchAndRenderProfile', () => {
 
 	beforeEach(async () => {
 		await freshWorkflow();
+		// `trigger.ts` overwrites globalThis.triggerCloudSync on import; re-spy after freshWorkflow
+		(globalThis as any).triggerCloudSync = vi.fn();
 		document.querySelector<HTMLSelectElement>('#platform-select')!.value = 'pc';
 		localStorage.setItem('profile.accountId', VALID_ACCOUNT_ID);
 		(globalThis as any).profileWorkflowReady('complete', true);

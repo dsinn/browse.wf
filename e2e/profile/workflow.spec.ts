@@ -11,6 +11,16 @@ const __dirname = path.dirname(__filename);
 
 const proxyHost = new URL(TEST_FRONT_PROXY_BASE_URL).host;
 const profileData = JSON.parse(fs.readFileSync(path.join(__dirname, '../../test/profile/getProfileViewingData.html'), 'utf8'));
+const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
+
+async function selectPlatform(page: any, platform = 'pc') {
+	await expect(page.locator('#steps')).toBeVisible();
+	await page.selectOption('#platform-select', platform);
+}
+
+async function uploadEeLog(page: any) {
+	await page.setInputFiles('#ee-log-file', eeLogPath);
+}
 
 // Wrapped response shape used by the front proxy when rate limiting is configured
 function wrappedProfileResponse(data = profileData) {
@@ -77,13 +87,11 @@ test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () 
 		await expect(page.locator('#step1-container')).not.toHaveClass(/complete/u);
 
 		// Step 1: Select platform — reveals account ID step
-		await page.selectOption('#platform-select', 'pc');
-		await expect(page.locator('#step1-container')).toHaveClass(/complete/u);
+		await selectPlatform(page);
 		await expect(page.locator('text=Provide your account ID')).toBeVisible();
 
 		// Step 2: Upload EE.log — auto-fetch via proxy
-		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
-		await page.setInputFiles('#ee-log-file', eeLogPath);
+		await uploadEeLog(page);
 
 		// Profile renders; manual download step and cached data notice are not shown
 		await expect(page.locator('#profile-name')).toContainText('AerodynamicHead', {timeout: 5000});
@@ -101,11 +109,8 @@ test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () 
 	test('persists profile data in localStorage after EE.log auto-fetch', async ({page}) => {
 		await page.goto('/profile');
 
-		await expect(page.locator('#steps')).toBeVisible();
-		await page.selectOption('#platform-select', 'pc');
-
-		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
-		await page.setInputFiles('#ee-log-file', eeLogPath);
+		await selectPlatform(page);
+		await uploadEeLog(page);
 
 		// Wait for profile to load and localStorage to be written
 		await expect(page.locator('#step2-container')).toHaveClass(/complete/u, {timeout: 5000});
@@ -194,11 +199,9 @@ test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () 
 		});
 
 		await page.goto('/profile');
-		await page.selectOption('#platform-select', 'pc');
+		await selectPlatform(page);
 		await page.click('button:has-text("Click Me")');
-
-		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
-		await page.setInputFiles('#ee-log-file', eeLogPath);
+		await uploadEeLog(page);
 
 		// Wait for the fetch to fail (status message updates)
 		await expect(page.locator('#status span')).toContainText('Failed to fetch', {timeout: 5000});
@@ -222,10 +225,8 @@ test.describe('Profile Workflow - Unauthenticated', () => {
 
 	test('shows manual download/upload steps after EE.log upload', async ({page}) => {
 		await page.goto('/profile');
-		await page.selectOption('#platform-select', 'pc');
-
-		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
-		await page.setInputFiles('#ee-log-file', eeLogPath);
+		await selectPlatform(page);
+		await uploadEeLog(page);
 
 		// Manual flow: download link should appear; Fetch Profile button should not
 		await expect(page.getByRole('link', {name: /Save Link As/u})).toBeVisible({timeout: 5000});
@@ -262,10 +263,8 @@ test.describe('Profile Workflow - Unauthenticated', () => {
 		});
 
 		await page.goto('/profile');
-		await page.selectOption('#platform-select', 'pc');
-
-		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
-		await page.setInputFiles('#ee-log-file', eeLogPath);
+		await selectPlatform(page);
+		await uploadEeLog(page);
 
 		// Manual download step should appear without the proxy being called
 		await expect(page.getByRole('link', {name: /Save Link As/u})).toBeVisible({timeout: 5000});
@@ -344,10 +343,8 @@ test.describe('Profile Workflow - Rate Limited', () => {
 		}, FUTURE_TIMESTAMP);
 
 		await page.reload();
-		await page.selectOption('#platform-select', 'pc');
-
-		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
-		await page.setInputFiles('#ee-log-file', eeLogPath);
+		await selectPlatform(page);
+		await uploadEeLog(page);
 
 		// Manual download step should appear without the proxy being called
 		await expect(page.getByRole('link', {name: /Save Link As/u})).toBeVisible({timeout: 5000});
@@ -369,10 +366,8 @@ test.describe('Profile Workflow - 429 Fallback', () => {
 		});
 
 		await page.goto('/profile');
-		await page.selectOption('#platform-select', 'pc');
-
-		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
-		await page.setInputFiles('#ee-log-file', eeLogPath);
+		await selectPlatform(page);
+		await uploadEeLog(page);
 
 		// Manual download step should appear
 		await expect(page.getByRole('link', {name: /Save Link As/u})).toBeVisible({timeout: 5000});
@@ -384,10 +379,8 @@ test.describe('Profile Workflow - 429 Fallback', () => {
 		});
 
 		await page.goto('/profile');
-		await page.selectOption('#platform-select', 'pc');
-
-		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
-		await page.setInputFiles('#ee-log-file', eeLogPath);
+		await selectPlatform(page);
+		await uploadEeLog(page);
 
 		// Manual download step should appear and no profile data from proxy should have been rendered
 		await expect(page.getByRole('link', {name: /Save Link As/u})).toBeVisible({timeout: 5000});

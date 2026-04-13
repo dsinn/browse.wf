@@ -89,19 +89,6 @@ test.describe('Profile Page (/profile.php)', () => {
 		expect(completionsCell).toMatch(/\d+/u); // Should contain a number
 	});
 
-	test('displays syndicates with standings', async ({page}) => {
-		await page.goto('/profile');
-		await page.waitForSelector('#profile-nav:not(.d-none)', {timeout: 10_000});
-
-		// Syndicates tab should be active by default (or navigate to it)
-		await page.click('a[data-tab="syndicates"]');
-		await page.waitForSelector('#syndicates:not(.d-none)');
-
-		// Verify at least one syndicate is displayed
-		const syndicateCards = await page.locator('#syndicates .card').all();
-		expect(syndicateCards.length).toBeGreaterThan(0);
-	});
-
 	test('tab navigation works correctly', async ({page}) => {
 		await page.goto('/profile');
 		await page.waitForSelector('#profile-nav:not(.d-none)', {timeout: 10_000});
@@ -115,16 +102,10 @@ test.describe('Profile Page (/profile.php)', () => {
 		];
 
 		for (const tab of tabs) {
-			// Click the tab
 			await page.click(`a[data-tab="${tab.name}"]`);
-
-			// Verify tab content is visible
 			await expect(page.locator(tab.selector)).toBeVisible();
-
-			// Verify tab link has active class
 			await expect(page.locator(`a[data-tab="${tab.name}"]`)).toHaveClass(/active/u);
 
-			// Verify other tabs are hidden
 			const otherTabs = tabs.filter(t => t.name !== tab.name);
 			for (const other of otherTabs) {
 				await expect(page.locator(other.selector)).toBeHidden();

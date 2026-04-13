@@ -10,7 +10,6 @@ declare function getDictPromise(): Promise<Record<string, string>>;
 declare function fetchExport(name: string): Promise<Record<string, any>>;
 declare function toTitleCase(str: string): string;
 declare function setImageSource(img: HTMLImageElement, icon: string): void;
-declare function initStatsFilterBar(filterBar: HTMLElement, tbody: HTMLElement, entries: Array<{ key: string; tooltip: string; icon: string; displayText?: string }>, presentKeys: Set<string>, onFilter?: () => void): void;
 
 // fetch
 declare let dict: Record<string, string>;
@@ -144,7 +143,6 @@ Promise.all([
 		"ExportEnemies",
 		"ExportFactions",
 		"ExportFlavour",
-		"ExportImages",
 		"ExportNightwave",
 		"ExportRegions",
 		"ExportSentinels",
@@ -152,8 +150,9 @@ Promise.all([
 		"ExportWarframes",
 		"ExportWeapons",
 	].map(name => fetchExport(name)),
-	(window as any).cloudSyncEvent, // src/profile/workflow.ts
-	(window as any).initialProfilePromise // src/profile/workflow.ts
+	(window as any).initialProfilePromise,
+	fetchExport("ExportImages"),
+	(window as any).cloudSyncEvent
 	]).then(([
 		dict,
 		ExportAchievements,
@@ -161,15 +160,15 @@ Promise.all([
 		ExportEnemies,
 		ExportFactions,
 		ExportFlavour,
-		ExportImages,
 		ExportNightwave,
 		ExportRegions,
 		ExportSentinels,
 		ExportSyndicates,
 		ExportWarframes,
 		ExportWeapons,
-		syncResult,
-		initialProfile
+		profile,
+		ExportImages,
+		syncResult
 	]) =>
 {
 	(window as any).dict = dict;
@@ -178,13 +177,13 @@ Promise.all([
 	(window as any).ExportEnemies = ExportEnemies;
 	(window as any).ExportFactions = ExportFactions;
 	(window as any).ExportFlavour = ExportFlavour;
-	(window as any).ExportImages = ExportImages;
 	(window as any).ExportRegions = ExportRegions;
 	(window as any).ExportSentinels = ExportSentinels;
 	(window as any).ExportSyndicates = ExportSyndicates;
 	(window as any).ExportWarframes = ExportWarframes;
 	(window as any).ExportWeapons = ExportWeapons;
-	(window as any).profile = initialProfile;
+	(window as any).profile = profile;
+	(window as any).ExportImages = ExportImages;
 
 	for (let i = 0; i != syndicateTags.length; ++i)
 	{
@@ -228,9 +227,6 @@ function sanitiseName(name: string): string
 }
 
 let profileLoadedManually = false;
-
-let equipmentRankObserver: MutationObserver | undefined;
-let enemyRankObserver: MutationObserver | undefined;
 
 function renderProfile(): void
 {
@@ -594,274 +590,131 @@ function renderProfile(): void
 		}
 	}*/
 
-	// Calculate total missions for percentage calculations
-	const missionStats = ["MissionsCompleted", "MissionsFailed", "MissionsQuit", "MissionsInterrupted", "MissionsDumped"];
-	const totalMissions = missionStats.reduce((sum, stat) => sum + (profile.Stats?.[stat] || 0), 0);
-
-	// Calculate total ciphers for percentage calculations
-	const cipherStats = ["CiphersSolved", "CiphersFailed"];
-	const totalCiphers = cipherStats.reduce((sum, stat) => sum + (profile.Stats?.[stat] || 0), 0);
-
 	for (const stat of ["TimePlayedSec", "Income", "MissionsCompleted", "MissionsFailed", "MissionsQuit", "MissionsInterrupted", "MissionsDumped", "CiphersSolved", "CiphersFailed", "CipherTime", "ReviveCount", "HealCount", "Deaths"/*, "MeleeKills"*/])
 	{
 		const value = (profile.Stats && profile.Stats[stat]) ? profile.Stats[stat] : 0;
 		if (stat == "TimePlayedSec" || stat == "CipherTime")
 		{
-			const elm = document.getElementById(`stat-${stat}`);
-			elm.textContent = `${(value / 3600).toFixed(1)} hours`;
-
-			// Add tooltip with breakdown for TimePlayedSec, and exact seconds for CipherTime
-			elm.style.cursor = "help";
-			elm.style.textDecoration = "underline dotted";
-			elm.setAttribute("data-bs-toggle", "tooltip");
-			if (stat == "TimePlayedSec")
-			{
-				const totalSec = Math.floor(value);
-				const days = Math.floor(totalSec / 86400);
-				const hours = Math.floor((totalSec % 86400) / 3600);
-				const minutes = Math.floor((totalSec % 3600) / 60);
-				const seconds = totalSec % 60;
-				const p = (window as any).pluralize;
-				const parts = [p(days, "day"), p(hours, "hour"), p(minutes, "minute"), p(seconds, "second")];
-				elm.setAttribute("data-bs-title", parts.join(", "));
-			}
-			else
-			{
-				elm.setAttribute("data-bs-title", `${Math.round(value).toLocaleString()} seconds`);
-			}
-			new (window as any).bootstrap.Tooltip(elm);
+			document.getElementById("stat-" + stat).textContent = (value / 3600).toFixed(1) + " hours";
+			(window as any).addTimeStatTooltip?.(document.getElementById(`stat-${stat}`), stat, value);
 		}
 		else
 		{
 			document.getElementById("stat-" + stat).textContent = value.toLocaleString();
-
-			// Add percentage for mission stats
-			if (missionStats.includes(stat) && totalMissions > 0)
-			{
-				const percentage = ((value / totalMissions) * 100).toFixed(2);
-				document.getElementById("stat-" + stat).textContent += ` (${percentage}%)`;
-			}
-
-			// Add percentage for cipher stats
-			if (cipherStats.includes(stat) && totalCiphers > 0)
-			{
-				const percentage = ((value / totalCiphers) * 100).toFixed(2);
-				document.getElementById(`stat-${stat}`).textContent += ` (${percentage}%)`;
-			}
+			(window as any).addStatPercentage?.(stat, value);
 		}
 	}
 	if (profile.Stats && profile.Stats.CipherTime && profile.Stats.CiphersSolved)
 	{
-		const avgCipherTime = profile.Stats.CipherTime / profile.Stats.CiphersSolved;
-		const elm = document.getElementById("stat-CipherTimeAvg");
-		elm.textContent = `${avgCipherTime.toFixed(3)}s`;
-
-		// Add tooltip with unrounded value
-		elm.style.cursor = "help";
-		elm.style.textDecoration = "underline dotted";
-		elm.setAttribute("data-bs-toggle", "tooltip");
-		elm.setAttribute("data-bs-title", `${avgCipherTime} seconds`);
-		new (window as any).bootstrap.Tooltip(elm);
+		document.getElementById("stat-CipherTimeAvg").textContent = (profile.Stats.CipherTime / profile.Stats.CiphersSolved).toFixed(1) + "s";
+		(window as any).addCipherAvgTooltip?.(document.getElementById("stat-CipherTimeAvg"), profile);
 	}
 	else
 	{
 		document.getElementById("stat-CipherTimeAvg").textContent = "0s";
 	}
 
-	const makeRenumber = (tbody: HTMLElement, existingObserver: MutationObserver | undefined) =>
+	document.getElementById("equipment-stats").innerHTML = "";
+	if (profile.Stats && profile.Stats.Weapons)
 	{
-		const renumber = () =>
+		profile.Stats.Weapons
+		.sort((a, b) => b.equipTime - a.equipTime)
+		.forEach(item =>
 		{
-			let rank = 1;
-			for (const tr of tbody.querySelectorAll<HTMLTableRowElement>("tr"))
+			const type = ExportWarframes[item.type] ?? ExportWeapons[item.type] ?? ExportSentinels[item.type];
+			if (!type)
 			{
-				tr.cells[0].textContent = getComputedStyle(tr).display === "none" ? "" : String(rank++);
+				return;
 			}
-		};
-		existingObserver?.disconnect();
-		const observer = new MutationObserver(renumber);
-		observer.observe(tbody, { childList: true });
-		return { renumber, observer };
-	};
-
-	// Equipment filter bar + table
-	{
-		const EQUIPMENT_CATEGORIES: Record<string, { tooltip: string; icon: string; displayText?: string }> = (window as any).EQUIPMENT_CATEGORIES;
-		const equipmentFilterBar = document.getElementById("equipment-filter-bar");
-		const equipmentTbody = document.getElementById("equipment-stats");
-		equipmentTbody.innerHTML = "";
-
-		const presentCategories = new Set<string>();
-		if (profile.Stats && profile.Stats.Weapons)
-		{
-			const categoryTotals: Record<string, number> = {};
-			for (const item of profile.Stats.Weapons)
+			const tr = document.createElement("tr");
 			{
-				const type = ExportWarframes[item.type] ?? ExportWeapons[item.type] ?? ExportSentinels[item.type];
-				if (!type) { continue; }
-				const category = type.productCategory ?? "SpecialItems";
-				if (category !== "SpecialItems")
-				{
-					categoryTotals[category] = (categoryTotals[category] ?? 0) + (item.equipTime ?? 0);
-				}
+				const td = document.createElement("td");
+				td.innerHTML = dict[type.name];
+				tr.appendChild(td);
 			}
-
-			profile.Stats.Weapons
-			.sort((a, b) => b.equipTime - a.equipTime)
-			.forEach(item =>
 			{
-				const type = ExportWarframes[item.type] ?? ExportWeapons[item.type] ?? ExportSentinels[item.type];
-				if (!type)
-				{
-					return;
-				}
-				const category = type.productCategory ?? "SpecialItems";
-				const tr = document.createElement("tr");
-				tr.dataset.category = category;
-				tr.appendChild(document.createElement("td")); // rank cell (populated by observer)
-				{
-					const td = document.createElement("td");
-					const name = dict[type.name];
-					const archwingPrefix = "<ARCHWING> ";
-					if (name.startsWith(archwingPrefix))
-					{
-						const wrap = document.createElement("div");
-						wrap.className = "item-name-wrap";
-						const img = document.createElement("img");
-						img.className = "item-name-icon";
-						(window as any).setImageSource(img, "/Lotus/Interface/Icons/StoreIcons/Gear/GenericArchwingSystems.png");
-						const iconWrap = document.createElement("span");
-						iconWrap.className = "item-name-icon-wrap";
-						(window as any).addTooltip(iconWrap, "Archwing");
-						iconWrap.appendChild(img);
-						wrap.appendChild(iconWrap);
-						wrap.appendChild(document.createTextNode(name.slice(archwingPrefix.length)));
-						td.appendChild(wrap);
-					}
-					else
-					{
-						td.textContent = name;
-					}
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					const equipTime = item.equipTime ?? 0;
-					const total = categoryTotals[category] ?? 0;
-					td.textContent = `${(total ? equipTime / total * 100 : 0).toFixed(2)}%`;
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					td.innerHTML = ((item.equipTime ?? 0) / 3600).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					td.innerHTML = (item.kills ?? 0).toLocaleString();
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					td.innerHTML = (item.headshots ?? 0).toLocaleString();
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					td.innerHTML = (item.assists ?? 0).toLocaleString();
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					td.innerHTML = (item.xp ?? 0).toLocaleString();
-					tr.appendChild(td);
-				}
-				equipmentTbody.appendChild(tr);
-				presentCategories.add(category);
-			});
-		}
-
-		const equipmentEntries = Object.entries(EQUIPMENT_CATEGORIES).map(([key, { tooltip, icon, displayText }]) => ({ key, tooltip, icon, displayText }));
-		const { renumber: renumberEquipment, observer: equipmentObs } = makeRenumber(equipmentTbody, equipmentRankObserver);
-		equipmentRankObserver = equipmentObs;
-		initStatsFilterBar(equipmentFilterBar, equipmentTbody, equipmentEntries, presentCategories, renumberEquipment);
-		renumberEquipment();
+				const td = document.createElement("td");
+				td.innerHTML = ((item.equipTime ?? 0) / 3600).toFixed(1);
+				tr.appendChild(td);
+			}
+			{
+				const td = document.createElement("td");
+				td.innerHTML = (item.kills ?? 0).toLocaleString();
+				tr.appendChild(td);
+			}
+			{
+				const td = document.createElement("td");
+				td.innerHTML = (item.headshots ?? 0).toLocaleString();
+				tr.appendChild(td);
+			}
+			{
+				const td = document.createElement("td");
+				td.innerHTML = (item.assists ?? 0).toLocaleString();
+				tr.appendChild(td);
+			}
+			{
+				const td = document.createElement("td");
+				td.innerHTML = (item.xp ?? 0).toLocaleString();
+				tr.appendChild(td);
+			}
+			document.getElementById("equipment-stats").appendChild(tr);
+		});
 	}
+	(window as any).augmentEquipmentStats?.(profile);
 
-	// Enemy filter bar + table
+	document.getElementById("enemy-stats").innerHTML = "";
+	if (profile.Stats && profile.Stats.Enemies)
 	{
-		const ENEMY_FACTIONS: Array<{ tooltip: string; icon: string; factions: string[] }> = (window as any).ENEMY_FACTIONS;
-		const enemyFilterBar = document.getElementById("enemy-filter-bar");
-		const enemyTbody = document.getElementById("enemy-stats");
-		enemyTbody.innerHTML = "";
-
-		const presentFactions = new Set<string>();
-		if (profile.Stats && profile.Stats.Enemies)
+		profile.Stats.Enemies
+		.sort((a, b) => b.kills - a.kills)
+		.forEach(enemy =>
 		{
-			profile.Stats.Enemies
-			.sort((a, b) => b.kills - a.kills)
-			.forEach(enemy =>
+			const type = ExportEnemies.avatars[enemy.type];
+			if (!type)
 			{
-				const type = ExportEnemies.avatars[enemy.type];
-				if (!type)
-				{
-					return;
-				}
-				const bucket = ENEMY_FACTIONS.find(f => f.factions.includes(type.faction));
-				const factionLabel = bucket ? bucket.tooltip : "";
-				const tr = document.createElement("tr");
-				tr.dataset.category = factionLabel;
-				tr.appendChild(document.createElement("td")); // rank cell (populated by observer)
-				{
-					const td = document.createElement("td");
-					td.textContent = dict[type.name];
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					td.innerHTML = (enemy.kills ?? 0).toLocaleString();
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					td.innerHTML = (enemy.headshots ?? 0).toLocaleString();
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					td.innerHTML = (enemy.assists ?? 0).toLocaleString();
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					td.innerHTML = (enemy.executions ?? 0).toLocaleString();
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					td.innerHTML = (enemy.deaths ?? 0).toLocaleString();
-					tr.appendChild(td);
-				}
-				{
-					const td = document.createElement("td");
-					const entry = profile.Stats.Scans?.find(x => x.type == enemy.type);
-					td.innerHTML = (entry?.scans ?? 0).toLocaleString();
-					tr.appendChild(td);
-				}
-				enemyTbody.appendChild(tr);
-				if (factionLabel)
-				{
-					presentFactions.add(factionLabel);
-				}
-			});
-		}
-
-		const enemyEntries = ENEMY_FACTIONS.map(({ tooltip, icon }) => ({ key: tooltip, tooltip, icon }));
-		const { renumber: renumberEnemy, observer: enemyObs } = makeRenumber(enemyTbody, enemyRankObserver);
-		enemyRankObserver = enemyObs;
-		initStatsFilterBar(enemyFilterBar, enemyTbody, enemyEntries, presentFactions, renumberEnemy);
-		renumberEnemy();
+				return;
+			}
+			const tr = document.createElement("tr");
+			{
+				const td = document.createElement("td");
+				td.innerHTML = dict[type.name];
+				tr.appendChild(td);
+			}
+			{
+				const td = document.createElement("td");
+				td.innerHTML = (enemy.kills ?? 0).toLocaleString();
+				tr.appendChild(td);
+			}
+			{
+				const td = document.createElement("td");
+				td.innerHTML = (enemy.headshots ?? 0).toLocaleString();
+				tr.appendChild(td);
+			}
+			{
+				const td = document.createElement("td");
+				td.innerHTML = (enemy.assists ?? 0).toLocaleString();
+				tr.appendChild(td);
+			}
+			{
+				const td = document.createElement("td");
+				td.innerHTML = (enemy.executions ?? 0).toLocaleString();
+				tr.appendChild(td);
+			}
+			{
+				const td = document.createElement("td");
+				td.innerHTML = (enemy.deaths ?? 0).toLocaleString();
+				tr.appendChild(td);
+			}
+			{
+				const td = document.createElement("td");
+				const entry = profile.Stats.Scans?.find(x => x.type == enemy.type);
+				td.innerHTML = (entry?.scans ?? 0).toLocaleString();
+				tr.appendChild(td);
+			}
+			document.getElementById("enemy-stats").appendChild(tr);
+		});
 	}
+	(window as any).augmentEnemyStats?.(profile);
 
 	updateProfileAge();
 }

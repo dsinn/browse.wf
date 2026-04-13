@@ -50,6 +50,8 @@ test.describe('Profile Stats Filters', () => {
 		});
 
 		await page.goto('/profile');
+		// Wait for profileWorkflowReady() to fire before interacting with the form
+		await page.waitForSelector('#steps:not(.d-none)');
 		await page.selectOption('#platform-select', 'pc');
 		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
 		await page.setInputFiles('#ee-log-file', eeLogPath);

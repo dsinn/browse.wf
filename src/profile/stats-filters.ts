@@ -48,6 +48,29 @@ export const ENEMY_FACTIONS: Array<{tooltip: string; icon?: string; factions: st
 	{tooltip: 'Stalker', icon: STALKER_ICON, factions: ['Stalker']},
 ];
 
+/**
+ * Sets up sequential rank numbers in the first cell of each visible row, and
+ * re-runs whenever rows are added/removed. Disconnects any previously returned
+ * observer before creating a new one, so it is safe to call on re-render.
+ *
+ * @param tbody            - The <tbody> whose rows to number.
+ * @param previousObserver - Observer returned from a prior call, to disconnect.
+ * @returns The renumber function and the new MutationObserver.
+ */
+export function makeRenumber(tbody: HTMLElement, previousObserver?: MutationObserver): {renumber: () => void; observer: MutationObserver} {
+	const renumber = () => {
+		let rank = 1;
+		for (const tr of tbody.querySelectorAll<HTMLTableRowElement>('tr')) {
+			tr.cells[0].textContent = getComputedStyle(tr).display === 'none' ? '' : String(rank++);
+		}
+	};
+
+	previousObserver?.disconnect();
+	const observer = new MutationObserver(renumber);
+	observer.observe(tbody, {childList: true});
+	return {renumber, observer};
+}
+
 /** Returns the display tooltip for a productCategory, or undefined if unrecognised. */
 export function getEquipmentCategoryLabel(productCategory: string): string | undefined {
 	return EQUIPMENT_CATEGORIES[productCategory]?.tooltip;

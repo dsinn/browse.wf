@@ -181,17 +181,17 @@ test.describe('Profile Stats Filters', () => {
 	};
 	for (const [tbodySelector, columnHeader] of Object.entries(defaultSortColumns)) {
 		test(`${tbodySelector} "${columnHeader}" column is in non-increasing order by default`, async ({page}) => {
-			const tbody = page.locator(tbodySelector);
-			const headings = await tbody.locator('xpath=ancestor::table').locator('thead th').allTextContents();
-			const sortedColIndex = headings.indexOf(columnHeader);
-			const rows = tbody.locator('tr');
-			const count = await rows.count();
+			const rows = await page.evaluate(([selector, header]) => {
+				const tbody = document.querySelector(selector)!;
+				const headings = [...tbody.closest('table')!.querySelectorAll<HTMLTableCellElement>('thead th')];
+				const sortedColIndex = headings.findIndex(th => th.textContent === header);
+				return [...tbody.querySelectorAll<HTMLTableRowElement>('tr')].map(tr => ({
+					name: tr.cells[1].textContent ?? '',
+					value: Number((tr.cells[sortedColIndex].textContent ?? '').replaceAll(',', '')),
+				}));
+			}, [tbodySelector, columnHeader]);
 			let previousValue = Infinity;
-			for (let i = 0; i < count; i++) {
-				const row = rows.nth(i);
-				const name = await row.locator('td').nth(1).textContent() ?? '';
-				const rawValue = await row.locator('td').nth(sortedColIndex).textContent() ?? '';
-				const value = Number(rawValue.replaceAll(',', ''));
+			for (const [i, {name, value}] of rows.entries()) {
 				expect(value, `row ${i + 1} "${name}" (${value}) > row ${i} (${previousValue})`).toBeLessThanOrEqual(previousValue);
 				previousValue = value;
 			}

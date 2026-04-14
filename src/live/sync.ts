@@ -66,7 +66,7 @@ export function initLiveSync() {
 		// Refresh card content to apply filters
 		updateRedText();
 
-		updateNewsTicker();
+		updateNewsTicker(true);
 
 		if ((window as any).bountyCycle) {
 			window.updateBountyCycleLocalised!();

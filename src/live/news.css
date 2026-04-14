@@ -30,9 +30,9 @@
 /* Time badges: fixed minimum width so all strings up to "99d" render the same badge width */
 #news-body .news-item .badge {
   display: inline-block;
-  width: 3em;
-  text-align: center;
   margin: 0 0.3em 0 0.2em;
+  min-width: 3em;
+  text-align: center;
 }
 
 

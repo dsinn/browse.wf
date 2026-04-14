@@ -20,10 +20,10 @@ export function updateNewsTicker(forceRender = false): void {
 	let highestTime = 0;
 	const items: NewsItem[] = [];
 
-	if ((globalThis as any).worldState) {
+	if ((window as any).worldState) {
 		const languageCode = (localStorage.getItem('lang') ?? 'en');
 
-		for (const event of (globalThis as any).worldState.Events) {
+		for (const event of (window as any).worldState.Events) {
 			if (event.Date) {
 				const time = Math.trunc(event.Date.$date.$numberLong / 1000);
 
@@ -65,12 +65,12 @@ export function updateNewsTicker(forceRender = false): void {
 		for (let i = items.length; i-- !== 0;) {
 			// Only notify for items that pass the filter
 			if (items[i].time > newsNotifyAfter && isFilterEnabled('news', items[i].type)) {
-				(globalThis as any).sendNotification(items[i].data);
+				window.sendNotification!(items[i].data);
 			}
 		}
 	}
 
-	if ((globalThis as any).worldState) {
+	if ((window as any).worldState) {
 		newsNotifyAfter = highestTime;
 	}
 
@@ -105,8 +105,8 @@ export function updateNewsTicker(forceRender = false): void {
 			const span = document.createElement('span');
 			span.className = 'badge text-bg-secondary';
 			span.dataset.activation = (items[i].time * 1000).toString();
-			span.textContent = (globalThis as any).formatActivation
-				? (globalThis as any).formatActivation(items[i].time * 1000)
+			span.textContent = window.formatActivation
+				? window.formatActivation(items[i].time * 1000)
 				: new Date(items[i].time * 1000).toLocaleString();
 			p.append(span);
 		}
@@ -155,4 +155,4 @@ export function resetNewsState(): void {
 	newsNotifyAfter = 0;
 }
 
-(globalThis as any).updateNewsTicker = updateNewsTicker;
+window.updateNewsTicker = updateNewsTicker;

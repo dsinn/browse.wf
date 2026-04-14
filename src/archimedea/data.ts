@@ -126,5 +126,5 @@ export async function resolveArchimedea(
 
 // Expose globals for browser classic scripts; guard allows this file to run in Node.js too
 if (globalThis.window !== undefined) {
-	(globalThis as any).resolveArchimedea = resolveArchimedea;
+	window.resolveArchimedea = resolveArchimedea;
 }

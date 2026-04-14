@@ -1,14 +1,14 @@
 const DEFAULT_BASE_URL = 'https://warframe-api-front-proxy.dsinn69.workers.dev';
 
 async function rawRequest(path: string, includeAuth = false): Promise<Response> {
-	const baseUrl = (globalThis as any).__ENV__?.WARFRAME_API_FRONT_PROXY_BASE_URL || DEFAULT_BASE_URL;
-	const token = (globalThis as any).__ENV__?.WARFRAME_API_FRONT_PROXY_TOKEN;
+	const baseUrl = window.__ENV__?.WARFRAME_API_FRONT_PROXY_BASE_URL || DEFAULT_BASE_URL;
+	const token = window.__ENV__?.WARFRAME_API_FRONT_PROXY_TOKEN;
 
 	const headers: Record<string, string> = {
-		'X-Warframe-API-Front-Proxy-Token': token,
+		'X-Warframe-API-Front-Proxy-Token': token ?? '',
 	};
 	if (includeAuth) {
-		const getToken = (globalThis as any).__getSupabaseAccessToken;
+		const getToken = window.__getSupabaseAccessToken;
 		const accessToken = getToken ? await getToken() : undefined;
 		if (accessToken) {
 			headers.Authorization = `Bearer ${accessToken}`;
@@ -48,4 +48,4 @@ export const WarframeApiFrontProxyClient = {
 	},
 };
 
-(globalThis as any).WarframeApiFrontProxyClient = WarframeApiFrontProxyClient;
+window.WarframeApiFrontProxyClient = WarframeApiFrontProxyClient;

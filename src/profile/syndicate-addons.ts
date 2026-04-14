@@ -41,4 +41,4 @@ export function appendSyndicateProgressBar(body: HTMLElement, tag: string, stand
 	body.append(progressOuter);
 }
 
-(globalThis as any).appendSyndicateProgressBar = appendSyndicateProgressBar;
+window.appendSyndicateProgressBar = appendSyndicateProgressBar;

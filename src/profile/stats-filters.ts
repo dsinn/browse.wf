@@ -150,7 +150,7 @@ export function initStatsFilterBar(
 		if (icon) {
 			const img = document.createElement('img');
 			img.alt = tooltip;
-			(globalThis as any).setImageSource(img, icon);
+			window.setImageSource(img, icon);
 			btn.append(img);
 		} else {
 			const span = document.createElement('span');
@@ -167,8 +167,8 @@ export function initStatsFilterBar(
 	}
 }
 
-(globalThis as any).EQUIPMENT_CATEGORIES = EQUIPMENT_CATEGORIES;
-(globalThis as any).ENEMY_FACTIONS = ENEMY_FACTIONS;
-(globalThis as any).getEquipmentCategoryLabel = getEquipmentCategoryLabel;
-(globalThis as any).getEnemyFactionLabel = getEnemyFactionLabel;
-(globalThis as any).initStatsFilterBar = initStatsFilterBar;
+window.EQUIPMENT_CATEGORIES = EQUIPMENT_CATEGORIES;
+window.ENEMY_FACTIONS = ENEMY_FACTIONS;
+window.getEquipmentCategoryLabel = getEquipmentCategoryLabel;
+window.getEnemyFactionLabel = getEnemyFactionLabel;
+window.initStatsFilterBar = initStatsFilterBar;

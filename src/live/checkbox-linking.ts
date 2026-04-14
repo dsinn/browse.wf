@@ -26,11 +26,11 @@ function applySequentialGroup(element: HTMLElement, nowChecked: boolean): void {
 
 	if (nowChecked) {
 		for (let i = 0; i < idx; i++) {
-			(globalThis as any).setCompletionToggle(siblings[i], true);
+			window.setCompletionToggle!(siblings[i], true);
 		}
 	} else {
 		for (let i = idx + 1; i < siblings.length; i++) {
-			(globalThis as any).setCompletionToggle(siblings[i], false);
+			window.setCompletionToggle!(siblings[i], false);
 		}
 	}
 }
@@ -53,11 +53,11 @@ function autocheckLinkedBoxes(element: HTMLElement, nowChecked: boolean): void {
 	}
 
 	const checkboxes = [...target.querySelectorAll<HTMLAnchorElement>('.completion-check')];
-	const currentCount = checkboxes.filter(checkbox => (globalThis as any).isOidMarkedAsCompleted(checkbox.dataset.oid)).length;
+	const currentCount = checkboxes.filter(checkbox => window.isOidMarkedAsCompleted!(checkbox.dataset.oid!)).length;
 	const targetCount = Math.min(Math.max(currentCount + (nowChecked ? count : -count), 0), checkboxes.length);
 
 	for (const [i, checkbox] of checkboxes.entries()) {
-		(globalThis as any).setCompletionToggle(checkbox, i < targetCount);
+		window.setCompletionToggle!(checkbox, i < targetCount);
 	}
 }
 
@@ -66,4 +66,4 @@ export function applyCheckboxLinking(element: HTMLElement, nowChecked: boolean):
 	autocheckLinkedBoxes(element, nowChecked);
 }
 
-(globalThis as any).applyCheckboxLinking = applyCheckboxLinking;
+window.applyCheckboxLinking = applyCheckboxLinking;

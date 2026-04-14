@@ -101,8 +101,8 @@ export function initializeSettingsButtons(): void {
 			saveToLocalStorage();
 
 			// Trigger cloud sync if available
-			if ((globalThis as any).triggerCloudSync) {
-				(globalThis as any).triggerCloudSync();
+			if (window.triggerCloudSync) {
+				window.triggerCloudSync();
 			}
 
 			btn.textContent = 'Saved!';
@@ -136,12 +136,12 @@ export function initializeSettingsButtons(): void {
 			loadFromLocalStorage();
 
 			// Update display
-			if ('arbys' in globalThis) {
-				(globalThis as any).updateLog();
+			if ('arbys' in window) {
+				window.updateLog?.();
 			}
 
 			// Update URL hash to match loaded settings
-			(globalThis as any).saveSettings?.();
+			window.saveSettings?.();
 
 			btn.textContent = 'Loaded!';
 			setTimeout(() => {
@@ -173,4 +173,4 @@ globalThis.addEventListener('cloud-sync-pulled', () => {
 	checkLoadButtonState();
 });
 
-(globalThis as any).initializeSettingsButtons = initializeSettingsButtons;
+window.initializeSettingsButtons = initializeSettingsButtons;

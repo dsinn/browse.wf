@@ -60,5 +60,5 @@ export async function waitForCloudSync(): Promise<string> {
 	});
 }
 
-(globalThis as any).triggerCloudSync = triggerCloudSync;
-(globalThis as any).triggerCloudSyncWithDebounce = triggerCloudSyncWithDebounce;
+window.triggerCloudSync = triggerCloudSync;
+window.triggerCloudSyncWithDebounce = triggerCloudSyncWithDebounce;

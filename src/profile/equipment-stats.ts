@@ -44,7 +44,7 @@ function augmentArchwingName(nameCell: HTMLTableCellElement): void {
 	wrap.className = 'item-name-wrap';
 	const img = document.createElement('img');
 	img.className = 'item-name-icon';
-	(globalThis as any).setImageSource(img, ARCHWING_ICON);
+	window.setImageSource(img, ARCHWING_ICON);
 	const iconWrap = document.createElement('span');
 	iconWrap.className = 'item-name-icon-wrap';
 	addTooltip(iconWrap, 'Archwing');
@@ -116,4 +116,4 @@ export async function augmentEquipmentStats(profile: any): Promise<void> {
 	renumber();
 }
 
-(globalThis as any).augmentEquipmentStats = augmentEquipmentStats;
+window.augmentEquipmentStats = augmentEquipmentStats;

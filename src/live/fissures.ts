@@ -41,14 +41,14 @@ function buildFissureRow(
 	// Expiry column
 	{
 		const td = document.createElement('td');
-		td.append((globalThis as any).createExpiryBadge(fissure.Expiry.$date.$numberLong));
+		td.append(window.createExpiryBadge(fissure.Expiry.$date.$numberLong));
 		tr.append(td);
 	}
 
 	// Mission type + Level range column
 	{
 		const td = document.createElement('td');
-		td.textContent = (globalThis as any).toTitleCase(dict[node.missionName]);
+		td.textContent = window.toTitleCase(dict[node.missionName]);
 		if (cardName === 'rj-fissures') {
 			// Void Storms: show level range with +10 adjustment
 			const adjustedMin = (node.minEnemyLevel as number) + 10;
@@ -94,7 +94,7 @@ function buildLocationCell(dict: Record<string, string>, node: any): HTMLTableCe
 
 export async function updateFissures(forceRender = false) {
 	const [dict, ExportRegions, ExportFactions] = await Promise.all([
-		(globalThis as any).getDictPromise() as Promise<Record<string, string>>,
+		window.getDictPromise(),
 		fetchExport('ExportRegions'),
 		fetchExport('ExportFactions'),
 	]);
@@ -103,7 +103,7 @@ export async function updateFissures(forceRender = false) {
 	// (expiry-based re-renders handle removals; we only need to catch additions here)
 	const now = Date.now();
 	let maxActivation = 0;
-	for (const f of [...(globalThis as any).worldState.ActiveMissions, ...(globalThis as any).worldState.VoidStorms]) {
+	for (const f of [...(window as any).worldState.ActiveMissions, ...(window as any).worldState.VoidStorms]) {
 		const activation = Number.parseInt(f.Activation.$date.$numberLong, 10);
 		if (activation <= now && now < Number.parseInt(f.Expiry.$date.$numberLong, 10)) {
 			maxActivation = Math.max(maxActivation, activation);
@@ -117,7 +117,7 @@ export async function updateFissures(forceRender = false) {
 	latestRenderedFissureTime = maxActivation;
 
 	const fissures: any[] = [];
-	for (const fissure of (globalThis as any).worldState.ActiveMissions) {
+	for (const fissure of (window as any).worldState.ActiveMissions) {
 		fissures.push({
 			Category: fissure.Hard ? 'sp-fissures' : 'fissures',
 			Hard: fissure.Hard,
@@ -128,7 +128,7 @@ export async function updateFissures(forceRender = false) {
 		});
 	}
 
-	for (const fissure of (globalThis as any).worldState.VoidStorms) {
+	for (const fissure of (window as any).worldState.VoidStorms) {
 		fissures.push({
 			Category: 'rj-fissures',
 			Hard: false,
@@ -207,4 +207,4 @@ export async function updateFissures(forceRender = false) {
 	document.querySelector('#rj-fissures-table')!.append(tbody['rj-fissures']);
 }
 
-(globalThis as any).updateFissures = updateFissures;
+window.updateFissures = updateFissures;

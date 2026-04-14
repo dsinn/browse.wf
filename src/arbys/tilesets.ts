@@ -7,7 +7,7 @@ import type {IRegion} from 'warframe-public-export-plus';
  * Appends the formatted tileset name to a log entry span, if the node has one.
  */
 export function appendTilesetText(span: HTMLElement, node: IRegion): void {
-	const formattedTileset = (globalThis as any).formatTileset((globalThis as any).getTileset(node)) as string;
+	const formattedTileset = window.formatTileset!(window.getTileset!(node));
 	if (formattedTileset) {
 		span.textContent += `, ${formattedTileset}`;
 	}
@@ -18,7 +18,7 @@ export function appendTilesetText(span: HTMLElement, node: IRegion): void {
  * Returns false if the checkbox exists and is unchecked.
  */
 export function isTilesetChecked(node: IRegion): boolean {
-	const tileset = (globalThis as any).getTileset(node) as string | undefined;
+	const tileset = window.getTileset!(node);
 	if (!tileset) {
 		return true;
 	}
@@ -37,7 +37,7 @@ export function updateTilesetNextOccurrence(
 	dateText: string,
 	detailText: string,
 ): void {
-	const tileset = (globalThis as any).getTileset(node) as string | undefined;
+	const tileset = window.getTileset!(node);
 	if (!tileset) {
 		return;
 	}
@@ -56,6 +56,6 @@ export function updateTilesetNextOccurrence(
 	}
 }
 
-(globalThis as any).appendTilesetText = appendTilesetText;
-(globalThis as any).isTilesetChecked = isTilesetChecked;
-(globalThis as any).updateTilesetNextOccurrence = updateTilesetNextOccurrence;
+window.appendTilesetText = appendTilesetText;
+window.isTilesetChecked = isTilesetChecked;
+window.updateTilesetNextOccurrence = updateTilesetNextOccurrence;

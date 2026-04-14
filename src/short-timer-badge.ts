@@ -133,5 +133,5 @@ export function initializeShortTimerBadges(): void {
 	}
 }
 
-(globalThis as any).createShortTimerBadge = createShortTimerBadge;
-(globalThis as any).initializeShortTimerBadges = initializeShortTimerBadges;
+window.createShortTimerBadge = createShortTimerBadge;
+window.initializeShortTimerBadges = initializeShortTimerBadges;

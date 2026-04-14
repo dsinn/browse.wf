@@ -26,6 +26,6 @@ export function pascalToTitleCase(string_: string): string {
 	return string_.replaceAll(/(?<=[a-z])(?=[A-Z])/gu, ' ');
 }
 
-(globalThis as any).escapeHtml = escapeHtml;
-(globalThis as any).pluralize = pluralize;
-(globalThis as any).toTitleCase = toTitleCase;
+window.escapeHtml = escapeHtml;
+window.pluralize = pluralize;
+window.toTitleCase = toTitleCase;

@@ -81,6 +81,6 @@ export function resolveDescentChallenges(
 
 // Expose globals for browser classic scripts; guard allows this file to run in Node.js too
 if (globalThis.window !== undefined) {
-	(globalThis as any).resolveDescentChallenges = resolveDescentChallenges;
-	(globalThis as any).ARENA_EMOJI = ARENA_EMOJI;
+	window.resolveDescentChallenges = resolveDescentChallenges;
+	window.ARENA_EMOJI = ARENA_EMOJI;
 }

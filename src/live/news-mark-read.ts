@@ -210,9 +210,9 @@ export function initializeMarkAsRead(): void {
 	}
 }
 
-(globalThis as any).initializeMarkAsRead = initializeMarkAsRead;
-(globalThis as any).isNewsItemRead = isNewsItemRead;
-(globalThis as any).markAllNewsAsRead = markAllNewsAsRead;
-(globalThis as any).markNewsItemAsRead = markNewsItemAsRead;
-(globalThis as any).pruneStaleNewsRead = pruneStaleNewsRead;
-(globalThis as any).setNewsItemData = setNewsItemData;
+window.initializeMarkAsRead = initializeMarkAsRead;
+window.isNewsItemRead = isNewsItemRead;
+window.markAllNewsAsRead = markAllNewsAsRead;
+window.markNewsItemAsRead = markNewsItemAsRead;
+window.pruneStaleNewsRead = pruneStaleNewsRead;
+window.setNewsItemData = setNewsItemData;

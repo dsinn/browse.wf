@@ -41,8 +41,8 @@ const initialProfilePromise = cloudSyncEvent.then(async () => { // eslint-disabl
 });
 
 // Expose promises so profile.ts can include them in its Promise.all
-(globalThis as any).cloudSyncEvent = cloudSyncEvent;
-(globalThis as any).initialProfilePromise = initialProfilePromise;
+window.cloudSyncEvent = cloudSyncEvent;
+window.initialProfilePromise = initialProfilePromise;
 
 let profileLoadedManually = false;
 
@@ -85,7 +85,7 @@ function updateRefreshAlert(): void {
 function showRateLimitNotice(expiryMs: number): void {
 	const countdown = document.querySelector('#rate-limit-countdown');
 	if (countdown) {
-		countdown.replaceChildren((globalThis as any).createShortTimerBadge(Math.floor(expiryMs / 1000), 'Pending Refresh'));
+		countdown.replaceChildren(window.createShortTimerBadge!(Math.floor(expiryMs / 1000), 'Pending Refresh'));
 	}
 
 	document.querySelector('#rate-limit-notice')?.classList.remove('d-none');
@@ -176,7 +176,7 @@ function updateProfileAge(): void {
 }
 
 function fetchAndRenderProfile(platform: string, accountId: string, fromEeLog: boolean): void {
-	const parameters = (globalThis as any).__profileParams as URLSearchParams;
+	const parameters = window.__profileParams!;
 	const statusElement = document.querySelector('#status');
 	const statusSpan = document.querySelector('#status span');
 	if (statusSpan) {
@@ -218,16 +218,16 @@ function fetchAndRenderProfile(platform: string, accountId: string, fromEeLog: b
 			localStorage.setItem(NEXT_FETCH_AVAILABLE_AT_STORAGE_KEY, nextFetchAvailableAt.toString());
 		}
 
-		(globalThis as any).profile = data;
+		window.profile = data;
 		if (fromEeLog) {
 			document.querySelector('#profile-nav')?.classList.remove('d-none');
-			(globalThis as any).activateTab(parameters.has('tab') ? parameters.get('tab') : 'fashion');
+			window.activateTab!(parameters.has('tab') ? parameters.get('tab')! : 'fashion');
 			if (!parameters.has('tab')) {
 				location.hash = 'tab=fashion';
 			}
 		}
 
-		(globalThis as any).renderProfile();
+		window.renderProfile!();
 
 		profileLoadedManually = true;
 		updateStepStatus('#step2-container', true);
@@ -244,7 +244,7 @@ function fetchAndRenderProfile(platform: string, accountId: string, fromEeLog: b
 		localStorage.setItem(PROFILE_TIMESTAMP_STORAGE_KEY, Date.now().toString());
 		updateProfileAge();
 
-		(globalThis as any).triggerCloudSync?.();
+		window.triggerCloudSync?.();
 
 		document.querySelector('#refresh-alert')?.classList.add('d-none');
 		statusElement?.classList.add('d-none');
@@ -286,7 +286,7 @@ async function loadEeLog(file?: File): Promise<void> {
 			localStorage.setItem(ACCOUNT_ID_STORAGE_KEY, accountId);
 			updateRefreshAlert();
 
-			if ((globalThis as any).__showAutoFetchFlow) {
+			if (window.__showAutoFetchFlow) {
 				fetchAndRenderProfile(platformSelect.value, accountId, true);
 			} else {
 				const accountIdInput = document.querySelector<HTMLInputElement>('#account-id');
@@ -310,7 +310,7 @@ async function loadEeLog(file?: File): Promise<void> {
 }
 
 async function loadProfile(file?: File): Promise<void> {
-	const parameters = (globalThis as any).__profileParams as URLSearchParams;
+	const parameters = window.__profileParams!;
 
 	if (!file) {
 		return;
@@ -318,10 +318,10 @@ async function loadProfile(file?: File): Promise<void> {
 
 	try {
 		const data = JSON.parse(await file.text());
-		(globalThis as any).profile = data;
+		window.profile = data;
 		document.querySelector('#profile-nav')?.classList.remove('d-none');
-		(globalThis as any).activateTab(parameters.has('tab') ? parameters.get('tab') : 'fashion');
-		(globalThis as any).renderProfile();
+		window.activateTab!(parameters.has('tab') ? parameters.get('tab')! : 'fashion');
+		window.renderProfile!();
 		document.querySelector('#profile-name')?.scrollIntoView({behavior: 'smooth'});
 
 		profileLoadedManually = true;
@@ -331,7 +331,7 @@ async function loadProfile(file?: File): Promise<void> {
 		localStorage.setItem(PROFILE_TIMESTAMP_STORAGE_KEY, Date.now().toString());
 		updateProfileAge();
 
-		(globalThis as any).triggerCloudSync?.();
+		window.triggerCloudSync?.();
 	} catch (error) {
 		console.error(error);
 		alert('Failed to parse profile file: ' + (error as Error).message);
@@ -451,7 +451,7 @@ function profileWorkflowReady(syncResult: string, showAutoFetchFlow: boolean): v
 		showRateLimitNotice(storedNextFetch);
 	}
 
-	(globalThis as any).__showAutoFetchFlow = showAutoFetchFlow;
+	window.__showAutoFetchFlow = showAutoFetchFlow;
 
 	profileLoadedManually = false;
 
@@ -463,13 +463,13 @@ function profileWorkflowReady(syncResult: string, showAutoFetchFlow: boolean): v
 	}
 }
 
-(globalThis as any).copyWarframePath = copyWarframePath;
-(globalThis as any).fetchProfile = fetchProfile;
-(globalThis as any).loadEELog = loadEeLog;
-(globalThis as any).loadProfile = loadProfile;
-(globalThis as any).onAccountIdManualInput = onAccountIdManualInput;
-(globalThis as any).onDownloadLinkLeftClick = onDownloadLinkLeftClick;
-(globalThis as any).onDownloadLinkRightClick = onDownloadLinkRightClick;
-(globalThis as any).onPlatformChange = onPlatformChange;
-(globalThis as any).profileWorkflowReady = profileWorkflowReady;
-(globalThis as any).updateProfileAge = updateProfileAge;
+window.copyWarframePath = copyWarframePath;
+window.fetchProfile = fetchProfile;
+window.loadEELog = loadEeLog;
+window.loadProfile = loadProfile;
+window.onAccountIdManualInput = onAccountIdManualInput;
+window.onDownloadLinkLeftClick = onDownloadLinkLeftClick;
+window.onDownloadLinkRightClick = onDownloadLinkRightClick;
+window.onPlatformChange = onPlatformChange;
+window.profileWorkflowReady = profileWorkflowReady;
+window.updateProfileAge = updateProfileAge;

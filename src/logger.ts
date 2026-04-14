@@ -10,7 +10,7 @@
  * Production detection: VITE_ENV === 'production' (GitHub Pages build only)
  */
 
-const isProduction = () => (globalThis as any).__ENV__?.VITE_ENV === 'production';
+const isProduction = () => window.__ENV__?.VITE_ENV === 'production';
 
 /**
  * Returns a formatted timestamp as [YYYY-MM-DDTHH:mm:ss.sssZ]

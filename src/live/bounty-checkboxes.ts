@@ -21,7 +21,7 @@ export function updateBountyCheckboxes(): void {
 		let span = document.querySelector<HTMLElement>(`#${spanId}`);
 		if (span) {
 			for (const x of span.querySelectorAll('[data-bs-toggle=tooltip]')) {
-				globalThis.bootstrap?.Tooltip.getInstance(x)?.dispose();
+				window.bootstrap?.Tooltip.getInstance(x)?.dispose();
 			}
 
 			span.innerHTML = '';
@@ -43,4 +43,4 @@ export function updateBountyCheckboxes(): void {
 	}, nextDailyReset - Date.now());
 }
 
-(globalThis as any).updateBountyCheckboxes = updateBountyCheckboxes;
+window.updateBountyCheckboxes = updateBountyCheckboxes;

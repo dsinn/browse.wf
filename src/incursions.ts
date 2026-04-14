@@ -488,7 +488,7 @@ export async function init(): Promise<void> {
 	// Initialize Bootstrap tooltips for static elements once Bootstrap JS loads
 	window.addEventListener('load', () => {
 		for (const element of document.querySelectorAll('[data-bs-toggle="tooltip"]')) {
-			void new (globalThis as any).bootstrap.Tooltip(element);
+			void new window.bootstrap.Tooltip(element);
 		}
 	});
 
@@ -504,10 +504,10 @@ export async function loadData(): Promise<void> {
 		fetch('sp-incursions.txt').then(async response => response.text()),
 	]);
 
-	(globalThis as any).dict = dictData;
-	(globalThis as any).ExportFactions = factions;
-	(globalThis as any).ExportRegions = regions;
-	(globalThis as any).ExportImages = images;
+	(window as any).dict = dictData;
+	window.ExportFactions = factions;
+	window.ExportRegions = regions;
+	window.ExportImages = images;
 
 	incursions = incursionText.split('\n')
 		.map(line => line.split(';'))

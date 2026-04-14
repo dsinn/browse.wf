@@ -51,6 +51,13 @@ const config = [
 			'@typescript-eslint/no-unsafe-type-assertion': 'off',
 			// Build tooling (esbuild/Vitest) resolves extensionless imports; explicit .js not needed
 			'import-x/extensions': 'off',
+			// Src/ modules are browser-only by design (they touch document, localStorage, HTMLElement,
+			// etc.) and will never run in Node, workers, or Deno. The rule's motivation —
+			// environment-agnostic code — doesn't apply here. Disabling it allows `window.foo` for
+			// typed global property access, which TypeScript can enforce via `interface Window`
+			// augmentation. Using `globalThis.foo` instead would require `as any` to satisfy the
+			// compiler under strict mode, which defeats the purpose of having typed globals at all.
+			'unicorn/prefer-global-this': 'off',
 			// Array#toSorted() requires ES2023 but tsconfig targets ES2021
 			'unicorn/no-array-sort': 'off',
 			// Array#at() requires ES2022 but tsconfig targets ES2021

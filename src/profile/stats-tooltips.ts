@@ -28,13 +28,13 @@ export function addTimeStatTooltip(elm: HTMLElement, stat: string, value: number
 		const hours = Math.floor((totalSec % SECONDS_PER_DAY) / SECONDS_PER_HOUR);
 		const minutes = Math.floor((totalSec % SECONDS_PER_HOUR) / 60);
 		const seconds = totalSec % 60;
-		const p = (globalThis as any).pluralize;
+		const p = window.pluralize!;
 		elm.dataset.bsTitle = [p(days, 'day'), p(hours, 'hour'), p(minutes, 'minute'), p(seconds, 'second')].join(', ');
 	} else {
 		elm.dataset.bsTitle = `${Math.round(value).toLocaleString()} seconds`;
 	}
 
-	void new (globalThis as any).bootstrap.Tooltip(elm);
+	void new window.bootstrap.Tooltip(elm);
 }
 
 /**
@@ -43,7 +43,7 @@ export function addTimeStatTooltip(elm: HTMLElement, stat: string, value: number
  * Called after the upstream textContent assignment for non-time stats.
  */
 export function addStatPercentage(stat: string, value: number): void {
-	const stats = (globalThis as any).profile?.Stats ?? {};
+	const stats = window.profile?.Stats ?? {};
 
 	if (MISSION_STATS.includes(stat)) {
 		const total = MISSION_STATS.reduce((sum, key) => sum + (Number(stats[key]) || 0), 0);
@@ -70,9 +70,9 @@ export function addCipherAvgTooltip(elm: HTMLElement, profile: any): void {
 	elm.textContent = `${avgCipherTime.toFixed(3)}s`;
 	addTooltipDecoration(elm);
 	elm.dataset.bsTitle = `${avgCipherTime} seconds`;
-	void new (globalThis as any).bootstrap.Tooltip(elm);
+	void new window.bootstrap.Tooltip(elm);
 }
 
-(globalThis as any).addTimeStatTooltip = addTimeStatTooltip;
-(globalThis as any).addStatPercentage = addStatPercentage;
-(globalThis as any).addCipherAvgTooltip = addCipherAvgTooltip;
+window.addTimeStatTooltip = addTimeStatTooltip;
+window.addStatPercentage = addStatPercentage;
+window.addCipherAvgTooltip = addCipherAvgTooltip;

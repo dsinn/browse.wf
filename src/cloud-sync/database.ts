@@ -11,8 +11,8 @@ import {logger} from '../logger.js';
 // Environment variables - support both local dev and production
 // Local dev: scripts/render-pages.js generates env-config.js from .env
 // Production (GitHub Pages): build-gh-pages.js generates env-config.js from GitHub Actions env vars
-const databaseUrl = (globalThis as any).__ENV__?.VITE_DATABASE_URL;
-const databaseKey = (globalThis as any).__ENV__?.VITE_DATABASE_ANON_KEY;
+const databaseUrl = window.__ENV__?.VITE_DATABASE_URL;
+const databaseKey = window.__ENV__?.VITE_DATABASE_ANON_KEY;
 
 // Only create Supabase client if credentials are configured
 // When missing, all usage sites check isDatabaseConfigured() before accessing db

@@ -6,15 +6,15 @@ const STALE_DATA_RETRY_MS = 5000;
 let weeklyExpiry = 0;
 
 export function updateWeekly(): void {
-	if (!(globalThis as any).worldState?.Conquests) {
+	if (!(window as any).worldState?.Conquests) {
 		console.error('worldState.Conquests not available for updateWeekly');
 		setTimeout(updateWeekly, STALE_DATA_RETRY_MS);
 		return;
 	}
 
-	Promise.all([(globalThis as any).dicts_promise, (globalThis as any).ExportMissionTypes_promise]).then(async () => {
-		const labConquest = (globalThis as any).worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-		const hexConquest = (globalThis as any).worldState.Conquests.find((c: any) => c.Type === 'CT_HEX');
+	Promise.all([window.dicts_promise, window.ExportMissionTypes_promise]).then(async () => {
+		const labConquest = (window as any).worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
+		const hexConquest = (window as any).worldState.Conquests.find((c: any) => c.Type === 'CT_HEX');
 
 		let newWeeklyExpiry: number;
 		if (labConquest) {
@@ -53,20 +53,20 @@ export function updateWeekly(): void {
 			}
 
 			if (subscribed.length > 0) {
-				(globalThis as any).sendNotification('It\'s a new week. ' + subscribed.join(', ') + ' refreshed.');
+				window.sendNotification!('It\'s a new week. ' + subscribed.join(', ') + ' refreshed.');
 			}
 		}
 
 		weeklyExpiry = newWeeklyExpiry;
 
-		const osdict = await (globalThis as any).getOSDictPromise() as Record<string, string>;
+		const osdict = await window.getOSDictPromise!();
 
 		if (labConquest) {
-			(globalThis as any).setDatum('labConquest-header', osdict['/Lotus/Language/Conquest/SolarMapLabConquestNode'], weeklyExpiry);
+			window.setDatum!('labConquest-header', osdict['/Lotus/Language/Conquest/SolarMapLabConquestNode'], weeklyExpiry);
 			document.querySelector('#labConquest-header')!.innerHTML += ' ';
-			document.querySelector('#labConquest-header')!.append((globalThis as any).createCompletionToggle('labconquest-' + weeklyExpiry));
-			await (globalThis as any).renderArchimedeaTable(
-				document.querySelector('#labConquest-body'),
+			document.querySelector('#labConquest-header')!.append(window.createCompletionToggle('labconquest-' + weeklyExpiry));
+			await window.renderArchimedeaTable!(
+				document.querySelector('#labConquest-body')!,
 				labConquest,
 				'CT_LAB',
 				'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
@@ -74,11 +74,11 @@ export function updateWeekly(): void {
 		}
 
 		if (hexConquest) {
-			(globalThis as any).setDatum('hexConquest-header', osdict['/Lotus/Language/1999Echoes/1999HexConquestNode'], weeklyExpiry);
+			window.setDatum!('hexConquest-header', osdict['/Lotus/Language/1999Echoes/1999HexConquestNode'], weeklyExpiry);
 			document.querySelector('#hexConquest-header')!.innerHTML += ' ';
-			document.querySelector('#hexConquest-header')!.append((globalThis as any).createCompletionToggle('hexconquest-' + weeklyExpiry));
-			await (globalThis as any).renderArchimedeaTable(
-				document.querySelector('#hexConquest-body'),
+			document.querySelector('#hexConquest-header')!.append(window.createCompletionToggle('hexconquest-' + weeklyExpiry));
+			await window.renderArchimedeaTable!(
+				document.querySelector('#hexConquest-body')!,
 				hexConquest,
 				'CT_HEX',
 				'/Lotus/Language/Conquest/MissionVariant_HexConquest_',
@@ -114,5 +114,5 @@ export function filterWeeklyMissions() {
 	}
 }
 
-(globalThis as any).updateWeekly = updateWeekly;
-(globalThis as any).filterWeeklyMissions = filterWeeklyMissions;
+window.updateWeekly = updateWeekly;
+window.filterWeeklyMissions = filterWeeklyMissions;

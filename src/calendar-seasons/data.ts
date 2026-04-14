@@ -174,9 +174,9 @@ export async function resolveCalendarSeasonDays(
 
 // Expose globals for browser classic scripts; guard allows this file to run in Node.js too
 if (globalThis.window !== undefined) {
-	(globalThis as any).getSeasonLabel = getSeasonLabel;
-	(globalThis as any).resolveCalendarSeasonDays = resolveCalendarSeasonDays;
-	(globalThis as any).formatSeasonDay = formatSeasonDay;
-	(globalThis as any).camelToWords = camelToWords;
-	(globalThis as any).SEASON_LABELS = SEASON_LABELS;
+	window.getSeasonLabel = getSeasonLabel;
+	window.resolveCalendarSeasonDays = resolveCalendarSeasonDays;
+	window.formatSeasonDay = formatSeasonDay;
+	window.camelToWords = camelToWords;
+	window.SEASON_LABELS = SEASON_LABELS;
 }

@@ -21,10 +21,10 @@ export function refreshFilterStatus(elm: HTMLElement): void {
 	span.className = isOpen ? 'filter-gear-enabled' : 'filter-gear-disabled';
 
 	// Add tooltip using existing addTooltip function
-	(globalThis as any).addTooltip?.(span, 'Widget settings');
+	window.addTooltip?.(span, 'Widget settings');
 
 	for (const x of elm.querySelectorAll('[data-bs-toggle=tooltip]')) {
-		globalThis.bootstrap?.Tooltip.getInstance(x)?.dispose();
+		window.bootstrap?.Tooltip.getInstance(x)?.dispose();
 	}
 
 	elm.innerHTML = '';
@@ -63,7 +63,7 @@ export function initializeFilterToggles(): void {
 					const collapseToggle = document.querySelector<HTMLElement>(`[data-collapse-toggle="${cardName}"]`);
 					if (collapseToggle?.classList.contains('engaged')) {
 						localStorage.removeItem(`live.collapse.${cardName}`);
-						(globalThis as any).refreshCollapseStatus?.(collapseToggle);
+						window.refreshCollapseStatus?.(collapseToggle);
 
 						// Trigger cloud sync if available
 						triggerCloudSync();
@@ -124,7 +124,7 @@ export function isFilterEnabled(cardName: string, filterType: string): boolean {
 	return filterState !== '0';
 }
 
-(globalThis as any).refreshFilterStatus = refreshFilterStatus;
-(globalThis as any).isFilterEnabled = isFilterEnabled;
-(globalThis as any).initializeCardFilters = initializeCardFilters;
-(globalThis as any).initializeFilterToggles = initializeFilterToggles;
+window.refreshFilterStatus = refreshFilterStatus;
+window.isFilterEnabled = isFilterEnabled;
+window.initializeCardFilters = initializeCardFilters;
+window.initializeFilterToggles = initializeFilterToggles;

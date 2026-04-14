@@ -14,7 +14,7 @@ declare function createExpiryBadge(expiryMs: number): Node;
 declare function createCompletionToggle(oid: string): Node;
 
 export async function updateCalendarSeason(): Promise<void> {
-	const seasons: any[] = (globalThis as any).worldState?.KnownCalendarSeasons ?? [];
+	const seasons: any[] = (window as any).worldState?.KnownCalendarSeasons ?? [];
 	if (seasons.length === 0) {
 		setTimeout(() => {
 			void updateCalendarSeason();
@@ -41,7 +41,7 @@ export async function updateCalendarSeason(): Promise<void> {
 	}
 
 	// Required for common.js' setImageSource, must be set before renderCalendarSeasonPane runs
-	(globalThis as any).ExportImages = await fetchExport('ExportImages');
+	window.ExportImages = await fetchExport('ExportImages');
 
 	// Inject expiry badge into header
 	const expirySpan = document.querySelector('#calendar-season-expiry');
@@ -65,4 +65,4 @@ export async function updateCalendarSeason(): Promise<void> {
 	}
 }
 
-(globalThis as any).updateCalendarSeason = updateCalendarSeason;
+window.updateCalendarSeason = updateCalendarSeason;

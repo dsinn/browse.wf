@@ -1,9 +1,9 @@
 export function appendSortieLocation(td: HTMLTableCellElement, node: any, tileset: string): void {
 	td.append(document.createElement('br'));
 	const locationElement = document.createElement('abbr');
-	locationElement.textContent = `${(globalThis as any).dict[node.name]}, ${(globalThis as any).dict[node.systemName]}`;
-	(globalThis as any).addTooltip(locationElement, (globalThis as any).formatTileset(tileset) as string);
+	locationElement.textContent = `${(window as any).dict[node.name]}, ${(window as any).dict[node.systemName]}`;
+	window.addTooltip!(locationElement, window.formatTileset!(tileset));
 	td.append(locationElement);
 }
 
-(globalThis as any).appendSortieLocation = appendSortieLocation;
+window.appendSortieLocation = appendSortieLocation;

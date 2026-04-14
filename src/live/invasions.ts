@@ -139,14 +139,14 @@ function buildPercentageCell(percentage: number, isDuplicate: boolean, nodeLabel
 
 async function buildRewardCell(item: {ItemType: string; ItemCount: number}): Promise<HTMLTableCellElement> {
 	const td = document.createElement('td');
-	td.textContent = `${item.ItemCount > 1 ? `${String(item.ItemCount)}x ` : ''}${String(await (globalThis as any).getItemNamePromise(item.ItemType))}`;
+	td.textContent = `${item.ItemCount > 1 ? `${String(item.ItemCount)}x ` : ''}${String(await window.getItemNamePromise!(item.ItemType))}`;
 	return td;
 }
 
 function buildToggleCell(invasion: InvasionData, isDuplicate: boolean): HTMLTableCellElement {
 	const td = document.createElement('td');
 	if (!isDuplicate) {
-		td.append((globalThis as any).createCompletionToggle(invasion._id.$oid));
+		td.append(window.createCompletionToggle(invasion._id.$oid));
 	}
 
 	return td;
@@ -169,7 +169,7 @@ function buildInvasionHeading(invasion: InvasionData, node: any, nodeLabel: stri
 	if (node.missionType === 'MT_ASSASSINATION') {
 		const img = document.createElement('img');
 		img.className = 'invasion-boss-icon ms-1';
-		(globalThis as any).setImageSource(img, '/Lotus/Interface/Icons/Sigils/Phorid.png');
+		window.setImageSource(img, '/Lotus/Interface/Icons/Sigils/Phorid.png');
 		addTooltip(img, 'Assassination (Phorid)');
 		th.append(img);
 	} else if (invasion.Node === 'SolNode65') {
@@ -205,7 +205,7 @@ async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowE
 		tr.classList.add('d-none');
 		const td = document.createElement('td');
 		if (!isDuplicate) {
-			td.append((globalThis as any).createCompletionToggle(invasion._id.$oid));
+			td.append(window.createCompletionToggle(invasion._id.$oid));
 		}
 
 		tr.append(td);
@@ -260,18 +260,18 @@ async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowE
 }
 
 export async function updateInvasions(): Promise<void> {
-	if (!(globalThis as any).worldState?.Invasions) {
+	if (!(window as any).worldState?.Invasions) {
 		return;
 	}
 
 	const [[dict], ExportRegions, exportImages] = await Promise.all([
-		Promise.all([(globalThis as any).getDictPromise(), (globalThis as any).getOSDictPromise()]),
+		Promise.all([window.getDictPromise(), window.getOSDictPromise!()]),
 		fetchExport('ExportRegions'),
 		fetchExport('ExportImages'),
 	]);
-	(globalThis as any).ExportImages = exportImages;
+	window.ExportImages = exportImages;
 
-	const activeInvasions = ((globalThis as any).worldState as IWorldState).Invasions!.filter((inv: InvasionData) => !inv.Completed);
+	const activeInvasions = ((window as any).worldState as IWorldState).Invasions!.filter((inv: InvasionData) => !inv.Completed);
 	const duplicates = getDuplicateInvasionOids(activeInvasions);
 	const percentages = new Map<string, number>(activeInvasions.map((inv: InvasionData) => [inv._id.$oid, calculatePercentage(inv)]));
 	const sorted = sortInvasions(activeInvasions, duplicates, percentages);
@@ -321,7 +321,7 @@ export async function updateInvasions(): Promise<void> {
 	const invasionsTable = document.querySelector('#invasions-table');
 	if (invasionsTable) {
 		for (const x of invasionsTable.querySelectorAll('[data-bs-toggle=tooltip]')) {
-			(globalThis.bootstrap as any).Tooltip.getInstance(x).dispose();
+			(window.bootstrap).Tooltip.getInstance(x).dispose();
 		}
 
 		invasionsTable.innerHTML = '';
@@ -329,7 +329,7 @@ export async function updateInvasions(): Promise<void> {
 	}
 }
 
-(globalThis as any).calculatePercentage = calculatePercentage;
-(globalThis as any).createInvasionProgressBar = createInvasionProgressBar;
-(globalThis as any).isInvasionRewardShown = isInvasionRewardShown;
-(globalThis as any).updateInvasions = updateInvasions;
+window.calculatePercentage = calculatePercentage;
+window.createInvasionProgressBar = createInvasionProgressBar;
+window.isInvasionRewardShown = isInvasionRewardShown;
+window.updateInvasions = updateInvasions;

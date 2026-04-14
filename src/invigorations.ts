@@ -260,8 +260,8 @@ export function initInvigorationsFromCache(inventoryDataUsed: boolean): void {
 	}
 }
 
-(globalThis as any).getWeekIndex = getWeekIndex;
-(globalThis as any).initInvigorations = initInvigorations;
-(globalThis as any).initInvigorationsFromCache = initInvigorationsFromCache;
-(globalThis as any).saveToCache = saveToCache;
-(globalThis as any).showResults = showResults;
+window.getWeekIndex = getWeekIndex;
+window.initInvigorations = initInvigorations;
+window.initInvigorationsFromCache = initInvigorationsFromCache;
+window.saveToCache = saveToCache;
+window.showResults = showResults;

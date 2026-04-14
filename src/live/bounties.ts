@@ -1,14 +1,14 @@
 export function renderAllyIcon(allyName: string, allyCell: Element): void {
 	const allyImg = document.createElement('img');
 	allyImg.className = 'ally-icon';
-	(globalThis as any).setImageSource(allyImg, `/Lotus/Interface/Icons/Player/${allyName}PixelGlyph.png`);
-	(globalThis as any).addTooltip(allyImg, allyName);
+	window.setImageSource(allyImg, `/Lotus/Interface/Icons/Player/${allyName}PixelGlyph.png`);
+	window.addTooltip!(allyImg, allyName);
 	allyCell.innerHTML = '';
 	allyCell.append(allyImg);
 }
 
 export function applyBountyFilters(syndicateTag: string, rows: NodeListOf<Element>): void {
-	const minTier = (globalThis as any).getMinimumTier(syndicateTag) as number;
+	const minTier = window.getMinimumTier!(syndicateTag);
 	const sectionHidden = minTier < 1;
 	document.querySelector(`#${syndicateTag}-name`)?.classList.toggle('d-none', sectionHidden);
 
@@ -16,7 +16,7 @@ export function applyBountyFilters(syndicateTag: string, rows: NodeListOf<Elemen
 	for (const [i, row] of [...rows].entries()) {
 		const tier = i + 1; // Tier 1 is index 0, Tier 2 is index 1, etc.
 		const missionType = (row as HTMLElement).dataset.missionType ?? '';
-		const missionVisible = !missionType || (globalThis as any).isBountyMissionTypeEnabled(syndicateTag, missionType) as boolean;
+		const missionVisible = !missionType || window.isBountyMissionTypeEnabled!(syndicateTag, missionType);
 		const hidden = sectionHidden || tier < minTier || !missionVisible;
 		row.classList.toggle('d-none', hidden);
 		if (!hidden) {
@@ -27,5 +27,5 @@ export function applyBountyFilters(syndicateTag: string, rows: NodeListOf<Elemen
 	document.querySelector(`#${syndicateTag}-empty`)?.classList.toggle('d-none', sectionHidden || anyVisible);
 }
 
-(globalThis as any).renderAllyIcon = renderAllyIcon;
-(globalThis as any).applyBountyFilters = applyBountyFilters;
+window.renderAllyIcon = renderAllyIcon;
+window.applyBountyFilters = applyBountyFilters;

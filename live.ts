@@ -182,6 +182,8 @@ declare global {
 				Seed: number;
 				Nodes: string[];
 			}[];
+			KnownCalendarSeasons?: any[];
+			EndlessXpSchedule?: any[];
 			Tmp: string;
 		}
 		redtext: { data: string; time: number }[];

@@ -8,39 +8,19 @@
 
 import {resolveDescentChallenges} from './data.js';
 
-type IMongoDate = {
-	$date: {
-		$numberLong: string;
-	};
-};
-
-type IDescent = {
-	Activation: IMongoDate;
-	Expiry: IMongoDate;
-	RandSeed: number;
-	Challenges: Array<{
-		Index: number;
-		Type: string;
-		Challenge: string;
-		Level: string;
-		Specs: string[];
-		Auras: string[];
-	}>;
-};
-
 /**
  * Updates the Descendia table with the currently active Descent rotation
  */
 export function updateDescendia(): void {
 	// WorldState must be available before calling this
-	if (!(globalThis as any).worldState?.Descents || (globalThis as any).worldState.Descents.length === 0) {
+	if (!(window as any).worldState?.Descents || (window as any).worldState.Descents.length === 0) {
 		setTimeout(updateDescendia, 5000);
 		return;
 	}
 
 	const now = Date.now();
 	// Find the active Descent (Activation <= now < Expiry)
-	const activeDescent: IDescent = (globalThis as any).worldState.Descents.find((d: IDescent) =>
+	const activeDescent: IDescent = (window as any).worldState.Descents.find((d: IDescent) =>
 		Number.parseInt(d.Activation.$date.$numberLong, 10) <= now && Number.parseInt(d.Expiry.$date.$numberLong, 10) > now);
 
 	if (!activeDescent) {
@@ -128,7 +108,7 @@ export function renderDescentChallenges(descent: IDescent, dict: Record<string, 
 			span.textContent = row.arenaEmoji;
 			span.dataset.bsToggle = 'tooltip';
 			span.dataset.bsTitle = row.arenaKey;
-			void new globalThis.bootstrap.Tooltip(span);
+			void new window.bootstrap.Tooltip(span);
 			td.append(span);
 
 			tr.append(td);
@@ -147,5 +127,5 @@ export function renderDescentChallenges(descent: IDescent, dict: Record<string, 
 	return tbody;
 }
 
-(globalThis as any).updateDescendia = updateDescendia;
-(globalThis as any).renderDescentChallenges = renderDescentChallenges;
+window.updateDescendia = updateDescendia;
+window.renderDescentChallenges = renderDescentChallenges;

@@ -8,15 +8,15 @@
 import {SECONDS_PER_DAY} from '../helpers/time-helpers.js';
 
 async function fetchRedText(): Promise<void> {
-	(globalThis as any).redtext = []; // Sentinel: prevents duplicate fetches
+	(window as any).redtext = []; // Sentinel: prevents duplicate fetches
 	return fetch('https://oracle.browse.wf/redtext.json')
 		.then(async response => response.json())
 		.then((data: Array<{data: string; time: number}>) => {
-			(globalThis as any).redtext = data;
+			(window as any).redtext = data;
 		})
 		.catch((error: unknown) => {
 			console.error(error);
-			(globalThis as any).redtext = undefined; // Allow retry on next trigger
+			(window as any).redtext = undefined; // Allow retry on next trigger
 		});
 }
 
@@ -25,7 +25,7 @@ export function updateRedText(): void {
 		return;
 	}
 
-	if (!(globalThis as any).redtext) {
+	if (!(window as any).redtext) {
 		void fetchRedText().then(() => {
 			updateRedText();
 		});
@@ -33,7 +33,7 @@ export function updateRedText(): void {
 	}
 
 	const cutoff = (Date.now() / 1000) - (30 * SECONDS_PER_DAY);
-	const items = ((globalThis as any).redtext as Array<{data: string; time: number}>)
+	const items = ((window as any).redtext as Array<{data: string; time: number}>)
 		.filter(item => item.time > cutoff)
 		.map(item => ({data: item.data.split('WALLOPS :')[1], time: item.time}))
 		.sort((a, b) => b.time - a.time);
@@ -57,8 +57,8 @@ export function updateRedText(): void {
 			const span = document.createElement('span');
 			span.className = 'badge text-bg-secondary';
 			span.dataset.activation = (item.time * 1000).toString();
-			span.textContent = (globalThis as any).formatActivation
-				? (globalThis as any).formatActivation(item.time * 1000)
+			span.textContent = window.formatActivation
+				? window.formatActivation(item.time * 1000)
 				: new Date(item.time * 1000).toLocaleString();
 			p.append(span);
 		}
@@ -76,7 +76,7 @@ export function updateRedText(): void {
 	body.lastElementChild!.classList.remove('mb-1');
 }
 
-(globalThis as any).updateRedText = updateRedText;
+window.updateRedText = updateRedText;
 
 // When the red-text card is expanded, trigger a fetch/render if not yet loaded.
 // Uses event delegation so the listener is active before DOMContentLoaded.

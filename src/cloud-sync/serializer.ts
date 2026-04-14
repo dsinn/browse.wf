@@ -28,7 +28,6 @@ export function setNestedValue(object: Record<string, any>, path: string, value:
 		current = current[key];
 	}
 
-	// eslint-disable-next-line unicorn/prefer-at -- .at() is ES2022; this project targets ES2021
 	current[keys[keys.length - 1]] = value;
 }
 

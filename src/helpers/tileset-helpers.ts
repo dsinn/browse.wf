@@ -6,7 +6,7 @@ let tilesetPrefixes: string[] | undefined;
 
 function getTilesetPrefixes(): string[] {
 	if (!tilesetPrefixes) {
-		const knownTilesets = [...new Set((Object.values((globalThis as any).ExportRegions as Record<string, IRegion>))
+		const knownTilesets = [...new Set((Object.values(window.ExportRegions as Record<string, IRegion>))
 			.map(n => n.tileset)
 			.filter((t): t is string => t !== undefined))];
 		// Sort longest-first so more specific prefixes (e.g. GrineerForestCaves) match before shorter ones (GrineerForest)
@@ -52,5 +52,5 @@ export function formatTileset(tileset: string | undefined): string {
 		.replaceAll(/(?<=[a-z])(?=[A-Z])/gu, ' ');
 }
 
-(globalThis as any).getTileset = getTileset;
-(globalThis as any).formatTileset = formatTileset;
+window.getTileset = getTileset;
+window.formatTileset = formatTileset;

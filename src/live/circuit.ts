@@ -27,7 +27,7 @@ type IEndlessXpEntry = {
 };
 
 export function updateCircuitChoices(): void {
-	const schedule: IEndlessXpEntry[] | undefined = (globalThis as any).worldState?.EndlessXpSchedule;
+	const schedule: IEndlessXpEntry[] | undefined = (window as any).worldState?.EndlessXpSchedule;
 	if (!schedule || schedule.length === 0) {
 		setTimeout(updateCircuitChoices, STALE_DATA_RETRY_MS);
 		return;
@@ -44,17 +44,17 @@ export function updateCircuitChoices(): void {
 
 	const expiry = Number.parseInt(active.Expiry.$date.$numberLong, 10);
 
-	(globalThis as any).setDatum('circuit-header', 'Weekly Missions', expiry);
+	window.setDatum!('circuit-header', 'Weekly Missions', expiry);
 
 	const clearAndSet = (id: string, key: string) => {
 		const element = document.querySelector(`#${id}`)!;
 
 		for (const node of element.querySelectorAll('[data-bs-toggle=tooltip]')) {
-			(globalThis as any).bootstrap?.Tooltip.getInstance(node)?.dispose();
+			window.bootstrap?.Tooltip.getInstance(node)?.dispose();
 		}
 
 		element.innerHTML = '';
-		element.append((globalThis as any).createCompletionToggle(key));
+		element.append(window.createCompletionToggle(key));
 	};
 
 	clearAndSet('circuit-frames-check', `circuit-normal-${expiry}`);
@@ -71,4 +71,4 @@ export function updateCircuitChoices(): void {
 	filterWeeklyMissions();
 }
 
-(globalThis as any).updateCircuitChoices = updateCircuitChoices;
+window.updateCircuitChoices = updateCircuitChoices;

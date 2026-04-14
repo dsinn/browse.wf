@@ -68,4 +68,4 @@ export async function renderCalendarSeasonPane(season: any): Promise<HTMLDivElem
 	return container;
 }
 
-(globalThis as any).renderCalendarSeasonPane = renderCalendarSeasonPane;
+window.renderCalendarSeasonPane = renderCalendarSeasonPane;

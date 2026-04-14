@@ -19,4 +19,4 @@ export function makeArchwingIcon(className?: string): HTMLImageElement {
 	return img;
 }
 
-(globalThis as any).makeArchwingIcon = makeArchwingIcon;
+window.makeArchwingIcon = makeArchwingIcon;

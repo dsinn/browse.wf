@@ -195,7 +195,7 @@ async function renderCalendarSeasonTabs(
 	const defaultSeasonIdx = Math.max(firstFutureSeasonIdx, 0);
 
 	// Required for common.js' setImageSource, must be set before renderCalendarSeasonPane runs
-	(globalThis as any).ExportImages = await fetchExport('ExportImages');
+	window.ExportImages = await fetchExport('ExportImages');
 
 	// Render all season panes in parallel (two copies: one for tabs, one for columns)
 	const [seasonPanesForTabs, seasonPanesForColumns] = await Promise.all([

@@ -3,17 +3,17 @@ import {fetchExport} from '../public-export-fetcher.js';
 
 export async function updateIncursionsLocalised() {
 	const [[dict, osdict], ExportRegions, ExportFactions] = await Promise.all([
-		Promise.all([(globalThis as any).getDictPromise(), (globalThis as any).getOSDictPromise()]),
+		Promise.all([window.getDictPromise(), window.getOSDictPromise!()]),
 		fetchExport('ExportRegions'),
 		fetchExport('ExportFactions'),
 	]);
 
-	(globalThis as any).setDatum('incursions-header', (globalThis as any).toTitleCase(osdict['/Lotus/Language/Labels/SteelPathDailies']), (globalThis as any).incursions_expiry);
+	window.setDatum!('incursions-header', window.toTitleCase(osdict['/Lotus/Language/Labels/SteelPathDailies']), (window as any).incursions_expiry);
 
 	const elms = document.querySelectorAll('#incursions-body span.d-block');
 	let visibleCount = 0;
 	for (let i = 0; i !== elms.length; ++i) {
-		const node = ExportRegions[(globalThis as any).incursions_today[i]];
+		const node = ExportRegions[(window as any).incursions_today[i]];
 
 		// Check if this mission type should be displayed (filter check)
 		const filterKey = node.missionName.replace('/Lotus/Language/Missions/MissionName_', '');
@@ -23,19 +23,19 @@ export async function updateIncursionsLocalised() {
 			(elms[i] as HTMLElement).classList.remove('d-none');
 			elms[i].innerHTML = '';
 			const b = document.createElement('b');
-			b.textContent = (globalThis as any).toTitleCase(dict[node.missionName]);
+			b.textContent = window.toTitleCase(dict[node.missionName]);
 			if (node.systemIndex !== 21) {
-				b.textContent += ` - ${(globalThis as any).toTitleCase(dict[ExportFactions[node.faction].name]) as string}`;
+				b.textContent += ` - ${window.toTitleCase(dict[ExportFactions[node.faction].name])}`;
 			}
 
 			elms[i].append(b);
 			elms[i].append(document.createTextNode(` (${100 + (node.minEnemyLevel as number)}-${100 + (node.maxEnemyLevel as number)}) @ `));
 			const locationAbbr = document.createElement('abbr');
 			locationAbbr.textContent = `${dict[node.name]}, ${dict[node.systemName]}`;
-			const incursionTileset = (globalThis as any).getTileset(node);
-			const formattedIncursionTileset = (globalThis as any).formatTileset(incursionTileset);
+			const incursionTileset = window.getTileset!(node);
+			const formattedIncursionTileset = window.formatTileset!(incursionTileset);
 			if (formattedIncursionTileset) {
-				(globalThis as any).addTooltip(locationAbbr, formattedIncursionTileset);
+				window.addTooltip!(locationAbbr, formattedIncursionTileset);
 			}
 
 			elms[i].append(locationAbbr);
@@ -52,4 +52,4 @@ export async function updateIncursionsLocalised() {
 	}
 }
 
-(globalThis as any).updateIncursionsLocalised = updateIncursionsLocalised;
+window.updateIncursionsLocalised = updateIncursionsLocalised;

@@ -16,7 +16,7 @@ function tooltipElement(name: string, desc: string | undefined): HTMLElement | T
 		abbr.textContent = name;
 		abbr.dataset.bsToggle = 'tooltip';
 		abbr.dataset.bsTitle = desc;
-		void new globalThis.bootstrap.Tooltip(abbr);
+		void new window.bootstrap.Tooltip(abbr);
 		return abbr;
 	}
 
@@ -84,7 +84,7 @@ export async function renderArchimedeaTable(
 	const {missions, frameVariables} = await resolveArchimedea(archimedea, archimedeaType, variantKeyPrefix, osdict, dict);
 
 	for (const x of container.querySelectorAll('[data-bs-toggle=tooltip]')) {
-		globalThis.bootstrap.Tooltip.getInstance(x)?.dispose();
+		window.bootstrap.Tooltip.getInstance(x)?.dispose();
 	}
 
 	container.innerHTML = '';
@@ -100,6 +100,6 @@ export async function renderArchimedeaTable(
 	container.append(fvTable);
 }
 
-(globalThis as any).renderArchimedeaTable = renderArchimedeaTable;
-(globalThis as any).renderArchimedeaMissions = renderArchimedeaMissions;
-(globalThis as any).renderArchimedeaFrameVariables = renderArchimedeaFrameVariables;
+window.renderArchimedeaTable = renderArchimedeaTable;
+window.renderArchimedeaMissions = renderArchimedeaMissions;
+window.renderArchimedeaFrameVariables = renderArchimedeaFrameVariables;

@@ -32,5 +32,5 @@ export async function fetchExport(name: string): Promise<any> {
 }
 
 if (globalThis.window !== undefined) {
-	(globalThis as any).fetchExport = fetchExport;
+	window.fetchExport = fetchExport;
 }

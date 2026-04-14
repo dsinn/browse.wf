@@ -28,16 +28,16 @@ export function initLiveSync() {
 		refreshAllCompletionToggles();
 
 		// Refresh collapse states
-		if ((globalThis as any).refreshCollapseStatus) {
+		if (window.refreshCollapseStatus) {
 			for (const elm of document.querySelectorAll<HTMLElement>('[data-collapse-toggle]')) {
-				(globalThis as any).refreshCollapseStatus(elm);
+				window.refreshCollapseStatus(elm);
 			}
 		}
 
 		// Refresh notification states
-		if ((globalThis as any).refreshNotifStatus) {
+		if (window.refreshNotifStatus) {
 			for (const elm of document.querySelectorAll<HTMLElement>('[data-notif-toggle]')) {
-				(globalThis as any).refreshNotifStatus(elm);
+				window.refreshNotifStatus(elm);
 			}
 		}
 
@@ -68,12 +68,12 @@ export function initLiveSync() {
 
 		updateNewsTicker();
 
-		if ((globalThis as any).bountyCycle) {
-			(globalThis as any).updateBountyCycleLocalised();
+		if ((window as any).bountyCycle) {
+			window.updateBountyCycleLocalised!();
 		}
 
 		void updateIncursionsLocalised();
 	});
 }
 
-(globalThis as any).initLiveSync = initLiveSync;
+window.initLiveSync = initLiveSync;

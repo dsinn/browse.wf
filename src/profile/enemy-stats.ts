@@ -55,4 +55,4 @@ export function augmentEnemyStats(profile: any): void {
 	renumber();
 }
 
-(globalThis as any).augmentEnemyStats = augmentEnemyStats;
+window.augmentEnemyStats = augmentEnemyStats;

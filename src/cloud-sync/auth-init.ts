@@ -192,8 +192,8 @@ function showToast(message: string): void {
 
 	container.append(toast);
 
-	if (globalThis.bootstrap) {
-		const bsToast = new globalThis.bootstrap.Toast(toast);
+	if (window.bootstrap) {
+		const bsToast = new window.bootstrap.Toast(toast);
 		bsToast.show();
 		toast.addEventListener('hidden.bs.toast', () => {
 			toast.remove();
@@ -217,7 +217,7 @@ registerSyncHandler(async () => {
 /**
  * Get the current Supabase access token for use by non-module scripts (e.g. warframe-api-proxy-client.ts)
  */
-(globalThis as any).__getSupabaseAccessToken = async () => {
+window.__getSupabaseAccessToken = async () => {
 	if (!isDatabaseConfigured()) {
 		return null;
 	}

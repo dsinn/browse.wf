@@ -84,8 +84,8 @@ export function initializeBountyFilters(): void {
 		select.addEventListener('change', () => {
 			localStorage.setItem(tierStorageKey, select.value);
 			triggerCloudSync();
-			if ((globalThis as any).updateBountyCycleLocalised) {
-				(globalThis as any).updateBountyCycleLocalised();
+			if (window.updateBountyCycleLocalised) {
+				window.updateBountyCycleLocalised();
 			}
 		});
 
@@ -101,14 +101,14 @@ export function initializeBountyFilters(): void {
 			checkbox.addEventListener('change', () => {
 				localStorage.setItem(checkboxStorageKey, checkbox.checked ? '1' : '0');
 				triggerCloudSync();
-				if ((globalThis as any).updateBountyCycleLocalised) {
-					(globalThis as any).updateBountyCycleLocalised();
+				if (window.updateBountyCycleLocalised) {
+					window.updateBountyCycleLocalised();
 				}
 			});
 		}
 	}
 }
 
-(globalThis as any).getMinimumTier = getMinimumTier;
-(globalThis as any).isBountyMissionTypeEnabled = isBountyMissionTypeEnabled;
-(globalThis as any).initializeBountyFilters = initializeBountyFilters;
+window.getMinimumTier = getMinimumTier;
+window.isBountyMissionTypeEnabled = isBountyMissionTypeEnabled;
+window.initializeBountyFilters = initializeBountyFilters;

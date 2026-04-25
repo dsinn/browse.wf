@@ -55,11 +55,10 @@ function augmentArchwingName(nameCell: HTMLTableCellElement): void {
 }
 
 export async function augmentEquipmentStats(profile: any): Promise<void> {
-	const [ExportWarframes, ExportWeapons, ExportSentinels] = await Promise.all([
-		fetchExport('ExportWarframes'),
-		fetchExport('ExportWeapons'),
-		fetchExport('ExportSentinels'),
-	]);
+	// Disconnect early so queued MutationObserver callbacks from the previous
+	// render can't fire after the await and clobber the new rows' name cells.
+	equipmentRankObserver?.disconnect();
+	equipmentRankObserver = undefined;
 
 	const equipmentFilterBar = document.querySelector<HTMLElement>('#equipment-filter-bar')!;
 	const equipmentTbody = document.querySelector<HTMLElement>('#equipment-stats')!;
@@ -69,6 +68,12 @@ export async function augmentEquipmentStats(profile: any): Promise<void> {
 		logger.warn('augmentEquipmentStats: #equipment-stats is empty');
 		return;
 	}
+
+	const [ExportWarframes, ExportWeapons, ExportSentinels] = await Promise.all([
+		fetchExport('ExportWarframes'),
+		fetchExport('ExportWeapons'),
+		fetchExport('ExportSentinels'),
+	]);
 
 	const weapons: any[] = (profile?.Stats?.Weapons ?? []) as any[];
 	const categoryTotals = computeCategoryTotals(weapons, ExportWarframes, ExportWeapons, ExportSentinels);

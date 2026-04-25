@@ -19,7 +19,8 @@ async function fetchExportNode(name: string): Promise<any> {
 	return (pkg as any)[name];
 }
 
-const fetchExportImpl = globalThis.window === undefined ? fetchExportNode : fetchExportBrowser;
+const isBrowser = typeof document !== 'undefined';
+const fetchExportImpl = isBrowser ? fetchExportBrowser : fetchExportNode;
 
 export async function fetchExport(name: string): Promise<any> {
 	let promise = exportCache.get(name);
@@ -31,6 +32,6 @@ export async function fetchExport(name: string): Promise<any> {
 	return promise;
 }
 
-if (globalThis.window !== undefined) {
+if (isBrowser) {
 	window.fetchExport = fetchExport;
 }

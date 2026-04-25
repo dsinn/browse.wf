@@ -19,6 +19,7 @@ import {resolveCalendarSeasonDays, getSeasonLabel} from '../src/calendar-seasons
 import {resolveDescentChallenges} from '../src/descendia/data.js';
 import {resolveArchimedea} from '../src/archimedea/data.js';
 import osdict from '../test/__mocks__/dicts/en.json' with {type: 'json'};
+import './node-window-shim.js'; // eslint-disable-line import-x/no-unassigned-import
 
 type AnyRecord = Record<string, any>;
 

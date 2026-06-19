@@ -337,9 +337,7 @@
         "youtube": "https://www.youtube.com/channel/UCW1q8IESWc_Z2I76t3ZrAZA"
     },
     "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageCaptWalker": {
-        "discord": "https://discord.gg/8RvNKPk",
         "glyphwave": "12",
-        "markdown": "* Go to the #glyph channel in Discord and type `@Taxon glyph platform`.",
         "primary-language": "Portuguese",
         "twitch": "https://twitch.tv/captwalker_1"
     },
@@ -2163,9 +2161,6 @@
     },
     "/Lotus/Types/StoreItems/AvatarImages/AvatarImageMarieLerouxMistletoeGlyph": {
         "promo_code": "MISTLETOE2025"
-    },
-    "/Lotus/Types/StoreItems/AvatarImages/Warframes/VorunaActionGlyph": {
-        "promo_code": "VORUNA"
     },
     "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImage4MORI4N": {
         "promo_code": "4MORI4N"

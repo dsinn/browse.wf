@@ -109,7 +109,7 @@ function updateDownloadLink(): void {
 	const downloadLink = document.querySelector<HTMLAnchorElement>('#download-link');
 	if (downloadLink && platformSelect.value && validateAccountId(accountId)) {
 		const platformSuffix = platformSelect.value === 'pc' ? '' : `-${platformSelect.value}`;
-		downloadLink.href = `http://content${platformSuffix}.warframe.com/dynamic/getProfileViewingData.php?playerId=${encodeURIComponent(accountId)}`;
+		downloadLink.href = `https://api${platformSuffix}.warframe.com/cdn/getProfileViewingData.php?playerId=${encodeURIComponent(accountId)}`;
 	}
 }
 

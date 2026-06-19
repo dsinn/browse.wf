@@ -257,7 +257,7 @@ describe('updateDownloadLink (via onAccountIdManualInput with valid ID + platfor
 		input.value = VALID_ACCOUNT_ID;
 		(globalThis as any).onAccountIdManualInput();
 		const {href} = document.querySelector<HTMLAnchorElement>('#download-link')!;
-		expect(href).toContain('content.warframe.com');
+		expect(href).toContain('api.warframe.com');
 		expect(href).toContain(VALID_ACCOUNT_ID);
 	});
 
@@ -268,7 +268,7 @@ describe('updateDownloadLink (via onAccountIdManualInput with valid ID + platfor
 		input.value = VALID_ACCOUNT_ID;
 		(globalThis as any).onAccountIdManualInput();
 		const {href} = document.querySelector<HTMLAnchorElement>('#download-link')!;
-		expect(href).toContain('content-ps4.warframe.com');
+		expect(href).toContain('api-ps4.warframe.com');
 	});
 });
 

@@ -23,9 +23,6 @@ echo "✓ Updated worldState.json"
 curl -s "https://oracle.browse.wf/dicts/en.json" > "$MOCKS_DIR/dicts/en.json"
 echo "✓ Updated dicts/en.json"
 
-curl -s "https://oracle.browse.wf/redtext.json" > "$MOCKS_DIR/redtext.json"
-echo "✓ Updated redtext.json"
-
 echo ""
 echo "All mocks updated successfully!"
 echo "Run 'npm test' to verify tests still pass with new data."

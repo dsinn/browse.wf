@@ -14,7 +14,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 #### Live page
 
 - **Widget filters**: Configurable filter panels to selectively display content; for example:
-  - News: Filters for red text, community events, and regular events
+  - News: Filters for community events and regular events
   - Bounties: Filter by tier for each syndicate; checkboxes to track completion with a badge showing the count; ally shown as icon with tooltip
   - Steel Path incursions: Filter by mission type, with tileset tooltips on mission type icons
   - Void fissures: Filter by tier/era and mission type

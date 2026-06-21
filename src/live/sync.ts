@@ -15,7 +15,6 @@ import {updateIncursionsLocalised} from './incursions.js';
 import {pruneStaleNewsRead} from './news-mark-read.js';
 import {updateNewsTicker} from './news.js';
 import {pruneStaleOids} from './prune-stale-data.js';
-import {updateRedText} from './red-text.js';
 
 export function initLiveSync() {
 	globalThis.addEventListener('cloud-sync-before-push', () => {
@@ -62,9 +61,6 @@ export function initLiveSync() {
 
 		// Refresh bounty filter dropdowns
 		initializeBountyFilters();
-
-		// Refresh card content to apply filters
-		updateRedText();
 
 		updateNewsTicker(true);
 

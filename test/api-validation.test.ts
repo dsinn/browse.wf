@@ -76,22 +76,4 @@ describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', 
 		// Validate timestamp exists
 		expect(typeof realData.Time).toBe('number');
 	});
-
-	test('oracle.browse.wf/redtext.json matches mock structure', async () => {
-		const response = await fetch('https://oracle.browse.wf/redtext.json');
-		expect(response.ok).toBe(true);
-
-		const realData = await response.json();
-		const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'redtext-empty.json'), 'utf8'));
-
-		// Validate it's an array (may be empty)
-		expect(Array.isArray(realData)).toBe(true);
-
-		// If we have data, validate element structure
-		if (realData.length > 0) {
-			const firstElement = realData[0];
-			expect(typeof firstElement.data).toBe('string');
-			expect(typeof firstElement.time).toBe('number');
-		}
-	});
 });

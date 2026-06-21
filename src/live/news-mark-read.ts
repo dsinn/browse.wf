@@ -1,7 +1,6 @@
 /**
  * News Mark as Read System
  * Fork-specific feature to track which news items have been read
- * Only applies to primary/success items; red text has its own card
  */
 
 import {triggerCloudSyncWithDebounce as triggerCloudSync} from '../cloud-sync/trigger.js';

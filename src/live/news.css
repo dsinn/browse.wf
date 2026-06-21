@@ -1,6 +1,6 @@
 /* News Card Styling - Fork-specific visual enhancements */
 
-/* Diamond column indicator for primary and success items (exclude danger/red text) */
+/* Diamond column indicator for primary and success items */
 #news-body .news-item.news-primary,
 #news-body .news-item.news-success {
   display: grid;

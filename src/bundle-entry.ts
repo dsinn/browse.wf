@@ -37,7 +37,6 @@ import './live/invasions.js';
 import './live/news.js';
 import './live/news-mark-read.js';
 import './live/prune-stale-data.js';
-import './live/red-text.js';
 import './live/sortie.js';
 import './live/sync.js';
 import './live/weekly.js';

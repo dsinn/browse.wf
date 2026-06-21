@@ -14,7 +14,6 @@
 	<?php asyncStylesheet("src/live/bounty-filters.css"); ?>
 	<?php asyncStylesheet("src/live/invasions.css"); ?>
 	<?php asyncStylesheet("src/live/news.css"); ?>
-	<?php asyncStylesheet("src/live/red-text.css"); ?>
 	<?php asyncStylesheet("src/tooltip.css"); ?>
 	<style>
 		[data-notif-toggle], [data-notif-toggle] > span, .completion-check { text-decoration:none;cursor:pointer;color:inherit }
@@ -78,7 +77,6 @@
 								</table>
 							</div>
 						</div>
-						<?php require "components/live/red-text-card.php"; ?>
 						<div class="card mb-3">
 							<div class="card-header d-flex align-items-center">
 								<h5 class="mb-0"><span data-collapse-toggle="news"></span> News</h5>

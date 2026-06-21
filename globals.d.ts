@@ -97,7 +97,7 @@ interface Window {
 
 	// ── Upstream globals (live.ts / common.js / profile.ts) ─────────────────────
 	// Optional since they are not present on all pages
-	// Note: arbys, bountyCycle, incursions_expiry, incursions_today, worldState, redtext,
+	// Note: arbys, bountyCycle, incursions_expiry, incursions_today, worldState,
 	// dict, and osdict are declared in live.ts/index.ts with specific types and cannot be
 	// redeclared here without TS2717 conflicts in the main build (tsconfig.json compiles
 	// both live.ts and globals.d.ts together). Fork modules use (window as any).X for those.
@@ -261,9 +261,6 @@ interface Window {
 	markNewsItemAsRead?: (item: any, element: HTMLElement) => void;
 	pruneStaleNewsRead?: () => void;
 	setNewsItemData?: (item: any, element: HTMLElement) => void;
-
-	// src/live/red-text.ts
-	updateRedText?: () => void;
 
 	// src/live/sortie.ts
 	appendSortieLocation?: (td: HTMLTableCellElement, node: any, tileset: string) => void;

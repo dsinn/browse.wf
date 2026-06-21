@@ -186,7 +186,6 @@ declare global {
 			EndlessXpSchedule?: any[];
 			Tmp: string;
 		}
-		redtext: { data: string; time: number }[];
 		dailyDeal: IDailyDeal;
 		last_sortie: string;
 		last_darvo_deal: string;
@@ -1077,7 +1076,6 @@ dicts_promise.then(([dict, osdict]) =>
 
 // Initial worldState fetch: initialize all expiry-based card lifecycles once data is available
 fetchWorldState().then(initWorldStateCards);
-(window as any).updateRedText();
 
 // Active-tab polling: fetch worldState every minute and update poll-driven cards
 setInterval(function()

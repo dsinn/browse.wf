@@ -39,7 +39,6 @@ export function setupMockFetch() {
 		'https://oracle.browse.wf/worldState.json': null, // Should never be hit; worldState is fetched via the front proxy
 		'https://oracle.browse.wf/min': null, // No longer used
 		'https://oracle.browse.wf/invasions': null, // No longer used; invasions come from worldState
-		'https://oracle.browse.wf/redtext.json': [], // Empty array for redtext (no red text in tests)
 		'http://localhost/arbys.txt': readFileSync(join(projectRoot, 'arbys.txt'), 'utf8'),
 	};
 

@@ -12,6 +12,7 @@
  *   WARFRAME_API_FRONT_PROXY_TOKEN     — auth token for the proxy
  */
 
+import './node-window-shim.js'; // eslint-disable-line import-x/no-unassigned-import, import-x/order -- must be first; downstream modules assign to window at load time
 import process from 'node:process';
 import {dict_en as dictEn} from 'warframe-public-export-plus';
 import {MILLIS_PER_WEEK} from '../src/helpers/time-helpers.js';
@@ -19,7 +20,6 @@ import {resolveCalendarSeasonDays, getSeasonLabel} from '../src/calendar-seasons
 import {resolveDescentChallenges} from '../src/descendia/data.js';
 import {resolveArchimedea} from '../src/archimedea/data.js';
 import osdict from '../test/__mocks__/dicts/en.json' with {type: 'json'};
-import './node-window-shim.js'; // eslint-disable-line import-x/no-unassigned-import
 
 type AnyRecord = Record<string, any>;
 

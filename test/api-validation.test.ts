@@ -64,7 +64,6 @@ describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', 
 		// Validate critical arrays exist
 		expect(Array.isArray(realData.Alerts)).toBe(true);
 		expect(Array.isArray(realData.DailyDeals)).toBe(true);
-		expect(Array.isArray(realData.EndlessXpChoices)).toBe(true);
 		expect(Array.isArray(realData.EndlessXpSchedule)).toBe(true);
 		expect(Array.isArray(realData.Events)).toBe(true);
 		expect(Array.isArray(realData.FlashSales)).toBe(true);

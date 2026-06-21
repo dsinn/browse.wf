@@ -5545,26 +5545,6 @@
 	"ConstructionProjects": [],
 	"TwitchPromos": [],
 	"ExperimentRecommended": [],
-	"EndlessXpChoices": [
-		{
-			"Category": "EXC_NORMAL",
-			"Choices": [
-				"Nidus",
-				"Octavia",
-				"Harrow"
-			]
-		},
-		{
-			"Category": "EXC_HARD",
-			"Choices": [
-				"Braton",
-				"Lato",
-				"Skana",
-				"Paris",
-				"Kunai"
-			]
-		}
-	],
 	"EndlessXpSchedule": [
 		{
 			"Activation": {

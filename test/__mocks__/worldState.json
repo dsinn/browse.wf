@@ -7697,5 +7697,37 @@
 			]
 		}
 	],
-	"Tmp": "{\"cavabegin\":\"1690761600\",\"pgr\":{\"ts\":\"1732572900\",\"en\":\"CUSTOM DECALS @ ZEVILA\",\"fr\":\"DECALS CUSTOM @ ZEVILA\",\"it\":\"DECALCOMANIE PERSONALIZZATE @ ZEVILA\",\"de\":\"AUFKLEBER NACH WUNSCH @ ZEVILA\",\"es\":\"CALCOMAN\u00cdAS PERSONALIZADAS @ ZEVILA\",\"pt\":\"DECALQUES PERSONALIZADOS NA ZEVILA\",\"ru\":\"\u041f\u041e\u041b\u042c\u0417\u041e\u0412\u0410\u0422\u0415\u041b\u042c\u0421\u041a\u0418\u0415 \u041d\u0410\u041a\u041b\u0415\u0419\u041a\u0418 @ \u0417\u0435\u0412\u0438\u041b\u0430\",\"pl\":\"NOWE NAKLEJKI @ ZEVILA\",\"uk\":\"\u041a\u041e\u0420\u0418\u0421\u0422\u0423\u0412\u0410\u0426\u042c\u041a\u0406 \u0414\u0415\u041a\u041e\u041b\u0406 @ \u0417\u0406\u0412\u0406\u041b\u0410\",\"tr\":\"\u00d6ZEL \u00c7IKARTMALAR @ ZEVILA\",\"ja\":\"\u30ab\u30b9\u30bf\u30e0\u30c7\u30ab\u30fc\u30eb @ \u30bc\u30d3\u30e9\",\"zh\":\"\u5b9a\u5236\u8d34\u82b1\u8ba4\u51c6\u6cfd\u5a01\u62c9\",\"ko\":\"\ucee4\uc2a4\ud140 \ub370\uce7c @ ZEVILA\",\"tc\":\"\u81ea\u8a02\u8cbc\u82b1 @ ZEVILA\",\"th\":\"\u0e23\u0e39\u0e1b\u0e25\u0e2d\u0e01\u0e2a\u0e31\u0e48\u0e07\u0e17\u0e33\u0e17\u0e35\u0e48 ZEVILA\"},\"ennnd\":true,\"mbrt\":true,\"fbst\":{\"a\":1768118400,\"e\":1768125600,\"n\":1768147200},\"lqo66\":{\"mt\":[\"Survival\",\"Alchemy\",\"Extermination\"],\"mv\":[\"UnpoweredCapsules\",\"EximusGrenadiers\",\"GrowingIncursion\"],\"c\":[[\"RegeneratingEnemies\",\"Quicksand\"],[\"DrainingResiduals\",\"ExplosiveCrawlers\"],[\"AntiMaterialWeapons\",\"EMPBlackHole\"]],\"fv\":[\"Undersupplied\",\"ShieldDelay\",\"Exhaustion\",\"DecayingFlesh\"]},\"hqo18\":{\"mt\":[\"EndlessCapture\",\"Survival\",\"Defense\"],\"mv\":[\"DoubleTroubleLegacyte\",\"ContaminationZone\",\"ChemicalNoise\"],\"mf\":[9,8,8],\"c\":[[\"HostileOvergrowth\",\"RegeneratingEnemies\"],[\"VoidAberration\",\"Quicksand\"],[\"DrainingResiduals\",\"PointBlank\"]],\"fv\":[\"OperatorLockout\",\"OverSensitive\",\"Starvation\",\"ContactDamage\"]},\"dmegp\":1753284600,\"tcaz\":0,\"tces\":true,\"sfn\":555}"
+	"Tmp": "{\"cavabegin\":\"1690761600\",\"pgr\":{\"ts\":\"1732572900\",\"en\":\"CUSTOM DECALS @ ZEVILA\",\"fr\":\"DECALS CUSTOM @ ZEVILA\",\"it\":\"DECALCOMANIE PERSONALIZZATE @ ZEVILA\",\"de\":\"AUFKLEBER NACH WUNSCH @ ZEVILA\",\"es\":\"CALCOMAN\u00cdAS PERSONALIZADAS @ ZEVILA\",\"pt\":\"DECALQUES PERSONALIZADOS NA ZEVILA\",\"ru\":\"\u041f\u041e\u041b\u042c\u0417\u041e\u0412\u0410\u0422\u0415\u041b\u042c\u0421\u041a\u0418\u0415 \u041d\u0410\u041a\u041b\u0415\u0419\u041a\u0418 @ \u0417\u0435\u0412\u0438\u041b\u0430\",\"pl\":\"NOWE NAKLEJKI @ ZEVILA\",\"uk\":\"\u041a\u041e\u0420\u0418\u0421\u0422\u0423\u0412\u0410\u0426\u042c\u041a\u0406 \u0414\u0415\u041a\u041e\u041b\u0406 @ \u0417\u0406\u0412\u0406\u041b\u0410\",\"tr\":\"\u00d6ZEL \u00c7IKARTMALAR @ ZEVILA\",\"ja\":\"\u30ab\u30b9\u30bf\u30e0\u30c7\u30ab\u30fc\u30eb @ \u30bc\u30d3\u30e9\",\"zh\":\"\u5b9a\u5236\u8d34\u82b1\u8ba4\u51c6\u6cfd\u5a01\u62c9\",\"ko\":\"\ucee4\uc2a4\ud140 \ub370\uce7c @ ZEVILA\",\"tc\":\"\u81ea\u8a02\u8cbc\u82b1 @ ZEVILA\",\"th\":\"\u0e23\u0e39\u0e1b\u0e25\u0e2d\u0e01\u0e2a\u0e31\u0e48\u0e07\u0e17\u0e33\u0e17\u0e35\u0e48 ZEVILA\"},\"ennnd\":true,\"mbrt\":true,\"fbst\":{\"a\":1768118400,\"e\":1768125600,\"n\":1768147200},\"lqo66\":{\"mt\":[\"Survival\",\"Alchemy\",\"Extermination\"],\"mv\":[\"UnpoweredCapsules\",\"EximusGrenadiers\",\"GrowingIncursion\"],\"c\":[[\"RegeneratingEnemies\",\"Quicksand\"],[\"DrainingResiduals\",\"ExplosiveCrawlers\"],[\"AntiMaterialWeapons\",\"EMPBlackHole\"]],\"fv\":[\"Undersupplied\",\"ShieldDelay\",\"Exhaustion\",\"DecayingFlesh\"]},\"hqo18\":{\"mt\":[\"EndlessCapture\",\"Survival\",\"Defense\"],\"mv\":[\"DoubleTroubleLegacyte\",\"ContaminationZone\",\"ChemicalNoise\"],\"mf\":[9,8,8],\"c\":[[\"HostileOvergrowth\",\"RegeneratingEnemies\"],[\"VoidAberration\",\"Quicksand\"],[\"DrainingResiduals\",\"PointBlank\"]],\"fv\":[\"OperatorLockout\",\"OverSensitive\",\"Starvation\",\"ContactDamage\"]},\"dmegp\":1753284600,\"tcaz\":0,\"tces\":true,\"sfn\":555}",
+	"WeeklyVaultBonusRewards": [
+		{
+			"WeekCount": 621,
+			"BonusRegion": "/Lotus/Language/Locations/DeepSpace",
+			"Rewards": [
+			{
+				"RewardClaimed": false,
+				"PointThreshold": 500,
+				"ItemCount": 50,
+				"Reward": "/Lotus/StoreItems/Types/Restoratives/SyndicateTeamEnergyTotem"
+			},
+			{
+				"RewardClaimed": false,
+				"PointThreshold": 1000,
+				"ItemCount": 7000,
+				"Reward": "/Lotus/StoreItems/Types/Items/MiscItems/Kuva"
+			},
+			{
+				"RewardClaimed": false,
+				"PointThreshold": 1500,
+				"ItemCount": 2,
+				"Reward": "/Lotus/StoreItems/Types/PickUps/Credits/50000Credits"
+			},
+			{
+				"RewardClaimed": false,
+				"PointThreshold": 2000,
+				"ItemCount": 21000,
+				"Reward": "/Lotus/StoreItems/Types/Items/MiscItems/Kuva"
+			}
+			]
+		}
+	]
 }

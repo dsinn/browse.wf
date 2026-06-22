@@ -26,6 +26,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 - **Enhanced invasion info**: Populated with and sorted by progress data; mission type icons replacing the unreliable dynamic mission type column; duplicate active-node invasions sorted to bottom
 - **Sortie locations**: Mission locations now displayed in the Sortie card
 - **1999 calendar card**: Displays the current 1999 calendar rotation
+- **Clan Weekly Initiatives card**: Displays the current week's clan weekly reward tiers as percentages of the maximum threshold, with item icons and bonus region
 - **Descendia card**: Experimental Descendia rotation display
 - **Notification icons**: Bells now use a colour/fill pattern (coloured when enabled, grayscale when disabled) instead of bell/bell-slash icons, matching more modern UX patterns.
 - **Cross-platform UI**: System-independent checkbox styling
@@ -49,7 +50,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 
 #### Other pages
 
-- **Weekly forecast**: Dedicated page (`/weekly-forecast`) showing the upcoming week's mission rotation
+- **Weekly forecast**: Dedicated page (`/weekly-forecast`) showing the upcoming week's mission rotation and clan weekly initiatives
 - **Invigorations**: Response caching so that info is preserved on refresh and next week
 - **Steel Path Incursion Schedule**: Dedicated page (`/incursions`) showing the full historical and upcoming Steel Path incursion schedule with list, table, and calendar views
 

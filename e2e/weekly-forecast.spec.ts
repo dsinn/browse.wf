@@ -9,6 +9,7 @@ async function setupPage(page: Page) {
 	await page.waitForSelector('#deep-archimedea-tabs .nav-link', {timeout: 15_000});
 	await page.waitForSelector('#descendia-tabs .nav-link', {timeout: 15_000});
 	await page.waitForSelector('#calendar-season-tabs .nav-link', {state: 'attached', timeout: 15_000});
+	await page.waitForSelector('#clan-weekly-columns .col-6', {state: 'attached', timeout: 15_000});
 }
 
 test.describe('Weekly Forecast Page', () => {
@@ -78,6 +79,27 @@ test.describe('Weekly Forecast Page', () => {
 		test('column contains formatted calendar dates', async ({page}) => {
 			const dateText = await page.locator('#calendar-season-columns .calendar-season-date').first().textContent();
 			expect(dateText).toMatch(/\b[A-Z][a-z]{2} \d{1,2}$/u);
+		});
+	});
+
+	test.describe('Clan Weekly Initiatives', () => {
+		test('shows the Clan Weekly Initiatives card', async ({page}) => {
+			await expect(page.locator('.card').filter({hasText: 'Clan Weekly Initiatives'})).toBeVisible();
+		});
+
+		test('renders one column per entry, each with a date heading', async ({page}) => {
+			const cols = page.locator('#clan-weekly-columns .col-6');
+			await expect(cols).toHaveCount(2);
+			for (const col of await cols.all()) {
+				const heading = await col.locator('h5').textContent();
+				expect(heading).toMatch(/^[A-Z][a-z]{2} \d{1,2}$/u);
+			}
+		});
+
+		test('column renders four reward rows', async ({page}) => {
+			const col = page.locator('#clan-weekly-columns .col-6').first();
+			await expect(col).toBeVisible();
+			await expect(col.locator('tbody tr')).toHaveCount(4);
 		});
 	});
 

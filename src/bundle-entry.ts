@@ -18,6 +18,7 @@ import './archimedea/helpers.js';
 import './calendar-seasons/data.js';
 import './calendar-seasons/index.js';
 import './card-filters.js';
+import './clan-weekly/index.js';
 import './cloud-sync/auth-init.js';
 import './descendia/data.js';
 import './descendia/index.js';

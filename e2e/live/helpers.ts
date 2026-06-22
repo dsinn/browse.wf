@@ -10,6 +10,7 @@ const LIVE_EXPORT_FILES = [
 	'ExportBoosterPacks', // 135 KB
 	'ExportBundles', // 1 MB
 	'ExportChallenges', // 220 KB
+	'ExportGear', // 78 KB
 	'ExportImages', // 2 MB
 	'ExportRegions', // 330 KB
 	'ExportResources', // 2 MB

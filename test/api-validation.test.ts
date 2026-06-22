@@ -71,7 +71,7 @@ describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', 
 		expect(Array.isArray(realData.Invasions)).toBe(true);
 		expect(Array.isArray(realData.Sorties)).toBe(true);
 		expect(Array.isArray(realData.SyndicateMissions)).toBe(true);
-		expect(Array.isArray(realData.WeeklyVaultBonusRewards)).toBe(true); // Placeholder until implemented
+		expect(Array.isArray(realData.WeeklyVaultBonusRewards)).toBe(true);
 
 		// Validate timestamp exists
 		expect(typeof realData.Time).toBe('number');

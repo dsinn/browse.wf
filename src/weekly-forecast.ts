@@ -10,6 +10,8 @@ import {renderArchimedeaTable} from './archimedea/helpers.js';
 import {renderDescentChallenges} from './descendia/index.js';
 import {getSeasonLabel} from './calendar-seasons/data.js';
 import {renderCalendarSeasonPane} from './calendar-seasons/index.js';
+import {weekCountToActivationMs} from './clan-weekly/data.js';
+import {renderClanWeeklyPane} from './clan-weekly/index.js';
 import {getNextWeeklyResetMs, MILLIS_PER_WEEK} from './helpers/time-helpers.js';
 import {createShortTimerBadge} from './short-timer-badge.js';
 import {WarframeApiFrontProxyClient} from './warframe-api-proxy-client.js';
@@ -240,6 +242,36 @@ async function renderCalendarSeasonTabs(
 	}
 }
 
+async function renderClanWeeklyColumns(
+	columnsElement: HTMLElement,
+	entries: any[],
+): Promise<void> {
+	columnsElement.innerHTML = '';
+
+	if (entries.length === 0) {
+		return;
+	}
+
+	const row = document.createElement('div');
+	row.className = 'row';
+
+	const panes = await Promise.all(entries.map(async entry => renderClanWeeklyPane(entry)));
+
+	for (const [i, entry] of entries.entries()) {
+		const col = document.createElement('div');
+		col.className = 'col-6';
+
+		const heading = document.createElement('h5');
+		heading.className = 'mb-3';
+		heading.textContent = formatTabDate(weekCountToActivationMs(entry.WeekCount as number));
+		col.append(heading);
+		col.append(panes[i]);
+		row.append(col);
+	}
+
+	columnsElement.append(row);
+}
+
 /**
  * Returns the Unix timestamp (seconds) of the next Sunday at 23:02 UTC,
  * when the weekly forecast is expected to be published (23:00 UTC) and both
@@ -275,6 +307,7 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	const temporalTabsElement = document.querySelector<HTMLElement>('#temporal-archimedea-tabs');
 	const descentTabsElement = document.querySelector<HTMLElement>('#descendia-tabs');
 	const calendarSeasonTabsElement = document.querySelector<HTMLElement>('#calendar-season-tabs');
+	const clanWeeklyColumnsElement = document.querySelector<HTMLElement>('#clan-weekly-columns');
 
 	// Capture which tab the user is on before re-rendering (only meaningful on refresh)
 	const deepActivation = (isRefresh && deepTabsElement) ? getActiveTabActivation(deepTabsElement) : undefined;
@@ -330,6 +363,13 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 			calendarSeasons,
 			calendarSeasonActivation,
 		);
+	}
+
+	// Clan Weekly Initiatives
+	const clanWeeklyEntries = worldState.WeeklyVaultBonusRewards ?? [];
+	if (clanWeeklyColumnsElement && clanWeeklyEntries.length > 0) {
+		window.ExportImages = await fetchExport('ExportImages');
+		await renderClanWeeklyColumns(clanWeeklyColumnsElement, clanWeeklyEntries);
 	}
 
 	// Schedule next refresh at Sunday 23:02 UTC (when the forecast is expected to be published)

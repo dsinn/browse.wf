@@ -40,6 +40,7 @@ declare function getOSDictPromise(): Promise<Record<string, string>>;
 declare function fetchExport(name: string): Promise<any>;
 declare function toTitleCase(str: string): string;
 declare function updateCalendarSeason(): Promise<void>;
+declare function updateClanWeekly(): Promise<void>;
 declare function updateDescendia(): void;
 
 // invasions.ts
@@ -516,6 +517,7 @@ function initWorldStateCards(): void
 	(window as any).updateWeekly();
 	(window as any).updateCircuitChoices();
 	updateCalendarSeason();
+	void updateClanWeekly();
 	updateDescendia();
 }
 

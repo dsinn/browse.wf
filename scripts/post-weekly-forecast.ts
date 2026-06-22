@@ -15,8 +15,9 @@
 import './node-window-shim.js'; // eslint-disable-line import-x/no-unassigned-import, import-x/order -- must be first; downstream modules assign to window at load time
 import process from 'node:process';
 import {dict_en as dictEn} from 'warframe-public-export-plus';
-import {MILLIS_PER_WEEK} from '../src/helpers/time-helpers.js';
+import {MILLIS_PER_WEEK, getWeekIndex} from '../src/helpers/time-helpers.js';
 import {resolveCalendarSeasonDays, getSeasonLabel} from '../src/calendar-seasons/data.js';
+import {resolveBonusRegion, resolveClanWeeklyRewards} from '../src/clan-weekly/data.js';
 import {resolveDescentChallenges} from '../src/descendia/data.js';
 import {resolveArchimedea} from '../src/archimedea/data.js';
 import osdict from '../test/__mocks__/dicts/en.json' with {type: 'json'};
@@ -76,6 +77,12 @@ function findClosest(items: AnyRecord[]) {
 	}
 
 	return best;
+}
+
+function findClanWeekly(entries: AnyRecord[]): AnyRecord | undefined {
+	const currentWeekIdx = getWeekIndex(Date.now());
+	return entries.find(entry => entry.WeekCount === currentWeekIdx + 1)
+		?? entries.find(entry => entry.WeekCount === currentWeekIdx);
 }
 
 function discordTimestamp(ms: number) {
@@ -197,6 +204,25 @@ export async function formatCalendarSeason(worldState: AnyRecord, find = findWee
 	return lines.join('\n');
 }
 
+export async function formatClanWeekly(worldState: AnyRecord) {
+	const entry = findClanWeekly(worldState.WeeklyVaultBonusRewards ?? []);
+	if (!entry) {
+		return null;
+	}
+
+	const lines = ['## Clan Weekly Initiatives'];
+
+	const rewards = await resolveClanWeeklyRewards(entry, dictEn);
+	for (const reward of rewards) {
+		lines.push(`- ${reward.pct}%: ${escapeMarkdown(reward.display)}`);
+	}
+
+	const regionName = resolveBonusRegion(entry.BonusRegion as string, dictEn);
+	lines.push(`Bonus region: ${escapeMarkdown(regionName)}`);
+
+	return lines.join('\n');
+}
+
 async function postToDiscord(content: string, webhookUrl: string) {
 	const response = await fetch(webhookUrl, {
 		method: 'POST',
@@ -279,7 +305,7 @@ function resolveEntries(worldState: AnyRecord, force: boolean) {
 async function buildSections(worldState: AnyRecord, entries: Record<string, AnyRecord | undefined>, showTimestamp: boolean) {
 	const findResolved = (sectionKey: string) => (_items: AnyRecord[]) => entries[sectionKey];
 
-	const [descendia, calendar, deepArchimedea, temporalArchimedea] = await Promise.all([
+	const [descendia, calendar, deepArchimedea, temporalArchimedea, clanWeekly] = await Promise.all([
 		entries.Descendia
 			? formatDescendia(worldState, findResolved('Descendia'), showTimestamp)
 			: null,
@@ -292,6 +318,7 @@ async function buildSections(worldState: AnyRecord, entries: Record<string, AnyR
 		entries['Temporal Archimedea']
 			? formatArchimedea(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea', findResolved('Temporal Archimedea'), showTimestamp)
 			: null,
+		formatClanWeekly(worldState),
 	]);
 
 	// Try to combine both Archimedeas into one message; split if too long
@@ -305,6 +332,10 @@ async function buildSections(worldState: AnyRecord, entries: Record<string, AnyR
 		}
 	} else {
 		sections.push(...archimedeas);
+	}
+
+	if (clanWeekly) {
+		sections.push(clanWeekly);
 	}
 
 	return sections;

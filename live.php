@@ -242,6 +242,7 @@
 							</div>
 						</div>
 						<?php require "components/calendar-season-card.php"; ?>
+						<?php require "components/clan-weekly-card.php"; ?>
 						<div class="card mb-3">
 							<div class="card-header d-flex">
 								<h5 class="mb-0"><span data-collapse-toggle="baro"></span> <span id="baro-header">Baro Ki'Teer</h5>

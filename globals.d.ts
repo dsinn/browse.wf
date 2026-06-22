@@ -179,6 +179,9 @@ interface Window {
 	renderCalendarSeasonPane?: (season: any) => Promise<HTMLDivElement>;
 	updateCalendarSeason?: () => Promise<void>;
 
+	// src/clan-weekly/index.ts
+	updateClanWeekly?: () => Promise<void>;
+
 	// src/card-filters.ts
 	getFilterValue?: (cardName: string, filterType: string, defaultValue: string) => string;
 	initializeCardFilters?: (cardName: string, onFilterChange: () => void) => void;

@@ -41,7 +41,6 @@
 	require_once 'components/live/weekly-missions-filters.php';
 	?>
 	<div class="container-fluid pt-3">
-		<script>window.LIVE_VERSION=0;</script>
 		<div id="update-prompt" class="alert alert-warning d-none" role="alert">We've made some changes to reduce server load. Please refresh the page.</div>
 		<div class="row g-3 mb-xl-3">
 			<div class="col-xl-4">
@@ -456,6 +455,6 @@
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 	<!-- live.js must come last as it calls functions defined in the fork bundle loaded from commonjs.html -->
-	<script src="typestripped/live.js?lv0"></script>
+	<script src="typestripped/live.js?lv1"></script>
 </body>
 </html>

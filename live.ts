@@ -77,8 +77,6 @@ declare const ExportFactions: Record<TFaction, IFaction>;
 // state
 declare global {
 	interface Window {
-		LIVE_VERSION: number;
-
 		duviri_mood_index: number;
 		duviri_expiry: number;
 

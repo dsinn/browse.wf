@@ -31,7 +31,7 @@ $ext = substr($_SERVER["SERVER_SOFTWARE"] ?? "", 0, 3) == "PHP" ? ".php" : "";
 				<a class="nav-link<?=(substr($_SERVER["REQUEST_URI"], 0, 5) == "/live" ? " active" : ""); ?>" href="/live<?=$ext;?>">Live</a>
 				<a class="nav-link<?=(substr($_SERVER["REQUEST_URI"], 0, 6) == "/arbys" ? " active" : ""); ?>" href="/arbys<?=$ext;?>">Arbitration Schedule</a>
 				<a class="nav-link<?=(substr($_SERVER["REQUEST_URI"], 0, 10) == "/rivencalc" ? " active" : ""); ?>" href="/rivencalc<?=$ext;?>">Riven Calculator</a>
-				<a class="nav-link<?=(substr($_SERVER["REQUEST_URI"], 0, 8) == "/profile" ? " active" : ""); ?>" href="/profile<?=$ext;?>">Profile Viewer</a>
+				<a class="nav-link<?=(substr($_SERVER["REQUEST_URI"], 0, 10) == "/glyphs" ? " active" : ""); ?>" href="/glyphs<?=$ext;?>">Glyphs</a>
 				<a class="nav-link<?=(substr($_SERVER["REQUEST_URI"], 0, 13) == "/color-picker" ? " active" : ""); ?>" href="/color-picker<?=$ext;?>">Color Picker</a>
 				<li class="nav-item dropdown">
 					<a class="nav-link dropdown-toggle<?=((substr($_SERVER["REQUEST_URI"], 0, 11) == "/kimulacrum" || substr($_SERVER["REQUEST_URI"], 0, 18) == "/kim-convo-locator") ? " active" : ""); ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">KIM</a>
@@ -41,9 +41,9 @@ $ext = substr($_SERVER["SERVER_SOFTWARE"] ?? "", 0, 3) == "PHP" ? ".php" : "";
 					</ul>
 				</li>
 				<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle<?=((substr($_SERVER["REQUEST_URI"], 0, 7) == "/glyphs" || substr($_SERVER["REQUEST_URI"], 0, 12) == "/prime-vault" || substr($_SERVER["REQUEST_URI"], 0, 11) == "/text-icons" || substr($_SERVER["REQUEST_URI"], 0, 16) == "/platform-suffix" || substr($_SERVER["REQUEST_URI"], 0, 14) == "/invigorations") ? " active" : ""); ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">More Tools</a>
+					<a class="nav-link dropdown-toggle<?=((substr($_SERVER["REQUEST_URI"], 0, 8) == "/profile" || substr($_SERVER["REQUEST_URI"], 0, 12) == "/prime-vault" || substr($_SERVER["REQUEST_URI"], 0, 11) == "/text-icons" || substr($_SERVER["REQUEST_URI"], 0, 16) == "/platform-suffix" || substr($_SERVER["REQUEST_URI"], 0, 14) == "/invigorations") ? " active" : ""); ?>" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">More Tools</a>
 					<ul class="dropdown-menu">
-						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 7) == "/glyphs" ? " active" : ""); ?>" href="/glyphs<?=$ext;?>">Glyphs</a></li>
+						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 8) == "/profile" ? " active" : ""); ?>" href="/profile<?=$ext;?>">Profile Viewer</a></li>
 						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 16) == "/platform-suffix" ? " active" : ""); ?>" href="/platform-suffix<?=$ext;?>">Platform Suffix</a></li>
 						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 12) == "/prime-vault" ? " active" : ""); ?>" href="/prime-vault<?=$ext;?>">Prime Vault</a></li>
 						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 11) == "/text-icons" ? " active" : ""); ?>" href="/text-icons<?=$ext;?>">Text Icons</a></li>

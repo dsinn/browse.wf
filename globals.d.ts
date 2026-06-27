@@ -298,10 +298,8 @@ interface Window {
 
 	// src/profile/workflow.ts
 	cloudSyncEvent?: Promise<string>;
-	copyWarframePath?: (event: Event) => void;
 	fetchProfile?: () => void;
 	initialProfilePromise?: Promise<void>;
-	loadEELog?: (file?: File) => Promise<void>;
 	loadProfile?: (file?: File) => Promise<void>;
 	onAccountIdManualInput?: () => void;
 	onDownloadLinkLeftClick?: (event: Event) => void;

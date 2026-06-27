@@ -53,8 +53,10 @@ test.describe('Profile Stats Filters', () => {
 		// Wait for profileWorkflowReady() to fire before interacting with the form
 		await page.waitForSelector('#steps:not(.d-none)');
 		await page.selectOption('#platform-select', 'pc');
-		const eeLogPath = path.join(__dirname, '../../test/profile/EE.log');
-		await page.setInputFiles('#ee-log-file', eeLogPath);
+		await page.fill('#account-id', '55540360384632532d7b23c6');
+		await page.dispatchEvent('#account-id', 'input');
+		await expect(page.locator('#step2-container')).toHaveClass(/complete/u, {timeout: 5000});
+		await page.click('button:has-text("Fetch Profile")');
 		await expect(page.locator('#step2-container')).toHaveClass(/complete/u, {timeout: 5000});
 
 		// Navigate to Stats tab

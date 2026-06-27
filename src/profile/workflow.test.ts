@@ -49,9 +49,7 @@ afterEach(() => {
 		'activateTab',
 		'triggerCloudSync',
 		'createShortTimerBadge',
-		'copyWarframePath',
 		'fetchProfile',
-		'loadEELog',
 		'loadProfile',
 		'onAccountIdManualInput',
 		'onDownloadLinkLeftClick',
@@ -292,76 +290,6 @@ describe('download link click handlers', () => {
 		(globalThis as any).onDownloadLinkRightClick(new MouseEvent('contextmenu'));
 		expect(document.querySelector('#step3-manual-container')?.classList.contains('complete')).toBe(true);
 		expect(document.querySelector('#download-warning')?.classList.contains('d-none')).toBe(true);
-	});
-});
-
-// ─── loadEELog ────────────────────────────────────────────────────────────────
-
-describe('loadEELog', () => {
-	const EE_LOG_CONTENT = `[0.000] Sys [Diag]: Build label: ...\n[1.234] Net [Info]: Logged in, playerId: ${VALID_ACCOUNT_ID}`;
-	const EE_LOG_NO_ID = '[0.000] Sys [Diag]: Build label: ...\n[1.0] Net [Info]: Not logged in yet.';
-
-	beforeEach(async () => {
-		await freshWorkflow();
-		document.querySelector<HTMLSelectElement>('#platform-select')!.value = 'pc';
-		(globalThis as any).__showAutoFetchFlow = false;
-	});
-
-	it('extracts account ID and populates #account-id in manual flow', async () => {
-		const file = new File([EE_LOG_CONTENT], 'EE.log', {type: 'text/plain'});
-		await (globalThis as any).loadEELog(file);
-		expect(document.querySelector<HTMLInputElement>('#account-id')!.value).toBe(VALID_ACCOUNT_ID);
-	});
-
-	it('saves account ID to localStorage', async () => {
-		const file = new File([EE_LOG_CONTENT], 'EE.log', {type: 'text/plain'});
-		await (globalThis as any).loadEELog(file);
-		expect(localStorage.getItem('profile.accountId')).toBe(VALID_ACCOUNT_ID);
-	});
-
-	it('marks step2 complete after extraction', async () => {
-		const file = new File([EE_LOG_CONTENT], 'EE.log', {type: 'text/plain'});
-		await (globalThis as any).loadEELog(file);
-		expect(document.querySelector('#step2-container')?.classList.contains('complete')).toBe(true);
-	});
-
-	it('calls fetchProfile when __showAutoFetchFlow is true', async () => {
-		(globalThis as any).__showAutoFetchFlow = true;
-		const {WarframeApiFrontProxyClient} = await import('../../src/warframe-api-proxy-client.js');
-		const fetchSpy = vi.spyOn(WarframeApiFrontProxyClient, 'fetchProfile').mockResolvedValue({
-			status: 200, data: MOCK_PROFILE_DATA, nextFetchAvailableAt: undefined,
-		});
-		const file = new File([EE_LOG_CONTENT], 'EE.log', {type: 'text/plain'});
-		await (globalThis as any).loadEELog(file);
-		expect(fetchSpy).toHaveBeenCalledWith('pc', VALID_ACCOUNT_ID);
-	});
-
-	it('does not call fetchProfile in manual flow', async () => {
-		const {WarframeApiFrontProxyClient} = await import('../../src/warframe-api-proxy-client.js');
-		const fetchSpy = vi.spyOn(WarframeApiFrontProxyClient, 'fetchProfile');
-		const file = new File([EE_LOG_CONTENT], 'EE.log', {type: 'text/plain'});
-		await (globalThis as any).loadEELog(file);
-		expect(fetchSpy).not.toHaveBeenCalled();
-	});
-
-	it('hides status after successful extraction', async () => {
-		const file = new File([EE_LOG_CONTENT], 'EE.log', {type: 'text/plain'});
-		await (globalThis as any).loadEELog(file);
-		expect(document.querySelector('#status')?.classList.contains('d-none')).toBe(true);
-	});
-
-	it('returns early without side effects when no file provided', async () => {
-		await (globalThis as any).loadEELog(undefined);
-		expect(localStorage.getItem('profile.accountId')).toBeNull();
-	});
-
-	it('shows alert when no account ID found in log', async () => {
-		const alertSpy = vi.spyOn(globalThis, 'alert').mockImplementation(() => {
-			// No-op
-		});
-		const file = new File([EE_LOG_NO_ID], 'EE.log', {type: 'text/plain'});
-		await (globalThis as any).loadEELog(file);
-		expect(alertSpy).toHaveBeenCalled();
 	});
 });
 

@@ -52,32 +52,22 @@
 			<li class="list-group-item" id="step2-container">
 				<span class="step-status me-2"></span>
 				<div>
-					<strong>Provide your account ID.</strong>
+					<strong>Provide your user ID.</strong>
 					<div class="mt-1">
-						First, <button type="button" class="btn btn-sm btn-primary me-1" onclick="copyWarframePath(event)">Click Me</button> to copy the <code>%localappdata%\Warframe</code> path to your clipboard.
+						<input id="account-id" type="text" class="form-control form-control-sm" placeholder="Example: 55540360384632532d7b23c6" oninput="onAccountIdManualInput()" />
+						<div id="account-id-invalid-chars" class="invalid-feedback d-none">Only numbers and letters from A to F are allowed.</div>
+						<div id="account-id-feedback" class="invalid-feedback"><span id="account-id-char-count">0</span>/24 characters</div>
 					</div>
+
 					<div class="mt-4">
-						<strong>Option A:</strong>
-						<div class="alert alert-secondary mt-2 mb-2">
-							⚠️ The <a href="https://wiki.warframe.com/w/EE.log" target="_blank">EE.log</a> file contains sensitive information, so you can either trust the maintainer of this browse.wf fork, or use Option B below.
-						</div>
-						<div>
-							Click "Browse...", paste the path you copied into your file browser's address bar, hit enter, and select EE.log.
-						</div>
-						<div class="mt-1">
-							<input id="ee-log-file" type="file" class="form-control form-control-sm" accept=".log" onchange="loadEELog(this.files[0]);" />
-						</div>
-					</div>
-					<div class="mt-4">
-						<strong>Option B:</strong>
-						<div class="mt-1">
-							Use a file explorer or text editor to navigate to the path that you copied, open EE.log as a text document, search for the text "Logged in", and copy the hexadecimal ID inside the parentheses on that line.
-						</div>
-						<div class="mt-1">
-							<input id="account-id" type="text" class="form-control form-control-sm" placeholder="Example: 55540360384632532d7b23c6" oninput="onAccountIdManualInput()" />
-							<div id="account-id-invalid-chars" class="invalid-feedback d-none">Only numbers and letters from A to F are allowed.</div>
-							<div id="account-id-feedback" class="invalid-feedback"><span id="account-id-char-count">0</span>/24 characters</div>
-						</div>
+						If you do not know your user ID:
+
+						<ol class="mt-2" style="list-style-type: lower-alpha;">
+							<li>Ensure that you are logged in at <a href="https://www.warframe.com/login" target="_blank">warframe.com</a>.</li>
+							<li>Open <a href="https://www.warframe.com/api/user-data" target="_blank">this link</a>.</li>
+							<li>Find and copy the alphanumeric text after the <code>user_id</code> field (looks like <code>505875fb1a4d80894a123456</code>).</li>
+							<li>Paste it into the text box above.</li>
+						</ol>
 					</div>
 				</div>
 			</li>

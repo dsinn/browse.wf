@@ -41,7 +41,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 #### Profile page
 
 - **Single-click fetch**: Logged-in users can fetch their profile with a single click via the front proxy
-- **Guided workflow**: Step-by-step instructions for retrieving profile data manually, including account ID extraction from EE.log
+- **Guided workflow**: Step-by-step instructions for retrieving profile data, including how to look up your user ID on warframe.com
 - **Sortable stats table**: Category filters, rank column, and usage percentages
 - **Stat calculations**: Mission completion/failure/quit rates, cipher rates, etc.
 - **Increased precision**: Cipher completion times shown with sub-second detail

@@ -1,6 +1,6 @@
 /**
- * Fork-specific profile workflow: step indicators, EE.log parsing,
- * cloud-sync gating, rate-limit handling, and localStorage persistence.
+ * Fork-specific profile workflow: step indicators, cloud-sync gating,
+ * rate-limit handling, and localStorage persistence.
  *
  * Exposes cloudSyncEvent and initialProfilePromise on globalThis so that
  * the non-module profile.ts script can include them in its Promise.all.
@@ -53,20 +53,6 @@ function updateStepStatus(selector: string, completed: boolean): void {
 function refreshAllStepIndicators(): void {
 	updateStepStatus('#step1-container', Boolean(platformSelect.value));
 	// Step 2 (account ID) and beyond are updated by their respective handlers
-}
-
-function copyWarframePath(event: Event): void {
-	navigator.clipboard.writeText('%localappdata%\\Warframe\\').then(() => {
-		const button = event.target as HTMLButtonElement;
-		const originalText = button.textContent;
-		button.textContent = 'Copied!';
-		setTimeout(() => {
-			button.textContent = originalText;
-		}, 5000);
-	}).catch((error: unknown) => {
-		console.error('Failed to copy:', error);
-		alert('Failed to copy to clipboard');
-	});
 }
 
 function onPlatformChange(): void {
@@ -175,7 +161,7 @@ function updateProfileAge(): void {
 	}, nextUpdateMs);
 }
 
-function fetchAndRenderProfile(platform: string, accountId: string, fromEeLog: boolean): void {
+function fetchAndRenderProfile(platform: string, accountId: string): void {
 	const parameters = window.__profileParams!;
 	const statusElement = document.querySelector('#status');
 	const statusSpan = document.querySelector('#status span');
@@ -219,15 +205,14 @@ function fetchAndRenderProfile(platform: string, accountId: string, fromEeLog: b
 		}
 
 		window.profile = data;
-		if (fromEeLog) {
-			document.querySelector('#profile-nav')?.classList.remove('d-none');
-			window.activateTab!(parameters.has('tab') ? parameters.get('tab')! : 'fashion');
-			if (!parameters.has('tab')) {
-				location.hash = 'tab=fashion';
-			}
+		document.querySelector('#profile-nav')?.classList.remove('d-none');
+		window.activateTab!(parameters.has('tab') ? parameters.get('tab')! : 'fashion');
+		if (!parameters.has('tab')) {
+			location.hash = 'tab=fashion';
 		}
 
 		window.renderProfile!();
+		document.querySelector('#profile-name')?.scrollIntoView({behavior: 'smooth'});
 
 		profileLoadedManually = true;
 		updateStepStatus('#step2-container', true);
@@ -258,55 +243,6 @@ function fetchAndRenderProfile(platform: string, accountId: string, fromEeLog: b
 			statusElement?.classList.add('d-none');
 		}, 5000);
 	});
-}
-
-async function loadEeLog(file?: File): Promise<void> {
-	if (!file) {
-		return;
-	}
-
-	profileLoadedManually = false;
-
-	const statusElement = document.querySelector('#status');
-	const statusSpan = document.querySelector('#status span');
-	if (statusSpan) {
-		statusSpan.textContent = 'Parsing EE.log...';
-	}
-
-	statusElement?.classList.remove('d-none');
-
-	try {
-		const content = await file.text();
-		const logPattern = /(?:Logged|Player).*\b([\da-f]{24})\b/u;
-		const match = logPattern.exec(content);
-
-		if (match) {
-			const accountId = match[1];
-			currentAccountId = accountId;
-			localStorage.setItem(ACCOUNT_ID_STORAGE_KEY, accountId);
-			updateRefreshAlert();
-
-			if (window.__showAutoFetchFlow) {
-				fetchAndRenderProfile(platformSelect.value, accountId, true);
-			} else {
-				const accountIdInput = document.querySelector<HTMLInputElement>('#account-id');
-				if (accountIdInput) {
-					accountIdInput.value = accountId;
-				}
-
-				updateStepStatus('#step2-container', true);
-				updateDownloadLink();
-				statusElement?.classList.add('d-none');
-			}
-		} else {
-			alert('Could not find account ID in EE.log. Make sure you\'ve logged in and the file contains a "Logged in" line.');
-			statusElement?.classList.add('d-none');
-		}
-	} catch (error) {
-		console.error(error);
-		alert('Failed to parse EE.log file: ' + (error as Error).message);
-		statusElement?.classList.add('d-none');
-	}
 }
 
 async function loadProfile(file?: File): Promise<void> {
@@ -413,7 +349,7 @@ function onDownloadLinkRightClick(_event: Event): void {
 }
 
 function fetchProfile(): void {
-	fetchAndRenderProfile(platformSelect.value, currentAccountId, false);
+	fetchAndRenderProfile(platformSelect.value, currentAccountId);
 }
 
 function updateFormFromLocalStorage(): void {
@@ -463,9 +399,7 @@ function profileWorkflowReady(syncResult: string, showAutoFetchFlow: boolean): v
 	}
 }
 
-window.copyWarframePath = copyWarframePath;
 window.fetchProfile = fetchProfile;
-window.loadEELog = loadEeLog;
 window.loadProfile = loadProfile;
 window.onAccountIdManualInput = onAccountIdManualInput;
 window.onDownloadLinkLeftClick = onDownloadLinkLeftClick;

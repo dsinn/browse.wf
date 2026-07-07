@@ -266,14 +266,15 @@
 						<a data-notif-toggle="bounties"></a>
 					</div>
 					<?php require 'components/live/bounty-filters-partial.php'; ?>
-					<div class="card-body overflow-auto" id="bounties-body">
+					<p id="bounties-loading" class="card-body mb-0">Fetching data...</p>
+					<div class="card-body overflow-auto d-none" id="bounties-body">
 						<p id="deimos-bounty-row" class="mb-0">Rotation <b id="bounty-rot">?</b> (<span id="bounty-rot-rewards">Loading</span>) &middot; Vault Rotation <b id="vault-rot">?</b> (<span id="vault-rot-rewards">Loading</span>)</p>
 						<div class="bounties-all-hidden">No bounties to display based on the current filters.</div>
 						<h5 id="ZarimanSyndicate-name" class="mt-3">The Holdfasts</h5>
 						<div id="ZarimanSyndicate-empty" class="d-none">No bounties match the current filters.</div>
 						<table class="table table-hover table-sm table-borderless mb-0" id="ZarimanSyndicate-table">
 							<tr>
-								<th class="mission">Fetching data...</th>
+								<th class="mission"></th>
 								<td class="challenge"></td>
 								<td>50-55</td>
 								<td>1/2&nbsp;<abbr class="vq-abbr">VQ</abbr></td>
@@ -307,7 +308,7 @@
 						<div id="EntratiLabSyndicate-empty" class="d-none">No bounties match the current filters.</div>
 						<table class="table table-hover table-sm table-borderless mb-0" id="EntratiLabSyndicate-table">
 							<tr>
-								<th class="mission">Fetching data...</th>
+								<th class="mission"></th>
 								<td class="challenge"></td>
 								<td>55-60</td>
 								<td>1000/<wbr/>1500</td>
@@ -341,7 +342,7 @@
 						<div id="HexSyndicate-empty" class="d-none">No bounties match the current filters.</div>
 						<table class="table table-hover table-sm table-borderless mb-0" id="HexSyndicate-table">
 							<tr>
-								<th class="mission">Fetching data...</th>
+								<th class="mission"></th>
 								<td class="challenge"></td>
 								<td class="ally"></td>
 								<td>65-70</td>

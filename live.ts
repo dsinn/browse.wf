@@ -421,6 +421,8 @@ function updateBountyCycle(retryMs = STALE_DATA_RETRY_MS)
 		document.getElementById("bounty-rot").textContent = bountyCycle.rot;
 		document.getElementById("vault-rot").textContent = bountyCycle.vaultRot;
 		updateBountyCycleLocalised();
+		document.getElementById("bounties-loading").classList.add("d-none");
+		document.getElementById("bounties-body").classList.remove("d-none");
 		setTimeout(() => updateBountyCycle(STALE_DATA_RETRY_MS), bountyCycle.expiry - Date.now());
 	}).catch(e =>
 	{

@@ -11,7 +11,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 - **Cloud sync**: Discord authentication with a database backend for backing up preferences and syncing across devices
 - **Navbar customization**: Optional setting to unfix the navbar
 
-#### Live page
+#### [Live page](https://dsinn.github.io/browse.wf/live)
 
 - **Widget filters**: Configurable filter panels to selectively display content; for example:
   - News: Filters for community events and regular events
@@ -31,14 +31,14 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 - **Notification icons**: Bells now use a colour/fill pattern (coloured when enabled, grayscale when disabled) instead of bell/bell-slash icons, matching more modern UX patterns.
 - **Cross-platform UI**: System-independent checkbox styling
 
-#### Arbitrations page
+#### [Arbitrations page](https://dsinn.github.io/browse.wf/arbys)
 
 - **Custom timers**: Set custom countdown timers on the arbitration schedule page
 - **Tileset filters**: Filter arbitration missions by tileset
 - **2-week schedule view**: Shows the next two weeks by default
 - **Save/load settings**: Persist and restore page settings
 
-#### Profile page
+#### [Profile page](https://dsinn.github.io/browse.wf/profile)
 
 - **Single-click fetch**: Logged-in users can fetch their profile with a single click via the front proxy
 - **Guided workflow**: Step-by-step instructions for retrieving profile data, including how to look up your user ID on warframe.com
@@ -50,16 +50,16 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 
 #### Other pages
 
-- **Weekly forecast**: Dedicated page (`/weekly-forecast`) showing the upcoming week's mission rotation and clan weekly initiatives
+- **[Weekly forecast](https://dsinn.github.io/browse.wf/weekly-forecast)**: Dedicated page showing the upcoming week's mission rotation and clan weekly initiatives
 - **Invigorations**: Response caching so that info is preserved on refresh and next week
-- **Steel Path Incursion Schedule**: Dedicated page (`/incursions`) showing the full historical and upcoming Steel Path incursion schedule with list, table, and calendar views
-- **Cetus/Deimos Cycle Schedule**: Dedicated page (`/bounty-cycle-schedule`) showing the next week of Cetus day/night and Deimos Fass/Vome cycle windows
+- **[Steel Path Incursion Schedule](https://dsinn.github.io/browse.wf/incursions)**: Dedicated page showing the full historical and upcoming Steel Path incursion schedule with list, table, and calendar views
+- **[Cetus/Deimos Cycle Schedule](https://dsinn.github.io/browse.wf/bounty-cycle-schedule)**: Dedicated page showing the next week of Cetus day/night and Deimos Fass/Vome cycle windows
 
 ### For developers
 
 - **GitHub Pages deployment**: Automated workflow for deploying static builds to GitHub Pages
 - **Vite dev server**: Replaced `php-ts-dev` with Vite for local development; fixes quirks mode issues and broken tooltips, and hot reload ignores test file changes
-- **Automated testing**: Vitest and Playwright test infrastructure (mainly for the `/live` page so far); CI publishes a coverage report
+- **Automated testing**: Vitest and Playwright test infrastructure; CI publishes a coverage report
 - **esbuild bundling**: Fork modules are bundled into a single IIFE, simplifying script loading and enabling direct TypeScript imports in tests
 - **Modular architecture**: Non-trivial fork features are extracted into isolated ES modules in `src/` rather than added inline to upstream files, keeping the diff footprint small for easier merge conflict resolution; as a result, `live.ts` is smaller than upstream despite the fork having many more features; modules expose functions via `globalThis` for compatibility with non-module scripts
 - **TypeScript strict mode + XO linting**: Strict mode enabled for all fork-specific files; XO enforces consistent code style and quality across the codebase

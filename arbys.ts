@@ -13,6 +13,10 @@ declare const arbyTiers: Record<string, string>;
 declare function createShortTimerBadge(timestamp: number, expiredLabel: string, extraClasses?: string): HTMLSpanElement;
 declare function initializeShortTimerBadges(): void;
 
+// helpers/time-helpers.js
+declare function totwo(num: number): string;
+declare function formattz(offsetMinutes: number): string;
+
 // fetch
 declare let dict: Record<string, string>;
 declare let ExportFactions: Record<TFaction, IFaction>;
@@ -30,28 +34,6 @@ function loc(key: string): string
 	return dict[key] ?? key;
 }
 
-function totwo(num: number): string
-{
-	if (num < 10)
-	{
-		return "0" + num;
-	}
-	return num.toString();
-}
-
-function formattz(offset: number): string
-{
-	if (offset == 0)
-	{
-		return "UTC+0";
-	}
-	offset /= 60;
-	if (offset < 0)
-	{
-		return "UTC+" + (offset * -1);
-	}
-	return "UTC-" + offset;
-}
 document.getElementById("local-time-option").textContent += " (" + formattz(new Date().getTimezoneOffset()) + ")";
 
 function formathour(hour: number): string

@@ -9,6 +9,8 @@ import {
 	getNextWeeklyResetMs,
 	getNextWeeklyResetSeconds,
 	getWeekIndex,
+	totwo,
+	formattz,
 	SECONDS_PER_DAY,
 	MILLIS_PER_WEEK,
 } from './time-helpers';
@@ -142,6 +144,36 @@ describe('time-helpers', () => {
 			expect(getWeekIndex(Date.UTC(2026, 0, 5))).toBe(621);
 			expect(getWeekIndex(Date.UTC(2026, 0, 5) + MILLIS_PER_WEEK)).toBe(622);
 			expect(getWeekIndex(Date.UTC(2026, 0, 5) + (2 * MILLIS_PER_WEEK))).toBe(623);
+		});
+	});
+
+	describe('totwo', () => {
+		it('zero-pads single-digit numbers', () => {
+			expect(totwo(0)).toBe('00');
+			expect(totwo(3)).toBe('03');
+			expect(totwo(9)).toBe('09');
+		});
+
+		it('leaves two-digit-or-larger numbers unchanged', () => {
+			expect(totwo(10)).toBe('10');
+			expect(totwo(23)).toBe('23');
+			expect(totwo(100)).toBe('100');
+		});
+	});
+
+	describe('formattz', () => {
+		it('returns "UTC+0" for a zero offset', () => {
+			expect(formattz(0)).toBe('UTC+0');
+		});
+
+		it('returns "UTC+N" for a negative getTimezoneOffset value (ahead of UTC)', () => {
+			expect(formattz(-60)).toBe('UTC+1');
+			expect(formattz(-330)).toBe('UTC+5.5');
+		});
+
+		it('returns "UTC-N" for a positive getTimezoneOffset value (behind UTC)', () => {
+			expect(formattz(300)).toBe('UTC-5');
+			expect(formattz(240)).toBe('UTC-4');
 		});
 	});
 });

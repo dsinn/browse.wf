@@ -37,3 +37,30 @@ export const WEEK_EPOCH_MS = 1_391_990_400_000; // 2014-02-10T00:00:00Z
 export function getWeekIndex(timestamp: number): number {
 	return Math.trunc((timestamp - WEEK_EPOCH_MS) / MILLIS_PER_WEEK);
 }
+
+/** Zero-pads a number below 10 to two digits, e.g. 3 -> "03", 12 -> "12". */
+export function totwo(number_: number): string {
+	if (number_ < 10) {
+		return '0' + number_;
+	}
+
+	return number_.toString();
+}
+
+/** Formats a `Date.prototype.getTimezoneOffset()`-style minute offset as "UTC+N"/"UTC-N". */
+export function formattz(offsetMinutes: number): string {
+	if (offsetMinutes === 0) {
+		return 'UTC+0';
+	}
+
+	const offsetHours = offsetMinutes / 60;
+	if (offsetHours < 0) {
+		return 'UTC+' + (offsetHours * -1);
+	}
+
+	return 'UTC-' + offsetHours;
+}
+
+// Exposed for non-module scripts (e.g. arbys.ts) that can't use `import`.
+window.totwo = totwo;
+window.formattz = formattz;

@@ -24,6 +24,7 @@ import './descendia/data.js';
 import './descendia/index.js';
 import './helpers/string-helpers.js';
 import './helpers/tileset-helpers.js';
+import './helpers/time-helpers.js';
 import './invigorations.js';
 import './live/bounty-checkboxes.js';
 import './live/bounties.js';

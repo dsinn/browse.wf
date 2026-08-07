@@ -211,6 +211,10 @@ interface Window {
 	formatTileset?: (tileset: any) => string;
 	getTileset?: (node: any) => string | undefined;
 
+	// src/helpers/time-helpers.ts
+	totwo?: (number_: number) => string;
+	formattz?: (offsetMinutes: number) => string;
+
 	// src/invigorations.ts
 	getWeekIndex?: (timestamp: number) => number;
 	initInvigorations?: (names: Record<string, string>) => void;

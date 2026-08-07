@@ -1,0 +1,197 @@
+/* Cetus/Deimos Cycle Schedule page styles */
+
+/* === Theme cross-fade === */
+
+/*
+ * --theme-transition-easing is fast-slow-fast: it moves quickly through the early and late
+ * parts of the transition but lingers near the midpoint blend of the two theme colors, rather
+ * than the usual `ease`/`ease-in-out` curves which move fastest through the middle.
+ */
+html, body, .card, .table, .btn, .navbar, .dropdown-menu, .border, th, td, #bounty-cycle-controls, .form-select {
+	--theme-transition-duration: 1.2s;
+	--theme-transition-easing: cubic-bezier(0, 0.5, 1, 0.5);
+
+	transition:
+		background-color var(--theme-transition-duration) var(--theme-transition-easing),
+		color var(--theme-transition-duration) var(--theme-transition-easing),
+		border-color var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+.container {
+	position: relative;
+	z-index: 1;
+}
+
+/* === Background sun/moon === */
+
+.celestial-layer {
+	inset: 0;
+	overflow: hidden;
+	pointer-events: none;
+	position: fixed;
+	z-index: 0;
+}
+
+.celestial-icon {
+	--celestial-size: min(69vh, 69vw);
+
+	font-size: var(--celestial-size);
+	left: 118.75vw;
+	opacity: 1;
+	position: absolute;
+	top: 100vh;
+	transform: translate(-50%, -50%); /* center the icon itself on its (left, top) point */
+}
+
+/*
+ * The sun and moon travel the exact same right-to-left arc (identical keyframes, no per-body
+ * offset) - they occupy the same points in space, just at different times. The outgoing body
+ * finishes vacating the arc (reaching the far left) before the incoming body's animation
+ * starts, via a matching animation-delay on the entering body equal to the exiting body's
+ * duration. This sequencing, not spatial separation, is what keeps them from ever occupying
+ * the same point at the same time.
+ *
+ * Enter and exit each get their own keyframes (rather than playing one set forwards vs
+ * reverse) because reversing a single right-to-center arc would just send the exiting body
+ * back out the way it came in (rightward) instead of continuing onward past center to the
+ * left. Exit keyframes pick up exactly where enter's leave off (center) and continue the
+ * same arc shape on to the opposite (left) side, so motion is always right-to-left overall.
+ */
+/*
+ * Sampled at 10% steps (rather than 25%) so the piecewise-linear interpolation between
+ * keyframes closely approximates the true parabolic curve - too few keyframes makes the path
+ * visibly kink and the motion look choppy/uneven at each keyframe boundary, since the browser
+ * only interpolates in a straight line between consecutive stops.
+ *
+ * The animation itself uses `linear` timing (not an eased curve) - the curve's own varying
+ * horizontal speed (fast at the edges, slow near center) already provides natural deceleration
+ * baked into the keyframe positions. Applying an eased timing function on top would re-run
+ * that easing shape independently within EVERY keyframe segment (that's how CSS's default
+ * per-keyframe easing works), compounding into a repeating decelerate-reaccelerate stutter
+ * once per segment - the more keyframes, the choppier it got. `linear` timing plus the curve's
+ * inherent shape together produce one smooth motion instead.
+ */
+@keyframes celestial-enter {
+	0% { left: 118.75vw; top: 100vh; }
+	10% { left: 111.87vw; top: 90.5vh; }
+	20% { left: 105vw; top: 82vh; }
+	30% { left: 98.12vw; top: 74.5vh; }
+	40% { left: 91.25vw; top: 68vh; }
+	50% { left: 84.38vw; top: 62.5vh; }
+	60% { left: 77.5vw; top: 58vh; }
+	70% { left: 70.62vw; top: 54.5vh; }
+	80% { left: 63.75vw; top: 52vh; }
+	90% { left: 56.88vw; top: 50.5vh; }
+	100% { left: 50vw; top: 50vh; }
+}
+
+@keyframes celestial-exit {
+	0% { left: 50vw; top: 50vh; }
+	10% { left: 43.12vw; top: 50.5vh; }
+	20% { left: 36.25vw; top: 52vh; }
+	30% { left: 29.37vw; top: 54.5vh; }
+	40% { left: 22.5vw; top: 58vh; }
+	50% { left: 15.62vw; top: 62.5vh; }
+	60% { left: 8.75vw; top: 68vh; }
+	70% { left: 1.88vw; top: 74.5vh; }
+	80% { left: -5vw; top: 82vh; }
+	90% { left: -11.87vw; top: 90.5vh; }
+	100% { left: -18.75vw; top: 100vh; }
+}
+
+.celestial-icon.is-exiting {
+	animation: celestial-exit 0.6s linear forwards;
+}
+
+/* Delayed by the exit's own duration, so entering only starts once exiting has fully cleared
+   the shared arc - see the comment above for why this sequencing (not a separate path) is
+   what prevents the two bodies from colliding. */
+.celestial-icon.is-entering {
+	animation: celestial-enter 0.6s linear 0.6s forwards;
+}
+
+.celestial-icon.is-active {
+	left: 50vw;
+	top: 50vh;
+}
+
+/* Resting position before/after being off-screen, always on the right (entry) side, so the
+   next entrance still travels right-to-left rather than resuming from the left. */
+.celestial-icon.is-exited {
+	left: 118.75vw;
+	top: 100vh;
+}
+
+/* === Controls bar === */
+
+#bounty-cycle-controls {
+	background: rgba(var(--bs-body-bg-rgb), 0.88);
+	position: sticky;
+	top: 0;
+	z-index: 100;
+}
+
+#phase-toggle-group {
+	font-size: 0.95rem;
+}
+
+#phase-label-day, #phase-label-night {
+	color: var(--bs-secondary-color);
+	transition: color 0.3s ease;
+}
+
+#phase-label-day.is-active-phase, #phase-label-night.is-active-phase {
+	color: var(--bs-primary-text-emphasis);
+}
+
+#phase-toggle {
+	cursor: pointer;
+	height: 1.25rem;
+	width: 2.5rem;
+}
+
+/* === Schedule table === */
+
+#schedule-table {
+	font-family: var(--bs-font-monospace);
+	text-align: center;
+}
+
+#schedule-table th, #schedule-table td {
+	background-color: rgba(var(--bs-body-bg-rgb), 0.88);
+	white-space: nowrap;
+}
+
+#schedule-table th {
+	font-family: var(--bs-font-sans-serif);
+}
+
+/* The first column is always today's date - see the comment above startDayBucket in
+   render() (src/bounty-cycle-schedule-page.ts) for why that's a structural guarantee rather
+   than something that needs a per-render class toggle. */
+#schedule-table tr :first-child {
+	background: rgba(13, 110, 253, 0.08);
+	border-left: 2px solid var(--bs-primary);
+	border-right: 2px solid var(--bs-primary);
+}
+
+/* A slot with no window for that day (fewer than MAX_WINDOWS_PER_DAY that day) - kept as an
+   empty cell rather than removed, so the grid stays a fixed shape across renders. */
+#schedule-table td.is-empty-slot {
+	border-color: transparent;
+}
+
+#schedule-table td.is-past {
+	opacity: 0.5;
+}
+
+#schedule-table td.is-active-window {
+	color: var(--bs-primary);
+	font-weight: bold;
+}
+
+/* Marks the row boundary between the last past window and the next (or currently active) one,
+   for today's column only - a horizontal divider drawn on the cell where "now" falls. */
+#schedule-table td.is-now-boundary {
+	border-top: 2px dashed var(--bs-primary);
+}

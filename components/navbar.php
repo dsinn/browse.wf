@@ -50,6 +50,7 @@ $ext = substr($_SERVER["SERVER_SOFTWARE"] ?? "", 0, 3) == "PHP" ? ".php" : "";
 						<li><a class="dropdown-item<?=(substr($_SERVER["REQUEST_URI"], 0, 14) == "/invigorations" ? " active" : ""); ?>" href="/invigorations<?=$ext;?>">Invigorations</a></li>
 						<li><a class="dropdown-item" href="/weekly-forecast<?=$ext;?>">Weekly Forecast</a></li>
 						<li><a class="dropdown-item" href="/incursions<?=$ext;?>">Incursion Schedule</a></li>
+						<li><a class="dropdown-item" href="/bounty-cycle-schedule<?=$ext;?>">Cetus/Deimos Cycle Schedule</a></li>
 					</ul>
 				</li>
 				<a class="nav-link<?=(substr($_SERVER["REQUEST_URI"], 0, 6) == "/about" ? " active" : ""); ?>" href="/about<?=$ext;?>">About</a>

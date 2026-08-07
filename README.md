@@ -53,6 +53,7 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 - **Weekly forecast**: Dedicated page (`/weekly-forecast`) showing the upcoming week's mission rotation and clan weekly initiatives
 - **Invigorations**: Response caching so that info is preserved on refresh and next week
 - **Steel Path Incursion Schedule**: Dedicated page (`/incursions`) showing the full historical and upcoming Steel Path incursion schedule with list, table, and calendar views
+- **Cetus/Deimos Cycle Schedule**: Dedicated page (`/bounty-cycle-schedule`) showing the next week of Cetus day/night and Deimos Fass/Vome cycle windows
 
 ### For developers
 

@@ -17,7 +17,6 @@ const BASE_NODE: Partial<IRegion> = {
 	systemIndex: 0,
 	nodeType: 0,
 	masteryReq: 0,
-	missionIndex: 0,
 	minEnemyLevel: 1,
 	maxEnemyLevel: 3,
 	masteryExp: 0,

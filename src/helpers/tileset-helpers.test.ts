@@ -13,7 +13,6 @@ describe('tileset-helpers', () => {
 				nodeType: 0,
 				masteryReq: 0,
 				missionType: 'MT_SURVIVAL',
-				missionIndex: 0,
 				missionName: '/Lotus/Language/Missions/MissionName_Survival',
 				minEnemyLevel: 1,
 				maxEnemyLevel: 3,

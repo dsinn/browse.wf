@@ -1,4 +1,4 @@
-import type { IAbility, IArcane, ICustom, IExportEnemies, IFlavourItem, IGear, IPowersuit, IRecipe, IRegion, IRelic, IResource, ISentinel, IUpgrade, IWeapon, TMissionDeck } from "warframe-public-export-plus";
+import type { IAbility, IArcane, IAvionic, ICustom, IExportEnemies, IFlavourItem, IGear, IPowersuit, IRecipe, IRegion, IRelic, IResource, ISentinel, IUpgrade, IWeapon, TMissionDeck } from "warframe-public-export-plus";
 
 interface IResult {
 	type: string;
@@ -44,6 +44,7 @@ declare global {
 		ExportWeapons_entries: [string, IWeapon][];
 		ExportUpgrades_entries: [string, IUpgrade][];
 		ExportArcanes_entries: [string, IArcane][];
+		ExportAvionics_entries: [string, IAvionic][];
 		ExportResources_entries: [string, IResource][];
 		ExportFlavour_entries: [string, IFlavourItem][];
 		ExportCustoms_entries: [string, ICustom][];
@@ -56,6 +57,7 @@ declare global {
 			weapon: [string, IWeapon][];
 			upgrade: [string, IUpgrade][];
 			arcane: [string, IArcane][];
+			avionic: [string, IAvionic][];
 			resource: [string, IResource][];
 			flavour: [string, IFlavourItem][];
 			custom: [string, ICustom][];
@@ -96,6 +98,7 @@ Promise.all([
 		"ExportWeapons",
 		"ExportUpgrades",
 		"ExportArcanes",
+		"ExportAvionics",
 		"ExportResources",
 		"ExportFlavour",
 		"ExportCustoms",
@@ -117,6 +120,7 @@ Promise.all([
 		ExportWeapons,
 		ExportUpgrades,
 		ExportArcanes,
+		ExportAvionics,
 		ExportResources,
 		ExportFlavour,
 		ExportCustoms,
@@ -166,6 +170,7 @@ Promise.all([
 	window.ExportWeapons_entries = Object.entries(ExportWeapons as Record<string, IWeapon>).filter(([uniqueName, item]) => item.totalDamage != 0);
 	window.ExportUpgrades_entries = Object.entries(ExportUpgrades as Record<string, IUpgrade>);
 	window.ExportArcanes_entries = Object.entries(ExportArcanes as Record<string, IArcane>).filter(arr => !arr[1].excludeFromCodex); // Filter fixes result for Arcane Steadfast
+	window.ExportAvionics_entries = Object.entries(ExportAvionics as Record<string, IAvionic>);
 	window.ExportResources_entries = Object.entries(ExportResources as Record<string, IResource>);
 	window.ExportFlavour_entries = Object.entries(ExportFlavour as Record<string, IFlavourItem>);
 	window.ExportCustoms_entries = Object.entries(ExportCustoms as Record<string, ICustom>);
@@ -180,6 +185,7 @@ Promise.all([
 		weapon: window.ExportWeapons_entries,
 		upgrade: window.ExportUpgrades_entries,
 		arcane: window.ExportArcanes_entries,
+		avionic: window.ExportAvionics_entries,
 		resource: window.ExportResources_entries,
 		flavour: window.ExportFlavour_entries,
 		custom: window.ExportCustoms_entries,
@@ -444,7 +450,7 @@ function doQuery(query: string): void
 			}
 			root.appendChild(p);
 		}
-		else if (result.type == "upgrade")
+		else if (result.type == "upgrade" || result.type == "avionic")
 		{
 			let p = document.createElement("p");
 			p.className = "card-text";
@@ -658,6 +664,7 @@ function doQuery(query: string): void
 			|| result.type == "weapon"
 			|| result.type == "upgrade"
 			|| result.type == "arcane"
+			|| result.type == "avionic"
 			|| result.type == "resource"
 			|| result.type == "sentinel"
 			)

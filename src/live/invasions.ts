@@ -66,12 +66,40 @@ function getDuplicateInvasionOids(invasions: InvasionData[]): Set<string> {
 	return duplicates;
 }
 
+function isPendingStart(invasion: InvasionData): boolean {
+	return Number.parseInt(invasion.Activation.$date.$numberLong, 10) > Date.now();
+}
+
+// Sort order: active (by percentage ascending), then pending start (by Activation
+// ascending), then duplicate/queued (unspecified order).
+const INVASION_BUCKET_ACTIVE = 0;
+const INVASION_BUCKET_PENDING_START = 1;
+const INVASION_BUCKET_DUPLICATE = 2;
+
+function invasionBucket(invasion: InvasionData, isDuplicate: boolean): number {
+	if (isDuplicate) {
+		return INVASION_BUCKET_DUPLICATE;
+	}
+
+	if (isPendingStart(invasion)) {
+		return INVASION_BUCKET_PENDING_START;
+	}
+
+	return INVASION_BUCKET_ACTIVE;
+}
+
 function sortInvasions(invasions: InvasionData[], duplicates: Set<string>, percentages: Map<string, number>): InvasionData[] {
 	return invasions.sort((a, b) => {
 		const aIsDuplicate = duplicates.has(a._id.$oid);
 		const bIsDuplicate = duplicates.has(b._id.$oid);
-		if (aIsDuplicate !== bIsDuplicate) {
-			return aIsDuplicate ? 1 : -1;
+		const aBucket = invasionBucket(a, aIsDuplicate);
+		const bBucket = invasionBucket(b, bIsDuplicate);
+		if (aBucket !== bBucket) {
+			return aBucket - bBucket;
+		}
+
+		if (aBucket === INVASION_BUCKET_PENDING_START) {
+			return Number.parseInt(a.Activation.$date.$numberLong, 10) - Number.parseInt(b.Activation.$date.$numberLong, 10);
 		}
 
 		return (percentages.get(a._id.$oid) ?? 0) - (percentages.get(b._id.$oid) ?? 0);
@@ -98,42 +126,75 @@ export function isInvasionRewardShown(itemType: string): boolean {
 	return isFilterEnabled('invasions', `reward-${invasionRewardFilterKey(itemType)}`);
 }
 
+// The days>=1 branch only applies to the past-activation "Up since" tooltip
+// (invasions can run multiple days). It's unreachable from the pending-start "Up at"
+// tooltip, since invasions never queue more than a day out.
+function formatActivationLabel(activationMs: number): string {
+	const activationDate = new Date(activationMs);
+	const nbsp = String.fromCodePoint(160);
+	const timeString = activationDate.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}).replace(/ ([ap])/u, `${nbsp}$1`);
+	const totalMinutes = Math.floor((Date.now() - activationMs) / 60_000);
+	const days = Math.floor(totalMinutes / 1440);
+	if (days >= 1) {
+		const dateString = activationDate.toLocaleDateString([], {month: 'short', day: 'numeric'});
+		return `${dateString} @ ${timeString}`;
+	}
+
+	return timeString;
+}
+
+function buildPercentageSpan(percentage: number, invasion: InvasionData, activationMs: number): HTMLSpanElement {
+	const span = document.createElement('span');
+	span.className = 'invasion-percentage';
+	span.textContent = `${percentage.toFixed(1)}%`;
+
+	const nbsp = String.fromCodePoint(160);
+	const totalMinutes = Math.floor((Date.now() - activationMs) / 60_000);
+	const days = Math.floor(totalMinutes / 1440);
+	const hours = Math.floor(totalMinutes / 60);
+	const elapsedString = days >= 1
+		? `${days}d${nbsp}${Math.floor((totalMinutes - (days * 1440)) / 60)}h${nbsp}${totalMinutes % 60}m`
+		: (hours >= 1 ? `${hours}h${nbsp}${totalMinutes % 60}m` : `${totalMinutes}m`);
+
+	const runsRemaining = Math.max(0, invasion.Goal - Math.abs(invasion.Count));
+	addTooltip(span, `Up since ${formatActivationLabel(activationMs)} (${elapsedString}${nbsp}ago); ${runsRemaining.toLocaleString()}${nbsp}${runsRemaining === 1 ? 'run' : 'runs'}${nbsp}left`);
+
+	return span;
+}
+
+const pendingActivationTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+
+function buildPendingActivationBadge(activationMs: number, oid: string, td: HTMLTableCellElement, invasion: InvasionData): HTMLSpanElement {
+	const badge = window.createExpiryBadge(activationMs);
+	const nbsp = String.fromCodePoint(160);
+	addTooltip(badge, `Up${nbsp}at ${formatActivationLabel(activationMs)}`);
+
+	clearTimeout(pendingActivationTimeouts.get(oid));
+	pendingActivationTimeouts.set(oid, setTimeout(() => {
+		pendingActivationTimeouts.delete(oid);
+		td.replaceChildren(buildPercentageSpan(100, invasion, activationMs));
+	}, activationMs - Date.now()));
+
+	return badge;
+}
+
 function buildPercentageCell(percentage: number, isDuplicate: boolean, nodeLabel: string, invasion: InvasionData): HTMLTableCellElement {
 	const td = document.createElement('td');
 	td.className = 'text-end';
-	const span = document.createElement('span');
+
+	const activationMs = Number.parseInt(invasion.Activation.$date.$numberLong, 10);
+
 	if (isDuplicate) {
+		const span = document.createElement('span');
 		span.textContent = '⏳';
 		addTooltip(span, `Will unlock after the first ${nodeLabel} invasion is completed.`);
+		td.append(span);
+	} else if (activationMs > Date.now()) {
+		td.append(buildPendingActivationBadge(activationMs, invasion._id.$oid, td, invasion));
 	} else {
-		span.className = 'invasion-percentage';
-		span.textContent = `${percentage.toFixed(1)}%`;
-
-		const activationMs = Number.parseInt(invasion.Activation.$date.$numberLong, 10);
-		const activationDate = new Date(activationMs);
-		const totalMinutes = Math.floor((Date.now() - activationMs) / 60_000);
-		const days = Math.floor(totalMinutes / 1440);
-		const hours = Math.floor(totalMinutes / 60);
-		const nbsp = String.fromCodePoint(160);
-		let elapsedString: string;
-		let activationLabel: string;
-		const timeString = activationDate.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}).replace(/ ([ap])/u, `${nbsp}$1`);
-		if (days >= 1) {
-			elapsedString = `${days}d${nbsp}${Math.floor((totalMinutes - (days * 1440)) / 60)}h${nbsp}${totalMinutes % 60}m`;
-			const dateString = activationDate.toLocaleDateString([], {month: 'short', day: 'numeric'});
-			activationLabel = `${dateString} @ ${timeString}`;
-		} else {
-			elapsedString = hours >= 1
-				? `${hours}h${nbsp}${totalMinutes % 60}m`
-				: `${totalMinutes}m`;
-			activationLabel = timeString;
-		}
-
-		const runsRemaining = Math.max(0, invasion.Goal - Math.abs(invasion.Count));
-		addTooltip(span, `Up since ${activationLabel} (${elapsedString}${nbsp}ago); ${runsRemaining.toLocaleString()}${nbsp}${runsRemaining === 1 ? 'run' : 'runs'}${nbsp}left`);
+		td.append(buildPercentageSpan(percentage, invasion, activationMs));
 	}
 
-	td.append(span);
 	return td;
 }
 

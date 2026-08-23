@@ -60,4 +60,23 @@ test.describe('Live Page - Invasions Card', () => {
 			await expect(labelSpan).toHaveAttribute('data-bs-title', 'Grineer Asteroid');
 		});
 	});
+
+	test('pending-start invasion shows a live countdown that flips to a percentage on its own', async ({page}) => {
+		await setupMockRoutes(page, {worldStateFile: 'worldState-invasion-pending-start.json'});
+		await mockExportData(page, ['ExportImages']);
+		await page.goto('/live');
+		await waitForInvasionsTable(page);
+
+		const percentageCell = page.locator('#invasions-table tbody tr:visible td').nth(0);
+		const badge = percentageCell.locator('.badge[data-expiry]');
+		await expect(badge).toBeVisible();
+		await expect(percentageCell.locator('.invasion-percentage')).toHaveCount(0);
+
+		// Invasion activates 60s after MOCK_TIMESTAMP — jump the frozen clock past it
+		// and let the queued setTimeout fire, without reloading or re-polling worldState.
+		await page.clock.fastForward(61_000);
+
+		await expect(badge).toHaveCount(0);
+		await expect(percentageCell.locator('.invasion-percentage')).toHaveText('100.0%');
+	});
 });

@@ -1,0 +1,89 @@
+{
+  "WorldSeed": "test-invasion-pending-start",
+  "Version": 10,
+  "MobileVersion": "5.3.0.0",
+  "BuildLabel": "2026.01.08.11.06/NTZ6vFwMk1Ch3Dq00lmcvw",
+  "Time": 1768135699,
+  "Events": [],
+  "Goals": [],
+  "Alerts": [],
+  "Sorties": [],
+  "LiteSorties": [],
+  "SyndicateMissions": [],
+  "ActiveMissions": [],
+  "GlobalUpgrades": [],
+  "FlashSales": [],
+  "SkuSales": [],
+  "InGameMarket": {},
+  "Invasions": [
+    {
+      "_id": {
+        "$oid": "695ffc5aef34772439ce5f4a"
+      },
+      "Faction": "FC_CORPUS",
+      "DefenderFaction": "FC_GRINEER",
+      "Node": "SolNode181",
+      "Count": 0,
+      "Goal": 33000,
+      "LocTag": "/Lotus/Language/Menu/CorpusInvasionGeneric",
+      "Completed": false,
+      "ChainID": {
+        "$oid": "695abb0b908885f3cace5f4a"
+      },
+      "AttackerReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "AttackerMissionInfo": {
+        "seed": 29685,
+        "faction": "FC_GRINEER"
+      },
+      "DefenderReward": {
+        "countedItems": [
+          {
+            "ItemType": "/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver",
+            "ItemCount": 1
+          }
+        ]
+      },
+      "DefenderMissionInfo": {
+        "seed": 314823,
+        "faction": "FC_CORPUS"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1768087260000"
+        }
+      }
+    }
+  ],
+  "HubEvents": [],
+  "NodeOverrides": [],
+  "VoidTraders": [],
+  "PrimeVaultTraders": [],
+  "VoidStorms": [],
+  "PrimeAccessAvailability": {},
+  "PrimeVaultAvailabilities": [],
+  "PrimeTokenAvailability": true,
+  "DailyDeals": [],
+  "LibraryInfo": {},
+  "PVPChallengeInstances": [],
+  "PersistentEnemies": [],
+  "PVPAlternativeModes": [],
+  "PVPActiveTournaments": [],
+  "ProjectPct": [],
+  "ConstructionProjects": [],
+  "TwitchPromos": [],
+  "ExperimentRecommended": [],
+  "ForceLogoutVersion": 0,
+  "FeaturedGuilds": [],
+  "SeasonInfo": {},
+  "KnownCalendarSeasons": [],
+  "Conquests": [],
+  "Descents": [],
+  "Tmp": "{}"
+}

@@ -1,8 +1,9 @@
 import {
-	describe, test, expect, beforeEach, afterEach,
+	describe, test, expect, beforeEach, afterEach, vi,
 } from 'vitest';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {loadMock} from '@test/helpers/api-mocks';
+import {advanceTime} from '@test/helpers/time-helpers';
 import {testCardFilters} from '@test/live/card-filters-factory';
 import {isFilterEnabled} from '../card-filters';
 import {isInvasionRewardShown, updateInvasions} from './invasions';
@@ -46,6 +47,16 @@ function setupInvasionsGlobals() {
 		const span = document.createElement('span');
 		span.className = 'completion-check';
 		span.dataset.oid = oid;
+		return span;
+	};
+
+	// Stub for the real createExpiryBadge in live.ts (upstream, not importable here).
+	// Real behavior is covered by the E2E test in e2e/live/invasions.spec.ts, which
+	// loads the actual live.js bundle.
+	(globalThis as any).createExpiryBadge = (expiry: number) => {
+		const span = document.createElement('span');
+		span.className = 'badge text-bg-secondary';
+		span.dataset.expiry = expiry.toString();
 		return span;
 	};
 }
@@ -354,6 +365,165 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 		expect(sol181Rows.length).toBe(1);
 		expect(sol181Rows[0].classList.contains('invasion-defender-reward')).toBe(false);
 		expect(sol181Rows[0].querySelector('.completion-check')).toBeTruthy();
+	});
+
+	describe('pending-start (future Activation) invasions', () => {
+		function pendingInvasion(activationMs: number, overrides: Record<string, unknown> = {}) {
+			return {
+				_id: {$oid: 'aabbccddeeff001122334455'},
+				Node: 'SolNode181',
+				Completed: false,
+				Count: 0,
+				Goal: 33_000,
+				Faction: 'FC_CORPUS',
+				DefenderFaction: 'FC_GRINEER',
+				Activation: {$date: {$numberLong: String(activationMs)}},
+				AttackerReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint', ItemCount: 1}]},
+				DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver', ItemCount: 1}]},
+				...overrides,
+			};
+		}
+
+		test('shows a countdown badge with "Up at" tooltip instead of a percentage', async () => {
+			(globalThis as any).worldState.Invasions = [pendingInvasion(1_768_087_200_000 + 60_000)];
+			await callUpdateInvasions();
+			const row = document.querySelector<HTMLElement>('#invasions-table tbody tr:not(.d-none)');
+			const cell = row?.querySelector('td:nth-child(2)');
+			const badge = cell?.querySelector('.badge[data-expiry]');
+			expect(badge).toBeTruthy();
+			expect(row?.querySelector('.invasion-percentage')).toBeNull();
+			expect(row?.textContent).not.toContain('⏳');
+			expect((badge as HTMLElement)?.dataset.bsTitle).toMatch(/^Up.at /u);
+			expect((badge as HTMLElement)?.dataset.bsTitle).not.toContain('Up since');
+		});
+
+		test('automatically flips to the percentage once the countdown expires, without another poll', async () => {
+			vi.useFakeTimers();
+			try {
+				const delay = 60_000;
+				(globalThis as any).worldState.Invasions = [pendingInvasion(1_768_087_200_000 + delay)];
+				await callUpdateInvasions();
+
+				const cell = document.querySelector<HTMLElement>('#invasions-table tbody tr:not(.d-none) td:nth-child(2)');
+				expect(cell?.querySelector('.badge[data-expiry]')).toBeTruthy();
+
+				advanceTime(delay + 1000);
+				vi.advanceTimersByTime(delay + 1000);
+
+				expect(cell?.querySelector('.badge[data-expiry]')).toBeNull();
+				const percentSpan = cell?.querySelector<HTMLElement>('.invasion-percentage');
+				expect(percentSpan).toBeTruthy();
+				expect(percentSpan?.textContent).toBe('100.0%');
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+
+		test('hourglass takes precedence over the countdown for a duplicate invasion with future Activation', async () => {
+			(globalThis as any).worldState.Invasions = [
+				pendingInvasion(1_768_087_200_000 - 60_000, {_id: {$oid: 'aabbccddeeff001122334455'}}),
+				pendingInvasion(1_768_087_200_000 + 60_000, {_id: {$oid: 'aabbccddeeff001122334456'}}),
+			];
+			await callUpdateInvasions();
+			const rows = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none):not(.invasion-defender-reward)')];
+			const lastRow = rows.at(-1)!;
+			const cell = lastRow.querySelector<HTMLElement>('td:nth-child(2)');
+			expect(cell?.textContent).toContain('⏳');
+			expect(lastRow.querySelector('.badge[data-expiry]')).toBeNull();
+		});
+
+		test('re-rendering while pending clears the previous timer instead of scheduling a second one for the same invasion', async () => {
+			vi.useFakeTimers();
+			try {
+				const delay = 60_000;
+				(globalThis as any).worldState.Invasions = [pendingInvasion(1_768_087_200_000 + delay)];
+				await callUpdateInvasions();
+				expect(vi.getTimerCount()).toBe(1);
+
+				// Simulate a second poll while still pending (same oid, table fully rebuilt).
+				// Each render's td is a fresh element, so a leaked stale timer wouldn't show up
+				// as duplicated DOM output — it would mutate a detached td instead. Asserting on
+				// the fake-timer queue directly is what actually catches a missing clearTimeout.
+				await callUpdateInvasions();
+				expect(vi.getTimerCount()).toBe(1);
+			} finally {
+				vi.useRealTimers();
+			}
+		});
+	});
+
+	describe('three-bucket sort ordering', () => {
+		test('active invasions sort before pending-start invasions, which sort before duplicates', async () => {
+			(globalThis as any).worldState = loadMock('worldState-duplicate-invasion-node.json');
+			const activeAndDuplicates = (globalThis as any).worldState.Invasions;
+			(globalThis as any).worldState.Invasions = [
+				...activeAndDuplicates,
+				{
+					_id: {$oid: 'ffffffffffffffffffffffff'},
+					Node: 'SolNode217',
+					Completed: false,
+					Count: 0,
+					Goal: 10_000,
+					Faction: 'FC_GRINEER',
+					DefenderFaction: 'FC_CORPUS',
+					Activation: {$date: {$numberLong: String(1_768_087_200_000 + 120_000)}},
+					AttackerReward: {countedItems: [{ItemType: '/Lotus/Types/Items/Research/EnergyComponent', ItemCount: 1}]},
+					DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Items/Research/ChemComponent', ItemCount: 1}]},
+				},
+			];
+			await callUpdateInvasions();
+
+			const rows = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none):not(.invasion-defender-reward)')];
+			const kinds = rows.map(row => {
+				const cell = row.querySelector('td:nth-child(2)');
+				if (cell?.textContent?.includes('⏳')) {
+					return 'duplicate';
+				}
+
+				return cell?.querySelector('.badge[data-expiry]') ? 'pending' : 'active';
+			});
+
+			const lastActiveIndex = kinds.lastIndexOf('active');
+			const firstPendingIndex = kinds.indexOf('pending');
+			const firstDuplicateIndex = kinds.indexOf('duplicate');
+			expect(lastActiveIndex).toBeLessThan(firstPendingIndex);
+			expect(firstPendingIndex).toBeLessThan(firstDuplicateIndex);
+		});
+
+		test('multiple pending-start invasions sort ascending by Activation', async () => {
+			(globalThis as any).worldState.Invasions = [
+				{
+					_id: {$oid: 'aaaaaaaaaaaaaaaaaaaaaaaa'},
+					Node: 'SolNode181',
+					Completed: false,
+					Count: 0,
+					Goal: 10_000,
+					Faction: 'FC_CORPUS',
+					DefenderFaction: 'FC_GRINEER',
+					Activation: {$date: {$numberLong: String(1_768_087_200_000 + 120_000)}},
+					AttackerReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/SnipetronVandalBlueprint', ItemCount: 1}]},
+					DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/WeaponParts/KarakWraithReceiver', ItemCount: 1}]},
+				},
+				{
+					_id: {$oid: 'bbbbbbbbbbbbbbbbbbbbbbbb'},
+					Node: 'SolNode217',
+					Completed: false,
+					Count: 0,
+					Goal: 10_000,
+					Faction: 'FC_GRINEER',
+					DefenderFaction: 'FC_CORPUS',
+					Activation: {$date: {$numberLong: String(1_768_087_200_000 + 60_000)}},
+					AttackerReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/WeaponParts/LatronWraithBarrel', ItemCount: 1}]},
+					DefenderReward: {countedItems: [{ItemType: '/Lotus/Types/Recipes/Weapons/WeaponParts/SnipetronVandalStock', ItemCount: 1}]},
+				},
+			];
+			await callUpdateInvasions();
+			const headers = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none) th')].map(th => th.textContent);
+			const adaroIndex = headers.findIndex(h => h?.includes('Adaro'));
+			const oriasIndex = headers.findIndex(h => h?.includes('Orias'));
+			// SolNode217 (Orias, +60s) activates before SolNode181 (Adaro, +120s)
+			expect(oriasIndex).toBeLessThan(adaroIndex);
+		});
 	});
 });
 

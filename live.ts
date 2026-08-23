@@ -207,6 +207,7 @@ const ExportBundles_promise = fetchExport("ExportBundles");
 const ExportBoosterPacks_promise = fetchExport("ExportBoosterPacks");
 const ExportBoosters_promise = fetchExport("ExportBoosters");
 
+const alertsScheduledExpiries = new Set<number>();
 let renderedAlertOids: Set<string> | undefined;
 let renderedGoals = "";
 
@@ -751,8 +752,34 @@ async function updateAlerts(forceRender = false)
 
 	if (window.worldState.Alerts.length != 0)
 	{
+		// Sort a copy rather than window.worldState.Alerts itself, so the shared worldState
+		// object isn't mutated as a side effect of rendering (matches fissures.ts/invasions.ts).
+		const sortedAlerts = [...window.worldState.Alerts].sort((a: any, b: any) =>
+		{
+			const expiryDiff = a.Expiry.$date.$numberLong - b.Expiry.$date.$numberLong;
+			if (expiryDiff != 0) return expiryDiff;
+			return a.Activation.$date.$numberLong - b.Activation.$date.$numberLong;
+		});
+
+		const activeAlertExpiries = new Set<number>(
+			sortedAlerts
+				.filter((a: any) => Date.now() >= a.Activation.$date.$numberLong && Date.now() < a.Expiry.$date.$numberLong)
+				.map((a: any) => Number.parseInt(a.Expiry.$date.$numberLong, 10))
+		);
+		for (const expiry of activeAlertExpiries)
+		{
+			if (alertsScheduledExpiries.has(expiry)) continue;
+
+			alertsScheduledExpiries.add(expiry);
+			setTimeout(() =>
+			{
+				alertsScheduledExpiries.delete(expiry);
+				void updateAlerts(true);
+			}, Math.max(0, expiry + 60_000 - Date.now()));
+		}
+
 		const promises = [dict_promise, ExportMissionTypes_promise, ExportFactions_promise, ExportRegions_promise];
-		for (const alert of window.worldState.Alerts)
+		for (const alert of sortedAlerts)
 		{
 			if (alert.MissionInfo.missionReward.items)
 			{
@@ -771,9 +798,9 @@ async function updateAlerts(forceRender = false)
 		}
 		await Promise.all(promises);
 
-		document.getElementById("alerts-body").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x).dispose());
+		document.getElementById("alerts-body").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x)?.dispose());
 		document.getElementById("alerts-body").innerHTML = "";
-		for (const alert of window.worldState.Alerts)
+		for (const alert of sortedAlerts)
 		{
 			if (Date.now() < alert.Activation.$date.$numberLong)
 			{
@@ -791,9 +818,26 @@ async function updateAlerts(forceRender = false)
 						b.textContent = toTitleCase(dict[ExportMissionTypes[alert.MissionInfo.missionType].name]) + " - " + dict[ExportFactions[alert.MissionInfo.faction].name];
 						span.appendChild(b);
 					}
-					span.innerHTML += " (" + alert.MissionInfo.minEnemyLevel + "-" + alert.MissionInfo.maxEnemyLevel + ") @ "+ dict[ExportRegions[alert.MissionInfo.location].name] + ", " + dict[ExportRegions[alert.MissionInfo.location].systemName] + " ";
+					span.innerHTML += ` (${alert.MissionInfo.minEnemyLevel}-${alert.MissionInfo.maxEnemyLevel}) @ `;
+					{
+						const node = ExportRegions[alert.MissionInfo.location];
+						const locationText = `${dict[node.name]}, ${dict[node.systemName]}`;
+						const formattedTileset = (window as any).formatTileset((window as any).getTileset(node));
+						if (formattedTileset)
+						{
+							const whereElem = document.createElement("abbr");
+							whereElem.textContent = locationText;
+							addTooltip(whereElem, formattedTileset);
+							span.appendChild(whereElem);
+						}
+						else
+						{
+							span.appendChild(document.createTextNode(locationText));
+						}
+					}
+					span.appendChild(document.createTextNode(" "));
 					span.appendChild(createExpiryBadge(alert.Expiry.$date.$numberLong));
-					span.innerHTML += " ";
+					span.appendChild(document.createTextNode(" "));
 					span.appendChild(createCompletionToggle(alert._id.$oid));
 					block.appendChild(span);
 				}

@@ -50,6 +50,26 @@ test.describe('Fissures (/live)', () => {
 	});
 });
 
+test.describe('Fissures expiry cleanup', () => {
+	// Matches worldState-fissures-expiry.json's "Time" field (2026-01-11 13:40:00 UTC).
+	// SolNode20 fissure expires at +5s; SolNode211 fissure expires at +100s.
+	const EXPIRY_FROZEN_TIMESTAMP = 1_768_140_000_000;
+
+	test('expired fissure is removed from the DOM ~60 seconds after expiry', async ({page}) => {
+		await setupMockRoutes(page, {worldStateFile: 'worldState-fissures-expiry.json', frozenTime: EXPIRY_FROZEN_TIMESTAMP});
+		await page.goto('/live');
+		await page.waitForSelector('#fissures-table tbody tr:not(:has-text("Loading..."))', {timeout: 10_000});
+
+		await expect(page.locator('#fissures-table tbody tr')).toHaveCount(2);
+
+		// SolNode20 expires at +5s; jump the frozen clock 65s ahead to clear its 60s grace
+		// period and let the queued setTimeout fire, without reloading or re-polling worldState.
+		await page.clock.fastForward(65_000);
+
+		await expect(page.locator('#fissures-table tbody tr')).toHaveCount(1);
+	});
+});
+
 test.describe('Void Storms (Railjack Fissures)', () => {
 	test.beforeEach(async ({page}) => {
 		await setupMockRoutes(page, {frozenTime: FISSURE_ACTIVE_TIMESTAMP});

@@ -166,13 +166,15 @@ export async function updateFissures(forceRender = false) {
 		.filter(f => Date.now() >= Number.parseInt(f.Activation.$date.$numberLong, 10) && Date.now() < Number.parseInt(f.Expiry.$date.$numberLong, 10))
 		.map(f => Number.parseInt(f.Expiry.$date.$numberLong, 10)));
 	for (const expiry of activeFissureExpiries) {
-		if (!fissuresScheduledExpiries.has(expiry)) {
-			fissuresScheduledExpiries.add(expiry);
-			setTimeout(() => {
-				fissuresScheduledExpiries.delete(expiry);
-				void updateFissures();
-			}, Math.max(0, expiry - Date.now()));
+		if (fissuresScheduledExpiries.has(expiry)) {
+			continue;
 		}
+
+		fissuresScheduledExpiries.add(expiry);
+		setTimeout(() => {
+			fissuresScheduledExpiries.delete(expiry);
+			void updateFissures(true);
+		}, Math.max(0, expiry + 60_000 - Date.now()));
 	}
 
 	const {fissureTiers} = (globalThis as any);

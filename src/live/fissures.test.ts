@@ -170,22 +170,19 @@ describe('Void Fissures Card', () => {
 	});
 });
 
-describe('Void Fissures - updateFissures rendering', () => {
+describe('Void Fissures - updateFissures', () => {
 	beforeEach(() => {
 		setupMockFetch();
 		mockBootstrapTooltip();
 		localStorage.clear();
 
-		(globalThis as any).worldState = loadMock('worldState.json');
 		(globalThis as any).fissureTiers = {
 			VoidT1: 'Lith', VoidT2: 'Meso', VoidT3: 'Neo', VoidT4: 'Axi', VoidT5: 'Requiem', VoidT6: 'Omnia',
 		};
 		(globalThis as any).toTitleCase = (s: string) => s.replaceAll(/\b\w/gu, c => c.toUpperCase());
 		(globalThis as any).createExpiryBadge = () => document.createElement('span');
 
-		// Freeze time to within the mock worldState's fissure active window (Jan 11 2026 06:30 UTC)
 		vi.useFakeTimers();
-		vi.setSystemTime(1_768_131_600_000);
 	});
 
 	afterEach(() => {
@@ -197,86 +194,129 @@ describe('Void Fissures - updateFissures rendering', () => {
 		delete (globalThis as any).createExpiryBadge;
 	});
 
-	test('renders fissure rows with tier labels into fissures-table', async () => {
-		await updateFissures(true);
-		const tbody = document.querySelector('#fissures-table tbody');
-		expect(tbody).toBeTruthy();
-		const headings = [...tbody!.querySelectorAll('th')].map(th => th.textContent).filter(Boolean);
-		expect(headings.length).toBeGreaterThan(0);
-		// All headings should be known tier labels
-		const knownTiers = new Set(['Lith', 'Meso', 'Neo', 'Axi', 'Requiem', 'Omnia']);
-		for (const h of headings) {
-			expect(knownTiers.has(h), `Unknown tier label: ${h}`).toBe(true);
-		}
+	describe('rendering', () => {
+		beforeEach(() => {
+			(globalThis as any).worldState = loadMock('worldState.json');
+			// Freeze time to within the mock worldState's fissure active window (Jan 11 2026 06:30 UTC)
+			vi.setSystemTime(1_768_131_600_000);
+		});
+
+		test('renders fissure rows with tier labels into fissures-table', async () => {
+			await updateFissures(true);
+			const tbody = document.querySelector('#fissures-table tbody');
+			expect(tbody).toBeTruthy();
+			const headings = [...tbody!.querySelectorAll('th')].map(th => th.textContent).filter(Boolean);
+			expect(headings.length).toBeGreaterThan(0);
+			// All headings should be known tier labels
+			const knownTiers = new Set(['Lith', 'Meso', 'Neo', 'Axi', 'Requiem', 'Omnia']);
+			for (const h of headings) {
+				expect(knownTiers.has(h), `Unknown tier label: ${h}`).toBe(true);
+			}
+		});
+
+		test('each row has mission name and location cells', async () => {
+			await updateFissures(true);
+			const tbody = document.querySelector('#fissures-table tbody');
+			const rows = [...tbody!.querySelectorAll('tr')];
+			// Skip the empty-state row if present
+			const dataRows = rows.filter(tr => !tr.querySelector('td[colspan]') && tr.querySelectorAll('td').length >= 3);
+			expect(dataRows.length).toBeGreaterThan(0);
+			for (const row of dataRows) {
+				const cells = row.querySelectorAll('td');
+				// Mission name cell (index 1) should have text
+				expect(cells[1]?.textContent?.trim(), 'mission name').toBeTruthy();
+				// Location cell (index 3) should contain a comma
+				expect(cells[3]?.textContent, 'location').toMatch(/,/u);
+			}
+		});
+
+		test('tier heading appears once per tier in a category', async () => {
+			await updateFissures(true);
+			const tbody = document.querySelector('#fissures-table tbody');
+			const headings = [...tbody!.querySelectorAll('th')].map(th => th.textContent).filter(Boolean);
+			// Each heading should be unique (tier rendered only on first row of that tier)
+			expect(new Set(headings).size).toBe(headings.length);
+		});
+
+		test('unchecking a tier filter removes that tier heading and its rows', async () => {
+			// Disable Lith (VoidT1)
+			localStorage.setItem('live.filter.fissures.VoidT1', '0');
+			await updateFissures(true);
+
+			const tbody = document.querySelector('#fissures-table tbody');
+			const headings = [...tbody!.querySelectorAll('th')].map(th => th.textContent).filter(Boolean);
+			expect(headings).not.toContain('Lith');
+		});
+
+		test('unchecking a tier still shows other tier headings', async () => {
+			localStorage.setItem('live.filter.fissures.VoidT1', '0');
+			await updateFissures(true);
+
+			const tbody = document.querySelector('#fissures-table tbody');
+			const headings = [...tbody!.querySelectorAll('th')].map(th => th.textContent).filter(Boolean);
+			// Other tiers present in mock data should still appear
+			expect(headings.some(h => h !== 'Lith')).toBe(true);
+		});
+
+		test('when all tiers are unchecked, shows empty-state message', async () => {
+			for (const tier of ['VoidT1', 'VoidT2', 'VoidT3', 'VoidT4', 'VoidT5', 'VoidT6']) {
+				localStorage.setItem(`live.filter.fissures.${tier}`, '0');
+			}
+
+			await updateFissures(true);
+
+			const tbody = document.querySelector('#fissures-table tbody');
+			expect(tbody!.textContent).toContain('No missions to display based on the current filters.');
+			const headings = [...tbody!.querySelectorAll('th')].filter(th => th.textContent);
+			expect(headings.length).toBe(0);
+		});
+
+		test('location cell has tileset tooltip on abbr element', async () => {
+			await updateFissures(true);
+			const tbody = document.querySelector('#fissures-table tbody');
+			const rows = tbody!.querySelectorAll('tr');
+			expect(rows.length).toBeGreaterThan(0);
+
+			const locationCell = rows[0].querySelectorAll('td')[3];
+			const abbr = locationCell?.querySelector('abbr');
+			expect(abbr, 'location should be wrapped in <abbr> with tileset tooltip').toBeTruthy();
+			const title = abbr!.dataset.bsTitle;
+			expect(title, 'tileset tooltip should be non-empty').toBeTruthy();
+		});
 	});
 
-	test('each row has mission name and location cells', async () => {
-		await updateFissures(true);
-		const tbody = document.querySelector('#fissures-table tbody');
-		const rows = [...tbody!.querySelectorAll('tr')];
-		// Skip the empty-state row if present
-		const dataRows = rows.filter(tr => !tr.querySelector('td[colspan]') && tr.querySelectorAll('td').length >= 3);
-		expect(dataRows.length).toBeGreaterThan(0);
-		for (const row of dataRows) {
-			const cells = row.querySelectorAll('td');
-			// Mission name cell (index 1) should have text
-			expect(cells[1]?.textContent?.trim(), 'mission name').toBeTruthy();
-			// Location cell (index 3) should contain a comma
-			expect(cells[3]?.textContent, 'location').toMatch(/,/u);
-		}
-	});
+	describe('expiry cleanup', () => {
+		const NOW = 1_768_131_600_000;
 
-	test('tier heading appears once per tier in a category', async () => {
-		await updateFissures(true);
-		const tbody = document.querySelector('#fissures-table tbody');
-		const headings = [...tbody!.querySelectorAll('th')].map(th => th.textContent).filter(Boolean);
-		// Each heading should be unique (tier rendered only on first row of that tier)
-		expect(new Set(headings).size).toBe(headings.length);
-	});
+		test('schedules a single re-render per distinct expiry, ~60s after expiry passes', async () => {
+			const expiry = NOW + 5000;
+			vi.setSystemTime(NOW);
+			(globalThis as any).worldState = {
+				ActiveMissions: [{
+					_id: {$oid: 'a'},
+					Region: 6,
+					Seed: 1,
+					Activation: {$date: {$numberLong: String(NOW - 1000)}},
+					Expiry: {$date: {$numberLong: String(expiry)}},
+					Node: 'SolNode20',
+					MissionType: 'MT_EXTERMINATION',
+					Modifier: 'VoidT1',
+					Hard: false,
+				}],
+				VoidStorms: [],
+			};
 
-	test('unchecking a tier filter removes that tier heading and its rows', async () => {
-		// Disable Lith (VoidT1)
-		localStorage.setItem('live.filter.fissures.VoidT1', '0');
-		await updateFissures(true);
+			await updateFissures(true);
+			expect(document.querySelectorAll('#fissures-table tbody tr')).toHaveLength(1);
 
-		const tbody = document.querySelector('#fissures-table tbody');
-		const headings = [...tbody!.querySelectorAll('th')].map(th => th.textContent).filter(Boolean);
-		expect(headings).not.toContain('Lith');
-	});
+			// Just past real expiry, but still within the 60s grace period: row should remain
+			await vi.advanceTimersByTimeAsync(6000);
+			expect(document.querySelectorAll('#fissures-table tbody tr')).toHaveLength(1);
 
-	test('unchecking a tier still shows other tier headings', async () => {
-		localStorage.setItem('live.filter.fissures.VoidT1', '0');
-		await updateFissures(true);
-
-		const tbody = document.querySelector('#fissures-table tbody');
-		const headings = [...tbody!.querySelectorAll('th')].map(th => th.textContent).filter(Boolean);
-		// Other tiers present in mock data should still appear
-		expect(headings.some(h => h !== 'Lith')).toBe(true);
-	});
-
-	test('when all tiers are unchecked, shows empty-state message', async () => {
-		for (const tier of ['VoidT1', 'VoidT2', 'VoidT3', 'VoidT4', 'VoidT5', 'VoidT6']) {
-			localStorage.setItem(`live.filter.fissures.${tier}`, '0');
-		}
-
-		await updateFissures(true);
-
-		const tbody = document.querySelector('#fissures-table tbody');
-		expect(tbody!.textContent).toContain('No missions to display based on the current filters.');
-		const headings = [...tbody!.querySelectorAll('th')].filter(th => th.textContent);
-		expect(headings.length).toBe(0);
-	});
-
-	test('location cell has tileset tooltip on abbr element', async () => {
-		await updateFissures(true);
-		const tbody = document.querySelector('#fissures-table tbody');
-		const rows = tbody!.querySelectorAll('tr');
-		expect(rows.length).toBeGreaterThan(0);
-
-		const locationCell = rows[0].querySelectorAll('td')[3];
-		const abbr = locationCell?.querySelector('abbr');
-		expect(abbr, 'location should be wrapped in <abbr> with tileset tooltip').toBeTruthy();
-		const title = abbr!.dataset.bsTitle;
-		expect(title, 'tileset tooltip should be non-empty').toBeTruthy();
+			// Past expiry + 60s: the scheduled setTimeout should fire and clear the row
+			await vi.advanceTimersByTimeAsync(60_000);
+			const emptyStateRow = document.querySelector('#fissures-table tbody tr td');
+			expect(emptyStateRow?.textContent).toContain('No missions to display');
+		});
 	});
 });

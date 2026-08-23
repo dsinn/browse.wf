@@ -1,0 +1,126 @@
+{
+  "WorldSeed": "test-alerts",
+  "Version": 10,
+  "MobileVersion": "5.3.0.0",
+  "BuildLabel": "2026.01.08.11.06/NTZ6vFwMk1Ch3Dq00lmcvw",
+  "Time": 1768140000,
+  "Events": [],
+  "Goals": [],
+  "Alerts": [
+    {
+      "_id": {
+        "$oid": "6a0000000000000000000002"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1768139940000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1768140100000"
+        }
+      },
+      "MissionInfo": {
+        "location": "SolNode211",
+        "missionType": "MT_TERRITORY",
+        "faction": "FC_CORPUS",
+        "difficulty": 1,
+        "missionReward": {
+          "credits": 15000
+        },
+        "minEnemyLevel": 18,
+        "maxEnemyLevel": 23
+      },
+      "Tag": "AlertBeta"
+    },
+    {
+      "_id": {
+        "$oid": "6a0000000000000000000001"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1768139940000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1768140005000"
+        }
+      },
+      "MissionInfo": {
+        "location": "SolNode20",
+        "missionType": "MT_EXTERMINATION",
+        "faction": "FC_GRINEER",
+        "difficulty": 1,
+        "missionReward": {
+          "credits": 10000
+        },
+        "minEnemyLevel": 22,
+        "maxEnemyLevel": 24
+      },
+      "Tag": "AlertAlpha"
+    },
+    {
+      "_id": {
+        "$oid": "6a0000000000000000000003"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1768139940000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1768140200000"
+        }
+      },
+      "MissionInfo": {
+        "location": "SolNode181",
+        "missionType": "MT_EXTERMINATION",
+        "faction": "FC_GRINEER",
+        "difficulty": 1,
+        "missionReward": {
+          "credits": 20000
+        },
+        "minEnemyLevel": 32,
+        "maxEnemyLevel": 36
+      },
+      "Tag": "AlertGamma"
+    }
+  ],
+  "Sorties": [],
+  "LiteSorties": [],
+  "SyndicateMissions": [],
+  "ActiveMissions": [],
+  "GlobalUpgrades": [],
+  "FlashSales": [],
+  "SkuSales": [],
+  "InGameMarket": {},
+  "Invasions": [],
+  "HubEvents": [],
+  "NodeOverrides": [],
+  "VoidTraders": [],
+  "PrimeVaultTraders": [],
+  "VoidStorms": [],
+  "PrimeAccessAvailability": {},
+  "PrimeVaultAvailabilities": [],
+  "PrimeTokenAvailability": true,
+  "DailyDeals": [],
+  "LibraryInfo": {},
+  "PVPChallengeInstances": [],
+  "PersistentEnemies": [],
+  "PVPAlternativeModes": [],
+  "PVPActiveTournaments": [],
+  "ProjectPct": [],
+  "ConstructionProjects": [],
+  "TwitchPromos": [],
+  "ExperimentRecommended": [],
+  "ForceLogoutVersion": 0,
+  "FeaturedGuilds": [],
+  "SeasonInfo": {},
+  "KnownCalendarSeasons": [],
+  "Conquests": [],
+  "Descents": [],
+  "Tmp": "{}"
+}

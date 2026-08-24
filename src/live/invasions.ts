@@ -346,10 +346,10 @@ export async function updateInvasions(): Promise<void> {
 
 		const attackerItems = Array.isArray(invasion.AttackerReward)
 			? invasion.AttackerReward
-			: (invasion.AttackerReward as {countedItems: Array<{ItemType: string; ItemCount: number}>}).countedItems ?? [];
+			: (invasion.AttackerReward).countedItems ?? [];
 		const defenderItems = Array.isArray(invasion.DefenderReward)
 			? invasion.DefenderReward
-			: (invasion.DefenderReward as {countedItems: Array<{ItemType: string; ItemCount: number}>}).countedItems ?? [];
+			: (invasion.DefenderReward).countedItems ?? [];
 
 		const attackerItem = attackerItems[0];
 		const defenderItem = defenderItems[0];

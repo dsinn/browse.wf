@@ -72,7 +72,7 @@ describe('saveToCache()', () => {
 	});
 
 	afterEach(() => {
-		registerSyncHandler(vi.fn(async () => undefined) as () => Promise<void>);
+		registerSyncHandler(vi.fn(async () => undefined));
 	});
 
 	test('peek=false saves at currentWeek', () => {

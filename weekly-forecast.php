@@ -61,6 +61,18 @@
 				<div id="clan-weekly-columns">Loading...</div>
 			</div>
 		</div>
+
+		<div class="card mb-4">
+			<div class="card-header"><h5 class="mb-0">The Circuit</h5></div>
+			<div class="card-body">
+				<table class="table table-sm table-borderless table-hover mb-0">
+					<thead><tr><th>Date</th><th>Normal Rewards</th><th>Steel Path Rewards</th></tr></thead>
+					<tbody id="circuit-forecast-body">
+						<tr><td colspan="3">Loading...</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
 	</div>
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

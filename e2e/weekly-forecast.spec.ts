@@ -10,6 +10,7 @@ async function setupPage(page: Page) {
 	await page.waitForSelector('#descendia-tabs .nav-link', {timeout: 15_000});
 	await page.waitForSelector('#calendar-season-tabs .nav-link', {state: 'attached', timeout: 15_000});
 	await page.waitForSelector('#clan-weekly-columns .col-6', {state: 'attached', timeout: 15_000});
+	await page.waitForSelector('#circuit-forecast-body tr', {timeout: 15_000});
 }
 
 test.describe('Weekly Forecast Page', () => {
@@ -100,6 +101,18 @@ test.describe('Weekly Forecast Page', () => {
 			const col = page.locator('#clan-weekly-columns .col-6').first();
 			await expect(col).toBeVisible();
 			await expect(col.locator('tbody tr')).toHaveCount(4);
+		});
+	});
+
+	test.describe('The Circuit', () => {
+		test('renders 11 weeks with date, normal, and steel path columns', async ({page}) => {
+			const rows = page.locator('#circuit-forecast-body tr');
+			await expect(rows).toHaveCount(11);
+			const cells = rows.first().locator('td');
+			await expect(cells).toHaveCount(3);
+			for (const cell of await cells.all()) {
+				await expect(cell).not.toBeEmpty();
+			}
 		});
 	});
 

@@ -15,7 +15,11 @@ const mockExportWeapons: Record<string, any> = {
 	'/Lotus/Weapons/Tenno/LongGuns/Braton/Braton': {name: '/Lotus/Language/Items/BratonName', productCategory: 'LongGuns'},
 	'/Lotus/Weapons/Tenno/Melee/Skana/Skana': {name: '/Lotus/Language/Items/SkanaName', productCategory: 'Melee'},
 };
-const mockExportSentinels: Record<string, any> = {};
+const mockExportSentinels: Record<string, any> = {
+	'/Lotus/Types/Sentinels/Deth/Dethcube': {name: '/Lotus/Language/Sentinels/DethcubeName', productCategory: 'Sentinels'},
+	'/Lotus/Types/Game/KubrowPet/KubrowPetPowerSuit': {name: '/Lotus/Language/Pets/KubrowName', productCategory: 'KubrowPets'},
+	'/Lotus/Types/Game/MoaPets/MoaPetPowerSuit': {name: '/Lotus/Language/Pets/MoaName', productCategory: 'MoaPets'},
+};
 
 const mockProfile = {
 	Stats: {
@@ -149,5 +153,70 @@ describe('augmentEquipmentStats', () => {
 		`;
 		await augmentEquipmentStats(mockProfile);
 		expect(document.querySelector('#equipment-filter-bar button')).toBeNull();
+	});
+
+	describe('Sentinel/Companion shared denominator', () => {
+		// `equipTime` values of 5, 3, and 2 sum to 10, so expected Used% is a clean
+		// 50%, 30%, and 20% — easy to verify by inspection.
+		const zeroStats = {
+			kills: 0, headshots: 0, assists: 0, xp: 0,
+		};
+		const sentinelWeapon = {type: '/Lotus/Types/Sentinels/Deth/Dethcube', equipTime: 5, ...zeroStats};
+		const kubrowWeapon = {type: '/Lotus/Types/Game/KubrowPet/KubrowPetPowerSuit', equipTime: 3, ...zeroStats};
+		const moaWeapon = {type: '/Lotus/Types/Game/MoaPets/MoaPetPowerSuit', equipTime: 2, ...zeroStats};
+
+		it('divides Sentinel and Companion Used% by their combined equipTime, not their own category alone', async () => {
+			const weapons = [kubrowWeapon, moaWeapon];
+			setupDOM(weapons);
+			await augmentEquipmentStats({Stats: {Weapons: weapons}});
+
+			const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
+			// Combined total: 3 + 2 = 5, so Kubrow is 3/5 and Moa is 2/5 rather than each being 100%
+			expect(rows[0].cells[2].textContent).toBe('60.00%');
+			expect(rows[1].cells[2].textContent).toBe('40.00%');
+		});
+
+		it('includes MoaPets in the same combined denominator as Sentinels and KubrowPets', async () => {
+			const weapons = [sentinelWeapon, kubrowWeapon, moaWeapon];
+			setupDOM(weapons);
+			await augmentEquipmentStats({Stats: {Weapons: weapons}});
+
+			const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
+			// Combined total: 5 + 3 + 2 = 10
+			expect(rows[0].cells[2].textContent).toBe('50.00%');
+			expect(rows[1].cells[2].textContent).toBe('30.00%');
+			expect(rows[2].cells[2].textContent).toBe('20.00%');
+		});
+
+		it('is 100% when only one of the shared categories is present', async () => {
+			const weapons = [sentinelWeapon];
+			setupDOM(weapons);
+			await augmentEquipmentStats({Stats: {Weapons: weapons}});
+
+			const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
+			expect(rows[0].cells[2].textContent).toBe('100.00%');
+		});
+
+		it('keeps data-category as the specific category, not the combined key, for filtering', async () => {
+			const weapons = [sentinelWeapon, kubrowWeapon, moaWeapon];
+			setupDOM(weapons);
+			await augmentEquipmentStats({Stats: {Weapons: weapons}});
+
+			const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
+			expect(rows[0].dataset.category).toBe('Sentinels');
+			expect(rows[1].dataset.category).toBe('KubrowPets');
+			expect(rows[2].dataset.category).toBe('MoaPets');
+		});
+
+		it('does not mix Sentinel/Companion totals into unrelated categories', async () => {
+			const weapons = [sentinelWeapon, kubrowWeapon, mockProfile.Stats.Weapons[0]];
+			setupDOM(weapons);
+			await augmentEquipmentStats({Stats: {Weapons: weapons}});
+
+			const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
+			// Braton is alone in LongGuns, so it should still be 100% despite Sentinel/Companion rows present
+			expect(rows[2].dataset.category).toBe('LongGuns');
+			expect(rows[2].cells[2].textContent).toBe('100.00%');
+		});
 	});
 });

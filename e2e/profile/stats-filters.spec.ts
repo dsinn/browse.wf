@@ -256,6 +256,7 @@ test.describe('Profile Stats Filters', () => {
 		// - MechSuits: absent from profile data (no usage data recorded)
 		// - SpecialItems: intentionally excluded from aggregation (mixed items, no meaningful total)
 		const ZERO_USAGE_CATEGORIES = new Set(['MechSuits', 'SpecialItems']);
+		const SHARED_DENOMINATOR_CATEGORIES = new Set(['Sentinels', 'KubrowPets', 'MoaPets']);
 
 		test('all "Used" cells show a percentage value', async ({page}) => {
 			const {count, invalids} = await page.evaluate(() => {
@@ -288,6 +289,8 @@ test.describe('Profile Stats Filters', () => {
 			for (const [category, total] of Object.entries(categoryTotals)) {
 				if (ZERO_USAGE_CATEGORIES.has(category)) {
 					expect(total, `category ${category} has no Used percentage, sums to 0%`).toBeCloseTo(0, 0);
+				} else if (SHARED_DENOMINATOR_CATEGORIES.has(category)) {
+					expect(total, `category ${category} sums to less than 100%`).toBeLessThan(100);
 				} else {
 					expect(total, `category ${category} sums to ~100%`).toBeCloseTo(100, 0);
 				}

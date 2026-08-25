@@ -14,6 +14,16 @@ import {EQUIPMENT_CATEGORIES, initStatsFilterBar, makeRenumber} from './stats-fi
 const ARCHWING_PREFIX = '<ARCHWING> ';
 const ARCHWING_ICON = '/Lotus/Interface/Icons/StoreIcons/Gear/GenericArchwingSystems.png';
 
+// Sentinels, Kubrow/Kavat companions, and MOA companions all occupy the same
+// equipment slot in-game, so they share one Used% denominator even though
+// they remain separate categories for filtering/display purposes.
+const SHARED_DENOMINATOR_KEY = 'Sentinels+Companions';
+const SHARED_DENOMINATOR_CATEGORIES = new Set(['Sentinels', 'KubrowPets', 'MoaPets']);
+
+function denominatorKeyFor(category: string): string {
+	return SHARED_DENOMINATOR_CATEGORIES.has(category) ? SHARED_DENOMINATOR_KEY : category;
+}
+
 let equipmentRankObserver: MutationObserver | undefined;
 
 function computeCategoryTotals(weapons: any[], exportWarframes: Record<string, any>, exportWeapons: Record<string, any>, exportSentinels: Record<string, any>): Record<string, number> {
@@ -26,7 +36,8 @@ function computeCategoryTotals(weapons: any[], exportWarframes: Record<string, a
 
 		const category = type.productCategory ?? 'SpecialItems';
 		if (category !== 'SpecialItems') {
-			totals[category] = (totals[category] ?? 0) + (Number(item.equipTime) || 0);
+			const key = denominatorKeyFor(category);
+			totals[key] = (totals[key] ?? 0) + (Number(item.equipTime) || 0);
 		}
 	}
 
@@ -103,7 +114,7 @@ export async function augmentEquipmentStats(profile: any): Promise<void> {
 
 		// Insert Used% cell before hours cell, then reformat hours
 		const equipTime = item.equipTime ?? 0;
-		const total = categoryTotals[category] ?? 0;
+		const total = categoryTotals[denominatorKeyFor(category)] ?? 0;
 		const usedCell = document.createElement('td');
 		usedCell.textContent = `${(total ? equipTime / total * 100 : 0).toFixed(2)}%`;
 		hoursCell.before(usedCell);

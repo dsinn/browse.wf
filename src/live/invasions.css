@@ -1,0 +1,48 @@
+/* Invasion card styling */
+.invasion-row {
+	position: relative;
+}
+
+.invasion-defender-reward td {
+	padding-top: 0;
+}
+
+.invasion-progress-container {
+	position: relative;
+	height: 4px;
+	background-color: rgba(255, 255, 255, 0.1);
+	margin-top: 2px;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.invasion-progress-bar {
+	border-top-left-radius: 4px;
+	border-bottom-left-radius: 4px;
+	height: 100%;
+	transition: width 0.3s ease;
+}
+
+.invasion-percentage {
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.invasion-boss-icon {
+	width: 16px;
+	height: 16px;
+	vertical-align: middle;
+}
+
+/* Faction colors matching Bootstrap theme */
+.invasion-grineer {
+	background-color: var(--bs-danger);
+}
+
+.invasion-corpus {
+	background-color: var(--bs-info);
+}
+
+.invasion-infestation {
+	background-color: var(--bs-success);
+}

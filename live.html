@@ -1,0 +1,1558 @@
+<!--
+  Generated: 2026-08-25T07:07:11.562Z
+  Source: live.php
+
+  This is a static build for GitHub Pages
+  Original site: https://browse.wf
+-->
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+	<title>Live World State | browse.wf</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="This tool shows you everything that's going on in Warframe right now in a hopefully useful way.">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
+	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
+	<link rel="stylesheet" href="src/calendar-seasons/calendar-seasons.css?a3c58d11" media="print" onload="this.media='all'">
+	<link rel="stylesheet" href="src/card-filters.css?a3c58d11" media="print" onload="this.media='all'">
+	<link rel="stylesheet" href="src/descendia/descendia.css?a3c58d11" media="print" onload="this.media='all'">
+	<link rel="stylesheet" href="src/live/bounty-filters.css?a3c58d11" media="print" onload="this.media='all'">
+	<link rel="stylesheet" href="src/live/invasions.css?a3c58d11" media="print" onload="this.media='all'">
+	<link rel="stylesheet" href="src/live/news.css?a3c58d11" media="print" onload="this.media='all'">
+	<link rel="stylesheet" href="src/tooltip.css?a3c58d11" media="print" onload="this.media='all'">
+	<style>
+		[data-notif-toggle], [data-notif-toggle] > span, .completion-check { text-decoration:none;cursor:pointer;color:inherit }
+		.completion-check { display: inline-block; width: 15px; font-size: 0.75rem }
+		.card-block:not(:last-child) { margin-bottom: .5rem; }
+		[data-collapse-toggle], [data-collapse-toggle] > span { cursor:pointer }
+		.card:has([data-collapse-toggle].engaged) {
+			& .card-header { border-bottom: none }
+			& > :not(.card-header) { display: none !important }
+		}
+		.notif-bell-enabled {
+			filter: brightness(1.1) saturate(1.2);
+		}
+		.notif-bell-disabled {
+			filter: grayscale(100%);
+		}
+		.ally-icon { height: 1lh; width: auto; }
+	</style>
+</head>
+<body data-bs-theme="dark">
+	<style>
+	.navbar-pin {
+		font-size: 1.25rem;
+		text-decoration: none;
+		cursor: pointer;
+		transition: filter 0.2s ease;
+		filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(0.9);
+	}
+	.navbar-pin:hover {
+		filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(1.1);
+	}
+	.navbar-pin-unfixed {
+		filter: grayscale(100%) brightness(1.8);
+	}
+	.navbar-pin-unfixed:hover {
+		filter: grayscale(100%) brightness(2.2);
+	}
+</style>
+<nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" id="main-navbar">
+	<div class="container-fluid">
+		<a class="navbar-brand" href="/browse.wf/" >browse.wf</a>
+		<a id="navbar-pin-mobile" class="navbar-pin d-lg-none" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbar-content">
+			<div class="navbar-nav me-auto mb-2 mb-lg-0">
+				<a class="nav-link active" href="/browse.wf/live.html">Live</a>
+				<a class="nav-link" href="/browse.wf/arbys.html">Arbitration Schedule</a>
+				<a class="nav-link" href="/browse.wf/rivencalc.html">Riven Calculator</a>
+				<a class="nav-link" href="/browse.wf/glyphs.html">Glyphs</a>
+				<a class="nav-link" href="/browse.wf/color-picker.html">Color Picker</a>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">KIM</a>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" href="/browse.wf/kim-convo-locator.html">Convo Locator</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/kimulacrum.html">Kimulacrum</a></li>
+					</ul>
+				</li>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">More Tools</a>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" href="/browse.wf/profile.html">Profile Viewer</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/platform-suffix.html">Platform Suffix</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/prime-vault.html">Prime Vault</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/text-icons.html">Text Icons</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/invigorations.html">Invigorations</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/weekly-forecast.html">Weekly Forecast</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/incursions.html">Incursion Schedule</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/bounty-cycle-schedule.html">Cetus/Deimos Cycle Schedule</a></li>
+					</ul>
+				</li>
+				<a class="nav-link" href="/browse.wf/about.html">About</a>
+			</div>
+			<div class="nav-item dropdown mb-2 mb-lg-0">
+				<a id="lang-dropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">English</a>
+				<ul class="dropdown-menu dropdown-menu-end">
+					<li><a class="dropdown-item active" href="#" data-lang="en" onclick="event.preventDefault();setLanguage('en');">English</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="de" onclick="event.preventDefault();setLanguage('de');">Deutsch</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="es" onclick="event.preventDefault();setLanguage('es');">Español</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="fr" onclick="event.preventDefault();setLanguage('fr');">Français</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="it" onclick="event.preventDefault();setLanguage('it');">Italiano</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ja" onclick="event.preventDefault();setLanguage('ja');">日本語</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ko" onclick="event.preventDefault();setLanguage('ko');">한국어</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="pl" onclick="event.preventDefault();setLanguage('pl');">Polski</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="pt" onclick="event.preventDefault();setLanguage('pt');">Português</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ru" onclick="event.preventDefault();setLanguage('ru');">Русский</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="tr" onclick="event.preventDefault();setLanguage('tr');">Türkçe</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="uk" onclick="event.preventDefault();setLanguage('uk');">Українська</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="zh" onclick="event.preventDefault();setLanguage('zh');">简体中文</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="tc" onclick="event.preventDefault();setLanguage('tc');">繁體中文</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="th" onclick="event.preventDefault();setLanguage('th');">แบบไทย</a></li>
+				</ul>
+			</div>
+			<a id="navbar-pin-desktop" class="navbar-pin d-none d-lg-block ms-2" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
+			<div class="nav-item mb-2 mb-lg-0 ms-2" id="auth-button">
+				<!-- JavaScript will populate this with auth UI -->
+			</div>
+		</div>
+	</div>
+</nav>
+<div id="navbar-spacer" style="height:56px"></div>	<div class="container-fluid pt-3">
+		<div id="update-prompt" class="alert alert-warning d-none" role="alert">We've made some changes to reduce server load. Please refresh the page.</div>
+		<div class="row g-3 mb-xl-3">
+			<div class="col-xl-4">
+				<div class="row g-3">
+					<div class="col-xl-12 col-md-6">
+						<div class="card mb-3">
+							<div class="card-header d-flex">
+								<h5 class="mb-0"><span data-collapse-toggle="environments"></span> Environments</h5>
+								<a class="m-auto me-0" data-notif-toggle="nightfall"></a>
+							</div>
+							<div class="card-body overflow-auto">
+								<table class="table table-hover table-sm table-borderless mb-0">
+									<tr>
+										<th id="poe-name" class="w-50">Plains of Eidolon / Earth</th>
+										<td id="poe" class="w-50">Fetching data...</td>
+									</tr>
+									<tr>
+										<th id="vallis-name" class="w-50">Orb Vallis</th>
+										<td id="vallis" class="w-50"></td>
+									</tr>
+									<tr>
+										<th id="deimos-name" class="w-50">Cambion Drift</th>
+										<td id="deimos" class="w-50">Fetching data...</td>
+									</tr>
+									<tr>
+										<th id="duviri-name" class="w-50">Duviri</th>
+										<td id="duviri" class="w-50">Fetching data...</td>
+									</tr>
+									<tr>
+										<th id="zariman-name" class="w-50">Zariman</th>
+										<td id="zariman" class="w-50">Fetching data...</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+						<div class="card mb-3">
+							<div class="card-header d-flex align-items-center">
+								<h5 class="mb-0"><span data-collapse-toggle="news"></span> News</h5>
+								<button class="btn btn-sm btn-secondary ms-auto me-2" id="news-mark-all-read" title="Mark all as read">
+									Mark read
+								</button>
+								<a class="me-2" data-filter-toggle="news"></a>
+								<a data-notif-toggle="news"></a>
+							</div>
+							<div class="card-filter-panel" id="news-filters" style="display:none">
+								<div class="card-body py-2">
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="filter-news-primary" data-filter-type="primary" checked>
+										<label class="form-check-label text-primary-emphasis" for="filter-news-primary">
+											Regular events
+										</label>
+									</div>
+									<div class="form-check">
+										<input class="form-check-input" type="checkbox" id="filter-news-success" data-filter-type="success" checked>
+										<label class="form-check-label text-success-emphasis" for="filter-news-success">
+											Community events
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="card-body overflow-auto" id="news-body" style="height:167px">
+								Loading...
+							</div>
+						</div>
+						<div class="card mb-3">
+							<div class="card-header d-flex">
+								<h5 class="mb-0"><span data-collapse-toggle="darvo"></span> <span id="darvo-header">Darvo's Deal</span></h5>
+								<a class="m-auto me-0" data-notif-toggle="darvo"></a>
+							</div>
+							<div class="d-flex">
+								<img style="height:64px;width:64px;margin:10px" id="darvo-icon" />
+								<div class="card-body ps-1">
+									<p class="mb-1"><b id="darvo-item">Loading...</b> &middot; <span id="darvo-stock">0/0</span> In Stock</p>
+									<p class="card-text"><del id="darvo-ogprice">0</del> <b id="darvo-price">0</b> Platinum (-<span id="darvo-discount">0</span>%)</p>
+								</div>
+							</div>
+						</div>
+						<div class="card mb-3">
+							<h5 class="card-header"><span data-collapse-toggle="arby"></span> <span id="arby-header">Arbitration</span></h5>
+							<div class="card-body">
+								<p class="card-text"><b id="arby-what">Loading...</b> <span id="arby-where"></span> (<span id="arby-tier">F</span> Tier)</p>
+							</div>
+						</div>
+						<div class="card mb-3">
+							<div class="card-header d-flex">
+								<h5 class="mb-0"><span data-collapse-toggle="alerts"></span> Alerts</h5>
+								<a class="m-auto me-0" data-notif-toggle="alerts"></a>
+							</div>
+							<div class="card-body" id="alerts-body">Loading...</div>
+						</div>
+						<div class="card">
+							<h5 class="card-header"><span data-collapse-toggle="goals"></span> Events</h5>
+							<div class="card-body" id="goals-body">Loading...</div>
+						</div>
+					</div>
+					<div class="col-xl-12 col-md-6">
+						<div class="card mb-3">
+							<div class="card-header d-flex">
+								<h5 class="mb-0"><span data-collapse-toggle="sortie"></span> <span id="sortie-header">Sortie</span></h5>
+								<a class="m-auto me-0" data-notif-toggle="sortie"></a>
+							</div>
+							<div class="card-body">
+								<table class="table table-sm table-borderless table-hover mb-0" id="sortie-table">
+									<tr><th>Fetching data...</th></tr>
+									<tr><td>&nbsp;</td></tr>
+									<tr><td>&nbsp;</td></tr>
+								</table>
+							</div>
+						</div>
+						<div class="card mb-3">
+							<div class="card-header d-flex">
+								<h5 class="mb-0"><span data-collapse-toggle="litesortie"></span> <span id="litesortie-header">Archon Hunt</h5>
+								<a class="m-auto me-0" data-notif-toggle="litesortie"></a>
+							</div>
+							<div class="card-body" id="litesortie-body">Fetching data...</div>
+						</div>
+						<div class="card mb-3">
+							<div class="card-header d-flex">
+								<h5 class="mb-0"><span data-collapse-toggle="incursions"></span> <span id="incursions-header">Steel Path Incursions</h5>
+								<a class="ms-auto" data-filter-toggle="incursions"></a>
+							</div>
+							<div class="card-filter-panel" id="incursions-filters" style="display:none">
+								<div class="card-body py-2">
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Alchemy" data-filter-type="Alchemy" checked>
+											<label class="form-check-label" for="filter-incursions-Alchemy">
+												Alchemy											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Ascension" data-filter-type="Ascension" checked>
+											<label class="form-check-label" for="filter-incursions-Ascension">
+												Ascension											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Assassination" data-filter-type="Assassination" checked>
+											<label class="form-check-label" for="filter-incursions-Assassination">
+												Assassination											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Assault" data-filter-type="Assault" checked>
+											<label class="form-check-label" for="filter-incursions-Assault">
+												Assault											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Capture" data-filter-type="Capture" checked>
+											<label class="form-check-label" for="filter-incursions-Capture">
+												Capture											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Evacuation" data-filter-type="Evacuation" checked>
+											<label class="form-check-label" for="filter-incursions-Evacuation">
+												Defection											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Defense" data-filter-type="Defense" checked>
+											<label class="form-check-label" for="filter-incursions-Defense">
+												Defense											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Artifact" data-filter-type="Artifact" checked>
+											<label class="form-check-label" for="filter-incursions-Artifact">
+												Disruption											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Excavation" data-filter-type="Excavation" checked>
+											<label class="form-check-label" for="filter-incursions-Excavation">
+												Excavation											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Exterminate" data-filter-type="Exterminate" checked>
+											<label class="form-check-label" for="filter-incursions-Exterminate">
+												Exterminate											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Retrieval" data-filter-type="Retrieval" checked>
+											<label class="form-check-label" for="filter-incursions-Retrieval">
+												Hijack											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Hive" data-filter-type="Hive" checked>
+											<label class="form-check-label" for="filter-incursions-Hive">
+												Hive											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Purify" data-filter-type="Purify" checked>
+											<label class="form-check-label" for="filter-incursions-Purify">
+												Infested Salvage											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Territory" data-filter-type="Territory" checked>
+											<label class="form-check-label" for="filter-incursions-Territory">
+												Interception											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-MobileDefense" data-filter-type="MobileDefense" checked>
+											<label class="form-check-label" for="filter-incursions-MobileDefense">
+												Mobile Defense											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-DualDefense" data-filter-type="DualDefense" checked>
+											<label class="form-check-label" for="filter-incursions-DualDefense">
+												Mirror Defense											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Pursuit" data-filter-type="Pursuit" checked>
+											<label class="form-check-label" for="filter-incursions-Pursuit">
+												Pursuit											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Rescue" data-filter-type="Rescue" checked>
+											<label class="form-check-label" for="filter-incursions-Rescue">
+												Rescue											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Rush" data-filter-type="Rush" checked>
+											<label class="form-check-label" for="filter-incursions-Rush">
+												Rush											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Sabotage" data-filter-type="Sabotage" checked>
+											<label class="form-check-label" for="filter-incursions-Sabotage">
+												Sabotage											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Offering" data-filter-type="Offering" checked>
+											<label class="form-check-label" for="filter-incursions-Offering">
+												Shrine Defense											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Spy" data-filter-type="Spy" checked>
+											<label class="form-check-label" for="filter-incursions-Spy">
+												Spy											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Survival" data-filter-type="Survival" checked>
+											<label class="form-check-label" for="filter-incursions-Survival">
+												Survival											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Armageddon" data-filter-type="Armageddon" checked>
+											<label class="form-check-label" for="filter-incursions-Armageddon">
+												Void Armageddon											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-VoidCascade" data-filter-type="VoidCascade" checked>
+											<label class="form-check-label" for="filter-incursions-VoidCascade">
+												Void Cascade											</label>
+										</div>
+																			<div class="form-check">
+											<input class="form-check-input" type="checkbox" id="filter-incursions-Corruption" data-filter-type="Corruption" checked>
+											<label class="form-check-label" for="filter-incursions-Corruption">
+												Void Flood											</label>
+										</div>
+																	</div>
+							</div>
+							<div class="card-body overflow-auto" id="incursions-body">
+								<div id="incursions-empty-message" class="d-none">No incursions to display based on the current filters.</div>
+								<span class="d-block mb-1"><b>Fetching data...</b></span>
+								<span class="d-block mb-1">&nbsp;</span>
+								<span class="d-block mb-1">&nbsp;</span>
+								<span class="d-block mb-1">&nbsp;</span>
+								<span class="d-block mb-1">&nbsp;</span>
+								<span class="d-block">&nbsp;</span>
+							</div>
+						</div>
+						<div class="card mb-3">
+							<div class="card-header d-flex">
+								<h5 class="mb-0"><span data-collapse-toggle="vendors"></span> <span id="vendors-header">Vendors</h5>
+								<a class="m-auto me-0" data-notif-toggle="teshin"></a>
+							</div>
+							<div class="card-body">
+								<p class="mb-1">Steel Path Honors: <b id="teshin-offer"></b> <span id="teshin-check"></span></p>
+								<p class="mb-0">Iron Wake <span id="ironwake-check"></span></p>
+							</div>
+						</div>
+						<div class="card mb-3">
+							<div class="card-header d-flex">
+								<h5 class="mb-0"><span data-collapse-toggle="weekly-missions"></span> <span id="circuit-header">Weekly Missions</h5>
+								<a class="ms-auto me-2" data-filter-toggle="weekly-missions"></a>
+								<a data-notif-toggle="circuit"></a>
+							</div>
+								<div class="card-filter-panel" id="weekly-missions-filters" style="display:none">
+		<div class="card-body py-2">
+							<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-weekly-missions-clem"
+					       data-filter-type="clem"
+					       checked>
+					<label class="form-check-label" for="filter-weekly-missions-clem">
+						Help Clem					</label>
+				</div>
+							<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-weekly-missions-maroo"
+					       data-filter-type="maroo"
+					       checked>
+					<label class="form-check-label" for="filter-weekly-missions-maroo">
+						Ayatan Treasure Hunt					</label>
+				</div>
+							<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-weekly-missions-circuit-normal"
+					       data-filter-type="circuit-normal"
+					       checked>
+					<label class="form-check-label" for="filter-weekly-missions-circuit-normal">
+						The Circuit (Normal)					</label>
+				</div>
+							<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-weekly-missions-circuit-sp"
+					       data-filter-type="circuit-sp"
+					       checked>
+					<label class="form-check-label" for="filter-weekly-missions-circuit-sp">
+						The Circuit (Steel Path)					</label>
+				</div>
+							<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-weekly-missions-netracells"
+					       data-filter-type="netracells"
+					       checked>
+					<label class="form-check-label" for="filter-weekly-missions-netracells">
+						Netracells					</label>
+				</div>
+							<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-weekly-missions-kahl"
+					       data-filter-type="kahl"
+					       checked>
+					<label class="form-check-label" for="filter-weekly-missions-kahl">
+						Break Narmer					</label>
+				</div>
+					</div>
+	</div>
+							<div class="card-body">
+								<p class="mb-1" data-mission="clem">Help Clem <span id="clem-check"></span></p>
+								<p class="mb-1" data-mission="maroo">Ayatan Treasure Hunt <span id="maroo-check"></span></p>
+								<p class="mb-1" data-mission="circuit-normal">The Circuit (Normal): <b id="circuit-frames">Loading...</b> <span id="circuit-frames-check"></span></p>
+								<p class="mb-1" data-mission="circuit-sp">The Circuit (Steel Path): <b id="circuit-weapons">Loading...</b> <span id="circuit-weapons-check"></span></p>
+								<p class="mb-1" data-mission="netracells">Netracells <span id="netracell-checks" data-checkbox-group></span></p>
+								<p class="mb-0" data-mission="kahl">Break Narmer <span id="kahl-checks" data-checkbox-group></span></p>
+								<p class="mb-0 text-muted d-none" id="weekly-missions-empty-state">No missions to display based on the current filters.</p>
+							</div>
+						</div>
+									<div class="card mb-3" id="calendar-season-card">
+				<div class="card-header d-flex">
+					<h5 class="mb-0"><span data-collapse-toggle="calendar-season"></span> 1999 Calendar <span id="calendar-season-expiry"></span> <span id="calendar-season-checks"></span></h5>
+					<a class="ms-auto" data-filter-toggle="calendar-season"></a>
+				</div>
+				<div class="card-filter-panel" id="calendar-season-filters" style="display:none">
+	<div class="card-body py-2">
+		<div class="row g-2">
+			<div class="col-auto me-3">
+				<p class="mb-1 text-body-secondary small">Event types</p>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-calendar-season-type-CET_CHALLENGE"
+					       data-filter-type="type-CET_CHALLENGE"
+					       checked>
+					<label class="form-check-label" for="filter-calendar-season-type-CET_CHALLENGE">
+						📋 Challenges
+					</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-calendar-season-type-CET_REWARD"
+					       data-filter-type="type-CET_REWARD"
+					       checked>
+					<label class="form-check-label" for="filter-calendar-season-type-CET_REWARD">
+						🎁 Rewards
+					</label>
+				</div>
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-calendar-season-type-CET_UPGRADE"
+					       data-filter-type="type-CET_UPGRADE"
+					       checked>
+					<label class="form-check-label" for="filter-calendar-season-type-CET_UPGRADE">
+						🔧 Upgrades
+					</label>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+				<p class="p-3 mb-0 calendar-season-no-events">No event types checked.</p>
+				<div class="card-body" id="calendar-season-body">
+					Loading...
+				</div>
+			</div>
+									<div class="card mb-3">
+				<div class="card-header d-flex">
+					<h5 class="mb-0"><span data-collapse-toggle="clan-weekly"></span> Clan Weekly <span id="clan-weekly-expiry"></span> <span id="clan-weekly-checks"></span></h5>
+					<a class="m-auto me-0" data-notif-toggle="clan-weekly"></a>
+				</div>
+				<div class="card-body" id="clan-weekly-body">Loading...</div>
+			</div>
+						<div class="card mb-3">
+							<div class="card-header d-flex">
+								<h5 class="mb-0"><span data-collapse-toggle="baro"></span> <span id="baro-header">Baro Ki'Teer</h5>
+								<a class="m-auto me-0" data-notif-toggle="baro"></a>
+							</div>
+							<div class="card-body">
+								<p id="baro-soon" class="mb-0">Baro's next visit will be at <b class="baro-where">Loading...</b>.</p>
+								<div id="baro-now" class="d-none">
+									<p>Baro is currently at <b class="baro-where"></b>.</p>
+									<table class="table table-sm table-hover table-borderless mb-0" id="baro-table"></table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-8">
+				<div class="card mb-3" id="bounties-card">
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="bounties"></span> <span id="bounties-header">Bounties</h5>
+						<a class="ms-auto me-2" data-filter-toggle="bounties"></a>
+						<a data-notif-toggle="bounties"></a>
+					</div>
+					<div class="card-filter-panel" id="bounties-filters" style="display: none">
+	<div class="card-body">
+		<div class="form-check mb-3">
+			<input class="form-check-input" type="checkbox" id="bounty-filter-deimos" checked>
+			<label class="form-check-label" for="bounty-filter-deimos">Deimos bounties</label>
+		</div>
+		<div class="row g-3">
+						<div class="col-12 col-sm-6 col-md-4">
+				<h6 class="small fw-semibold border-bottom pb-1 mb-2">The Holdfasts</h6>
+				<div class="mb-2">
+					<select class="form-select form-select-sm w-auto" id="bounty-filter-ZarimanSyndicate">
+						<option value="1">Show all tiers</option>
+													<option value="2">Show Tier 2 and up</option>
+													<option value="3">Show Tier 3 and up</option>
+													<option value="4">Show Tier 4 and up</option>
+												<option value="5">Show Tier 5 only</option>
+						<option value="-1">Hide all tiers</option>
+					</select>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-ZarimanSyndicate-MT_EXTERMINATION"
+					       data-bounty-syndicate="ZarimanSyndicate"
+					       data-filter-type="MT_EXTERMINATION"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-ZarimanSyndicate-MT_EXTERMINATION">
+						Exterminate					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-ZarimanSyndicate-MT_MOBILE_DEFENSE"
+					       data-bounty-syndicate="ZarimanSyndicate"
+					       data-filter-type="MT_MOBILE_DEFENSE"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-ZarimanSyndicate-MT_MOBILE_DEFENSE">
+						Mobile Defense					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-ZarimanSyndicate-MT_ARMAGEDDON"
+					       data-bounty-syndicate="ZarimanSyndicate"
+					       data-filter-type="MT_ARMAGEDDON"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-ZarimanSyndicate-MT_ARMAGEDDON">
+						Void Armageddon					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-ZarimanSyndicate-MT_VOID_CASCADE"
+					       data-bounty-syndicate="ZarimanSyndicate"
+					       data-filter-type="MT_VOID_CASCADE"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-ZarimanSyndicate-MT_VOID_CASCADE">
+						Void Cascade					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-ZarimanSyndicate-MT_CORRUPTION"
+					       data-bounty-syndicate="ZarimanSyndicate"
+					       data-filter-type="MT_CORRUPTION"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-ZarimanSyndicate-MT_CORRUPTION">
+						Void Flood					</label>
+				</div>
+							</div>
+						<div class="col-12 col-sm-6 col-md-4">
+				<h6 class="small fw-semibold border-bottom pb-1 mb-2">Cavia</h6>
+				<div class="mb-2">
+					<select class="form-select form-select-sm w-auto" id="bounty-filter-EntratiLabSyndicate">
+						<option value="1">Show all tiers</option>
+													<option value="2">Show Tier 2 and up</option>
+													<option value="3">Show Tier 3 and up</option>
+													<option value="4">Show Tier 4 and up</option>
+												<option value="5">Show Tier 5 only</option>
+						<option value="-1">Hide all tiers</option>
+					</select>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-EntratiLabSyndicate-MT_ALCHEMY"
+					       data-bounty-syndicate="EntratiLabSyndicate"
+					       data-filter-type="MT_ALCHEMY"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-EntratiLabSyndicate-MT_ALCHEMY">
+						Alchemy					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-EntratiLabSyndicate-MT_ASSASSINATION"
+					       data-bounty-syndicate="EntratiLabSyndicate"
+					       data-filter-type="MT_ASSASSINATION"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-EntratiLabSyndicate-MT_ASSASSINATION">
+						Assassination					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-EntratiLabSyndicate-MT_ARTIFACT"
+					       data-bounty-syndicate="EntratiLabSyndicate"
+					       data-filter-type="MT_ARTIFACT"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-EntratiLabSyndicate-MT_ARTIFACT">
+						Disruption					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-EntratiLabSyndicate-MT_EXTERMINATION"
+					       data-bounty-syndicate="EntratiLabSyndicate"
+					       data-filter-type="MT_EXTERMINATION"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-EntratiLabSyndicate-MT_EXTERMINATION">
+						Exterminate					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-EntratiLabSyndicate-MT_DEFENSE"
+					       data-bounty-syndicate="EntratiLabSyndicate"
+					       data-filter-type="MT_DEFENSE"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-EntratiLabSyndicate-MT_DEFENSE">
+						Mirror Defense					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-EntratiLabSyndicate-MT_SURVIVAL"
+					       data-bounty-syndicate="EntratiLabSyndicate"
+					       data-filter-type="MT_SURVIVAL"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-EntratiLabSyndicate-MT_SURVIVAL">
+						Survival					</label>
+				</div>
+							</div>
+						<div class="col-12 col-sm-6 col-md-4">
+				<h6 class="small fw-semibold border-bottom pb-1 mb-2">The Hex</h6>
+				<div class="mb-2">
+					<select class="form-select form-select-sm w-auto" id="bounty-filter-HexSyndicate">
+						<option value="1">Show all tiers</option>
+													<option value="2">Show Tier 2 and up</option>
+													<option value="3">Show Tier 3 and up</option>
+													<option value="4">Show Tier 4 and up</option>
+													<option value="5">Show Tier 5 and up</option>
+													<option value="6">Show Tier 6 and up</option>
+												<option value="7">Show Tier 7 only</option>
+						<option value="-1">Hide all tiers</option>
+					</select>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-HexSyndicate-MT_ASSASSINATION"
+					       data-bounty-syndicate="HexSyndicate"
+					       data-filter-type="MT_ASSASSINATION"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-HexSyndicate-MT_ASSASSINATION">
+						Assassination					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-HexSyndicate-MT_DEFENSE"
+					       data-bounty-syndicate="HexSyndicate"
+					       data-filter-type="MT_DEFENSE"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-HexSyndicate-MT_DEFENSE">
+						Defense					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-HexSyndicate-MT_EXTERMINATION"
+					       data-bounty-syndicate="HexSyndicate"
+					       data-filter-type="MT_EXTERMINATION"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-HexSyndicate-MT_EXTERMINATION">
+						Exterminate					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-HexSyndicate-MT_ENDLESS_CAPTURE"
+					       data-bounty-syndicate="HexSyndicate"
+					       data-filter-type="MT_ENDLESS_CAPTURE"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-HexSyndicate-MT_ENDLESS_CAPTURE">
+						Legacyte Harvest					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="bounty-filter-HexSyndicate-MT_SURVIVAL"
+					       data-bounty-syndicate="HexSyndicate"
+					       data-filter-type="MT_SURVIVAL"
+					       checked>
+					<label class="form-check-label" for="bounty-filter-HexSyndicate-MT_SURVIVAL">
+						Survival					</label>
+				</div>
+							</div>
+					</div>
+	</div>
+</div>
+					<p id="bounties-loading" class="card-body mb-0">Fetching data...</p>
+					<div class="card-body overflow-auto d-none" id="bounties-body">
+						<p id="deimos-bounty-row" class="mb-0">Rotation <b id="bounty-rot">?</b> (<span id="bounty-rot-rewards">Loading</span>) &middot; Vault Rotation <b id="vault-rot">?</b> (<span id="vault-rot-rewards">Loading</span>)</p>
+						<div class="bounties-all-hidden">No bounties to display based on the current filters.</div>
+						<h5 id="ZarimanSyndicate-name" class="mt-3">The Holdfasts</h5>
+						<div id="ZarimanSyndicate-empty" class="d-none">No bounties match the current filters.</div>
+						<table class="table table-hover table-sm table-borderless mb-0" id="ZarimanSyndicate-table">
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td>50-55</td>
+								<td>1/2&nbsp;<abbr class="vq-abbr">VQ</abbr></td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td>60-65</td>
+								<td>2/3&nbsp;<abbr class="vq-abbr">VQ</abbr></td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td>70-75</td>
+								<td>3/5&nbsp;<abbr class="vq-abbr">VQ</abbr></td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td>90-95</td>
+								<td>4/6&nbsp;<abbr class="vq-abbr">VQ</abbr></td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td>110-115</td>
+								<td>5/8&nbsp;<abbr class="vq-abbr">VQ</abbr></td>
+							</tr>
+						</table>
+						<h5 id="EntratiLabSyndicate-name" class="mt-3">Cavia</h5>
+						<div id="EntratiLabSyndicate-empty" class="d-none">No bounties match the current filters.</div>
+						<table class="table table-hover table-sm table-borderless mb-0" id="EntratiLabSyndicate-table">
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td>55-60</td>
+								<td>1000/<wbr/>1500</td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td>65-70</td>
+								<td>2000/<wbr/>3000</td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td>75-80</td>
+								<td>3000/<wbr/>4500</td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td>95-100</td>
+								<td>4000/<wbr/>6000</td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td>115-120</td>
+								<td>5000/<wbr/>7500</td>
+							</tr>
+						</table>
+						<h5 id="HexSyndicate-name" class="mt-3">The Hex</h5>
+						<div id="HexSyndicate-empty" class="d-none">No bounties match the current filters.</div>
+						<table class="table table-hover table-sm table-borderless mb-0" id="HexSyndicate-table">
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td class="ally"></td>
+								<td>65-70</td>
+								<td>1000/<wbr/>1500</td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td class="ally"></td>
+								<td>75-80</td>
+								<td>2000/<wbr/>3000</td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td class="ally"></td>
+								<td>85-90</td>
+								<td>3000/<wbr/>4500</td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td class="ally"></td>
+								<td>95-100</td>
+								<td>4000/<wbr/>6000</td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td class="ally"></td>
+								<td>105-110</td>
+								<td>5000/<wbr/>7500</td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge"></td>
+								<td class="ally"></td>
+								<td>115-120</td>
+								<td>6000/<wbr/>9000</td>
+							</tr>
+							<tr>
+								<th class="mission"></th>
+								<td class="challenge" colspan="2"></td>
+								<td>125-130</td>
+								<td>7500/<wbr/>11250</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="card mb-3">
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="fissures"></span> Void Fissures (Normal)</h5>
+						<a class="ms-auto" data-filter-toggle="fissures"></a>
+					</div>
+						<div class="card-filter-panel" id="fissures-filters" style="display:none">
+		<div class="card-body py-2">
+			<!-- Tier Group (visual grouping only) -->
+			<h6 class="small fw-semibold border-bottom pb-1 mb-2">Tier</h6>
+			<div class="filter-grid-vertical-tier">
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-VoidT1"
+						       data-filter-type="VoidT1"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-VoidT1">
+							Lith						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-VoidT2"
+						       data-filter-type="VoidT2"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-VoidT2">
+							Meso						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-VoidT3"
+						       data-filter-type="VoidT3"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-VoidT3">
+							Neo						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-VoidT4"
+						       data-filter-type="VoidT4"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-VoidT4">
+							Axi						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-VoidT5"
+						       data-filter-type="VoidT5"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-VoidT5">
+							Requiem						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-VoidT6"
+						       data-filter-type="VoidT6"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-VoidT6">
+							Omnia						</label>
+					</div>
+							</div>
+
+			<!-- Mission Type Group (visual grouping only) -->
+			<h6 class="small fw-semibold border-bottom pb-1 mb-2 mt-3">Mission Type</h6>
+			<div class="filter-grid-vertical">
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_ALCHEMY"
+						       data-filter-type="MT_ALCHEMY"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_ALCHEMY">
+							Alchemy						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_ASSAULT"
+						       data-filter-type="MT_ASSAULT"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_ASSAULT">
+							Assault						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_CAPTURE"
+						       data-filter-type="MT_CAPTURE"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_CAPTURE">
+							Capture						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_DEFENSE"
+						       data-filter-type="MT_DEFENSE"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_DEFENSE">
+							Defense						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_ARTIFACT"
+						       data-filter-type="MT_ARTIFACT"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_ARTIFACT">
+							Disruption						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_EXCAVATE"
+						       data-filter-type="MT_EXCAVATE"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_EXCAVATE">
+							Excavation						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_EXTERMINATION"
+						       data-filter-type="MT_EXTERMINATION"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_EXTERMINATION">
+							Exterminate						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_HIVE"
+						       data-filter-type="MT_HIVE"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_HIVE">
+							Hive						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_TERRITORY"
+						       data-filter-type="MT_TERRITORY"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_TERRITORY">
+							Interception						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_MOBILE_DEFENSE"
+						       data-filter-type="MT_MOBILE_DEFENSE"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_MOBILE_DEFENSE">
+							Mobile Defense						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_RESCUE"
+						       data-filter-type="MT_RESCUE"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_RESCUE">
+							Rescue						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_SABOTAGE"
+						       data-filter-type="MT_SABOTAGE"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_SABOTAGE">
+							Sabotage						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_SPY"
+						       data-filter-type="MT_SPY"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_SPY">
+							Spy						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_SURVIVAL"
+						       data-filter-type="MT_SURVIVAL"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_SURVIVAL">
+							Survival						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_VOID_CASCADE"
+						       data-filter-type="MT_VOID_CASCADE"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_VOID_CASCADE">
+							Void Cascade						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-fissures-MT_CORRUPTION"
+						       data-filter-type="MT_CORRUPTION"
+						       checked>
+						<label class="form-check-label" for="filter-fissures-MT_CORRUPTION">
+							Void Flood						</label>
+					</div>
+							</div>
+		</div>
+	</div>
+					<div class="card-body overflow-auto">
+						<table class="table table-sm table-hover table-borderless mb-0" id="fissures-table"><tr><th>Loading...</th></tr></table>
+					</div>
+				</div>
+				<div class="card mb-3">
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="sp-fissures"></span> Void Fissures (Steel Path)</h5>
+						<a class="ms-auto" data-filter-toggle="sp-fissures"></a>
+					</div>
+						<div class="card-filter-panel" id="sp-fissures-filters" style="display:none">
+		<div class="card-body py-2">
+			<!-- Tier Group (visual grouping only) -->
+			<h6 class="small fw-semibold border-bottom pb-1 mb-2">Tier</h6>
+			<div class="filter-grid-vertical-tier">
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-VoidT1"
+						       data-filter-type="VoidT1"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-VoidT1">
+							Lith						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-VoidT2"
+						       data-filter-type="VoidT2"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-VoidT2">
+							Meso						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-VoidT3"
+						       data-filter-type="VoidT3"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-VoidT3">
+							Neo						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-VoidT4"
+						       data-filter-type="VoidT4"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-VoidT4">
+							Axi						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-VoidT5"
+						       data-filter-type="VoidT5"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-VoidT5">
+							Requiem						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-VoidT6"
+						       data-filter-type="VoidT6"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-VoidT6">
+							Omnia						</label>
+					</div>
+							</div>
+
+			<!-- Mission Type Group (visual grouping only) -->
+			<h6 class="small fw-semibold border-bottom pb-1 mb-2 mt-3">Mission Type</h6>
+			<div class="filter-grid-vertical">
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_ALCHEMY"
+						       data-filter-type="MT_ALCHEMY"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_ALCHEMY">
+							Alchemy						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_ASSAULT"
+						       data-filter-type="MT_ASSAULT"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_ASSAULT">
+							Assault						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_CAPTURE"
+						       data-filter-type="MT_CAPTURE"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_CAPTURE">
+							Capture						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_DEFENSE"
+						       data-filter-type="MT_DEFENSE"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_DEFENSE">
+							Defense						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_ARTIFACT"
+						       data-filter-type="MT_ARTIFACT"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_ARTIFACT">
+							Disruption						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_EXCAVATE"
+						       data-filter-type="MT_EXCAVATE"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_EXCAVATE">
+							Excavation						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_EXTERMINATION"
+						       data-filter-type="MT_EXTERMINATION"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_EXTERMINATION">
+							Exterminate						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_HIVE"
+						       data-filter-type="MT_HIVE"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_HIVE">
+							Hive						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_TERRITORY"
+						       data-filter-type="MT_TERRITORY"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_TERRITORY">
+							Interception						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_MOBILE_DEFENSE"
+						       data-filter-type="MT_MOBILE_DEFENSE"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_MOBILE_DEFENSE">
+							Mobile Defense						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_RESCUE"
+						       data-filter-type="MT_RESCUE"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_RESCUE">
+							Rescue						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_SABOTAGE"
+						       data-filter-type="MT_SABOTAGE"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_SABOTAGE">
+							Sabotage						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_SPY"
+						       data-filter-type="MT_SPY"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_SPY">
+							Spy						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_SURVIVAL"
+						       data-filter-type="MT_SURVIVAL"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_SURVIVAL">
+							Survival						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_VOID_CASCADE"
+						       data-filter-type="MT_VOID_CASCADE"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_VOID_CASCADE">
+							Void Cascade						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-sp-fissures-MT_CORRUPTION"
+						       data-filter-type="MT_CORRUPTION"
+						       checked>
+						<label class="form-check-label" for="filter-sp-fissures-MT_CORRUPTION">
+							Void Flood						</label>
+					</div>
+							</div>
+		</div>
+	</div>
+					<div class="card-body overflow-auto">
+						<table class="table table-sm table-hover table-borderless mb-0" id="sp-fissures-table"><tr><th>Loading...</th></tr></table>
+					</div>
+				</div>
+				<div class="card mb-3">
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="rj-fissures"></span> Void Storms (Railjack)</h5>
+						<a class="ms-auto" data-filter-toggle="rj-fissures"></a>
+					</div>
+						<div class="card-filter-panel" id="rj-fissures-filters" style="display:none">
+		<div class="card-body py-2">
+			<!-- Tier Group (visual grouping only) -->
+			<h6 class="small fw-semibold border-bottom pb-1 mb-2">Tier</h6>
+			<div class="filter-grid-vertical-tier">
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-rj-fissures-VoidT1"
+						       data-filter-type="VoidT1"
+						       checked>
+						<label class="form-check-label" for="filter-rj-fissures-VoidT1">
+							Lith						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-rj-fissures-VoidT2"
+						       data-filter-type="VoidT2"
+						       checked>
+						<label class="form-check-label" for="filter-rj-fissures-VoidT2">
+							Meso						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-rj-fissures-VoidT3"
+						       data-filter-type="VoidT3"
+						       checked>
+						<label class="form-check-label" for="filter-rj-fissures-VoidT3">
+							Neo						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-rj-fissures-VoidT4"
+						       data-filter-type="VoidT4"
+						       checked>
+						<label class="form-check-label" for="filter-rj-fissures-VoidT4">
+							Axi						</label>
+					</div>
+							</div>
+
+			<!-- Mission Type Group (visual grouping only) -->
+			<h6 class="small fw-semibold border-bottom pb-1 mb-2 mt-3">Mission Type</h6>
+			<div class="filter-grid-vertical-missions">
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-rj-fissures-RailjackExterminate"
+						       data-filter-type="RailjackExterminate"
+						       checked>
+						<label class="form-check-label" for="filter-rj-fissures-RailjackExterminate">
+							Exterminate						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-rj-fissures-Railjack"
+						       data-filter-type="Railjack"
+						       checked>
+						<label class="form-check-label" for="filter-rj-fissures-Railjack">
+							Skirmish						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-rj-fissures-RailjackSpy"
+						       data-filter-type="RailjackSpy"
+						       checked>
+						<label class="form-check-label" for="filter-rj-fissures-RailjackSpy">
+							Spy						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-rj-fissures-RailjackSurvival"
+						       data-filter-type="RailjackSurvival"
+						       checked>
+						<label class="form-check-label" for="filter-rj-fissures-RailjackSurvival">
+							Survival						</label>
+					</div>
+									<div class="form-check">
+						<input class="form-check-input" type="checkbox"
+						       id="filter-rj-fissures-RailjackVolatile"
+						       data-filter-type="RailjackVolatile"
+						       checked>
+						<label class="form-check-label" for="filter-rj-fissures-RailjackVolatile">
+							Volatile						</label>
+					</div>
+							</div>
+		</div>
+	</div>
+					<div class="card-body overflow-auto">
+						<table class="table table-sm table-hover table-borderless mb-0" id="rj-fissures-table"><tr><th>Loading...</th></tr></table>
+					</div>
+				</div>
+				<div class="card mb-3">
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="invasions"></span> <span id="invasions-header">Invasions</h5>
+						<a class="ms-auto" data-filter-toggle="invasions"></a>
+					</div>
+					<div class="card-filter-panel" id="invasions-filters" style="display:none">
+	<div class="card-body py-2">
+		<div class="row g-2">
+						<div class="col-auto me-3">
+				<p class="mb-1 text-body-secondary small">Resources</p>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-EnergyComponent"
+					       data-filter-type="reward-EnergyComponent"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-EnergyComponent">
+						Fieldron					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-ChemComponent"
+					       data-filter-type="reward-ChemComponent"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-ChemComponent">
+						Detonite Injector					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-BioComponent"
+					       data-filter-type="reward-BioComponent"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-BioComponent">
+						Mutagen Mass					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-InfestedAladCoordinate"
+					       data-filter-type="reward-InfestedAladCoordinate"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-InfestedAladCoordinate">
+						Mutalist Alad V Nav Coordinate					</label>
+				</div>
+							</div>
+						<div class="col-auto me-3">
+				<p class="mb-1 text-body-secondary small">Blueprints</p>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-Forma"
+					       data-filter-type="reward-Forma"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-Forma">
+						Forma					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-OrokinCatalyst"
+					       data-filter-type="reward-OrokinCatalyst"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-OrokinCatalyst">
+						Orokin Catalyst					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-OrokinReactor"
+					       data-filter-type="reward-OrokinReactor"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-OrokinReactor">
+						Orokin Reactor					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-ExilusAdapter"
+					       data-filter-type="reward-ExilusAdapter"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-ExilusAdapter">
+						Exilus Warframe Adapter					</label>
+				</div>
+							</div>
+						<div class="col-auto me-3">
+				<p class="mb-1 text-body-secondary small">Weapon parts</p>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-DeraVandal"
+					       data-filter-type="reward-DeraVandal"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-DeraVandal">
+						Dera Vandal					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-KarakWraith"
+					       data-filter-type="reward-KarakWraith"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-KarakWraith">
+						Karak Wraith					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-LatronWraith"
+					       data-filter-type="reward-LatronWraith"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-LatronWraith">
+						Latron Wraith					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-GrineerCombatKnife"
+					       data-filter-type="reward-GrineerCombatKnife"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-GrineerCombatKnife">
+						Sheev					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-SnipetronVandal"
+					       data-filter-type="reward-SnipetronVandal"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-SnipetronVandal">
+						Snipetron Vandal					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-StrunWraith"
+					       data-filter-type="reward-StrunWraith"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-StrunWraith">
+						Strun Wraith					</label>
+				</div>
+								<div class="form-check">
+					<input class="form-check-input" type="checkbox"
+					       id="filter-invasions-reward-TwinVipersWraith"
+					       data-filter-type="reward-TwinVipersWraith"
+					       checked>
+					<label class="form-check-label" for="filter-invasions-reward-TwinVipersWraith">
+						Twin Vipers Wraith					</label>
+				</div>
+							</div>
+					</div>
+	</div>
+</div>
+					<div class="card-body overflow-auto">
+						<table class="table table-sm table-hover table-borderless mb-0" id="invasions-table"><tr><td>Loading...</td></tr></table>
+					</div>
+				</div>
+				<div class="card mb-3">
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="labconquest"></span> <span id="labConquest-header" data-autocheck-target="#netracell-checks" data-autocheck-count="2">Deep Archimedea</h5>
+						<a class="m-auto me-0" data-notif-toggle="labconquest"></a>
+					</div>
+					<div class="card-body overflow-auto" id="labConquest-body"><p>Fetching data...</p></div>
+				</div>
+				<div class="card mb-3">
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="hexconquest"></span> <span id="hexConquest-header" data-autocheck-target="#netracell-checks" data-autocheck-count="2">Temporal Archimedea</h5>
+						<a class="m-auto me-0" data-notif-toggle="hexconquest"></a>
+					</div>
+					<div class="card-body overflow-auto" id="hexConquest-body"><p>Fetching data...</p></div>
+				</div>
+								<div class="card">
+					<div class="card-header d-flex">
+						<h5 class="mb-0"><span data-collapse-toggle="descendia"></span> Descendia <span id="descent-checks"></span></h5>
+					</div>
+					<div class="card-body">
+						<p>ℹ️ This is new information that has not yet been translated from its internal format.</p>
+						<table class="table table-sm table-hover table-borderless mb-0 descendia-challenges" id="descendia-table">
+							<thead>
+								<tr>
+									<th>Level</th>
+									<th>Mission Type</th>
+									<th>Challenge</th>
+									<th>Arena</th>
+									<th>Specs &amp; Auras</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr><td colspan="5">Loading...</td></tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+			</div>
+		</div>
+		<div class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+	</div>
+	<footer class="container-fluid mt-4 py-3 border-top">
+	<div class="row">
+		<div class="col text-center text-muted">
+			<small>
+				Cloud sync uses Discord OAuth. We store your Discord username, email, app preferences, and form data.
+				Data is private to your account.
+			</small>
+		</div>
+	</div>
+</footer>
+	<script>window.OS_DICT_VERSION=9</script>
+<script src="env-config.js?a3c58d11"></script>
+<script src="common.js?a3c58d11"></script>
+<script src="typestripped/src-bundle.js?a3c58d11"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+	<!-- live.js must come last as it calls functions defined in the fork bundle loaded from commonjs.html -->
+	<script src="typestripped/live.js?a3c58d11"></script>
+</body>
+</html>

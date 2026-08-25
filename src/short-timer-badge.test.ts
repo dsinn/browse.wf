@@ -1,0 +1,314 @@
+import {
+	describe, test, expect, beforeEach, vi, afterEach,
+} from 'vitest';
+import {createShortTimerBadge, initializeShortTimerBadges} from './short-timer-badge';
+import {SECONDS_PER_DAY, SECONDS_PER_HOUR} from './helpers/time-helpers';
+
+describe('Short Timer Badge (/arbys timer badges)', () => {
+	beforeEach(() => {
+		// Mock setTimeout and clearTimeout for controlled testing
+		vi.useFakeTimers();
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+		vi.useRealTimers();
+	});
+
+	describe('createShortTimerBadge()', () => {
+		test('stores timestamp in dataset', () => {
+			const timestamp = Math.floor(Date.now() / 1000) + SECONDS_PER_HOUR; // 1 hour from now
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			expect(badge.dataset.shortTimerExpiry).toBe(timestamp.toString());
+		});
+
+		test('includes extraClasses in className when provided', () => {
+			const timestamp = Math.floor(Date.now() / 1000) + SECONDS_PER_HOUR;
+			const badge = createShortTimerBadge(timestamp, 'Started', 'my-class my-second-class');
+
+			expect(badge.className).toContain('my-class');
+			expect(badge.className).toContain('my-second-class');
+		});
+
+		test('omits extraClasses from className when not provided', () => {
+			const timestamp = Math.floor(Date.now() / 1000) + SECONDS_PER_HOUR;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			expect(badge.className).not.toContain('my-class');
+		});
+
+		test('shows countdown for future timestamps', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// Test: 2 days + 5 hours from now
+			const timestamp = Math.floor(now / 1000) + (2 * SECONDS_PER_DAY) + (5 * SECONDS_PER_HOUR);
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			expect(badge.textContent).toMatch(/2d \d+h/u);
+		});
+
+		test('shows expiredLabel for past timestamps', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			const timestamp = Math.floor(now / 1000) - SECONDS_PER_HOUR;
+
+			expect(createShortTimerBadge(timestamp, 'Started').textContent).toBe('Started');
+			expect(createShortTimerBadge(timestamp, 'Pending Refresh').textContent).toBe('Pending Refresh');
+		});
+	});
+
+	describe('Two-unit formatting', () => {
+		test('shows days + hours when >= 1 day remaining', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 5 days + 3 hours + 45 minutes + 30 seconds
+			const timestamp = Math.floor(now / 1000) + (5 * SECONDS_PER_DAY) + (3 * SECONDS_PER_HOUR) + (45 * 60) + 30;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			// Should show only days + hours, not minutes or seconds
+			expect(badge.textContent).toBe('5d 3h');
+		});
+
+		test('shows hours + minutes when 1-23 hours remaining', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 5 hours + 23 minutes + 45 seconds
+			const timestamp = Math.floor(now / 1000) + (5 * SECONDS_PER_HOUR) + (23 * 60) + 45;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			// Should show only hours + minutes, not seconds
+			expect(badge.textContent).toBe('5h 23m');
+		});
+
+		test('shows minutes + seconds when < 1 hour remaining', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 23 minutes + 45 seconds
+			const timestamp = Math.floor(now / 1000) + (23 * 60) + 45;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			// Should show minutes + seconds
+			expect(badge.textContent).toBe('23m 45s');
+		});
+
+		test('pads seconds with leading zero', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 5 minutes + 5 seconds
+			const timestamp = Math.floor(now / 1000) + (5 * 60) + 5;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			expect(badge.textContent).toBe('5m 05s');
+		});
+
+		test('shows only seconds for < 1 minute remaining', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 45 seconds
+			const timestamp = Math.floor(now / 1000) + 45;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			expect(badge.textContent).toBe('0m 45s');
+		});
+
+		test('shows expiredLabel when <= 0 seconds remaining', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// Current second (0 seconds remaining)
+			const timestamp = Math.floor(now / 1000);
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			expect(badge.textContent).toBe('Started');
+		});
+	});
+
+	describe('Timer updates with setTimeout', () => {
+		test('schedules next update at top of hour for days+hours display', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 2 days + 30 minutes from now (showing days+hours)
+			const timestamp = Math.floor(now / 1000) + (2 * SECONDS_PER_DAY) + (30 * 60);
+			const badge = createShortTimerBadge(timestamp, 'Started');
+			document.body.append(badge);
+
+			expect(badge.textContent).toMatch(/2d \d+h/u);
+
+			// Fast forward just under 30 minutes (shouldn't update yet)
+			vi.advanceTimersByTime(29 * 60 * 1000);
+			expect(badge.textContent).toMatch(/2d \d+h/u); // Still same hour
+
+			// Fast forward to next hour boundary
+			vi.advanceTimersByTime((1 * 60 * 1000) + 1);
+			expect(badge.textContent).toMatch(/1d 23h|2d \d+h/u); // Updated
+		});
+
+		test('schedules next update at top of minute for hours+minutes display', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 5 hours + 30 seconds from now (showing hours+minutes)
+			const timestamp = Math.floor(now / 1000) + (5 * SECONDS_PER_HOUR) + 30;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+			document.body.append(badge);
+
+			expect(badge.textContent).toMatch(/5h \d+m/u);
+
+			// Fast forward just under 30 seconds (shouldn't update yet)
+			vi.advanceTimersByTime(29 * 1000);
+			expect(badge.textContent).toMatch(/5h \d+m/u); // Still same minute
+
+			// Fast forward to next minute boundary
+			vi.advanceTimersByTime((1 * 1000) + 1);
+			expect(badge.textContent).toMatch(/\d+h \d+m/u); // Updated
+		});
+
+		test('schedules next update at top of second for minutes+seconds display', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 5 minutes + 500ms from now (showing minutes+seconds)
+			const timestamp = Math.floor(now / 1000) + (5 * 60);
+			const badge = createShortTimerBadge(timestamp, 'Started');
+			document.body.append(badge);
+
+			expect(badge.textContent).toMatch(/\d+m \d+s/u);
+
+			// Fast forward just under 1 second (shouldn't update yet)
+			vi.advanceTimersByTime(500);
+			const beforeText = badge.textContent;
+
+			// Fast forward to next second boundary
+			vi.advanceTimersByTime(500 + 1);
+			const afterText = badge.textContent;
+
+			// Should have updated to show one less second
+			expect(beforeText).not.toBe(afterText);
+		});
+
+		test('stops updating and shows expiredLabel after timer expires', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 3 seconds from now
+			const timestamp = Math.floor(now / 1000) + 3;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+			document.body.append(badge);
+
+			expect(badge.textContent).toBe('0m 03s');
+
+			// Fast forward past the event start
+			vi.advanceTimersByTime(4000);
+
+			expect(badge.textContent).toBe('Started');
+
+			// Fast forward more - should not change from "Started"
+			vi.advanceTimersByTime(10_000);
+			expect(badge.textContent).toBe('Started');
+		});
+
+		test('shows custom expiredLabel after timer expires', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 3 seconds from now
+			const timestamp = Math.floor(now / 1000) + 3;
+			const badge = createShortTimerBadge(timestamp, 'Pending Refresh');
+			document.body.append(badge);
+
+			expect(badge.textContent).toBe('0m 03s');
+
+			vi.advanceTimersByTime(4000);
+
+			expect(badge.textContent).toBe('Pending Refresh');
+		});
+	});
+
+	describe('initializeShortTimerBadges()', () => {
+		test('initializes timers for all existing badges', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// Create multiple badges manually
+			const timestamp1 = Math.floor(now / 1000) + SECONDS_PER_HOUR; // 1 hour ahead
+			const timestamp2 = Math.floor(now / 1000) + (2 * SECONDS_PER_HOUR); // 2 hours ahead
+
+			const badge1 = document.createElement('span');
+			badge1.dataset.shortTimerExpiry = timestamp1.toString();
+			document.body.append(badge1);
+
+			const badge2 = document.createElement('span');
+			badge2.dataset.shortTimerExpiry = timestamp2.toString();
+			document.body.append(badge2);
+
+			// Initialize timers
+			initializeShortTimerBadges();
+
+			// Both badges should have been updated with countdown text
+			expect(badge1.textContent).toMatch(/\d+m/u);
+			expect(badge2.textContent).toMatch(/\d+h/u);
+		});
+
+		test('handles badges with no timestamp attribute gracefully', () => {
+			const badge = document.createElement('span');
+			document.body.append(badge);
+
+			// Should not throw
+			expect(() => {
+				initializeShortTimerBadges();
+			}).not.toThrow();
+		});
+	});
+
+	describe('Edge cases', () => {
+		test('handles exactly 1 day remaining', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			const timestamp = Math.floor(now / 1000) + SECONDS_PER_DAY;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			expect(badge.textContent).toBe('1d 0h');
+		});
+
+		test('handles exactly 1 hour remaining', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			const timestamp = Math.floor(now / 1000) + SECONDS_PER_HOUR;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			expect(badge.textContent).toBe('1h 0m');
+		});
+
+		test('handles exactly 1 minute remaining', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			const timestamp = Math.floor(now / 1000) + 60;
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			expect(badge.textContent).toBe('1m 00s');
+		});
+
+		test('handles 99+ days correctly', () => {
+			const now = Date.now();
+			vi.setSystemTime(now);
+
+			// 150 days
+			const timestamp = Math.floor(now / 1000) + (150 * SECONDS_PER_DAY);
+			const badge = createShortTimerBadge(timestamp, 'Started');
+
+			expect(badge.textContent).toMatch(/150d \d+h/u);
+		});
+	});
+});

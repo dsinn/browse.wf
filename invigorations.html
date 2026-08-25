@@ -1,0 +1,326 @@
+<!--
+  Generated: 2026-08-25T07:07:11.549Z
+  Source: invigorations.php
+
+  This is a static build for GitHub Pages
+  Original site: https://browse.wf
+-->
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+	<title>Invigorations | browse.wf</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
+</head>
+<body data-bs-theme="dark">
+	<style>
+	.navbar-pin {
+		font-size: 1.25rem;
+		text-decoration: none;
+		cursor: pointer;
+		transition: filter 0.2s ease;
+		filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(0.9);
+	}
+	.navbar-pin:hover {
+		filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(1.1);
+	}
+	.navbar-pin-unfixed {
+		filter: grayscale(100%) brightness(1.8);
+	}
+	.navbar-pin-unfixed:hover {
+		filter: grayscale(100%) brightness(2.2);
+	}
+</style>
+<nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" id="main-navbar">
+	<div class="container-fluid">
+		<a class="navbar-brand" href="/browse.wf/" >browse.wf</a>
+		<a id="navbar-pin-mobile" class="navbar-pin d-lg-none" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbar-content">
+			<div class="navbar-nav me-auto mb-2 mb-lg-0">
+				<a class="nav-link" href="/browse.wf/live.html">Live</a>
+				<a class="nav-link" href="/browse.wf/arbys.html">Arbitration Schedule</a>
+				<a class="nav-link" href="/browse.wf/rivencalc.html">Riven Calculator</a>
+				<a class="nav-link" href="/browse.wf/glyphs.html">Glyphs</a>
+				<a class="nav-link" href="/browse.wf/color-picker.html">Color Picker</a>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">KIM</a>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" href="/browse.wf/kim-convo-locator.html">Convo Locator</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/kimulacrum.html">Kimulacrum</a></li>
+					</ul>
+				</li>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">More Tools</a>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" href="/browse.wf/profile.html">Profile Viewer</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/platform-suffix.html">Platform Suffix</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/prime-vault.html">Prime Vault</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/text-icons.html">Text Icons</a></li>
+						<li><a class="dropdown-item active" href="/browse.wf/invigorations.html">Invigorations</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/weekly-forecast.html">Weekly Forecast</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/incursions.html">Incursion Schedule</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/bounty-cycle-schedule.html">Cetus/Deimos Cycle Schedule</a></li>
+					</ul>
+				</li>
+				<a class="nav-link" href="/browse.wf/about.html">About</a>
+			</div>
+			<div class="nav-item dropdown mb-2 mb-lg-0">
+				<a id="lang-dropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">English</a>
+				<ul class="dropdown-menu dropdown-menu-end">
+					<li><a class="dropdown-item active" href="#" data-lang="en" onclick="event.preventDefault();setLanguage('en');">English</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="de" onclick="event.preventDefault();setLanguage('de');">Deutsch</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="es" onclick="event.preventDefault();setLanguage('es');">Español</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="fr" onclick="event.preventDefault();setLanguage('fr');">Français</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="it" onclick="event.preventDefault();setLanguage('it');">Italiano</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ja" onclick="event.preventDefault();setLanguage('ja');">日本語</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ko" onclick="event.preventDefault();setLanguage('ko');">한국어</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="pl" onclick="event.preventDefault();setLanguage('pl');">Polski</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="pt" onclick="event.preventDefault();setLanguage('pt');">Português</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ru" onclick="event.preventDefault();setLanguage('ru');">Русский</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="tr" onclick="event.preventDefault();setLanguage('tr');">Türkçe</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="uk" onclick="event.preventDefault();setLanguage('uk');">Українська</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="zh" onclick="event.preventDefault();setLanguage('zh');">简体中文</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="tc" onclick="event.preventDefault();setLanguage('tc');">繁體中文</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="th" onclick="event.preventDefault();setLanguage('th');">แบบไทย</a></li>
+				</ul>
+			</div>
+			<a id="navbar-pin-desktop" class="navbar-pin d-none d-lg-block ms-2" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
+			<div class="nav-item mb-2 mb-lg-0 ms-2" id="auth-button">
+				<!-- JavaScript will populate this with auth UI -->
+			</div>
+		</div>
+	</div>
+</nav>
+<div id="navbar-spacer" style="height:56px"></div>	<div class="container pt-3">
+		<div id="cache-alert" class="alert d-none mb-3" role="alert"></div>
+		<form onsubmit="doSubmit();return false;">
+			<input id="username" class="form-control mb-3" placeholder="Username (case-sensitive)" minlength="4" required />
+			<div class="form-check mb-3">
+				<input class="form-check-input" type="checkbox" id="peek">
+				<label class="form-check-label" for="peek">I've already visited Helminth this week</label>
+			</div>
+			<h5 id="input-header">Previous Offerings</h5>
+			<div class="row g-2 mb-2">
+				<div class="col-4">
+					<select class="form-control suit-select"></select>
+				</div>
+				<div class="col-4">
+					<select class="form-control suit-select"></select>
+				</div>
+				<div class="col-4">
+					<select class="form-control suit-select"></select>
+				</div>
+			</div>
+			<p id="inventory-upsell">You can <a href="inventory#for=invigorations">sync your inventory with browse.wf</a> to fill in the offerings automatically.</p>
+			<p id="inventory-status" class="d-none">Offerings were automatically filled in from your inventory. <a href="inventory#for=invigorations">Need to update your inventory?</a></p>
+			<input type="submit" class="btn btn-primary mb-3" value="Calculate Offerings" />
+			<div id="results" class="d-none">
+				<h4 class="mb-0">Current Offerings</h4>
+				<p id="explain-noprev" class="explainer text-secondary-emphasis">Due to incomplete input data, these results can only be considered 100% correct if you have never visited Helminth before and your username is <b></b>.</p>
+				<p id="explain-current" class="explainer text-secondary-emphasis">Assuming the previous offerings are correct for your account and your username is <b></b> as of this week.</p>
+				<p id="explain-peek" class="explainer text-secondary-emphasis">Assuming the current offerings are correct for your account and your username is or will be <b></b>.</p>
+				<div class="row text-center">
+					<div class="col-4">
+						<h5 id="out-suit-0"></h5>
+						<p id="out-off-0" class="m-0"></p>
+						<p id="out-def-0"></p>
+					</div>
+					<div class="col-4">
+						<h5 id="out-suit-1"></h5>
+						<p id="out-off-1" class="m-0"></p>
+						<p id="out-def-1"></p>
+					</div>
+					<div class="col-4">
+						<h5 id="out-suit-2"></h5>
+						<p id="out-off-2" class="m-0"></p>
+						<p id="out-def-2"></p>
+					</div>
+				</div>
+			</div>
+		</form>
+		<div id="history" class="d-none mt-4">
+	<p class="text-secondary-emphasis">New invigorations will become available in <span id="invigoration-timer"></span></p>
+	<h4>Invigoration History</h4>
+		<div id="history-this-week" class="d-none mb-3">
+		<h5 class="mb-2">This Week</h5>
+		<div class="row text-center">
+						<div class="col-4">
+				<h6 id="this-week-suit-0"></h6>
+				<p id="this-week-off-0" class="m-0"></p>
+				<p id="this-week-def-0"></p>
+			</div>
+						<div class="col-4">
+				<h6 id="this-week-suit-1"></h6>
+				<p id="this-week-off-1" class="m-0"></p>
+				<p id="this-week-def-1"></p>
+			</div>
+						<div class="col-4">
+				<h6 id="this-week-suit-2"></h6>
+				<p id="this-week-off-2" class="m-0"></p>
+				<p id="this-week-def-2"></p>
+			</div>
+					</div>
+	</div>
+		<div id="history-last-week" class="d-none mb-3">
+		<h5 class="mb-2">Last Week</h5>
+		<div class="row text-center">
+						<div class="col-4">
+				<h6 id="last-week-suit-0"></h6>
+				<p id="last-week-off-0" class="m-0"></p>
+				<p id="last-week-def-0"></p>
+			</div>
+						<div class="col-4">
+				<h6 id="last-week-suit-1"></h6>
+				<p id="last-week-off-1" class="m-0"></p>
+				<p id="last-week-def-1"></p>
+			</div>
+						<div class="col-4">
+				<h6 id="last-week-suit-2"></h6>
+				<p id="last-week-off-2" class="m-0"></p>
+				<p id="last-week-def-2"></p>
+			</div>
+					</div>
+	</div>
+	</div>
+	</div>
+	<script>window.OS_DICT_VERSION=9</script>
+<script src="env-config.js?a3c58d11"></script>
+<script src="common.js?a3c58d11"></script>
+<script src="typestripped/src-bundle.js?a3c58d11"></script>
+	<script>
+		Promise.all([
+			getDictPromise(),
+			fetch("warframe-public-export-plus/ExportWarframes.json").then(res => res.json())
+		]).then(([_dict, ExportWarframes]) =>
+		{
+			window.dict = _dict;
+
+			onLanguageUpdate = function()
+			{
+				window.baseSuitTypes = {};
+				const warframes = Object.values(ExportWarframes);
+				warframes.sort((a, b) => dict[a.name].localeCompare(dict[b.name]));
+				warframes.forEach(suit =>
+				{
+					if (suit.productCategory == "Suits" && suit.name.indexOf("Prime") == -1 && suit.name.indexOf("Umbra") == -1)
+					{
+						baseSuitTypes[suit.parentName] = {
+							name: suit.name,
+							codename: suit.parentName.split("/")[3]
+						};
+					}
+				});
+
+				document.querySelectorAll(".suit-select").forEach(select =>
+				{
+					const value = select.value || "---";
+					select.innerHTML = "<option>---</option>";
+					for (const [uniqueName, data] of Object.entries(baseSuitTypes))
+					{
+						const option = document.createElement("option");
+						option.value = uniqueName;
+						option.textContent = dict[data.name];
+						if (data.codename != option.textContent)
+						{
+							option.textContent += " (\"" + data.codename + "\")";
+						}
+						select.appendChild(option);
+					}
+					select.value = value;
+				});
+			};
+			onLanguageUpdate();
+
+			let inventoryDataUsed = false;
+			if (localStorage.getItem("inventory"))
+			{
+				document.getElementById("inventory-upsell").classList.add("d-none");
+				document.getElementById("inventory-status").classList.remove("d-none");
+
+				const inventory = JSON.parse(localStorage.getItem("inventory"));
+				if (inventory.InfestedFoundry)
+				{
+					if (inventory.InfestedFoundry.InvigorationIndex)
+					{
+						document.getElementById("peek").checked = (inventory.InfestedFoundry.InvigorationIndex == Math.trunc(((Date.now() / 1000) - 1391990400) / 604800));
+						document.getElementById("peek").onchange();
+						inventoryDataUsed = true;
+					}
+					if (inventory.InfestedFoundry.InvigorationSuitOfferings)
+					{
+						const selects = document.querySelectorAll(".suit-select");
+						for (let i = 0; i != 3; ++i)
+						{
+							selects[i].value = inventory.InfestedFoundry.InvigorationSuitOfferings[i];
+						}
+						inventoryDataUsed = true;
+					}
+				}
+			}
+
+			initInvigorationsFromCache(inventoryDataUsed);
+		});
+
+		document.getElementById("peek").onchange = function()
+		{
+			document.getElementById("input-header").textContent = this.checked ? "Current Offerings" : "Previous Offerings";
+		};
+
+		const invigorationNames = {
+			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerStrength": "+200% Ability Strength",
+			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerRange": "+100% Ability Range",
+			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPowerDuration": "+100% Ability Duration",
+			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationMeleeDamage": "+250% Melee Damage",
+			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPrimaryDamage": "+250% Primary Damage",
+			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationSecondaryDamage": "+250% Secondary Damage",
+			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationPrimaryCritChance": "+200% Primary Critical Chance",
+			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationSecondaryCritChance": "+200% Secondary Critical Chance",
+			"/Lotus/Upgrades/Invigorations/Offensive/OffensiveInvigorationMeleeCritChance": "+200% Melee Critical Chance",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationPowerEfficiency": "+75% Ability Efficiency",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationMovementSpeed": "+75% Sprint Speed",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationParkourSpeed": "+75% Parkour Velocity",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationHealth": "+1000 Health",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationEnergy": "+200% Energy Max",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationStatusResistance": "Status Immunity",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationReloadSpeed": "+75% Reload Speed",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationHealthRegen": "+25 Health Regen/s",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationArmor": "+1000 Armor",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationJumps": "5 Jump Resets",
+			"/Lotus/Upgrades/Invigorations/Utility/UtilityInvigorationEnergyRegen": "+2 Energy Regen",
+		};
+		initInvigorations(invigorationNames);
+
+		function doSubmit()
+		{
+			// Hide alert on manual submission
+			document.getElementById("cache-alert").classList.add("d-none");
+
+			const request = {
+				n: document.getElementById("username").value.split("#")[0],
+				s: [],
+				p: document.getElementById("peek").checked
+			};
+			document.querySelectorAll(".suit-select").forEach(select =>
+			{
+				if (select.value != "---")
+				{
+					request.s.push(select.value);
+				}
+			});
+			fetch("https://oracle.browse.wf/invigorations?" + encodeURIComponent(JSON.stringify(request))).then(res => res.json()).then(res =>
+			{
+				// Display results
+				showResults(res, request);
+
+				// Save to cache
+				saveToCache(request, res);
+			});
+		};
+	</script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

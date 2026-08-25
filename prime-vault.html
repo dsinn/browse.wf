@@ -1,0 +1,113 @@
+<!--
+  Generated: 2026-08-25T07:07:11.564Z
+  Source: prime-vault.php
+
+  This is a static build for GitHub Pages
+  Original site: https://browse.wf
+-->
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+	<title>Prime Vault | browse.wf</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
+</head>
+<body data-bs-theme="dark">
+	<style>
+	.navbar-pin {
+		font-size: 1.25rem;
+		text-decoration: none;
+		cursor: pointer;
+		transition: filter 0.2s ease;
+		filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(0.9);
+	}
+	.navbar-pin:hover {
+		filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(1.1);
+	}
+	.navbar-pin-unfixed {
+		filter: grayscale(100%) brightness(1.8);
+	}
+	.navbar-pin-unfixed:hover {
+		filter: grayscale(100%) brightness(2.2);
+	}
+</style>
+<nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" id="main-navbar">
+	<div class="container-fluid">
+		<a class="navbar-brand" href="/browse.wf/" >browse.wf</a>
+		<a id="navbar-pin-mobile" class="navbar-pin d-lg-none" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbar-content">
+			<div class="navbar-nav me-auto mb-2 mb-lg-0">
+				<a class="nav-link" href="/browse.wf/live.html">Live</a>
+				<a class="nav-link" href="/browse.wf/arbys.html">Arbitration Schedule</a>
+				<a class="nav-link" href="/browse.wf/rivencalc.html">Riven Calculator</a>
+				<a class="nav-link" href="/browse.wf/glyphs.html">Glyphs</a>
+				<a class="nav-link" href="/browse.wf/color-picker.html">Color Picker</a>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">KIM</a>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" href="/browse.wf/kim-convo-locator.html">Convo Locator</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/kimulacrum.html">Kimulacrum</a></li>
+					</ul>
+				</li>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle active" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">More Tools</a>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" href="/browse.wf/profile.html">Profile Viewer</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/platform-suffix.html">Platform Suffix</a></li>
+						<li><a class="dropdown-item active" href="/browse.wf/prime-vault.html">Prime Vault</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/text-icons.html">Text Icons</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/invigorations.html">Invigorations</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/weekly-forecast.html">Weekly Forecast</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/incursions.html">Incursion Schedule</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/bounty-cycle-schedule.html">Cetus/Deimos Cycle Schedule</a></li>
+					</ul>
+				</li>
+				<a class="nav-link" href="/browse.wf/about.html">About</a>
+			</div>
+			<div class="nav-item dropdown mb-2 mb-lg-0">
+				<a id="lang-dropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">English</a>
+				<ul class="dropdown-menu dropdown-menu-end">
+					<li><a class="dropdown-item active" href="#" data-lang="en" onclick="event.preventDefault();setLanguage('en');">English</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="de" onclick="event.preventDefault();setLanguage('de');">Deutsch</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="es" onclick="event.preventDefault();setLanguage('es');">Español</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="fr" onclick="event.preventDefault();setLanguage('fr');">Français</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="it" onclick="event.preventDefault();setLanguage('it');">Italiano</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ja" onclick="event.preventDefault();setLanguage('ja');">日本語</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ko" onclick="event.preventDefault();setLanguage('ko');">한국어</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="pl" onclick="event.preventDefault();setLanguage('pl');">Polski</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="pt" onclick="event.preventDefault();setLanguage('pt');">Português</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ru" onclick="event.preventDefault();setLanguage('ru');">Русский</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="tr" onclick="event.preventDefault();setLanguage('tr');">Türkçe</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="uk" onclick="event.preventDefault();setLanguage('uk');">Українська</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="zh" onclick="event.preventDefault();setLanguage('zh');">简体中文</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="tc" onclick="event.preventDefault();setLanguage('tc');">繁體中文</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="th" onclick="event.preventDefault();setLanguage('th');">แบบไทย</a></li>
+				</ul>
+			</div>
+			<a id="navbar-pin-desktop" class="navbar-pin d-none d-lg-block ms-2" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
+			<div class="nav-item mb-2 mb-lg-0 ms-2" id="auth-button">
+				<!-- JavaScript will populate this with auth UI -->
+			</div>
+		</div>
+	</div>
+</nav>
+<div id="navbar-spacer" style="height:56px"></div>	<div class="container pt-3">
+		<h3>In Rotation</h3>
+		<ul id="inrotation"></ul>
+		<h3>Prime Resurgence</h3>
+		<ul id="resurgence"></ul>
+		<h3>Vaulted</h3>
+		<ul id="vaulted"></ul>
+	</div>
+	<script>window.OS_DICT_VERSION=9</script>
+<script src="env-config.js?a3c58d11"></script>
+<script src="common.js?a3c58d11"></script>
+<script src="typestripped/src-bundle.js?a3c58d11"></script>
+	<script src="typestripped/prime-vault.js?a3c58d11"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

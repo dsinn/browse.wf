@@ -1,0 +1,99 @@
+/**
+ * Card filter styling for browse.wf
+ *
+ * Provides visual styling for accordion-based filter controls in card widgets.
+ */
+
+/* Filter gear icon - make clickable */
+[data-filter-toggle], [data-filter-toggle] > span {
+	text-decoration: none;
+	cursor: pointer;
+	color: inherit;
+}
+
+/* Active state - blue like navbar pin icon */
+.filter-gear-enabled {
+	filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(0.9);
+}
+
+/* Inactive state - grayscale */
+.filter-gear-disabled {
+	filter: grayscale(100%);
+}
+
+/* Accordion panel animation */
+.card-filter-panel {
+	display: grid;
+	grid-template-rows: 0fr;
+	overflow: hidden;
+	transition: grid-template-rows 0.3s ease-out;
+	border-bottom: 1px dashed var(--bs-border-color);
+}
+
+.card-filter-panel.show {
+	grid-template-rows: 1fr;
+}
+
+.card-filter-panel > * {
+	overflow: hidden;
+}
+
+/* Vertical grid layout for filter checkboxes (flows top-to-bottom, then left-to-right) */
+.filter-grid-vertical {
+	display: grid;
+	grid-auto-flow: column;
+	gap: 0.25rem 1rem;
+	grid-template-rows: repeat(16, auto); /* Mobile: 1 column, 16 rows */
+}
+
+@media (min-width: 576px) {
+	.filter-grid-vertical {
+		grid-template-rows: repeat(8, auto); /* Small: 2 columns, 8 rows each */
+	}
+}
+
+@media (min-width: 768px) {
+	.filter-grid-vertical {
+		grid-template-rows: repeat(6, auto); /* Medium+: 3 columns, 6 rows (distributes 16 items) */
+	}
+}
+
+/* Vertical grid for tier checkboxes (adapts to 4-6 items) */
+.filter-grid-vertical-tier {
+	display: grid;
+	grid-auto-flow: column;
+	gap: 0.25rem 1rem;
+	grid-template-rows: repeat(3, auto); /* Mobile: 2 columns, up to 3 rows each */
+}
+
+@media (min-width: 576px) {
+	.filter-grid-vertical-tier {
+		grid-template-rows: repeat(2, auto); /* Small+: 3 columns, up to 2 rows each */
+	}
+}
+
+@media (min-width: 768px) {
+	.filter-grid-vertical-tier {
+		grid-template-rows: repeat(2, auto); /* Medium+: 3 columns, up to 2 rows (adapts to 4-6 items) */
+	}
+}
+
+/* Vertical grid for mission type checkboxes (5 items - Railjack) */
+.filter-grid-vertical-missions {
+	display: grid;
+	grid-auto-flow: column;
+	gap: 0.25rem 1rem;
+	grid-template-rows: repeat(5, auto); /* Mobile: 1 column, 5 rows */
+}
+
+@media (min-width: 576px) {
+	.filter-grid-vertical-missions {
+		grid-template-rows: repeat(3, auto); /* Small: 2 columns, 3 rows (5 items) */
+	}
+}
+
+@media (min-width: 768px) {
+	.filter-grid-vertical-missions {
+		grid-template-rows: repeat(2, auto); /* Medium+: 3 columns, 2 rows (5 items) */
+	}
+}

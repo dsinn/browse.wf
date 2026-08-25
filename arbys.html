@@ -1,0 +1,217 @@
+<!--
+  Generated: 2026-08-25T07:07:11.537Z
+  Source: arbys.php
+
+  This is a static build for GitHub Pages
+  Original site: https://browse.wf
+-->
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+<head>
+	<title>Arbitration Schedule | browse.wf</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+	<!--<link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Arby%27s_logo.svg/1200px-Arby%27s_logo.svg.png">-->
+	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
+	<link rel="stylesheet" href="src/arbys.css?a3c58d11" media="print" onload="this.media='all'">
+	<style>
+		#log h3:not(:first-child)
+		{
+			margin-top: 1rem;
+		}
+
+		#log span, #log b
+		{
+			display: block;
+			margin-bottom: 1px;
+		}
+	</style>
+</head>
+<body data-bs-theme="dark">
+	<style>
+	.navbar-pin {
+		font-size: 1.25rem;
+		text-decoration: none;
+		cursor: pointer;
+		transition: filter 0.2s ease;
+		filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(0.9);
+	}
+	.navbar-pin:hover {
+		filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(1.1);
+	}
+	.navbar-pin-unfixed {
+		filter: grayscale(100%) brightness(1.8);
+	}
+	.navbar-pin-unfixed:hover {
+		filter: grayscale(100%) brightness(2.2);
+	}
+</style>
+<nav class="navbar fixed-top navbar-expand-lg bg-body-tertiary" id="main-navbar">
+	<div class="container-fluid">
+		<a class="navbar-brand" href="/browse.wf/" >browse.wf</a>
+		<a id="navbar-pin-mobile" class="navbar-pin d-lg-none" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-content" aria-controls="navbar-content" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbar-content">
+			<div class="navbar-nav me-auto mb-2 mb-lg-0">
+				<a class="nav-link" href="/browse.wf/live.html">Live</a>
+				<a class="nav-link active" href="/browse.wf/arbys.html">Arbitration Schedule</a>
+				<a class="nav-link" href="/browse.wf/rivencalc.html">Riven Calculator</a>
+				<a class="nav-link" href="/browse.wf/glyphs.html">Glyphs</a>
+				<a class="nav-link" href="/browse.wf/color-picker.html">Color Picker</a>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">KIM</a>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" href="/browse.wf/kim-convo-locator.html">Convo Locator</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/kimulacrum.html">Kimulacrum</a></li>
+					</ul>
+				</li>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">More Tools</a>
+					<ul class="dropdown-menu">
+						<li><a class="dropdown-item" href="/browse.wf/profile.html">Profile Viewer</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/platform-suffix.html">Platform Suffix</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/prime-vault.html">Prime Vault</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/text-icons.html">Text Icons</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/invigorations.html">Invigorations</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/weekly-forecast.html">Weekly Forecast</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/incursions.html">Incursion Schedule</a></li>
+						<li><a class="dropdown-item" href="/browse.wf/bounty-cycle-schedule.html">Cetus/Deimos Cycle Schedule</a></li>
+					</ul>
+				</li>
+				<a class="nav-link" href="/browse.wf/about.html">About</a>
+			</div>
+			<div class="nav-item dropdown mb-2 mb-lg-0">
+				<a id="lang-dropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">English</a>
+				<ul class="dropdown-menu dropdown-menu-end">
+					<li><a class="dropdown-item active" href="#" data-lang="en" onclick="event.preventDefault();setLanguage('en');">English</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="de" onclick="event.preventDefault();setLanguage('de');">Deutsch</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="es" onclick="event.preventDefault();setLanguage('es');">Español</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="fr" onclick="event.preventDefault();setLanguage('fr');">Français</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="it" onclick="event.preventDefault();setLanguage('it');">Italiano</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ja" onclick="event.preventDefault();setLanguage('ja');">日本語</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ko" onclick="event.preventDefault();setLanguage('ko');">한국어</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="pl" onclick="event.preventDefault();setLanguage('pl');">Polski</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="pt" onclick="event.preventDefault();setLanguage('pt');">Português</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="ru" onclick="event.preventDefault();setLanguage('ru');">Русский</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="tr" onclick="event.preventDefault();setLanguage('tr');">Türkçe</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="uk" onclick="event.preventDefault();setLanguage('uk');">Українська</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="zh" onclick="event.preventDefault();setLanguage('zh');">简体中文</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="tc" onclick="event.preventDefault();setLanguage('tc');">繁體中文</a></li>
+					<li><a class="dropdown-item" href="#" data-lang="th" onclick="event.preventDefault();setLanguage('th');">แบบไทย</a></li>
+				</ul>
+			</div>
+			<a id="navbar-pin-desktop" class="navbar-pin d-none d-lg-block ms-2" href="#" onclick="event.preventDefault();toggleNavbarFixed();" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">📌</a>
+			<div class="nav-item mb-2 mb-lg-0 ms-2" id="auth-button">
+				<!-- JavaScript will populate this with auth UI -->
+			</div>
+		</div>
+	</div>
+</nav>
+<div id="navbar-spacer" style="height:56px"></div>	<div class="p-3">
+		<p>
+			The next <select id="select-days">
+				<option value="1">24 hours</option>
+				<option value="7">7 days</option>
+				<option value="14" selected>14 days</option>
+				<option value="30">30 days</option>
+				<option value="90">90 days</option>
+				<option value="365">12 months</option>
+				<option value="9999999999">eon</option>
+			</select> of arbitrations, in <select id="select-tz">
+				<option id="local-time-option" value="local">local time</option>
+				<option value="zulu">universal time (UTC+0)</option>
+			</select>, using <select id="select-hourfmt">
+				<option value="mil">military time</option>
+				<option value="24">24-hour time</option>
+				<option value="12">12-hour time</option>
+			</select>.
+			<button id="btn-save-settings" class="btn btn-sm btn-primary ms-3">Save settings</button>
+			<button id="btn-load-settings" class="btn btn-sm btn-primary ms-2" disabled>Restore settings</button>
+		</p>
+		<div class="row">
+			<div id="log" class="col-xl-6 mb-3">
+				<p>Loading, please wait...</p>
+			</div>
+			<div class="col-xl-6">
+				<table class="table">
+					<thead>
+						<td></td>
+						<th colspan="2">Next Occurrence</th>
+					</thead>
+					<tbody>
+						<!-- Mission Types heading -->
+						<tr class="category-heading">
+							<th colspan="3" class="bg-secondary-subtle"><span style="color: #ff3333; font-size: 1.2em;">⌖</span> Mission Types</th>
+						</tr>
+						<tr id="next-MT_SURVIVAL"><th><input id="filter-MT_SURVIVAL" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_SURVIVAL">Survival</label></th><td></td><td></td></tr>
+						<tr id="next-MT_DEFENSE"><th><input id="filter-MT_DEFENSE" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_DEFENSE">Defense</label></th><td></td><td></td></tr>
+						<tr id="next-MT_TERRITORY"><th><input id="filter-MT_TERRITORY" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_TERRITORY">Interception</label></th><td></td><td></td></tr>
+						<tr id="next-MT_EXCAVATE"><th><input id="filter-MT_EXCAVATE" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_EXCAVATE">Excavation</label></th><td></td><td></td></tr>
+						<tr id="next-MT_PURIFY"><th><input id="filter-MT_PURIFY" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_PURIFY">Infested Salvage</label></th><td></td><td></td></tr>
+						<tr id="next-MT_EVACUATION"><th><input id="filter-MT_EVACUATION" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_EVACUATION">Defection</label></th><td></td><td></td></tr>
+						<tr id="next-MT_ARTIFACT"><th><input id="filter-MT_ARTIFACT" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_ARTIFACT">Disruption</label></th><td></td><td></td></tr>
+						<tr id="next-MT_CORRUPTION"><th><input id="filter-MT_CORRUPTION" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_CORRUPTION">Void Flood</label></th><td></td><td></td></tr>
+						<tr id="next-MT_VOID_CASCADE"><th><input id="filter-MT_VOID_CASCADE" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_VOID_CASCADE">Void Cascade</label></th><td></td><td></td></tr>
+						<tr id="next-MT_ARMAGEDDON"><th><input id="filter-MT_ARMAGEDDON" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_ARMAGEDDON">Void Armageddon</label></th><td></td><td></td></tr>
+						<tr id="next-MT_ALCHEMY"><th><input id="filter-MT_ALCHEMY" type="checkbox" class="form-check-input" checked /> <label for="filter-MT_ALCHEMY">Alchemy</label></th><td></td><td></td></tr>
+
+						<!-- Tiers heading -->
+						<tr class="category-heading">
+							<th colspan="3" class="bg-secondary-subtle">📊 Tiers</th>
+						</tr>
+						<tr id="next-tier-S"><th><input id="filter-tier-S" type="checkbox" class="form-check-input" checked /> <label for="filter-tier-S">S Tier</label></th><td></td><td></td></tr>
+						<tr id="next-tier-A"><th><input id="filter-tier-A" type="checkbox" class="form-check-input" checked /> <label for="filter-tier-A">A Tier</label></th><td></td><td></td></tr>
+						<tr id="next-tier-B"><th><input id="filter-tier-B" type="checkbox" class="form-check-input" checked /> <label for="filter-tier-B">B Tier</label></th><td></td><td></td></tr>
+						<tr id="next-tier-C"><th><input id="filter-tier-C" type="checkbox" class="form-check-input" checked /> <label for="filter-tier-C">C Tier</label></th><td></td><td></td></tr>
+						<tr id="next-tier-D"><th><input id="filter-tier-D" type="checkbox" class="form-check-input" checked /> <label for="filter-tier-D">D Tier</label></th><td></td><td></td></tr>
+						<tr id="next-tier-F"><th><input id="filter-tier-F" type="checkbox" class="form-check-input" checked /> <label for="filter-tier-F">F Tier</label></th><td></td><td></td></tr>
+
+						<!-- Factions heading -->
+						<tr class="category-heading">
+							<th colspan="3" class="bg-secondary-subtle">👥 Factions</th>
+						</tr>
+						<tr id="next-FC_GRINEER"><th><input id="filter-FC_GRINEER" type="checkbox" class="form-check-input" checked /> <label for="filter-FC_GRINEER">Grineer</label></th><td></td><td></td></tr>
+						<tr id="next-FC_CORPUS"><th><input id="filter-FC_CORPUS" type="checkbox" class="form-check-input" checked /> <label for="filter-FC_CORPUS">Corpus</label></th><td></td><td></td></tr>
+						<tr id="next-FC_INFESTATION"><th><input id="filter-FC_INFESTATION" type="checkbox" class="form-check-input" checked /> <label for="filter-FC_INFESTATION">Infested</label></th><td></td><td></td></tr>
+						<tr id="next-FC_OROKIN"><th><input id="filter-FC_OROKIN" type="checkbox" class="form-check-input" checked /> <label for="filter-FC_OROKIN">Corrupted</label></th><td></td><td></td></tr>
+						<tr id="next-FC_MITW"><th><input id="filter-FC_MITW" type="checkbox" class="form-check-input" checked /> <label for="filter-FC_MITW">The Murmur</label></th><td></td><td></td></tr>
+
+						<!-- Tilesets heading -->
+						<tr class="category-heading">
+							<th colspan="3" class="bg-secondary-subtle">🌎 Tilesets</th>
+						</tr>
+												<tr id="next-CorpusGasCityTileset"><th><input id="filter-CorpusGasCityTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-CorpusGasCityTileset">Corpus Gas City</label></th><td></td><td></td></tr>
+												<tr id="next-CorpusIcePlanetTileset"><th><input id="filter-CorpusIcePlanetTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-CorpusIcePlanetTileset">Corpus Ice Planet</label></th><td></td><td></td></tr>
+												<tr id="next-CorpusIcePlanetTilesetCaves"><th><input id="filter-CorpusIcePlanetTilesetCaves" type="checkbox" class="form-check-input" checked /> <label for="filter-CorpusIcePlanetTilesetCaves">Corpus Ice Planet Caves</label></th><td></td><td></td></tr>
+												<tr id="next-CorpusOutpostTileset"><th><input id="filter-CorpusOutpostTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-CorpusOutpostTileset">Corpus Outpost</label></th><td></td><td></td></tr>
+												<tr id="next-CorpusShipTileset"><th><input id="filter-CorpusShipTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-CorpusShipTileset">Corpus Ship</label></th><td></td><td></td></tr>
+												<tr id="next-EntratiTileset"><th><input id="filter-EntratiTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-EntratiTileset">Entrati</label></th><td></td><td></td></tr>
+												<tr id="next-GrineerAsteroidTileset"><th><input id="filter-GrineerAsteroidTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-GrineerAsteroidTileset">Grineer Asteroid</label></th><td></td><td></td></tr>
+												<tr id="next-GrineerForestTileset"><th><input id="filter-GrineerForestTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-GrineerForestTileset">Grineer Forest</label></th><td></td><td></td></tr>
+												<tr id="next-GrineerGalleonTileset"><th><input id="filter-GrineerGalleonTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-GrineerGalleonTileset">Grineer Galleon</label></th><td></td><td></td></tr>
+												<tr id="next-GrineerOceanTileset"><th><input id="filter-GrineerOceanTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-GrineerOceanTileset">Grineer Ocean</label></th><td></td><td></td></tr>
+												<tr id="next-GrineerSettlementTileset"><th><input id="filter-GrineerSettlementTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-GrineerSettlementTileset">Grineer Settlement</label></th><td></td><td></td></tr>
+												<tr id="next-GrineerShipyardsTileset"><th><input id="filter-GrineerShipyardsTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-GrineerShipyardsTileset">Grineer Shipyards</label></th><td></td><td></td></tr>
+												<tr id="next-InfestedCorpusShipTileset"><th><input id="filter-InfestedCorpusShipTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-InfestedCorpusShipTileset">Infested Corpus Ship</label></th><td></td><td></td></tr>
+												<tr id="next-OrokinDerelictTileset"><th><input id="filter-OrokinDerelictTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-OrokinDerelictTileset">Orokin Derelict</label></th><td></td><td></td></tr>
+												<tr id="next-OrokinMoonTilesetCorpus"><th><input id="filter-OrokinMoonTilesetCorpus" type="checkbox" class="form-check-input" checked /> <label for="filter-OrokinMoonTilesetCorpus">Orokin Moon Corpus</label></th><td></td><td></td></tr>
+												<tr id="next-OrokinMoonTilesetGrineer"><th><input id="filter-OrokinMoonTilesetGrineer" type="checkbox" class="form-check-input" checked /> <label for="filter-OrokinMoonTilesetGrineer">Orokin Moon Grineer</label></th><td></td><td></td></tr>
+												<tr id="next-OrokinVoidTileset"><th><input id="filter-OrokinVoidTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-OrokinVoidTileset">Orokin Void</label></th><td></td><td></td></tr>
+												<tr id="next-ZarimanTileset"><th><input id="filter-ZarimanTileset" type="checkbox" class="form-check-input" checked /> <label for="filter-ZarimanTileset">Zariman</label></th><td></td><td></td></tr>
+						
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<script>window.OS_DICT_VERSION=9</script>
+<script src="env-config.js?a3c58d11"></script>
+<script src="common.js?a3c58d11"></script>
+<script src="typestripped/src-bundle.js?a3c58d11"></script>
+	<script src="supplemental-data/arbyTiers.js?a3c58d11"></script>
+	<script src="typestripped/arbys.js?a3c58d11"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>

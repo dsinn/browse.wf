@@ -17,6 +17,7 @@ import {getNextWeeklyResetMs, MILLIS_PER_WEEK} from './helpers/time-helpers.js';
 import {createShortTimerBadge} from './short-timer-badge.js';
 import {WarframeApiFrontProxyClient} from './warframe-api-proxy-client.js';
 import {fetchExport} from './public-export-fetcher.js';
+import {renderTeshinForecastHeader, renderTeshinForecastTable} from './teshin/index.js';
 
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
@@ -310,6 +311,8 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	const calendarSeasonTabsElement = document.querySelector<HTMLElement>('#calendar-season-tabs');
 	const clanWeeklyColumnsElement = document.querySelector<HTMLElement>('#clan-weekly-columns');
 	const circuitForecastBodyElement = document.querySelector<HTMLElement>('#circuit-forecast-body');
+	const teshinForecastHeaderElement = document.querySelector<HTMLElement>('#teshin-forecast-header');
+	const teshinForecastBodyElement = document.querySelector<HTMLElement>('#teshin-forecast-body');
 
 	// Capture which tab the user is on before re-rendering (only meaningful on refresh)
 	const deepActivation = (isRefresh && deepTabsElement) ? getActiveTabActivation(deepTabsElement) : undefined;
@@ -378,6 +381,15 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	if (circuitForecastBodyElement) {
 		const dict = await getDictPromise();
 		renderCircuitForecastTable(circuitForecastBodyElement, dict);
+	}
+
+	// Steel Path Honors (Teshin) — pure client-side rotation math, no worldState dependency
+	if (teshinForecastHeaderElement) {
+		renderTeshinForecastHeader(teshinForecastHeaderElement);
+	}
+
+	if (teshinForecastBodyElement) {
+		renderTeshinForecastTable(teshinForecastBodyElement);
 	}
 
 	// Schedule next refresh at Sunday 23:02 UTC (when the forecast is expected to be published)

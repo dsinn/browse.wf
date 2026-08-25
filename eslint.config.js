@@ -86,6 +86,13 @@ const config = [
 			'@typescript-eslint/restrict-plus-operands': 'off',
 		},
 	},
+	// Allows a blanket eslint-disable around code intentionally copied verbatim from an
+	// upstream file (e.g. live.ts, which is itself unlinted) rather than restyled to fork
+	// conventions, so the copy stays diffable against its upstream source.
+	{
+		files: ['src/teshin/index.ts'],
+		rules: {'unicorn/no-abusive-eslint-disable': 'off'},
+	},
 ];
 
 export default config;

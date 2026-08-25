@@ -11,6 +11,7 @@ async function setupPage(page: Page) {
 	await page.waitForSelector('#calendar-season-tabs .nav-link', {state: 'attached', timeout: 15_000});
 	await page.waitForSelector('#clan-weekly-columns .col-6', {state: 'attached', timeout: 15_000});
 	await page.waitForSelector('#circuit-forecast-body tr', {timeout: 15_000});
+	await page.waitForSelector('#teshin-forecast-body tr', {timeout: 15_000});
 }
 
 test.describe('Weekly Forecast Page', () => {
@@ -110,6 +111,18 @@ test.describe('Weekly Forecast Page', () => {
 			await expect(rows).toHaveCount(11);
 			const cells = rows.first().locator('td');
 			await expect(cells).toHaveCount(3);
+			for (const cell of await cells.all()) {
+				await expect(cell).not.toBeEmpty();
+			}
+		});
+	});
+
+	test.describe('Steel Path Honors', () => {
+		test('renders one row per offer with an offer name and appearance dates', async ({page}) => {
+			const rows = page.locator('#teshin-forecast-body tr');
+			await expect(rows).toHaveCount(8);
+			const cells = rows.first().locator('td');
+			await expect(cells).toHaveCount(7);
 			for (const cell of await cells.all()) {
 				await expect(cell).not.toBeEmpty();
 			}

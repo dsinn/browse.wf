@@ -9,6 +9,7 @@
 	<?php asyncStylesheet("src/tooltip.css"); ?>
 	<?php asyncStylesheet("src/descendia/descendia.css"); ?>
 	<?php asyncStylesheet("src/calendar-seasons/calendar-seasons.css"); ?>
+	<?php asyncStylesheet("src/teshin/teshin.css"); ?>
 </head>
 <body data-bs-theme="dark">
 	<?php require "components/navbar.php"; ?>
@@ -69,6 +70,18 @@
 					<thead><tr><th>Date</th><th>Normal Rewards</th><th>Steel Path Rewards</th></tr></thead>
 					<tbody id="circuit-forecast-body">
 						<tr><td colspan="3">Loading...</td></tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="card mb-4">
+			<div class="card-header"><h5 class="mb-0">Steel Path Honors</h5></div>
+			<div class="card-body">
+				<table class="table table-sm table-borderless table-hover w-auto text-nowrap mb-0">
+					<thead><tr id="teshin-forecast-header"><th>Offer</th></tr></thead>
+					<tbody id="teshin-forecast-body">
+						<tr><td>Loading...</td></tr>
 					</tbody>
 				</table>
 			</div>

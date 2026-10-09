@@ -5179,14 +5179,6 @@
 	"PrimeAccessAvailability": {
 		"State": "PRIME1"
 	},
-	"PrimeVaultAvailabilities": [
-		false,
-		false,
-		false,
-		false,
-		false
-	],
-	"PrimeTokenAvailability": true,
 	"DailyDeals": [
 		{
 			"StoreItem": "/Lotus/StoreItems/Powersuits/Bard/Bard",

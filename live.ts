@@ -991,7 +991,7 @@ function getItemDataPromise(uniqueName: string): Promise<any>
 	if (!item_data_promises[uniqueName])
 	{
 		item_data_promises[uniqueName] = (window as any).getItemDataFallback?.(uniqueName) // Fork fallback
-			?? fetch("https://browse.wf" + uniqueName).then(res => res.json());
+			?? fetch("https://browse.wf" + uniqueName).then(res => res.ok ? res.json() : {}); // Fork: 404 -> empty data instead of JSON.parse error
 	}
 	return item_data_promises[uniqueName];
 }
@@ -1011,7 +1011,7 @@ async function getItemNamePromise(uniqueName: string): Promise<string>
 			return dict["/Lotus/Language/Relics/VoidProjectionName"].split("|ERA|").join(item_data.era).split("|CATEGORY|").join(item_data.category);
 		}
 		await dicts_promise;
-		return dict[item_data.name] ?? item_data.name;
+		return dict[item_data.name] ?? item_data.name ?? uniqueName;
 	}
 	catch (e)
 	{

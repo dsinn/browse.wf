@@ -1,0 +1,235 @@
+{
+  "WorldSeed": "test-alerts-moonflesh",
+  "Version": 10,
+  "MobileVersion": "5.3.0.0",
+  "BuildLabel": "2026.01.08.11.06/NTZ6vFwMk1Ch3Dq00lmcvw",
+  "Time": 1793503000,
+  "Events": [],
+  "Goals": [],
+  "Alerts": [
+    {
+      "_id": {
+        "$oid": "6ae38d86b223cbc1ad0b9c59"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1793386800000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1793649600000"
+        }
+      },
+      "MissionInfo": {
+        "location": "SolNode407",
+        "missionType": "MT_EXTERMINATION",
+        "faction": "FC_OROKIN",
+        "difficulty": 1,
+        "missionReward": {
+          "credits": 10000,
+          "items": [
+            "/Lotus/StoreItems/Upgrades/Mods/Randomized/RawRifleRandomMod"
+          ]
+        },
+        "levelOverride": "/Lotus/Levels/Proc/Orokin/OrokinTowerExterminate",
+        "enemySpec": "/Lotus/Types/Game/EnemySpecs/OrokinExterminateA",
+        "minEnemyLevel": 10,
+        "maxEnemyLevel": 15,
+        "descText": "/Lotus/Language/Alerts/LotusGiftDesc",
+        "maxWaveNum": 198
+      },
+      "Tag": "LotusGift",
+      "ForceUnlock": true
+    },
+    {
+      "_id": {
+        "$oid": "6ae38de2f23f4859fa0d3c81"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1793386800000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1793649600000"
+        }
+      },
+      "MissionInfo": {
+        "location": "SolNode81",
+        "missionType": "MT_SURVIVAL",
+        "faction": "FC_CORPUS",
+        "difficulty": 1,
+        "missionReward": {
+          "credits": 10000,
+          "countedItems": [
+            {
+              "ItemType": "/Lotus/Types/Items/MiscItems/Kuva",
+              "ItemCount": 500000
+            }
+          ]
+        },
+        "levelOverride": "/Lotus/Levels/Proc/Corpus/CorpusShipSurvivalRaid",
+        "enemySpec": "/Lotus/Types/Game/EnemySpecs/CorpusShipEnemySpecs/CorpusShipSurvivalA",
+        "minEnemyLevel": 10,
+        "maxEnemyLevel": 15,
+        "descText": "/Lotus/Language/Alerts/LotusGiftDesc",
+        "maxWaveNum": 10
+      },
+      "Tag": "LotusGift",
+      "ForceUnlock": true
+    },
+    {
+      "_id": {
+        "$oid": "6ad0d73a0dfe89c5d82295e0"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1793498400000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1793503800000"
+        }
+      },
+      "MissionInfo": {
+        "missionType": "MT_HIVE",
+        "faction": "FC_INFESTATION",
+        "location": "SolNode171",
+        "levelOverride": "/Lotus/Levels/Proc/Infestation/InfestedCorpusShipSabotage",
+        "enemySpec": "/Lotus/Types/Game/EnemySpecs/InfestedSquadD",
+        "minEnemyLevel": 50,
+        "maxEnemyLevel": 50,
+        "difficulty": 1,
+        "seed": 124569,
+        "missionReward": {
+          "credits": 17000,
+          "countedItems": [
+            {
+              "ItemType": "/Lotus/Types/Gameplay/Events/RoadToTauEvent/RoadToTauEventResource",
+              "ItemCount": 50
+            }
+          ]
+        },
+        "descText": "/Lotus/Language/TauPrologue/EventAlertTitle",
+        "leadersAlwaysAllowed": true
+      },
+      "Tag": "RoadToTauEvent",
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/Events/Moonflesh.png"
+    },
+    {
+      "_id": {
+        "$oid": "6ad0d73a0dfe89c5d82295e2"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1793500200000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1793505600000"
+        }
+      },
+      "MissionInfo": {
+        "missionType": "MT_SURVIVAL",
+        "faction": "FC_INFESTATION",
+        "location": "SolNode164",
+        "levelOverride": "/Lotus/Levels/Proc/Infestation/InfestedCorpusShipSurvival",
+        "enemySpec": "/Lotus/Types/Game/EnemySpecs/InfestedSurvivalB",
+        "minEnemyLevel": 50,
+        "maxEnemyLevel": 50,
+        "difficulty": 1,
+        "seed": 66545,
+        "maxWaveNum": 5,
+        "missionReward": {
+          "credits": 17000,
+          "countedItems": [
+            {
+              "ItemType": "/Lotus/Types/Gameplay/Events/RoadToTauEvent/RoadToTauEventResource",
+              "ItemCount": 50
+            }
+          ]
+        },
+        "descText": "/Lotus/Language/TauPrologue/EventAlertTitle",
+        "leadersAlwaysAllowed": true
+      },
+      "Tag": "RoadToTauEvent",
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/Events/Moonflesh.png"
+    },
+    {
+      "_id": {
+        "$oid": "6ad0d73a0dfe89c5d82295e4"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1793502000000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1793507400000"
+        }
+      },
+      "MissionInfo": {
+        "missionType": "MT_MOBILE_DEFENSE",
+        "faction": "FC_INFESTATION",
+        "location": "SolNode172",
+        "levelOverride": "/Lotus/Levels/Proc/Corpus/CorpusShipMobileDefense",
+        "enemySpec": "/Lotus/Types/Game/EnemySpecs/InfestedSquadD",
+        "extraEnemySpec": "",
+        "minEnemyLevel": 50,
+        "maxEnemyLevel": 50,
+        "difficulty": 1,
+        "seed": 53641,
+        "missionReward": {
+          "credits": 17000,
+          "countedItems": [
+            {
+              "ItemType": "/Lotus/Types/Gameplay/Events/RoadToTauEvent/RoadToTauEventResource",
+              "ItemCount": 50
+            }
+          ]
+        },
+        "descText": "/Lotus/Language/TauPrologue/EventAlertTitle",
+        "leadersAlwaysAllowed": true
+      },
+      "Tag": "RoadToTauEvent",
+      "Icon": "/Lotus/Interface/Icons/StoreIcons/Resources/Events/Moonflesh.png"
+    }
+  ],
+  "Sorties": [],
+  "LiteSorties": [],
+  "SyndicateMissions": [],
+  "ActiveMissions": [],
+  "GlobalUpgrades": [],
+  "FlashSales": [],
+  "SkuSales": [],
+  "InGameMarket": {},
+  "Invasions": [],
+  "HubEvents": [],
+  "NodeOverrides": [],
+  "VoidTraders": [],
+  "PrimeVaultTraders": [],
+  "VoidStorms": [],
+  "PrimeAccessAvailability": {},
+  "DailyDeals": [],
+  "LibraryInfo": {},
+  "PVPChallengeInstances": [],
+  "PersistentEnemies": [],
+  "PVPAlternativeModes": [],
+  "PVPActiveTournaments": [],
+  "ProjectPct": [],
+  "ConstructionProjects": [],
+  "TwitchPromos": [],
+  "ExperimentRecommended": [],
+  "ForceLogoutVersion": 0,
+  "FeaturedGuilds": [],
+  "SeasonInfo": {},
+  "KnownCalendarSeasons": [],
+  "Conquests": [],
+  "Descents": [],
+  "Tmp": "{}"
+}

@@ -51,4 +51,5 @@ import './profile/workflow.js';
 import './public-export-fetcher.js';
 import './short-timer-badge.js';
 import './tooltip.js';
+import './translation-fallback.js';
 import './warframe-api-proxy-client.js';

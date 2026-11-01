@@ -993,7 +993,8 @@ function getItemDataPromise(uniqueName: string): Promise<any>
 	uniqueName = uniqueName.split("/Lotus/StoreItems/").join("/Lotus/");
 	if (!item_data_promises[uniqueName])
 	{
-		item_data_promises[uniqueName] = fetch("https://browse.wf" + uniqueName).then(res => res.json());
+		item_data_promises[uniqueName] = (window as any).getItemDataFallback?.(uniqueName) // Fork fallback
+			?? fetch("https://browse.wf" + uniqueName).then(res => res.json());
 	}
 	return item_data_promises[uniqueName];
 }

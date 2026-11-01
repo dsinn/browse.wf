@@ -865,6 +865,12 @@ async function updateAlerts(forceRender = false)
 					block.appendChild(span);
 				}
 				document.getElementById("alerts-body").appendChild(block);
+
+				// Re-update checkbox state in case of cloud sync race condition
+				(window as any).setCompletionToggle(
+					block.querySelector<HTMLAnchorElement>(".completion-check"),
+					isOidMarkedAsCompleted(alert._id.$oid)
+				);
 			}
 		}
 	}

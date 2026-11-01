@@ -42,6 +42,14 @@ test.describe('Live Page - Alerts Card', () => {
 		expect(values).toEqual([...values].sort((a, b) => a - b));
 	});
 
+	test('credits-only reward is a single line without stray delimiters', async ({page}) => {
+		const rewardLines = page.locator('#alerts-body .card-block > span.d-block:nth-child(2)');
+		await expect(rewardLines).toHaveCount(3);
+		for (const line of await rewardLines.all()) {
+			await expect(line).toHaveText(/^[\d,]+ Credits$/u);
+		}
+	});
+
 	test('expired alert is removed from the DOM ~60 seconds after expiry', async ({page}) => {
 		await expect(page.locator('#alerts-body .card-block')).toHaveCount(3);
 
@@ -50,5 +58,40 @@ test.describe('Live Page - Alerts Card', () => {
 		await page.clock.fastForward(65_000);
 
 		await expect(page.locator('#alerts-body .card-block')).toHaveCount(2);
+	});
+});
+
+test.describe('Live Page - Alerts Card rewards', () => {
+	// Matches worldState-alerts-moonflesh.json's "Time" field (all five alerts are active)
+	const MULTI_REWARD_FROZEN_TIMESTAMP = 1_793_503_000_000;
+
+	test.beforeEach(async ({page}) => {
+		await setupMockRoutes(page, {worldStateFile: 'worldState-alerts-moonflesh.json', frozenTime: MULTI_REWARD_FROZEN_TIMESTAMP});
+		// Plain items (as opposed to the fallback-named Moonflesh) so the lists have mixed kinds
+		for (const [itemPath, name] of [
+			['Types/Items/MiscItems/Kuva', 'Kuva'],
+			['Upgrades/Mods/Randomized/RawRifleRandomMod', 'Rifle Riven Mod'],
+		]) {
+			await page.route(`**/browse.wf/Lotus/${itemPath}`, route => {
+				void route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({name})});
+			});
+		}
+
+		await page.goto('/live');
+		await page.waitForSelector('#alerts-body .card-block', {timeout: 10_000});
+	});
+
+	test('rewards are a single comma-delimited line with Credits last', async ({page}) => {
+		// The reward line is the block's second span (the first is the mission header)
+		const rewardLines = page.locator('#alerts-body .card-block > span.d-block:nth-child(2)');
+		// Alerts are sorted by ascending expiry
+		await expect(rewardLines).toHaveText([
+			'50X Moonflesh, 17,000 Credits',
+			'50X Moonflesh, 17,000 Credits',
+			'50X Moonflesh, 17,000 Credits',
+			'Rifle Riven Mod, 10,000 Credits', // Items
+			'500000X Kuva, 10,000 Credits', // Counted items
+		]);
+		await expect(page.locator('#alerts-body .card-block > span.d-block')).toHaveCount(5 * 2);
 	});
 });

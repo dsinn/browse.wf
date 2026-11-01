@@ -21,11 +21,9 @@ test.describe('Item name fallback - Live alerts card', () => {
 	});
 
 	test('Road to Tau alert rewards show "Moonflesh" even though item data 404s', async ({page}) => {
-		const tauBlocks = page.locator('#alerts-body .card-block').filter({hasText: '17,000 Credits'});
-		await expect(tauBlocks).toHaveCount(3);
-		for (const block of await tauBlocks.all()) {
-			await expect(block).toContainText('50X Moonflesh');
-		}
+		// The three Road to Tau alerts expire first; the two gift alerts follow
+		const rewardLines = page.locator('#alerts-body .card-block > span.d-block:nth-child(2)');
+		await expect(rewardLines.filter({hasText: '17,000 Credits'})).toHaveText(Array.from({length: 3}, () => '50X Moonflesh, 17,000 Credits'));
 
 		await expect(page.locator('#alerts-body')).not.toContainText('RoadToTauEventResource');
 		expect(itemDataRequested).toBe(false);

@@ -841,31 +841,28 @@ async function updateAlerts(forceRender = false)
 					span.appendChild(createCompletionToggle(alert._id.$oid));
 					block.appendChild(span);
 				}
+
+				// Fork modification: Comma-delimited alert rewards with credits last
 				{
+					const rewards: string[] = [];
+					if (alert.MissionInfo.missionReward.items)
+					{
+						for (const reward of alert.MissionInfo.missionReward.items)
+						{
+							rewards.push(await getItemNamePromise(reward));
+						}
+					}
+					if (alert.MissionInfo.missionReward.countedItems)
+					{
+						for (const reward of alert.MissionInfo.missionReward.countedItems)
+						{
+							rewards.push(reward.ItemCount + "X " + await getItemNamePromise(reward.ItemType));
+						}
+					}
 					const span = document.createElement("span");
 					span.className = "d-block";
-					span.textContent = alert.MissionInfo.missionReward.credits.toLocaleString() + " Credits";
+					span.textContent = (window as any).formatAlertRewards(rewards, alert.MissionInfo.missionReward.credits);
 					block.appendChild(span);
-				}
-				if (alert.MissionInfo.missionReward.items)
-				{
-					for (const reward of alert.MissionInfo.missionReward.items)
-					{
-						const span = document.createElement("span");
-						span.className = "d-block";
-						span.textContent = await getItemNamePromise(reward);
-						block.appendChild(span);
-					}
-				}
-				if (alert.MissionInfo.missionReward.countedItems)
-				{
-					for (const reward of alert.MissionInfo.missionReward.countedItems)
-					{
-						const span = document.createElement("span");
-						span.className = "d-block";
-						span.textContent = reward.ItemCount + "X " + await getItemNamePromise(reward.ItemType);
-						block.appendChild(span);
-					}
 				}
 				document.getElementById("alerts-body").appendChild(block);
 			}

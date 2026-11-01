@@ -52,7 +52,7 @@
 			<li class="list-group-item" id="step2-container">
 				<span class="step-status me-2"></span>
 				<div>
-					<strong>Provide your user ID.</strong>
+					<strong>Provide your user ID / gid.</strong>
 					<div class="mt-1">
 						<input id="account-id" type="text" class="form-control form-control-sm" placeholder="Example: 55540360384632532d7b23c6" oninput="onAccountIdManualInput()" />
 						<div id="account-id-invalid-chars" class="invalid-feedback d-none">Only numbers and letters from A to F are allowed.</div>
@@ -60,12 +60,19 @@
 					</div>
 
 					<div class="mt-4">
-						If you do not know your user ID:
+						If you do not know your user ID / gid:
 
 						<ol class="mt-2" style="list-style-type: lower-alpha;">
 							<li>Ensure that you are logged in at <a href="https://www.warframe.com/login" target="_blank">warframe.com</a>.</li>
-							<li>Open <a href="https://www.warframe.com/api/user-data" target="_blank">this link</a>.</li>
-							<li>Find and copy the alphanumeric text after the <code>user_id</code> field (looks like <code>505875fb1a4d80894a123456</code>).</li>
+							<li>In a tab showing <a href="https://www.warframe.com/" target="_blank">www.warframe.com</a> (not this page), open your browser's developer tools (Windows/Linux: <kbd>F12</kbd> or <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>&nbsp;; Mac: <kbd>Cmd</kbd>+<kbd>Opt</kbd>+<kbd>I</kbd>).</li>
+							<li>
+								Find the cookie named <code>gid</code> for <code>https://www.warframe.com</code>:
+								<ul>
+									<li>Chrome / Edge: <strong>Application</strong> tab&nbsp;&rarr; <strong>Cookies</strong>. (<a href="https://developer.chrome.com/docs/devtools/application/cookies" target="_blank">Guide link</a>)</li>
+									<li>Firefox: <strong>Storage</strong> tab&nbsp;&rarr; <strong>Cookies</strong>. (<a href="https://firefox-source-docs.mozilla.org/devtools-user/storage_inspector/index.html" target="_blank">Guide link</a>)</li>
+								</ul>
+							</li>
+							<li>Copy its <strong>Value</strong> (looks like <code>505875fb1a4d80894a123456</code>).</li>
 							<li>Paste it into the text box above.</li>
 						</ol>
 					</div>

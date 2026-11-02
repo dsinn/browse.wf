@@ -3,6 +3,7 @@
  */
 
 import {SECONDS_PER_DAY, SECONDS_PER_HOUR} from './helpers/time-helpers.js';
+import {registerTimerBadge, setTimerText} from './timer-registry.js';
 
 /**
  * Converts seconds to a human-readable format with only TWO units
@@ -46,64 +47,49 @@ function deltaToTwoUnits(deltaSeconds: number): string[] {
 }
 
 /**
- * Formats a timestamp as a countdown with two units
+ * Sets a badge's text to its countdown with two units or its expired label.
+ * Returns false once the expired label is showing.
  */
-function formatShortTimerCountdown(timestamp: number, expiredLabel: string): string {
+function updateShortTimer(elm: HTMLElement): boolean {
+	const timestamp = Number.parseInt(elm.dataset.shortTimerExpiry ?? '', 10);
 	const deltaSeconds = timestamp - Math.floor(Date.now() / 1000);
 
 	if (deltaSeconds <= 0) {
-		return expiredLabel;
+		setTimerText(elm, elm.dataset.shortTimerExpiredLabel ?? 'Started');
+		return false;
 	}
 
-	return deltaToTwoUnits(deltaSeconds).join(' ');
+	setTimerText(elm, deltaToTwoUnits(deltaSeconds).join(' '));
+	return true;
 }
 
 /**
- * Schedules the next update for a countdown badge based on when the display text will change
+ * Renders the badge, then schedules its next update based on which units are showing: a timeout for
+ * days + hours and hours + minutes, handing over to the shared ticker once seconds are showing
  */
 function scheduleShortTimerUpdate(elm: HTMLElement): void {
 	const timestamp = Number.parseInt(elm.dataset.shortTimerExpiry ?? '', 10);
-	const expiredLabel = elm.dataset.shortTimerExpiredLabel ?? 'Started';
-	const deltaSeconds = timestamp - Math.floor(Date.now() / 1000);
-
-	if (deltaSeconds <= 0) {
-		// Timer has expired, no more updates needed
-		elm.textContent = expiredLabel;
+	if (Number.isNaN(timestamp)) {
 		return;
 	}
 
-	// Update the display
-	elm.textContent = formatShortTimerCountdown(timestamp, expiredLabel);
-
-	// Calculate delay until next update based on which units are showing
-	if (deltaSeconds >= SECONDS_PER_DAY) {
-		// Showing days + hours: update at top of next hour
-		const delayMs = (SECONDS_PER_HOUR - (deltaSeconds % SECONDS_PER_HOUR)) * 1000;
-		setTimeout(() => {
-			scheduleShortTimerUpdate(elm);
-		}, delayMs);
-	} else if (deltaSeconds >= SECONDS_PER_HOUR) {
-		// Showing hours + minutes: update at top of next minute
-		const delayMs = (60 - (deltaSeconds % 60)) * 1000;
-		setTimeout(() => {
-			scheduleShortTimerUpdate(elm);
-		}, delayMs);
-	} else {
-		// Showing minutes + seconds: use setInterval for regular 1-second updates
-		const intervalId = setInterval(() => {
-			const ts = Number.parseInt(elm.dataset.shortTimerExpiry ?? '', 10);
-			const label = elm.dataset.shortTimerExpiredLabel ?? 'Started';
-			const delta = ts - Math.floor(Date.now() / 1000);
-
-			if (delta <= 0) {
-				elm.textContent = label;
-				clearInterval(intervalId);
-				return;
-			}
-
-			elm.textContent = formatShortTimerCountdown(ts, label);
-		}, 1000);
+	const deltaSeconds = timestamp - Math.floor(Date.now() / 1000);
+	if (deltaSeconds < SECONDS_PER_HOUR) {
+		// Showing minutes + seconds (or already expired): the ticker updates it now, and drops it once it returns false
+		registerTimerBadge(elm, () => updateShortTimer(elm));
+		return;
 	}
+
+	updateShortTimer(elm);
+
+	// Days + hours: next change is at the top of the next hour; hours + minutes: at the top of the next minute
+	const stepSeconds = deltaSeconds >= SECONDS_PER_DAY ? SECONDS_PER_HOUR : 60;
+	setTimeout(() => {
+		// Stop if the badge has been removed
+		if (elm.isConnected) {
+			scheduleShortTimerUpdate(elm);
+		}
+	}, (stepSeconds - (deltaSeconds % stepSeconds)) * 1000);
 }
 
 /**
@@ -117,8 +103,7 @@ export function createShortTimerBadge(timestamp: number, expiredLabel: string, e
 	span.style.display = 'inline-block';
 	span.style.minWidth = '5.5em'; // Wide enough for "99d 99h"
 	span.style.textAlign = 'center';
-	span.textContent = formatShortTimerCountdown(timestamp, expiredLabel);
-	// Schedule first update
+	// Renders the first update and schedules the rest
 	scheduleShortTimerUpdate(span);
 	return span;
 }

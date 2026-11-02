@@ -2,12 +2,13 @@
  * News card rendering
  *
  * Extracted from live.ts so it can be tested in isolation.
- * Depends on globals set by live.ts (formatActivation, sendNotification) and
+ * Depends on globals set by live.ts (sendNotification) and
  * worldState.
  */
 
 import {addTooltip} from '../tooltip.js';
 import {isFilterEnabled} from '../card-filters.js';
+import {createActivationBadge} from './activation-badge.js';
 import {
 	isNewsItemRead, markNewsItemAsRead, setNewsItemData, type NewsItem,
 } from './news-mark-read.js';
@@ -101,15 +102,7 @@ export function updateNewsTicker(forceRender = false): void {
 			p.append(diamond);
 		}
 
-		{
-			const span = document.createElement('span');
-			span.className = 'badge text-bg-secondary';
-			span.dataset.activation = (items[i].time * 1000).toString();
-			span.textContent = window.formatActivation
-				? window.formatActivation(items[i].time * 1000)
-				: new Date(items[i].time * 1000).toLocaleString();
-			p.append(span);
-		}
+		p.append(createActivationBadge(items[i].time * 1000));
 
 		{
 			const span = document.createElement('span');

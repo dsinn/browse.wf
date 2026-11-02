@@ -8,6 +8,7 @@ import {loadMock} from '@test/helpers/api-mocks';
 import {getById, mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {testCardFilters} from '@test/live/card-filters-factory';
 import * as triggerModule from '../cloud-sync/trigger.js';
+import {resetTimerRegistry} from '../timer-registry';
 import {
 	setNewsItemData, isNewsItemRead, markNewsItemAsRead, markAllNewsAsRead, pruneStaleNewsRead, initializeMarkAsRead,
 } from './news-mark-read';
@@ -78,15 +79,14 @@ describe('updateNewsTicker', () => {
 		mockBootstrapTooltip();
 		(globalThis as any).worldState = worldState;
 		(globalThis as any).sendNotification = vi.fn();
-		(globalThis as any).formatActivation = vi.fn((ms: number) => `${ms}ms`);
 	});
 
 	afterEach(() => {
+		resetTimerRegistry();
 		vi.restoreAllMocks();
 		delete (globalThis as any).bootstrap;
 		delete (globalThis as any).worldState;
 		delete (globalThis as any).sendNotification;
-		delete (globalThis as any).formatActivation;
 	});
 
 	describe('no worldState', () => {
@@ -148,16 +148,10 @@ describe('updateNewsTicker', () => {
 			expect(badge?.dataset.activation).toMatch(/^\d+$/u);
 		});
 
-		test('uses formatActivation for badge text', () => {
-			updateNewsTicker();
-			expect((globalThis as any).formatActivation).toHaveBeenCalled();
-		});
-
-		test('falls back to toLocaleString when formatActivation is absent', () => {
-			delete (globalThis as any).formatActivation;
+		test('renders badge text as the time elapsed since the item', () => {
 			updateNewsTicker();
 			const badge = document.querySelector('#news-body .badge');
-			expect(badge?.textContent).toBeTruthy();
+			expect(badge?.textContent).toMatch(/^\d+[mhd]$/u);
 		});
 
 		test('renders items newest-first', () => {

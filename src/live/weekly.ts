@@ -63,7 +63,7 @@ export function updateWeekly(): void {
 
 		if (labConquest) {
 			window.setDatum!('labConquest-header', osdict['/Lotus/Language/Conquest/SolarMapLabConquestNode'], weeklyExpiry);
-			document.querySelector('#labConquest-header')!.innerHTML += ' ';
+			document.querySelector('#labConquest-header')!.append(' ');
 			document.querySelector('#labConquest-header')!.append(window.createCompletionToggle('labconquest-' + weeklyExpiry));
 			await window.renderArchimedeaTable!(
 				document.querySelector('#labConquest-body')!,
@@ -75,7 +75,7 @@ export function updateWeekly(): void {
 
 		if (hexConquest) {
 			window.setDatum!('hexConquest-header', osdict['/Lotus/Language/1999Echoes/1999HexConquestNode'], weeklyExpiry);
-			document.querySelector('#hexConquest-header')!.innerHTML += ' ';
+			document.querySelector('#hexConquest-header')!.append(' ');
 			document.querySelector('#hexConquest-header')!.append(window.createCompletionToggle('hexconquest-' + weeklyExpiry));
 			await window.renderArchimedeaTable!(
 				document.querySelector('#hexConquest-body')!,

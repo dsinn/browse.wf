@@ -6,6 +6,8 @@ import {loadMock} from '@test/helpers/api-mocks';
 import {advanceTime} from '@test/helpers/time-helpers';
 import {testCardFilters} from '@test/live/card-filters-factory';
 import {isFilterEnabled} from '../card-filters';
+import {resetTimerRegistry} from '../timer-registry';
+import {createExpiryBadge} from '../expiry-badge';
 import {isInvasionRewardShown, updateInvasions} from './invasions';
 
 // Test card filter integration
@@ -50,15 +52,7 @@ function setupInvasionsGlobals() {
 		return span;
 	};
 
-	// Stub for the real createExpiryBadge in live.ts (upstream, not importable here).
-	// Real behavior is covered by the E2E test in e2e/live/invasions.spec.ts, which
-	// loads the actual live.js bundle.
-	(globalThis as any).createExpiryBadge = (expiry: number) => {
-		const span = document.createElement('span');
-		span.className = 'badge text-bg-secondary';
-		span.dataset.expiry = expiry.toString();
-		return span;
-	};
+	(globalThis as any).createExpiryBadge = createExpiryBadge;
 }
 
 describe('Invasions - updateInvasions DOM rendering', () => {
@@ -75,6 +69,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 	});
 
 	afterEach(() => {
+		resetTimerRegistry();
 		document.querySelector('#invasions-table')?.remove();
 		localStorage.clear();
 		delete (globalThis as any).worldState;
@@ -438,14 +433,15 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 				const delay = 60_000;
 				(globalThis as any).worldState.Invasions = [pendingInvasion(1_768_087_200_000 + delay)];
 				await callUpdateInvasions();
-				expect(vi.getTimerCount()).toBe(1);
+				const timersAfterFirstRender = vi.getTimerCount();
+				expect(timersAfterFirstRender).toBeGreaterThan(0);
 
 				// Simulate a second poll while still pending (same oid, table fully rebuilt).
 				// Each render's td is a fresh element, so a leaked stale timer wouldn't show up
 				// as duplicated DOM output — it would mutate a detached td instead. Asserting on
 				// the fake-timer queue directly is what actually catches a missing clearTimeout.
 				await callUpdateInvasions();
-				expect(vi.getTimerCount()).toBe(1);
+				expect(vi.getTimerCount()).toBe(timersAfterFirstRender);
 			} finally {
 				vi.useRealTimers();
 			}

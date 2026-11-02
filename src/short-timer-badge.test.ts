@@ -3,6 +3,7 @@ import {
 } from 'vitest';
 import {createShortTimerBadge, initializeShortTimerBadges} from './short-timer-badge';
 import {SECONDS_PER_DAY, SECONDS_PER_HOUR} from './helpers/time-helpers';
+import {resetTimerRegistry, TICK_MS} from './timer-registry';
 
 describe('Short Timer Badge (/arbys timer badges)', () => {
 	beforeEach(() => {
@@ -11,6 +12,8 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 	});
 
 	afterEach(() => {
+		resetTimerRegistry();
+		document.body.replaceChildren();
 		vi.restoreAllMocks();
 		vi.useRealTimers();
 	});
@@ -230,6 +233,48 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			vi.advanceTimersByTime(4000);
 
 			expect(badge.textContent).toBe('Pending Refresh');
+
+			// The ticker drops the badge once it has shown the expired label, so it isn't updated again
+			badge.dataset.shortTimerExpiry = String(timestamp + 3600);
+			vi.advanceTimersByTime(TICK_MS);
+			expect(badge.textContent).toBe('Pending Refresh');
+		});
+	});
+
+	describe('Update scheduling', () => {
+		test('days + hours and hours + minutes badges use timeouts, not the shared ticker', () => {
+			const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+			const now = Math.floor(Date.now() / 1000);
+			const days = createShortTimerBadge(now + (2 * SECONDS_PER_DAY), 'Started');
+			const hours = createShortTimerBadge(now + (5 * SECONDS_PER_HOUR) + 30, 'Started');
+			document.body.append(days, hours);
+
+			expect(setIntervalSpy).not.toHaveBeenCalled();
+			expect(vi.getTimerCount()).toBe(2);
+		});
+
+		test('hands over to the shared ticker once seconds are showing', () => {
+			const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+			const now = Math.floor(Date.now() / 1000);
+			const badge = createShortTimerBadge(now + SECONDS_PER_HOUR + 90, 'Started'); // 1h 1m 30s
+			document.body.append(badge);
+			expect(setIntervalSpy).not.toHaveBeenCalled();
+
+			// It updates at 1h 1m, 1h 0m, then 59m 00s (150s in), where seconds start showing
+			vi.advanceTimersByTime(151 * 1000);
+			expect(setIntervalSpy).toHaveBeenCalledTimes(1);
+			expect(badge.textContent).toMatch(/^58m \d\ds$/u);
+		});
+
+		test('stops rescheduling when the badge has been removed', () => {
+			const now = Math.floor(Date.now() / 1000);
+			const badge = createShortTimerBadge(now + (2 * SECONDS_PER_DAY), 'Started');
+			document.body.append(badge);
+			expect(vi.getTimerCount()).toBe(1);
+
+			badge.remove();
+			vi.advanceTimersByTime(SECONDS_PER_HOUR * 1000);
+			expect(vi.getTimerCount()).toBe(0);
 		});
 	});
 

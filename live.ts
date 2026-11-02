@@ -219,56 +219,6 @@ ExportMissionTypes_promise.then(res => { (window as any).ExportMissionTypes = re
 ExportFactions_promise.then(res => { (window as any).ExportFactions = res; });
 ExportImages_promise.then(res => { (window as any).ExportImages = res; });
 
-function formatExpiry(expiry: number): string
-{
-	expiry -= expiry % 1000; expiry += 1000; // normalise the ms so everything ticks at the same time
-	const time = Date.now();
-	const delta = expiry - time;
-	if (delta < 1_000)
-	{
-		return "Pending update";
-	}
-	return deltaToUnits(delta).join(" ");
-}
-
-function deltaToUnits(delta: number): string[]
-{
-	delta = Math.abs(delta);
-
-	let units = [];
-	if (delta >= 86_400_000)
-	{
-		units.push(Math.trunc(delta / 86_400_000) + "d");
-		delta %= 86_400_000;
-	}
-	if (delta >= 3_600_000 || units.length)
-	{
-		units.push(Math.trunc(delta / 3_600_000) + "h");
-		delta %= 3_600_000;
-	}
-	if (delta >= 60_000 || units.length)
-	{
-		units.push(Math.trunc(delta / 60_000) + "m");
-		delta %= 60_000;
-	}
-	units.push(Math.trunc(delta / 1_000).toString().padStart(2, "0") + "s");
-	return units;
-}
-
-function formatActivation(activation: number): string
-{
-	return deltaToUnits(Date.now() - activation)[0];
-}
-
-function createExpiryBadge(expiry: number): HTMLSpanElement
-{
-	const span = document.createElement("span");
-	span.setAttribute("data-expiry", expiry.toString());
-	span.className = "badge text-bg-secondary";
-	span.textContent = formatExpiry(expiry);
-	return span;
-}
-
 function setDatum(name: string, value: string, expiry: number): void
 {
 	const elm = document.getElementById(name);
@@ -564,7 +514,7 @@ async function updateSorties()
 	const sortie = window.worldState.Sorties.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
 	if (!sortie) { setTimeout(updateSorties, STALE_DATA_RETRY_MS); return; }
 	setDatum("sortie-header", toTitleCase(osdict["/Lotus/Language/Menu/SortieMissionName"]), parseInt(sortie.Expiry.$date.$numberLong));
-	document.getElementById("sortie-header").innerHTML += " ";
+	document.getElementById("sortie-header").append(" ");
 	document.getElementById("sortie-header").appendChild(createCompletionToggle(sortie._id.$oid));
 	const tbody = document.createElement("tbody");
 	for (const variant of sortie.Variants)
@@ -605,7 +555,7 @@ async function updateArchonHunt()
 			return;
 		}
 		setDatum("litesortie-header", osdict["/Lotus/Language/WorldStateWindow/LiteSortieMissionName"], parseInt(litesortie.Expiry.$date.$numberLong));
-		document.getElementById("litesortie-header").innerHTML += " ";
+		document.getElementById("litesortie-header").append(" ");
 		document.getElementById("litesortie-header").appendChild(createCompletionToggle(litesortie._id.$oid));
 		const mission_names = [];
 		for (const mission of litesortie.Missions)
@@ -1144,18 +1094,6 @@ document.addEventListener("visibilitychange", function()
 		fetchWorldState();
 	}
 });
-
-setInterval(function()
-{
-	for (const elm of document.querySelectorAll(".badge[data-expiry]"))
-	{
-		elm.textContent = formatExpiry(parseInt(elm.getAttribute("data-expiry")));
-	}
-	for (const elm of document.querySelectorAll(".badge[data-activation]"))
-	{
-		elm.textContent = formatActivation(parseInt(elm.getAttribute("data-activation")));
-	}
-}, 100);
 
 function refreshCollapseStatus(elm: HTMLElement): void
 {

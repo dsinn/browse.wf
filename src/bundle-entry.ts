@@ -22,6 +22,7 @@ import './clan-weekly/index.js';
 import './cloud-sync/auth-init.js';
 import './descendia/data.js';
 import './descendia/index.js';
+import './expiry-badge.js';
 import './helpers/string-helpers.js';
 import './helpers/tileset-helpers.js';
 import './helpers/time-helpers.js';

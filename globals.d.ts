@@ -121,7 +121,6 @@ interface Window {
 	ExportMissionTypes_promise?: Promise<void>;
 
 	ExportRegions_promise?: Promise<void>;
-	formatActivation?: (timestamp: number) => string;
 	getDictPromise?: () => Promise<Record<string, string>>;
 	getItemNamePromise?: (itemType: string) => Promise<string>;
 	getOSDictPromise?: () => Promise<Record<string, string>>;

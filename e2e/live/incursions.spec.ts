@@ -26,6 +26,20 @@ test.describe('Live Page - Steel Path Incursions Card', () => {
 		}
 	});
 
+	test('data warning is shown only while the card is expanded', async ({page}) => {
+		const warning = page.locator('.card:has(#incursions-header) .data-warning');
+		const toggle = page.locator('[data-collapse-toggle="incursions"]');
+
+		await expect(warning).toBeVisible();
+		await expect(warning).toHaveAttribute('data-bs-title', /incorrect/u);
+
+		await toggle.click();
+		await expect(warning).toBeHidden();
+
+		await toggle.click();
+		await expect(warning).toBeVisible();
+	});
+
 	test('filter gear icon toggles filter panel visibility', async ({page}) => {
 		const filterPanel = page.locator('#incursions-filters');
 

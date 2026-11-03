@@ -1,5 +1,6 @@
 import {isFilterEnabled} from '../card-filters.js';
 import {fetchExport} from '../public-export-fetcher.js';
+import {createDataWarning} from './data-warning.js';
 
 export async function updateIncursionsLocalised() {
 	const [[dict, osdict], ExportRegions, ExportFactions] = await Promise.all([
@@ -9,6 +10,13 @@ export async function updateIncursionsLocalised() {
 	]);
 
 	window.setDatum!('incursions-header', window.toTitleCase(osdict['/Lotus/Language/Labels/SteelPathDailies']), (window as any).incursions_expiry);
+
+	if (!document.querySelector('#incursions-warning')) {
+		document.querySelector('#incursions-header')?.closest('h5')?.after(createDataWarning(
+			'incursions-warning',
+			'Some incursion listings are incorrect because the schedule was last generated in January 2025.',
+		));
+	}
 
 	const elms = document.querySelectorAll('#incursions-body span.d-block');
 	let visibleCount = 0;

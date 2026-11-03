@@ -12,6 +12,9 @@
 <body data-bs-theme="dark">
 	<?php require "components/navbar.php"; ?>
 	<div class="p-3">
+		<div class="alert alert-warning mb-3" role="alert">
+			<i class="bi bi-exclamation-triangle-fill me-2"></i>Some incursion listings are incorrect because the schedule was last generated in January 2025.
+		</div>
 		<div id="incursions-controls" class="d-flex align-items-center gap-5 mb-3 bg-body-secondary rounded p-2">
 			<button id="btn-today" class="btn btn-sm btn-primary">Today</button>
 			<div class="btn-group btn-group-sm" role="group" aria-label="Navigate">

@@ -23,6 +23,7 @@
 		.card:has([data-collapse-toggle].engaged) {
 			& .card-header { border-bottom: none }
 			& > :not(.card-header) { display: none !important }
+			& .data-warning { display: none }
 		}
 		.notif-bell-enabled {
 			filter: brightness(1.1) saturate(1.2);

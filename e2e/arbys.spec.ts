@@ -2,7 +2,9 @@ import {test, expect, type Page} from '@playwright/test';
 import {setupMockRoutes, MOCK_TIMESTAMP} from './helpers/api-mocks';
 
 const NEXT_HOUR_MS = MOCK_TIMESTAMP + 3_600_000;
+const BASE_TITLE = 'Arbitration Schedule | browse.wf';
 const ACTIVE_TITLE = /^🔴 /u;
+const UPCOMING_TITLE = /^⏳ /u; // Next arbitration starts within the hour
 
 async function advanceToNextHour(page: Page): Promise<void> {
 	await page.clock.setFixedTime(new Date(NEXT_HOUR_MS));
@@ -769,6 +771,28 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		test('adds active indicator after the hour rolls over to a matching arbitration', async ({page}) => {
 			await page.locator('#filter-MT_SURVIVAL').uncheck();
 			await expect(page).not.toHaveTitle(ACTIVE_TITLE);
+
+			await advanceToNextHour(page);
+			await expect(page).toHaveTitle(ACTIVE_TITLE);
+		});
+	});
+
+	test.describe('Page title upcoming indicator', () => {
+		// The mock clock is 20 minutes past the hour. The current arbitration is a Survival and the next is a Territory.
+		test('shows upcoming indicator when only the next arbitration matches', async ({page}) => {
+			await page.locator('#filter-MT_SURVIVAL').uncheck();
+			await expect(page).toHaveTitle(UPCOMING_TITLE);
+		});
+
+		test('shows no indicator when neither the current nor the next arbitration matches', async ({page}) => {
+			await page.locator('#filter-MT_SURVIVAL').uncheck();
+			await page.locator('#filter-MT_TERRITORY').uncheck();
+			await expect(page).toHaveTitle(BASE_TITLE);
+		});
+
+		test('replaces the upcoming indicator with the active one after the hour rolls over', async ({page}) => {
+			await page.locator('#filter-MT_SURVIVAL').uncheck();
+			await expect(page).toHaveTitle(UPCOMING_TITLE);
 
 			await advanceToNextHour(page);
 			await expect(page).toHaveTitle(ACTIVE_TITLE);

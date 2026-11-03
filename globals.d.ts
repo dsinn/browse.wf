@@ -153,6 +153,9 @@ interface Window {
 	isTilesetChecked?: (node: any) => boolean;
 	updateTilesetNextOccurrence?: (node: any, timestamp: number, dateText: string, detailText: string) => void;
 
+	// src/arbys/title.ts
+	updateArbyTitle?: (firstArbyTimestamp: number | undefined) => void;
+
 	// src/archimedea/data.ts
 	resolveArchimedea?: (...args: any[]) => Promise<any>;
 

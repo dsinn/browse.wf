@@ -14,6 +14,7 @@
 // Keep imports in alphabetical order
 import './arbys/settings.js';
 import './arbys/tilesets.js';
+import './arbys/title.js';
 import './archimedea/helpers.js';
 import './calendar-seasons/data.js';
 import './calendar-seasons/index.js';

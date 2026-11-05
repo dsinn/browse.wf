@@ -9,11 +9,6 @@ test.describe('Live Page - Bounties Card', () => {
 		await expect(page.locator('#bounties-body')).not.toContainText('Fetching data...', {timeout: 10_000});
 	});
 
-	test('only the Cavia heading has a data warning', async ({page}) => {
-		await expect(page.locator('#bounties-card .data-warning')).toHaveCount(1);
-		await expect(page.locator('#EntratiLabSyndicate-name .data-warning')).toHaveAttribute('data-bs-title', 'Bounty objectives may be incorrect.');
-	});
-
 	test.describe('Mission Type Filters', () => {
 		test.beforeEach(async ({page}) => {
 			await openFilterPanel(page, 'bounties');

@@ -10,13 +10,14 @@
 	<?php asyncStylesheet("src/descendia/descendia.css"); ?>
 	<?php asyncStylesheet("src/calendar-seasons/calendar-seasons.css"); ?>
 	<?php asyncStylesheet("src/teshin/teshin.css"); ?>
+	<?php asyncStylesheet("src/weekly-forecast-toc.css"); ?>
 </head>
 <body data-bs-theme="dark">
 	<?php require "components/navbar.php"; ?>
-	<div class="container pt-3">
+	<div class="container pt-3 d-flex flex-column">
 		<h2 class="mb-4">Weekly Forecast</h2>
 
-		<div class="card mb-4">
+		<div class="card mb-4 weekly-forecast-section" id="descendia">
 			<div class="card-header"><h5 class="mb-0">Descendia</h5></div>
 			<div class="card-body">
 				<?php require "components/untranslated-notice.php"; ?>
@@ -29,7 +30,7 @@
 			The forecast for the weeklies below will update in <span id="weekly-missions-timer"></span>
 		</div>
 
-		<div class="card mb-4">
+		<div class="card mb-4 weekly-forecast-section" id="deep-archimedea">
 			<div class="card-header"><h5 class="mb-0">Deep Archimedea</h5></div>
 			<div class="card-body">
 				<ul class="nav nav-tabs mb-3" id="deep-archimedea-tabs" role="tablist"></ul>
@@ -37,7 +38,7 @@
 			</div>
 		</div>
 
-		<div class="card mb-4">
+		<div class="card mb-4 weekly-forecast-section" id="temporal-archimedea">
 			<div class="card-header"><h5 class="mb-0">Temporal Archimedea</h5></div>
 			<div class="card-body">
 				<ul class="nav nav-tabs mb-3" id="temporal-archimedea-tabs" role="tablist"></ul>
@@ -45,7 +46,7 @@
 			</div>
 		</div>
 
-		<div class="card mb-4">
+		<div class="card mb-4 weekly-forecast-section" id="calendar-1999">
 			<div class="card-header"><h5 class="mb-0">1999 Calendar</h5></div>
 			<div class="card-body">
 				<div class="d-none d-xl-block" id="calendar-season-columns">Loading...</div>
@@ -56,14 +57,14 @@
 			</div>
 		</div>
 
-		<div class="card mb-4">
+		<div class="card mb-4 weekly-forecast-section" id="clan-weekly">
 			<div class="card-header"><h5 class="mb-0">Clan Weekly Initiatives</h5></div>
 			<div class="card-body">
 				<div id="clan-weekly-columns">Loading...</div>
 			</div>
 		</div>
 
-		<div class="card mb-4">
+		<div class="card mb-4 weekly-forecast-section" id="circuit">
 			<div class="card-header"><h5 class="mb-0">The Circuit</h5></div>
 			<div class="card-body">
 				<table class="table table-sm table-borderless table-hover mb-0">
@@ -75,7 +76,7 @@
 			</div>
 		</div>
 
-		<div class="card mb-4">
+		<div class="card mb-4 weekly-forecast-section" id="steel-path-honors">
 			<div class="card-header"><h5 class="mb-0">Steel Path Honors</h5></div>
 			<div class="card-body">
 				<table class="table table-sm table-borderless table-hover w-auto text-nowrap mb-0">
@@ -86,6 +87,19 @@
 				</table>
 			</div>
 		</div>
+
+		<!-- Last in the document to avoid a FOUC -->
+		<nav class="weekly-forecast-toc order-first order-lg-0" id="weekly-forecast-toc" aria-label="Sections">
+			<div class="nav flex-nowrap flex-lg-column text-nowrap overflow-x-auto">
+				<a class="nav-link" href="#descendia">Descendia</a>
+				<a class="nav-link" href="#deep-archimedea">Deep Archimedea</a>
+				<a class="nav-link" href="#temporal-archimedea">Temporal Archimedea</a>
+				<a class="nav-link" href="#calendar-1999">1999 Calendar</a>
+				<a class="nav-link" href="#clan-weekly">Clan Weekly Initiatives</a>
+				<a class="nav-link" href="#circuit">The Circuit</a>
+				<a class="nav-link" href="#steel-path-honors">Steel Path Honors</a>
+			</div>
+		</nav>
 	</div>
 	<?php require "components/commonjs.html"; ?>
 	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

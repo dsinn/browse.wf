@@ -17,3 +17,9 @@ export async function openFilterPanel(page: Page, cardName: string): Promise<voi
 	await page.locator(`[data-filter-toggle="${cardName}"]`).click();
 	await page.waitForTimeout(FILTER_PANEL_TRANSITION_MS);
 }
+
+export async function scrollToPageBottom(page: Page): Promise<void> {
+	await page.evaluate(() => {
+		window.scrollTo({top: document.body.scrollHeight, behavior: 'instant'});
+	});
+}

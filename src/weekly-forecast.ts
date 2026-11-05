@@ -18,6 +18,7 @@ import {createShortTimerBadge} from './short-timer-badge.js';
 import {WarframeApiFrontProxyClient} from './warframe-api-proxy-client.js';
 import {fetchExport} from './public-export-fetcher.js';
 import {renderTeshinForecastHeader, renderTeshinForecastTable} from './teshin/index.js';
+import {initWeeklyForecastToc, scrollToHashedSection} from './weekly-forecast-toc.js';
 
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
@@ -398,5 +399,7 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	}, nextForecastPublishedMs() - Date.now());
 }
 
+initWeeklyForecastToc();
 initWeeklyMissionsNotice();
 await initWeeklyForecast();
+scrollToHashedSection();

@@ -1,5 +1,6 @@
 import {test, expect, type Page} from '@playwright/test';
 import {setupMockRoutes} from './helpers/api-mocks';
+import {scrollToPageBottom} from './helpers/dom-helpers';
 
 async function setupPage(page: Page) {
 	await setupMockRoutes(page);
@@ -126,6 +127,99 @@ test.describe('Weekly Forecast Page', () => {
 			for (const cell of await cells.all()) {
 				await expect(cell).not.toBeEmpty();
 			}
+		});
+	});
+
+	test.describe('Table of contents (lg+)', () => {
+		test.use({viewport: {width: 1280, height: 720}});
+
+		test('has a link to each card, in page order, pointing at the card\'s anchor', async ({page}) => {
+			const cards = await page.locator('.card').all();
+			const links = page.locator('#weekly-forecast-toc .nav-link');
+			expect(cards.length).toBeGreaterThan(0);
+			await expect(links).toHaveCount(cards.length);
+			for (const [i, card] of cards.entries()) {
+				await expect(links.nth(i)).toHaveText(await card.locator('.card-header h5').textContent() ?? '');
+				await expect(links.nth(i)).toHaveAttribute('href', '#' + await card.getAttribute('id'));
+			}
+		});
+
+		test('clicking an entry scrolls to its section and highlights it', async ({page}) => {
+			const link = page.locator('#weekly-forecast-toc .nav-link[href="#circuit"]');
+			await link.click();
+			await expect(page).toHaveURL(/#circuit$/u);
+			await expect(link).toHaveClass(/active/u);
+			await expect(page.locator('#weekly-forecast-toc .nav-link.active')).toHaveCount(1);
+			await expect(page.locator('#circuit')).toBeInViewport();
+		});
+
+		test('loading the page with a #section fragment ends up at that section once content has loaded', async ({page}) => {
+			// Delay API responses so the cards fill in well after the browser's own jump to the fragment
+			await page.route('**/*', async route => {
+				if (['fetch', 'xhr'].includes(route.request().resourceType())) {
+					await new Promise(resolve => {
+						setTimeout(resolve, 1000);
+					});
+				}
+
+				await route.fallback();
+			});
+			await page.goto('/weekly-forecast#circuit');
+			await page.waitForSelector('#circuit-forecast-body tr', {timeout: 15_000});
+			await page.waitForSelector('#teshin-forecast-body tr', {timeout: 15_000});
+			// Scrolled to the section itself, not merely somewhere it is partly visible
+			await expect.poll(async () => (await page.locator('#circuit').boundingBox())!.y).toBeLessThan(150);
+			await expect(page.locator('#weekly-forecast-toc .nav-link.active')).toHaveAttribute('href', '#circuit');
+		});
+
+		test('stays visible while scrolling and follows the current section', async ({page}) => {
+			const toc = page.locator('#weekly-forecast-toc');
+			await expect(toc).toBeInViewport();
+			await page.evaluate(() => {
+				document.querySelector('#clan-weekly')!.scrollIntoView({behavior: 'instant'});
+			});
+			await expect(toc).toBeInViewport();
+			await expect(page.locator('#weekly-forecast-toc .nav-link.active')).toHaveAttribute('href', '#clan-weekly');
+		});
+
+		test('highlights the last section when scrolled to the bottom of the page', async ({page}) => {
+			// Retry the scroll: the page can still grow (e.g. as images load), which moves the bottom
+			await expect(async () => {
+				await scrollToPageBottom(page);
+				const activeLink = page.locator('#weekly-forecast-toc .nav-link.active');
+				await expect(activeLink).toHaveAttribute('href', '#steel-path-honors', {timeout: 1000});
+			}).toPass();
+		});
+	});
+
+	test.describe('Table of contents strip (below lg)', () => {
+		test.use({viewport: {width: 390, height: 844}});
+
+		test('stays pinned under the navbar while scrolling', async ({page}) => {
+			const strip = page.locator('#weekly-forecast-toc');
+			await scrollToPageBottom(page);
+			await expect(strip).toBeInViewport();
+			const navbarBottom = (await page.locator('#main-navbar').boundingBox())!.y
+				+ (await page.locator('#main-navbar').boundingBox())!.height;
+			await expect.poll(async () => (await strip.boundingBox())!.y).toBeCloseTo(navbarBottom, 0);
+		});
+
+		test('jumps to a section without hiding its heading under the strip', async ({page}) => {
+			await page.locator('#weekly-forecast-toc .nav-link[href="#clan-weekly"]').click();
+			await expect(page).toHaveURL(/#clan-weekly$/u);
+			const stripBox = (await page.locator('#weekly-forecast-toc').boundingBox())!;
+			await expect.poll(async () => (await page.locator('#clan-weekly').boundingBox())!.y)
+				.toBeGreaterThanOrEqual(stripBox.y + stripBox.height);
+		});
+
+		test('keeps the current entry on screen', async ({page}) => {
+			await page.locator('#weekly-forecast-toc .nav-link[href="#steel-path-honors"]').click();
+			const active = page.locator('#weekly-forecast-toc .nav-link.active');
+			await expect(active).toHaveAttribute('href', '#steel-path-honors');
+			await expect.poll(async () => {
+				const linkBox = (await active.boundingBox())!;
+				return linkBox.x >= 0 && linkBox.x + linkBox.width <= page.viewportSize()!.width;
+			}).toBe(true);
 		});
 	});
 

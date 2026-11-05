@@ -1,0 +1,153 @@
+/**
+ * Equipment and enemy category filter definitions for the profile Stats tab.
+ *
+ * Icon paths are resolved via ExportImages (warframe-public-export-plus) using
+ * the same CDN lookup as setImageSource() in common.js.
+ */
+import { addTooltip } from '../tooltip.js';
+import { getFactionIconPath } from '../faction-icons.js';
+/** Maps productCategory values (from ExportWeapons/ExportWarframes/ExportSentinels) to display metadata. */
+export const EQUIPMENT_CATEGORIES = {
+    Suits: { tooltip: 'Warframes', icon: '/Lotus/Interface/Icons/StoreIcons/Warframes/Excalibur.png' },
+    LongGuns: { tooltip: 'Primary', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/PrimaryWeapons/Weapons/Braton.png' },
+    Pistols: { tooltip: 'Secondary', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/SecondaryWeapons/Weapons/LexPrime.png' },
+    Melee: { tooltip: 'Melee', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/MeleeWeapons/Weapons/Hate.png' },
+    SpaceSuits: { tooltip: 'Archwing', icon: '/Lotus/Interface/Icons/StoreIcons/Archwing/Archwings/Amesha.png' },
+    MechSuits: { tooltip: 'Mech', icon: '/Lotus/Interface/Icons/StoreIcons/Mech/NechroMech.png' },
+    Sentinels: { tooltip: 'Sentinel', icon: '/Lotus/Interface/Icons/StoreIcons/Companions/Sentinels/Types/Dethcube.png' },
+    KubrowPets: { tooltip: 'Companion', icon: '/Lotus/Interface/Icons/StoreIcons/Companions/Pets/Kubrow/Breed/KubrowBreedRaksa.png' },
+    MoaPets: { tooltip: 'MOA Companion', icon: '/Lotus/Interface/Icons/StoreIcons/Companions/Moas/MoaHeadB.png' },
+    SpaceGuns: { tooltip: 'Arch-Gun', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/HeavyWeapons/ShieldFrameArchGun.png' },
+    SpaceMelee: { tooltip: 'Arch-Melee', icon: '/Lotus/Interface/Icons/StoreIcons/Archwing/Weapons/Rathbone.png' },
+    SentinelWeapons: { tooltip: 'Sentinel Weapon', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/SentinelWeapons/LaserRifle.png' },
+    DrifterMelee: { tooltip: 'Drifter Melee', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/MeleeWeapons/Weapons/DaxDuviriMaceShieldWeapon.png' },
+    OperatorAmps: { tooltip: 'Drifter Amp', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/SecondaryWeapons/Weapons/DrifterPistol.png' },
+    SpecialItems: { tooltip: 'Special', icon: '', displayText: '🤷‍♀️' },
+};
+const STALKER_ICON = '/Lotus/Interface/Icons/MarkedForDeathStalker.png';
+/**
+ * Maps faction strings (from ExportEnemies.avatars[x].faction) to display metadata.
+ * Multiple source faction strings may map to the same display bucket.
+ * Icons are sourced from faction-icons.ts; Stalker is a special case with no TFaction.
+ */
+export const ENEMY_FACTIONS = [
+    { tooltip: 'Grineer', icon: getFactionIconPath('Grineer'), factions: ['Grineer'] },
+    { tooltip: 'Corpus', icon: getFactionIconPath('Corpus'), factions: ['Corpus'] },
+    { tooltip: 'Infested', icon: getFactionIconPath('Infestation'), factions: ['Infestation', 'Infested'] },
+    { tooltip: 'Orokin', icon: getFactionIconPath('Orokin'), factions: ['Orokin', 'Orokin Empire', 'OrokinEmpire'] },
+    { tooltip: 'Sentient', icon: getFactionIconPath('Sentient'), factions: ['Sentient'] },
+    { tooltip: 'Narmer', icon: getFactionIconPath('Narmer'), factions: ['Narmer', 'NarmerVeil'] },
+    { tooltip: 'Murmur', icon: getFactionIconPath('MITW'), factions: ['MITW'] },
+    { tooltip: 'Scaldra', icon: getFactionIconPath('Scaldra'), factions: ['Scaldra'] },
+    { tooltip: 'Techrot', icon: getFactionIconPath('Techrot'), factions: ['Techrot'] },
+    { tooltip: 'Duviri', icon: getFactionIconPath('Duviri'), factions: ['Duviri'] },
+    { tooltip: 'Stalker', icon: STALKER_ICON, factions: ['Stalker'] },
+];
+/**
+ * Sets up sequential rank numbers in the first cell of each visible row, and
+ * re-runs whenever rows are added/removed. Disconnects any previously returned
+ * observer before creating a new one, so it is safe to call on re-render.
+ *
+ * @param tbody            - The <tbody> whose rows to number.
+ * @param previousObserver - Observer returned from a prior call, to disconnect.
+ * @returns The renumber function and the new MutationObserver.
+ */
+export function makeRenumber(tbody, previousObserver) {
+    const renumber = () => {
+        let rank = 1;
+        for (const tr of tbody.querySelectorAll('tr')) {
+            tr.cells[0].textContent = getComputedStyle(tr).display === 'none' ? '' : String(rank++);
+        }
+    };
+    previousObserver?.disconnect();
+    const observer = new MutationObserver(renumber);
+    observer.observe(tbody, { childList: true });
+    return { renumber, observer };
+}
+/** Returns the display tooltip for a productCategory, or undefined if unrecognised. */
+export function getEquipmentCategoryLabel(productCategory) {
+    return EQUIPMENT_CATEGORIES[productCategory]?.tooltip;
+}
+/** Returns the faction bucket tooltip for an avatar faction string, or undefined if unrecognised. */
+export function getEnemyFactionLabel(faction) {
+    for (const bucket of ENEMY_FACTIONS) {
+        if (bucket.factions.includes(faction)) {
+            return bucket.tooltip;
+        }
+    }
+    return undefined;
+}
+/**
+ * Renders a filter bar and wires up filtering for a stats table.
+ *
+ * @param filterBar  - The <div> that will receive the filter buttons.
+ * @param tbody      - The <tbody> whose rows carry data-category attributes.
+ * @param entries    - Ordered list of { key, tooltip, icon } to show as buttons.
+ *                     key must match the data-category values on the rows.
+ *                     icon is a Warframe asset path resolved via setImageSource;
+ *                     pass an empty string to fall back to displayText.
+ * @param presentKeys - Set of category keys that actually appear in the tbody,
+ *                      used to skip buttons for absent categories.
+ * @param onFilter    - Optional callback invoked after each filter change,
+ *                      including when "All" is selected.
+ */
+export function initStatsFilterBar(filterBar, tbody, entries, presentKeys, onFilter) {
+    filterBar.innerHTML = '';
+    delete tbody.dataset.filter;
+    const applyFilter = (filter) => {
+        if (filter) {
+            tbody.dataset.filter = filter;
+        }
+        else {
+            delete tbody.dataset.filter;
+        }
+        for (const btn of filterBar.querySelectorAll('.stats-filter-btn')) {
+            btn.classList.toggle('active', btn.dataset.filter === filter);
+        }
+        onFilter?.();
+    };
+    // "All" button
+    const allBtn = document.createElement('button');
+    allBtn.className = 'stats-filter-btn active';
+    allBtn.dataset.filter = '';
+    const emoji = document.createElement('span');
+    emoji.className = 'filter-emoji';
+    emoji.textContent = '∞';
+    allBtn.append(emoji);
+    allBtn.addEventListener('click', () => {
+        applyFilter('');
+    });
+    filterBar.append(allBtn);
+    addTooltip(allBtn, 'All');
+    for (const { key, tooltip, icon, displayText } of entries) {
+        if (!presentKeys.has(key)) {
+            continue;
+        }
+        const btn = document.createElement('button');
+        btn.className = 'stats-filter-btn';
+        btn.dataset.filter = key;
+        if (icon) {
+            const img = document.createElement('img');
+            img.alt = tooltip;
+            window.setImageSource(img, icon);
+            btn.append(img);
+        }
+        else {
+            const span = document.createElement('span');
+            span.className = 'filter-emoji';
+            span.textContent = displayText ?? tooltip;
+            btn.append(span);
+        }
+        btn.addEventListener('click', () => {
+            applyFilter(key);
+        });
+        filterBar.append(btn);
+        addTooltip(btn, tooltip);
+    }
+}
+window.EQUIPMENT_CATEGORIES = EQUIPMENT_CATEGORIES;
+window.ENEMY_FACTIONS = ENEMY_FACTIONS;
+window.getEquipmentCategoryLabel = getEquipmentCategoryLabel;
+window.getEnemyFactionLabel = getEnemyFactionLabel;
+window.initStatsFilterBar = initStatsFilterBar;
+//# sourceMappingURL=stats-filters.js.map

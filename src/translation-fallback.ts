@@ -1,14 +1,10 @@
 /**
- * Fork-specific fallback names for items for which browse.wf has no item data (it 404s) and
- * whose names warframe-public-export-plus does not provide.
+ * Fork-specific fallback translations for names that browse.wf and warframe-public-export-plus
+ * do not provide.
  *
- * Entries live in translation-fallback-data.json, keyed by item unique name (English text, used for
- * every language). live.ts calls window.getItemDataFallback() before requesting item data from
- * browse.wf, so listed items are named without making a request.
- *
- * NOTE: This only covers item names resolved through getItemDataPromise()/getItemNamePromise()
- * in live.ts. It does NOT add the entries to the translation dict, so code that looks up
- * `dict[path]` directly will still miss them.
+ * KNOWN GAP: the export-plus `dict` (getDictPromise() in common.js) is NOT merged, so direct
+ * `dict[key]` lookups still miss these entries. Add the same one-line hook there if one is needed.
+ * Upstream entries always take precedence over the fallback.
  */
 import fallback from './translation-fallback-data.json';
 
@@ -21,4 +17,13 @@ export function getItemDataFallback(uniqueName: string): Promise<{name: string}>
 	return typeof name === 'string' ? Promise.resolve({name}) : undefined;
 }
 
+/**
+ * Returns the given dictionary with fallback entries added for keys it lacks.
+ * Does not mutate the input.
+ */
+export function withTranslationFallback(dict: Record<string, string>): Record<string, string> {
+	return {...fallback, ...dict};
+}
+
 (window as any).getItemDataFallback = getItemDataFallback;
+(window as any).withTranslationFallback = withTranslationFallback;

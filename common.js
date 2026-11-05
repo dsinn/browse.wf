@@ -19,7 +19,9 @@ function getDictPromise()
 
 function getOSDictPromise()
 {
-	return fetch("https://oracle.browse.wf/dicts/" + (localStorage.getItem("lang") ?? "en") + ".json?" + OS_DICT_VERSION).then(res => res.json());
+	return fetch("https://oracle.browse.wf/dicts/" + (localStorage.getItem("lang") ?? "en") + ".json?" + OS_DICT_VERSION).then(res => res.json())
+		// Fork: apply fallback translations
+		.then(osdict => window.withTranslationFallback ? window.withTranslationFallback(osdict) : osdict);
 }
 
 function setLanguage(code)

@@ -5,7 +5,42 @@
   "BuildLabel": "2026.01.08.11.06/NTZ6vFwMk1Ch3Dq00lmcvw",
   "Time": 1793503000,
   "Events": [],
-  "Goals": [],
+  "Goals": [
+    {
+      "_id": {
+        "$oid": "6a0000000000000000000010"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1793386800000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1793649600000"
+        }
+      },
+      "Desc": "/Lotus/Language/G1Quests/TacAlertHalloweenTitle",
+      "Tag": "TacAlertHalloween"
+    },
+    {
+      "_id": {
+        "$oid": "6a0000000000000000000011"
+      },
+      "Activation": {
+        "$date": {
+          "$numberLong": "1793386800000"
+        }
+      },
+      "Expiry": {
+        "$date": {
+          "$numberLong": "1793649600000"
+        }
+      },
+      "Desc": "/Lotus/Language/TauPrologue/RoadToTauEventName",
+      "Tag": "RoadToTauEvent"
+    }
+  ],
   "Alerts": [
     {
       "_id": {

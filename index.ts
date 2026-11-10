@@ -443,7 +443,7 @@ function doQuery(query: string): void
 			{
 				const a = document.createElement("a");
 				a.textContent = "View stat ranges";
-				a.href = "/rivencalc#weapon=" + encodeURIComponent(dict[result.value.name]);
+				a.href = "/riven-calc#weapon=" + encodeURIComponent(dict[result.value.name]);
 				a.target = "_blank";
 				a.style.textDecoration = "none";
 				p.appendChild(a);

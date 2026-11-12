@@ -28,7 +28,6 @@ const config = [
 	// TODO: Ratchet new rules introduced after xo 2.
 	{
 		rules: {
-			'@eslint-community/eslint-comments/require-description': 'off',
 			'@typescript-eslint/no-meaningless-void-operator': 'off',
 			'@typescript-eslint/strict-boolean-expressions': 'off',
 			'markdown/fenced-code-language': 'off',

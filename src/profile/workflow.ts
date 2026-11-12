@@ -7,8 +7,7 @@
  Also exposes all onclick handlers and profileWorkflowReady/updateProfileAge.
  */
 
-// `alert()` is used intentionally for user-facing error messages
-/* eslint-disable no-alert */
+/* eslint-disable no-alert -- `alert()` is used intentionally for user-facing error messages */
 import {MILLIS_PER_DAY, MILLIS_PER_HOUR} from '../helpers/time-helpers.js';
 import {WarframeApiFrontProxyClient} from '../warframe-api-proxy-client.js';
 import {waitForCloudSync} from '../cloud-sync/trigger.js';

@@ -10,7 +10,7 @@
  eliminating the need for a separate importmap or ES module script tag.
  */
 
-/* eslint-disable import-x/no-unassigned-import */
+/* eslint-disable import-x/no-unassigned-import -- Side-effect imports are the purpose of this bundle entry */
 // Keep imports in alphabetical order
 import './arbys/settings.js';
 import './arbys/tilesets.js';

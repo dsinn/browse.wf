@@ -159,8 +159,7 @@ export function initializeSettingsButtons(): void {
 	});
 }
 
-// `.then()` is used instead of top-level await to avoid blocking the rest of module initialization.
-/* eslint-disable unicorn/prefer-top-level-await */
+/* eslint-disable unicorn/prefer-top-level-await -- `.then()` avoids blocking the rest of module initialization */
 waitForCloudSync().then(() => {
 	checkLoadButtonState();
 }).catch((error: unknown) => {

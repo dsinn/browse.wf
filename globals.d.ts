@@ -72,7 +72,7 @@ declare function createCompletionToggle(oid: string): HTMLAnchorElement;
 declare function setImageSource(img: HTMLImageElement, icon: string): void;
 declare function toTitleCase(string_: string): string;
 
-/* eslint-disable capitalized-comments */
+/* eslint-disable capitalized-comments -- The comments below start with backticked code identifiers */
 // `interface` augments Window in script .d.ts files when written at the top level (not inside
 // `declare global`). The `declare global` wrapper is only needed in module-style .d.ts files;
 // since this file has no import/export it is already in script/global scope.

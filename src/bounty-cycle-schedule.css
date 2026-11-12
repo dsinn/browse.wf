@@ -170,7 +170,8 @@ html, body, .card, .table, .btn, .navbar, .dropdown-menu, .border, th, td, #boun
    render() (src/bounty-cycle-schedule-page.ts) for why that's a structural guarantee rather
    than something that needs a per-render class toggle. */
 #schedule-table tr :first-child {
-	background: rgba(13, 110, 253, 0.08);
+	/* Use linear-gradient to keep the background as opaque as the other columns */
+	background-image: linear-gradient(rgba(13, 110, 253, 0.08), rgba(13, 110, 253, 0.08));
 	border-left: 2px solid var(--bs-primary);
 	border-right: 2px solid var(--bs-primary);
 }

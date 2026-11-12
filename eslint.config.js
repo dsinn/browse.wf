@@ -59,7 +59,6 @@ const config = [
 			'unicorn/no-optional-chaining-on-undeclared-variable': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
 			'unicorn/no-unsafe-string-replacement': 'off',
-			'unicorn/prefer-combined-guards': 'off',
 			'unicorn/prefer-dom-node-html-methods': 'off',
 			'unicorn/prefer-group-by': 'off',
 			'unicorn/prefer-includes-over-repeated-comparisons': 'off',

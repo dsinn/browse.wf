@@ -51,12 +51,8 @@ export function isImageRequest(url: string): boolean {
  @throws Error if the URL points to a blocked domain (non-image)
  */
 export function validateTestRequest(url: string): void {
-	if (!isBlockedDomain(url)) {
-		return; // Not a blocked domain, allow
-	}
-
-	if (isImageRequest(url)) {
-		// Image requests to blocked domains are silently ignored
+	// Unblocked domains are allowed, and image requests to blocked domains are silently ignored
+	if (!isBlockedDomain(url) || isImageRequest(url)) {
 		return;
 	}
 

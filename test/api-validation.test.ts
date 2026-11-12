@@ -20,7 +20,7 @@ import {TEST_FRONT_PROXY_BASE_URL} from './helpers/test-constants';
  2. Update the mock file: ./test/update-mocks.sh
  3. Update tests if new fields are critical for functionality
 
- @TODO: Add validation for array element structures. Current tests only check if
+ @todo Add validation for array element structures. Current tests only check if
  arrays exist (Array.isArray), but don't validate the structure of items within
  those arrays (e.g., Events[0], Invasions[0], etc. should have specific fields).
  */

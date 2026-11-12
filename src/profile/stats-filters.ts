@@ -8,7 +8,9 @@
 import {addTooltip} from '../tooltip.js';
 import {getFactionIconPath} from '../faction-icons.js';
 
-/** Maps productCategory values (from ExportWeapons/ExportWarframes/ExportSentinels) to display metadata. */
+/**
+Maps productCategory values (from ExportWeapons/ExportWarframes/ExportSentinels) to display metadata.
+*/
 export const EQUIPMENT_CATEGORIES: Record<string, {tooltip: string; icon: string; displayText?: string}> = {
 	Suits: {tooltip: 'Warframes', icon: '/Lotus/Interface/Icons/StoreIcons/Warframes/Excalibur.png'},
 	LongGuns: {tooltip: 'Primary', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/PrimaryWeapons/Weapons/Braton.png'},
@@ -71,12 +73,16 @@ export function makeRenumber(tbody: HTMLElement, previousObserver?: MutationObse
 	return {renumber, observer};
 }
 
-/** Returns the display tooltip for a productCategory, or undefined if unrecognised. */
+/**
+Returns the display tooltip for a productCategory, or undefined if unrecognised.
+*/
 export function getEquipmentCategoryLabel(productCategory: string): string | undefined {
 	return EQUIPMENT_CATEGORIES[productCategory]?.tooltip;
 }
 
-/** Returns the faction bucket tooltip for an avatar faction string, or undefined if unrecognised. */
+/**
+Returns the faction bucket tooltip for an avatar faction string, or undefined if unrecognised.
+*/
 export function getEnemyFactionLabel(faction: string): string | undefined {
 	for (const bucket of ENEMY_FACTIONS) {
 		if (bucket.factions.includes(faction)) {

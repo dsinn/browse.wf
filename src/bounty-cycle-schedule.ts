@@ -78,7 +78,9 @@ export function getCycleWindows(phase: CyclePhase, from: number, spanMs: number)
 	return windows;
 }
 
-/** Formats a cycle window as "start–end" (en dash) in the given timezone and hour format. */
+/**
+Formats a cycle window as "start–end" (en dash) in the given timezone and hour format.
+*/
 export function formatWindow(window: CycleWindow, timeZone: 'local' | 'utc', hourFormat: HourFormat = '24'): string {
 	return `${formatTime(window.start, timeZone, hourFormat)}–${formatTime(window.end, timeZone, hourFormat)}`;
 }
@@ -104,7 +106,9 @@ function formatTime(timestamp: number, timeZone: 'local' | 'utc', hourFormat: Ho
 	}
 }
 
-/** Returns the calendar-day timestamp (local midnight or UTC midnight) that `timestamp` falls on. */
+/**
+Returns the calendar-day timestamp (local midnight or UTC midnight) that `timestamp` falls on.
+*/
 export function getDayBucket(timestamp: number, timeZone: 'local' | 'utc'): number {
 	const date = new Date(timestamp);
 	if (timeZone === 'utc') {
@@ -129,7 +133,9 @@ export function addCalendarDays(dayBucket: number, dayOffset: number, timeZone: 
 	return new Date(date.getFullYear(), date.getMonth(), date.getDate() + dayOffset).getTime();
 }
 
-/** Formats a day-bucket timestamp as e.g. "Fri, Aug 7". */
+/**
+Formats a day-bucket timestamp as e.g. "Fri, Aug 7".
+*/
 export function formatDayHeading(dayBucket: number, timeZone: 'local' | 'utc'): string {
 	const format = timeZone === 'utc' ? DAY_HEADING_FORMAT_UTC : DAY_HEADING_FORMAT_LOCAL;
 	return format.format(new Date(dayBucket));
@@ -159,12 +165,16 @@ export function groupWindowsByDay(
 	return days;
 }
 
-/** True if the window has already ended as of `now`. */
+/**
+True if the window has already ended as of `now`.
+*/
 export function isWindowPast(window: CycleWindow, now: number): boolean {
 	return window.end < now;
 }
 
-/** True if `now` falls within the window (it's the currently in-progress cycle). */
+/**
+True if `now` falls within the window (it's the currently in-progress cycle).
+*/
 export function isWindowActive(window: CycleWindow, now: number): boolean {
 	return window.start <= now && now < window.end;
 }

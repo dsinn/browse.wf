@@ -24,7 +24,9 @@ export async function scrollToPageBottom(page: Page): Promise<void> {
 	});
 }
 
-/** Scrolls an element to the top of the viewport immediately (ignoring any CSS `scroll-behavior: smooth`). */
+/**
+Scrolls an element to the top of the viewport immediately (ignoring any CSS `scroll-behavior: smooth`).
+*/
 export async function scrollToElement(page: Page, selector: string): Promise<void> {
 	await page.locator(selector).evaluate(element => {
 		element.scrollIntoView({behavior: 'instant'});

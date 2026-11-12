@@ -5,10 +5,14 @@
  * is too short to reach the top of the viewport, so this does the (small) bookkeeping itself.
  */
 
-/** A section counts as "current" once its top edge is within this fraction of the viewport height. */
+/**
+A section counts as "current" once its top edge is within this fraction of the viewport height.
+*/
 const ACTIVATION_FRACTION = 0.3;
 
-/** Returns the id of the section to highlight, given each section's top edge relative to the viewport. */
+/**
+Returns the id of the section to highlight, given each section's top edge relative to the viewport.
+*/
 export function pickActiveSectionId(
 	sections: ReadonlyArray<{id: string; top: number}>,
 	viewportHeight: number,
@@ -32,7 +36,9 @@ export function pickActiveSectionId(
 	return activeId;
 }
 
-/** Below the lg breakpoint the entries form a horizontally scrolling strip; keep the current one centred in it. */
+/**
+Below the lg breakpoint the entries form a horizontally scrolling strip; keep the current one centred in it.
+*/
 function centreLinkInStrip(strip: HTMLElement, link: HTMLElement): void {
 	if (strip.scrollWidth <= strip.clientWidth) {
 		return;
@@ -43,7 +49,9 @@ function centreLinkInStrip(strip: HTMLElement, link: HTMLElement): void {
 	strip.scrollBy({left: (linkBox.left - stripBox.left) - ((stripBox.width - linkBox.width) / 2)});
 }
 
-/** Marks which sides of the (horizontally scrolling) strip have entries hidden beyond the edge, for the CSS fades. */
+/**
+Marks which sides of the (horizontally scrolling) strip have entries hidden beyond the edge, for the CSS fades.
+*/
 function updateStripFades(strip: HTMLElement): void {
 	strip.classList.toggle('has-more-left', strip.scrollLeft > 1);
 	strip.classList.toggle('has-more-right', Math.ceil(strip.scrollLeft + strip.clientWidth) < strip.scrollWidth - 1);

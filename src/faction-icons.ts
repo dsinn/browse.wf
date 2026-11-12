@@ -1,6 +1,8 @@
 import type {TFaction} from 'warframe-public-export-plus';
 
-/** Maps TFaction keys to their Warframe asset icon paths. */
+/**
+Maps TFaction keys to their Warframe asset icon paths.
+*/
 export const FACTION_ICON_PATHS: Record<TFaction, string> = {
 	FC_CORPUS: '/Lotus/Interface/Icons/Player/FactionCorpus.png',
 	FC_DUVIRI: '/Lotus/Interface/Graphics/StartingZoneChoice/DuviriStartingZoneIconParadox.png',
@@ -37,7 +39,9 @@ export const ENEMY_FACTION_TO_TFACTION: Record<string, TFaction> = {
 	Techrot: 'FC_TECHROT',
 };
 
-/** Returns the icon path for an ExportEnemies avatar faction string, or undefined if unrecognised. */
+/**
+Returns the icon path for an ExportEnemies avatar faction string, or undefined if unrecognised.
+*/
 export function getFactionIconPath(faction: string): string | undefined {
 	const tfaction = ENEMY_FACTION_TO_TFACTION[faction];
 	return tfaction ? FACTION_ICON_PATHS[tfaction] : undefined;

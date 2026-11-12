@@ -8,7 +8,9 @@ import {type StatDef} from './stats.js';
 
 export type TraitGroup = {
 	id: string;
-	/** Names the group for screen readers; the page shows no heading. */
+	/**
+	Names the group for screen readers; the page shows no heading.
+	*/
 	label: string;
 	stats: StatDef[];
 };
@@ -16,7 +18,9 @@ export type TraitGroup = {
 type GroupDefinition = {
 	id: string;
 	label: string;
-	/** Listed in the order to show them. A trait the Riven type cannot roll is skipped. */
+	/**
+	Listed in the order to show them. A trait the Riven type cannot roll is skipped.
+	*/
 	tags: readonly string[];
 };
 
@@ -130,7 +134,9 @@ export const GROUP_DEFINITIONS: readonly GroupDefinition[] = [
 	},
 ];
 
-/** Sorts the stats into ordered groups, leaving out groups that have none of them. */
+/**
+Sorts the stats into ordered groups, leaving out groups that have none of them.
+*/
 export function groupStats(stats: readonly StatDef[]): TraitGroup[] {
 	const remaining = new Map(stats.map(stat => [stat.tag, stat]));
 	const groups: TraitGroup[] = [];

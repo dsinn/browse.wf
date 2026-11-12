@@ -68,7 +68,9 @@ export function buildStatLabel(template: string, exportTextIcons: Record<string,
 	return fragment;
 }
 
-/** The stat's name without its number, e.g. "Critical Chance" for "|val|% Critical Chance". */
+/**
+The stat's name without its number, e.g. "Critical Chance" for "|val|% Critical Chance".
+*/
 export function getStatName(template: string): string {
 	return template
 		.replaceAll(TEXT_ICON, '')
@@ -82,7 +84,9 @@ export type RowContext = {
 	kind: TraitKind;
 	state: CalcState;
 	data: CalcData;
-	/** Where each graded trait sits in its range (0 to 1), by trait, so that it can be kept when the range changes. */
+	/**
+	Where each graded trait sits in its range (0 to 1), by trait, so that it can be kept when the range changes.
+	*/
 	rolls: Map<string, number>;
 };
 
@@ -266,7 +270,9 @@ function getElement<T extends HTMLElement>(root: ParentNode, selector: string): 
 
 export type RivenCalc = {
 	getState: () => CalcState;
-	/** Re-reads the dictionary (after a language change) and redraws. */
+	/**
+	Re-reads the dictionary (after a language change) and redraws.
+	*/
 	setDict: (dict: Record<string, string>) => void;
 };
 

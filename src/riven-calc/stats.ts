@@ -3,17 +3,23 @@ import {type DisplayKind, type StatMaths} from './formula.js';
 
 export type StatDef = StatMaths & {
 	tag: string;
-	/** Dictionary key of the display template, e.g. "|val|% Critical Chance". */
+	/**
+	Dictionary key of the display template, e.g. "|val|% Critical Chance".
+	*/
 	labelKey: string;
 	canBeBuff: boolean;
 	canBeCurse: boolean;
-	/** True for traits made by Riven Splicing. */
+	/**
+	True for traits made by Riven Splicing.
+	*/
 	spliced: boolean;
 };
 
 const UPGRADES_PREFIX = '/Lotus/Upgrades/Mods/Randomized/';
 
-/** Stats whose in-game number is a multiplier rather than a percentage. */
+/**
+Stats whose in-game number is a multiplier rather than a percentage.
+*/
 const MULTIPLIER_TAGS = new Set([
 	'WeaponFactionDamageCorpus',
 	'WeaponFactionDamageGrineer',
@@ -23,7 +29,9 @@ const MULTIPLIER_TAGS = new Set([
 	'WeaponMeleeFactionDamageInfested',
 ]);
 
-/** Stats whose in-game number is a plain quantity (seconds, metres, combo count) rather than a percentage. */
+/**
+Stats whose in-game number is a plain quantity (seconds, metres, combo count) rather than a percentage.
+*/
 const DECIMAL_TAGS = new Set([
 	'ComboDurationMod',
 	'WeaponMeleeComboInitialBonusMod',

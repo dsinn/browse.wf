@@ -87,7 +87,6 @@ const config = [
 			'unicorn/prefer-ternary': 'off',
 			'unicorn/prefer-toggle-attribute': 'off',
 			'unicorn/require-css-escape': 'off',
-			'unicorn/single-line-block-comment-style': 'off',
 			'xo/import-specifier-newline': 'off',
 		},
 	},

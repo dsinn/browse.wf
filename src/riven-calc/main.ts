@@ -9,7 +9,9 @@ import {initRivenCalc} from './index.js';
 
 declare function getDictPromise(): Promise<Record<string, string>>;
 
-/** Adds the names that neither browse.wf nor warframe-public-export-plus provide (spliced traits). */
+/**
+Adds the names that neither browse.wf nor warframe-public-export-plus provide (spliced traits).
+*/
 function withFallback(dict: Record<string, string>): Record<string, string> {
 	return (window as any).withTranslationFallback?.(dict) ?? dict;
 }

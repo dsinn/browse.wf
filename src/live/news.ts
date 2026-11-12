@@ -142,7 +142,9 @@ export function updateNewsTicker(forceRender = false): void {
 	document.querySelector('#news-body > :last-child')!.classList.remove('mb-1');
 }
 
-/** Reset internal module state (useful for tests) */
+/**
+Reset internal module state (useful for tests)
+*/
 export function resetNewsState(): void {
 	latestRenderedNewsTime = 0;
 	newsNotifyAfter = 0;

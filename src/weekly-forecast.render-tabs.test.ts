@@ -49,7 +49,9 @@ afterEach(() => {
 	delete (globalThis as any).toTitleCase;
 });
 
-/** Build the full weekly-forecast DOM scaffold. */
+/**
+Build the full weekly-forecast DOM scaffold.
+*/
 function buildDom() {
 	document.body.innerHTML = `
 		<div id="weekly-missions-timer"></div>

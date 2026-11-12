@@ -18,12 +18,16 @@ export function resolveBonusRegion(bonusRegion: string, dict: Record<string, str
 		?? camelToWords(lastSegment(bonusRegion));
 }
 
-/** Millisecond timestamp of when a given WeekCount began. */
+/**
+Millisecond timestamp of when a given WeekCount began.
+*/
 export function weekCountToActivationMs(weekCount: number): number {
 	return WEEK_EPOCH_MS + (weekCount * MILLIS_PER_WEEK);
 }
 
-/** Returns the WeeklyVaultBonusRewards entry for the current week, falling back to the upcoming week. */
+/**
+Returns the WeeklyVaultBonusRewards entry for the current week, falling back to the upcoming week.
+*/
 export function findClanWeeklyEntry(entries: any[]): any | undefined {
 	const currentWeekIdx = getWeekIndex(Date.now());
 	return entries.find(entry => entry.WeekCount === currentWeekIdx)

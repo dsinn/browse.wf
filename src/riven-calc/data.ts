@@ -11,7 +11,9 @@
 import {type DisplayKind} from './formula.js';
 
 export type RivenClass = {
-	/** Key of the class in ExportUpgrades, after /Lotus/Upgrades/Mods/Randomized/ */
+	/**
+	Key of the class in ExportUpgrades, after /Lotus/Upgrades/Mods/Randomized/
+	*/
 	key: string;
 	label: string;
 };
@@ -24,7 +26,9 @@ export const RIFLE = 'LotusRifleRandomModRare';
 export const SHOTGUN = 'LotusShotgunRandomModRare';
 export const ZAW = 'LotusModularMeleeRandomModRare';
 
-/** In the order they are listed in the class selector, which is also the order compatibility is checked in. */
+/**
+In the order they are listed in the class selector, which is also the order compatibility is checked in.
+*/
 export const RIVEN_CLASSES: readonly RivenClass[] = [
 	{key: ARCHGUN, label: 'Archgun'},
 	{key: KITGUN, label: 'Kitgun'},
@@ -42,18 +46,24 @@ const RANGED = [ARCHGUN, KITGUN, PISTOL, RIFLE, SHOTGUN];
 const RANGED_WITH_HOLSTER = [KITGUN, PISTOL, RIFLE, SHOTGUN];
 const MELEE_CLASSES = [MELEE, ZAW];
 
-/** A stat that the page adds to the ones in the export. */
+/**
+A stat that the page adds to the ones in the export.
+*/
 export type ExtraStat = {
 	tag: string;
 	baseValue: number;
-	/** Dictionary key of the display template, e.g. "|val|% Zoom". */
+	/**
+	Dictionary key of the display template, e.g. "|val|% Zoom".
+	*/
 	labelKey: string;
 	displayKind: DisplayKind;
 	reverseDisplay: boolean;
 	canBeBuff: boolean;
 	canBeCurse: boolean;
 	spliced: boolean;
-	/** Keys of the Riven classes (see {@link RIVEN_CLASSES}) that can roll the stat. */
+	/**
+	Keys of the Riven classes (see {@link RIVEN_CLASSES}) that can roll the stat.
+	*/
 	classes: readonly string[];
 };
 
@@ -98,7 +108,9 @@ export const SPLICED_STATS: readonly ExtraStat[] = [
 	splicedStat('ParryAngle', 0.009, MELEE_CLASSES),
 ];
 
-/** Shotguns gained Zoom in Hotfix 44.0.2 so that they can be spliced into Weak Point traits. */
+/**
+Shotguns gained Zoom in Hotfix 44.0.2 so that they can be spliced into Weak Point traits.
+*/
 export const SHOTGUN_ZOOM: ExtraStat = {
 	tag: 'WeaponZoomFovMod',
 	baseValue: 0.004666,

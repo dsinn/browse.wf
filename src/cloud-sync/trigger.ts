@@ -15,12 +15,16 @@ export function registerSyncHandler(fn: () => Promise<void>): void {
 	handler = fn;
 }
 
-/** Trigger an immediate (non-debounced) cloud sync push. */
+/**
+Trigger an immediate (non-debounced) cloud sync push.
+*/
 export function triggerCloudSync(): void {
 	void handler?.();
 }
 
-/** Trigger a debounced cloud sync push (batches rapid successive calls). */
+/**
+Trigger a debounced cloud sync push (batches rapid successive calls).
+*/
 export function triggerCloudSyncWithDebounce(): void {
 	if (debounceTimer !== undefined) {
 		clearTimeout(debounceTimer);
@@ -32,7 +36,9 @@ export function triggerCloudSyncWithDebounce(): void {
 	}, DEBOUNCE_MS);
 }
 
-/** Cancel any pending debounced push and fire it immediately. */
+/**
+Cancel any pending debounced push and fire it immediately.
+*/
 export async function flushDebounce(): Promise<void> {
 	if (debounceTimer !== undefined) {
 		clearTimeout(debounceTimer);

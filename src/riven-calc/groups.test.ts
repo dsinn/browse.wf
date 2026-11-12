@@ -180,7 +180,9 @@ describe('where the spliced traits go', () => {
 	const positionOf = (ingredient: string[]): number => Math.min(...ingredient.map(tag => order.indexOf(tag)).filter(index => index !== -1));
 	const nameOf = (ingredient: string[]): string => ingredient[0];
 
-	/** The earliest ingredient that every recipe uses, or failing that the earliest of any. */
+	/**
+	The earliest ingredient that every recipe uses, or failing that the earliest of any.
+	*/
 	function anchorOf(recipes: string[][][]): string[] {
 		const ingredients = recipes.flat();
 		const common = ingredients.filter(ingredient => recipes.every(recipe => recipe.some(candidate => nameOf(candidate) === nameOf(ingredient))));
@@ -195,7 +197,9 @@ describe('where the spliced traits go', () => {
 		return best;
 	}
 
-	/** The earliest of the ingredients that go with the anchor. */
+	/**
+	The earliest of the ingredients that go with the anchor.
+	*/
 	function partnerPositionOf(recipes: string[][][], anchor: string[]): number {
 		return Math.min(...recipes.flatMap(recipe => recipe.filter(ingredient => nameOf(ingredient) !== nameOf(anchor)).map(ingredient => positionOf(ingredient))));
 	}

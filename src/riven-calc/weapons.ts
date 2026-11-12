@@ -1,10 +1,14 @@
 import {KITGUN, RIVEN_CLASSES, ZAW} from './data.js';
 
 export type WeaponOption = {
-	/** Name shown in the weapon picker. */
+	/**
+	Name shown in the weapon picker.
+	*/
 	label: string;
 	uniqueName: string;
-	/** Key of the Riven class (see ./data.ts) that the weapon takes. */
+	/**
+	Key of the Riven class (see ./data.ts) that the weapon takes.
+	*/
 	rivenClassKey: string;
 	/**
 	 * Whether the weapon is a variant (Prime, Vandal, Wraith, Prisma, ...) of another weapon in the list. Variants

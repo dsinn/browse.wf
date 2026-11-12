@@ -20,26 +20,36 @@ export const MAX_ROLL_FACTOR = 1.1;
 export type TraitKind = 'buff' | 'curse';
 
 export type Layout = {
-	/** Number of positive traits: 2 or 3. */
+	/**
+	Number of positive traits: 2 or 3.
+	*/
 	buffs: number;
-	/** Number of negative traits: 0 or 1. */
+	/**
+	Number of negative traits: 0 or 1.
+	*/
 	curses: number;
 };
 
 export type DisplayKind = 'percent' | 'multiplier' | 'decimal';
 
-/** Which trait of which Riven a value is for. */
+/**
+Which trait of which Riven a value is for.
+*/
 export type TraitContext = {
 	rank: number;
 	layout: Layout;
 	kind: TraitKind;
 };
 
-/** The parts of a stat definition that the maths needs. */
+/**
+The parts of a stat definition that the maths needs.
+*/
 export type StatMaths = {
 	baseValue: number;
 	displayKind: DisplayKind;
-	/** True when the in-game number is the negation of the underlying value (e.g. Ammo Efficiency). */
+	/**
+	True when the in-game number is the negation of the underlying value (e.g. Ammo Efficiency).
+	*/
 	reverseDisplay: boolean;
 };
 
@@ -47,7 +57,9 @@ export const MIN_BUFFS = 2;
 export const MAX_BUFFS = 3;
 export const MAX_CURSES = 1;
 
-/** L for each trait layout. A layout with no negative trait has no curse multiplier. */
+/**
+L for each trait layout. A layout with no negative trait has no curse multiplier.
+*/
 const LAYOUT_MULTIPLIERS: Record<string, {buff: number; curse: number}> = {
 	'2/0': {buff: 0.99, curse: 0},
 	'2/1': {buff: 1.2375, curse: -0.495},
@@ -55,7 +67,9 @@ const LAYOUT_MULTIPLIERS: Record<string, {buff: number; curse: number}> = {
 	'3/1': {buff: 0.9375, curse: -0.75},
 };
 
-/** Clamps arbitrary trait counts to a layout that a Riven can actually have. */
+/**
+Clamps arbitrary trait counts to a layout that a Riven can actually have.
+*/
 export function normalizeLayout(buffs: number, curses: number): Layout {
 	return {
 		buffs: Number.isFinite(buffs) ? Math.min(Math.max(Math.trunc(buffs), MIN_BUFFS), MAX_BUFFS) : MAX_BUFFS,
@@ -67,12 +81,16 @@ export function clampRank(rank: number): number {
 	return Number.isFinite(rank) ? Math.min(Math.max(Math.trunc(rank), 0), MAX_RANK) : MAX_RANK;
 }
 
-/** L for the given layout; curse multipliers are negative, so they flip the sign of a positive base value. */
+/**
+L for the given layout; curse multipliers are negative, so they flip the sign of a positive base value.
+*/
 export function getLayoutMultiplier(layout: Layout, kind: TraitKind): number {
 	return LAYOUT_MULTIPLIERS[`${layout.buffs}/${layout.curses}`][kind];
 }
 
-/** The stat's value (as the game stores it, before display rounding) for a roll between 0 (worst) and 1 (best). */
+/**
+The stat's value (as the game stores it, before display rounding) for a roll between 0 (worst) and 1 (best).
+*/
 export function computeValue(stat: StatMaths, trait: TraitContext, roll: number): number {
 	return stat.baseValue * 10 * (trait.rank + 1) * DISPOSITION * getLayoutMultiplier(trait.layout, trait.kind)
 		* rollToFactor(roll);
@@ -106,12 +124,16 @@ export function toDisplayValue(stat: StatMaths, value: number): number {
 	return rounded === 0 ? 0 : rounded;
 }
 
-/** The smallest difference between two displayed values: the precision {@link toDisplayValue} rounds to. */
+/**
+The smallest difference between two displayed values: the precision {@link toDisplayValue} rounds to.
+*/
 export function getDisplayStep(stat: StatMaths): number {
 	return stat.displayKind === 'multiplier' ? 0.01 : 0.1;
 }
 
-/** Inverse of {@link toDisplayValue} (ignoring rounding). */
+/**
+Inverse of {@link toDisplayValue} (ignoring rounding).
+*/
 export function fromDisplayValue(stat: StatMaths, displayValue: number): number {
 	let unscaled = displayValue;
 	if (stat.displayKind === 'percent') {
@@ -123,7 +145,9 @@ export function fromDisplayValue(stat: StatMaths, displayValue: number): number 
 	return stat.reverseDisplay ? -unscaled : unscaled;
 }
 
-/** The displayed lowest and highest values of a stat (roll 0 and roll 1). */
+/**
+The displayed lowest and highest values of a stat (roll 0 and roll 1).
+*/
 export function getDisplayRange(stat: StatMaths, trait: TraitContext): {min: number; max: number} {
 	return {
 		min: toDisplayValue(stat, computeValue(stat, trait, 0)),
@@ -131,19 +155,25 @@ export function getDisplayRange(stat: StatMaths, trait: TraitContext): {min: num
 	};
 }
 
-/** The roll (0 to 1, though out-of-range input gives values outside it) that produces the displayed value. */
+/**
+The roll (0 to 1, though out-of-range input gives values outside it) that produces the displayed value.
+*/
 export function getRollFromDisplayValue(stat: StatMaths, trait: TraitContext, displayValue: number): number {
 	const atRollZero = computeValue(stat, trait, 0);
 	const atRollOne = computeValue(stat, trait, 1);
 	return (fromDisplayValue(stat, displayValue) - atRollZero) / (atRollOne - atRollZero);
 }
 
-/** The roll as a 0.9 to 1.1 multiplier, as shown to the user. */
+/**
+The roll as a 0.9 to 1.1 multiplier, as shown to the user.
+*/
 export function rollToFactor(roll: number): number {
 	return MIN_ROLL_FACTOR + ((MAX_ROLL_FACTOR - MIN_ROLL_FACTOR) * roll);
 }
 
-/** The lowest score (see {@link gradeRoll}) that earns each grade, best first. Below the last one is an "F". */
+/**
+The lowest score (see {@link gradeRoll}) that earns each grade, best first. Below the last one is an "F".
+*/
 const GRADE_THRESHOLDS: ReadonlyArray<readonly [number, string]> = [
 	[9.5, 'S'],
 	[7.5, 'A+'],
@@ -157,7 +187,9 @@ const GRADE_THRESHOLDS: ReadonlyArray<readonly [number, string]> = [
 	[-9.5, 'C-'],
 ];
 
-/** Letter grade for a roll where 1 is the best possible. Anything outside the possible rolls is "X". */
+/**
+Letter grade for a roll where 1 is the best possible. Anything outside the possible rolls is "X".
+*/
 export function gradeRoll(roll: number): string {
 	const score = -10 + (20 * roll);
 	if (Math.abs(score) > 11.5) {
@@ -173,7 +205,9 @@ export function gradeRoll(roll: number): string {
 	return 'F';
 }
 
-/** Grades a displayed value. A negative trait is better the weaker it is, so its roll is inverted. */
+/**
+Grades a displayed value. A negative trait is better the weaker it is, so its roll is inverted.
+*/
 export function gradeDisplayValue(
 	stat: StatMaths,
 	trait: TraitContext,

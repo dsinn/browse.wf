@@ -6,7 +6,9 @@ import {type WeaponOption} from './weapons.js';
 
 export type CalcState = {
 	rivenClassKey: string;
-	/** The weapon picked in the weapon picker, if any. */
+	/**
+	The weapon picked in the weapon picker, if any.
+	*/
 	weapon?: WeaponOption;
 	rank: number;
 	layout: Layout;
@@ -59,7 +61,9 @@ export function parseHash(hash: string, weapons: readonly WeaponOption[]): CalcS
 	return state;
 }
 
-/** The inverse of {@link parseHash}, without the leading "#". */
+/**
+The inverse of {@link parseHash}, without the leading "#".
+*/
 export function serializeState(state: CalcState): string {
 	const parameters = new URLSearchParams({
 		weapon: state.weapon?.label ?? state.rivenClassKey,

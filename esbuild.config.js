@@ -17,7 +17,9 @@ import * as esbuild from 'esbuild';
 
 const watch = process.argv.includes('--watch');
 
-/** @type {import('esbuild').BuildOptions} */
+/**
+@type {import('esbuild').BuildOptions}
+*/
 const buildOptions = {
 	entryPoints: ['src/bundle-entry.ts'],
 	bundle: true,

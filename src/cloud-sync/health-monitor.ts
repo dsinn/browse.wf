@@ -18,7 +18,9 @@ type VisibilityFallbackOptions = {
 };
 
 export class CloudSyncHealthMonitor {
-	/** Must be greater than heartbeat interval (5s) */
+	/**
+	Must be greater than heartbeat interval (5s)
+	*/
 	static get quickReconnectThresholdMs() {
 		return 10_000;
 	}
@@ -27,7 +29,9 @@ export class CloudSyncHealthMonitor {
 		return 5000;
 	}
 
-	/** Minimum interval between visibility-triggered pulls */
+	/**
+	Minimum interval between visibility-triggered pulls
+	*/
 	static get visibilityPullThrottleMs() {
 		return 60_000;
 	}

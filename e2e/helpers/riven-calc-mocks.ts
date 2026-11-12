@@ -5,7 +5,9 @@ import {type Page} from '@playwright/test';
 
 const EXPORT_PLUS_DIR = path.join(process.cwd(), 'node_modules', 'warframe-public-export-plus');
 
-/** Weapons the Riven calculator tests pick, one per Riven type they use. */
+/**
+Weapons the Riven calculator tests pick, one per Riven type they use.
+*/
 const WEAPON_NAMES = new Set([
 	'Braton', // Rifle
 	'Lex', // Pistol

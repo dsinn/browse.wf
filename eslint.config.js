@@ -65,7 +65,6 @@ const config = [
 			'unicorn/prefer-iterator-to-array': 'off',
 			'unicorn/prefer-number-coercion': 'off',
 			'unicorn/prefer-scoped-selector': 'off',
-			'unicorn/prefer-simple-condition-first': 'off',
 			'unicorn/prefer-toggle-attribute': 'off',
 			'unicorn/require-css-escape': 'off',
 		},

@@ -30,7 +30,7 @@ async function initializeAuth() {
 
 	// Clean up OAuth-related hashes from URL after redirect
 	const {hash} = globalThis.location;
-	if (!hash || (!hash.includes('access_token') && !hash.includes('refresh_token') && hash !== '#')) {
+	if (!hash || (hash !== '#' && !hash.includes('access_token') && !hash.includes('refresh_token'))) {
 		return;
 	}
 

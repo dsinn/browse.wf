@@ -31,7 +31,6 @@ const config = [
 			'@eslint-community/eslint-comments/require-description': 'off',
 			'@typescript-eslint/no-meaningless-void-operator': 'off',
 			'@typescript-eslint/no-shadow': 'off',
-			'@typescript-eslint/no-unnecessary-type-conversion': 'off',
 			'@typescript-eslint/strict-boolean-expressions': 'off',
 			'jsdoc/check-indentation': 'off',
 			'jsdoc/check-param-names': 'off',

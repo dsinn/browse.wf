@@ -115,7 +115,7 @@ export async function resolveArchimedea(
 		let desc: string | undefined;
 		if (descRaw) {
 			const value = FRAME_VARIABLE_VALUE_MAP[fv];
-			desc = stripHtml(descRaw).replaceAll('|val|', value ?? '');
+			desc = stripHtml(descRaw).replaceAll('|val|', () => value ?? '');
 		}
 
 		return {name, desc};

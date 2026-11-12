@@ -38,14 +38,14 @@ function fixPathsForGitHubPages(html) {
 
 	return transformPhpLinks(html)
 	// Fix .html links to include base path (e.g., href="/live.html" → href="/browse.wf/live.html")
-		.replaceAll(/href="\/([^"]+\.html)"/gu, `href="${BASE_PATH}/$1"`)
+		.replaceAll(/href="\/([^"]+\.html)"/gu, (_match, page) => `href="${BASE_PATH}/${page}"`)
 	// Fix root path (e.g., href="/" → href="/browse.wf/")
-		.replaceAll(/href="\/"(?=[^/])/gu, `href="${BASE_PATH}/"`)
+		.replaceAll(/href="\/"(?=[^/])/gu, () => `href="${BASE_PATH}/"`)
 	// Fix script sources (e.g., src="/common.js" → src="/browse.wf/common.js")
-		.replaceAll(/src="\/([^"]+\.js)"/gu, `src="${BASE_PATH}/$1"`)
+		.replaceAll(/src="\/([^"]+\.js)"/gu, (_match, script) => `src="${BASE_PATH}/${script}"`)
 	// GitHub Pages caches assets for 10 minutes; append cache-buster to all local assets
-		.replaceAll(/src="((?:typestripped\/|common\.js|env-config\.js|supplemental-data\/)[^"?]*)(?:\?[^"]*)?"/gu, `src="$1?${CACHE_BUSTER}"`)
-		.replaceAll(/href="(src\/[^"?]+\.css)(?:\?[^"]*)?"/gu, `href="$1?${CACHE_BUSTER}"`);
+		.replaceAll(/src="((?:typestripped\/|common\.js|env-config\.js|supplemental-data\/)[^"?]*)(?:\?[^"]*)?"/gu, (_match, asset) => `src="${asset}?${CACHE_BUSTER}"`)
+		.replaceAll(/href="(src\/[^"?]+\.css)(?:\?[^"]*)?"/gu, (_match, stylesheet) => `href="${stylesheet}?${CACHE_BUSTER}"`);
 }
 
 /**

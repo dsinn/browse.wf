@@ -50,7 +50,6 @@ const config = [
 			'unicorn/no-global-object-property-assignment': 'off',
 			'unicorn/no-optional-chaining-on-undeclared-variable': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
-			'unicorn/no-unsafe-string-replacement': 'off',
 			'unicorn/prefer-dom-node-html-methods': 'off',
 			'unicorn/prefer-group-by': 'off',
 			'unicorn/prefer-iterator-to-array': 'off',

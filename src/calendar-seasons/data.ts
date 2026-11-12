@@ -67,7 +67,7 @@ function resolveChallengeText(event: any, dict: Record<string, string>, exportCh
 	const challengeName = camelToWords(lastSegment(event.challenge));
 	let text = count ? `${challengeName} \u{D7}${String(count)}` : challengeName;
 	if (desc && count) {
-		text = desc.replace('|COUNT|', String(count));
+		text = desc.replace('|COUNT|', () => String(count));
 	}
 
 	return {text, iconPath};

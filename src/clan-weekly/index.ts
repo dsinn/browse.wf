@@ -95,9 +95,11 @@ export async function updateClanWeekly(): Promise<void> {
 	window.ExportImages = await fetchExport('ExportImages');
 
 	const body = document.querySelector('#clan-weekly-body');
-	if (body) {
-		body.replaceChildren(await renderClanWeeklyPane(entry));
+	if (!body) {
+		return;
 	}
+
+	body.replaceChildren(await renderClanWeeklyPane(entry));
 }
 
 window.updateClanWeekly = updateClanWeekly;

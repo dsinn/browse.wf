@@ -41,36 +41,38 @@ export function initializeFilterToggles(): void {
 			const panelId = `${String(cardName)}-filters`;
 			const panel = document.querySelector<HTMLElement>(`#${panelId}`);
 
-			if (panel) {
-				if (panel.classList.contains('show')) {
-					// Close panel
-					panel.classList.remove('show');
-					// After animation completes, hide completely
-					setTimeout(() => {
-						if (!panel.classList.contains('show')) {
-							panel.style.display = 'none';
-						}
-					}, 300);
-				} else {
-					// Open panel
-					panel.style.display = 'grid';
-					// Trigger reflow to ensure display change is processed before adding class
-					void panel.offsetHeight;
-					panel.classList.add('show');
-
-					// If card is collapsed, expand it
-					const collapseToggle = document.querySelector<HTMLElement>(`[data-collapse-toggle="${cardName}"]`);
-					if (collapseToggle?.classList.contains('engaged')) {
-						localStorage.removeItem(`live.collapse.${cardName}`);
-						window.refreshCollapseStatus?.(collapseToggle);
-
-						// Trigger cloud sync if available
-						triggerCloudSync();
-					}
-				}
-
-				refreshFilterStatus(elm);
+			if (!panel) {
+				return;
 			}
+
+			if (panel.classList.contains('show')) {
+				// Close panel
+				panel.classList.remove('show');
+				// After animation completes, hide completely
+				setTimeout(() => {
+					if (!panel.classList.contains('show')) {
+						panel.style.display = 'none';
+					}
+				}, 300);
+			} else {
+				// Open panel
+				panel.style.display = 'grid';
+				// Trigger reflow to ensure display change is processed before adding class
+				void panel.offsetHeight;
+				panel.classList.add('show');
+
+				// If card is collapsed, expand it
+				const collapseToggle = document.querySelector<HTMLElement>(`[data-collapse-toggle="${cardName}"]`);
+				if (collapseToggle?.classList.contains('engaged')) {
+					localStorage.removeItem(`live.collapse.${cardName}`);
+					window.refreshCollapseStatus?.(collapseToggle);
+
+					// Trigger cloud sync if available
+					triggerCloudSync();
+				}
+			}
+
+			refreshFilterStatus(elm);
 		});
 	}
 }

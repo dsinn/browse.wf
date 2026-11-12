@@ -330,23 +330,25 @@ function loadNavbarFunctions() {
 		}
 
 		// Update tooltips if Bootstrap is loaded
-		if ((globalThis as any).bootstrap?.Tooltip) {
-			const tooltipMobile = (globalThis as any).bootstrap.Tooltip.getInstance(pinMobile);
-			if (tooltipMobile) {
-				tooltipMobile.dispose();
-			}
-
-			pinMobile.dataset.bsTitle = tooltipText;
-			void new (globalThis as any).bootstrap.Tooltip(pinMobile);
-
-			const tooltipDesktop = (globalThis as any).bootstrap.Tooltip.getInstance(pinDesktop);
-			if (tooltipDesktop) {
-				tooltipDesktop.dispose();
-			}
-
-			pinDesktop.dataset.bsTitle = tooltipText;
-			void new (globalThis as any).bootstrap.Tooltip(pinDesktop);
+		if (!(globalThis as any).bootstrap?.Tooltip) {
+			return;
 		}
+
+		const tooltipMobile = (globalThis as any).bootstrap.Tooltip.getInstance(pinMobile);
+		if (tooltipMobile) {
+			tooltipMobile.dispose();
+		}
+
+		pinMobile.dataset.bsTitle = tooltipText;
+		void new (globalThis as any).bootstrap.Tooltip(pinMobile);
+
+		const tooltipDesktop = (globalThis as any).bootstrap.Tooltip.getInstance(pinDesktop);
+		if (tooltipDesktop) {
+			tooltipDesktop.dispose();
+		}
+
+		pinDesktop.dataset.bsTitle = tooltipText;
+		void new (globalThis as any).bootstrap.Tooltip(pinDesktop);
 	};
 
 	(globalThis as any).toggleNavbarFixed = function () {

@@ -94,23 +94,25 @@ export function updateWeekly(): void {
 
 export function filterWeeklyMissions() {
 	const weeklyMissionsCard = document.querySelector('[data-collapse-toggle="weekly-missions"]')?.closest('.card');
-	if (weeklyMissionsCard) {
-		const entries = weeklyMissionsCard.querySelectorAll('[data-mission]');
-		let visibleCount = 0;
+	if (!weeklyMissionsCard) {
+		return;
+	}
 
-		for (const entry of entries) {
-			const {mission} = (entry as HTMLElement).dataset;
-			const isVisible = isFilterEnabled('weekly-missions', mission ?? '');
-			(entry as HTMLElement).style.display = isVisible ? '' : 'none';
-			if (isVisible) {
-				visibleCount++;
-			}
-		}
+	const entries = weeklyMissionsCard.querySelectorAll('[data-mission]');
+	let visibleCount = 0;
 
-		const emptyMessage = document.querySelector('#weekly-missions-empty-state');
-		if (emptyMessage) {
-			emptyMessage.classList.toggle('d-none', visibleCount > 0);
+	for (const entry of entries) {
+		const {mission} = (entry as HTMLElement).dataset;
+		const isVisible = isFilterEnabled('weekly-missions', mission ?? '');
+		(entry as HTMLElement).style.display = isVisible ? '' : 'none';
+		if (isVisible) {
+			visibleCount++;
 		}
+	}
+
+	const emptyMessage = document.querySelector('#weekly-missions-empty-state');
+	if (emptyMessage) {
+		emptyMessage.classList.toggle('d-none', visibleCount > 0);
 	}
 }
 

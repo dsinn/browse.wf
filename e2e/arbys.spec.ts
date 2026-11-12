@@ -293,10 +293,12 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			const detailsText = await detailsCell.textContent();
 
 			// If there are survival missions, should show data
-			if (dateText !== 'N/A') {
-				expect(dateText).toMatch(/(Sun|Mon|Tue|Wed|Thu|Fri|Sat)/u);
-				expect(detailsText).toBeTruthy();
+			if (dateText === 'N/A') {
+				return;
 			}
+
+			expect(dateText).toMatch(/(Sun|Mon|Tue|Wed|Thu|Fri|Sat)/u);
+			expect(detailsText).toBeTruthy();
 		});
 
 		test('populates with correct data for tiers', async ({page}) => {
@@ -537,16 +539,20 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			const currentEntry = page.locator('#log b[data-timestamp]').first();
 			const exists = await currentEntry.count() > 0;
 
-			if (exists) {
-				const badge = currentEntry.locator('[data-short-timer-expiry]');
-				const badgeExists = await badge.count() > 0;
-
-				if (badgeExists) {
-					const text = await badge.textContent();
-					// Current event should show "Started" or be very close to starting
-					expect(text === 'Started' || /0m [0-5]\d+s/u.test(text!)).toBe(true);
-				}
+			if (!exists) {
+				return;
 			}
+
+			const badge = currentEntry.locator('[data-short-timer-expiry]');
+			const badgeExists = await badge.count() > 0;
+
+			if (!badgeExists) {
+				return;
+			}
+
+			const text = await badge.textContent();
+			// Current event should show "Started" or be very close to starting
+			expect(text === 'Started' || /0m [0-5]\d+s/u.test(text!)).toBe(true);
 		});
 
 		test('have data-short-timer-expiry attribute with valid unix timestamp', async ({page}) => {
@@ -613,26 +619,28 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 				}
 			}
 
-			if (foundGrineerAsteroid) {
-				const initialCount = await page.locator('#log [data-timestamp]').count();
+			if (!foundGrineerAsteroid) {
+				return;
+			}
 
-				// Uncheck Grineer Asteroid tileset
-				await page.locator('#filter-GrineerAsteroidTileset').uncheck();
+			const initialCount = await page.locator('#log [data-timestamp]').count();
 
-				// Wait for count to decrease
-				await expect(page.locator('#log [data-timestamp]')).not.toHaveCount(initialCount);
+			// Uncheck Grineer Asteroid tileset
+			await page.locator('#filter-GrineerAsteroidTileset').uncheck();
 
-				const newCount = await page.locator('#log [data-timestamp]').count();
+			// Wait for count to decrease
+			await expect(page.locator('#log [data-timestamp]')).not.toHaveCount(initialCount);
 
-				// Should have fewer entries
-				expect(newCount).toBeLessThan(initialCount);
+			const newCount = await page.locator('#log [data-timestamp]').count();
 
-				// Grineer Asteroid missions should NOW be gone
-				const newEntries = await page.locator('#log [data-timestamp]').all();
-				for (const entry of newEntries) {
-					const text = await entry.textContent();
-					expect(text).not.toContain('Grineer Asteroid');
-				}
+			// Should have fewer entries
+			expect(newCount).toBeLessThan(initialCount);
+
+			// Grineer Asteroid missions should NOW be gone
+			const newEntries = await page.locator('#log [data-timestamp]').all();
+			for (const entry of newEntries) {
+				const text = await entry.textContent();
+				expect(text).not.toContain('Grineer Asteroid');
 			}
 		});
 

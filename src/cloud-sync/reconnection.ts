@@ -56,10 +56,12 @@ export class CloudSyncReconnection {
 	 */
 	reset(): void {
 		this.reconnectAttempts = 0;
-		if (this.reconnectTimer !== undefined) {
-			clearTimeout(this.reconnectTimer);
-			this.reconnectTimer = undefined;
+		if (this.reconnectTimer === undefined) {
+			return;
 		}
+
+		clearTimeout(this.reconnectTimer);
+		this.reconnectTimer = undefined;
 	}
 
 	/**
@@ -105,26 +107,28 @@ export class CloudSyncReconnection {
 			this.reconnectTimer = undefined;
 			void (async () => {
 				const userId = this.getCurrentUserId();
-				if (userId) {
-					logger.debug('🔌 Attempting to reestablish WebSocket connection...');
-
-					// Ensure we have a fresh session token before reconnecting
-					// This handles the case where JWT expired during long sleep
-					try {
-						const {data: {session}, error} = await db.auth.refreshSession();
-						if (error) {
-							logger.debug('⚠️ Session refresh failed:', error.message);
-							// Don't give up - attempt reconnection anyway in case it's a transient error
-						} else if (session) {
-							logger.debug('✅ Session refreshed successfully');
-						}
-					} catch (error) {
-						logger.debug('⚠️ Session refresh exception:', error);
-						// Continue with reconnection attempt
-					}
-
-					this.onReconnect(userId);
+				if (!userId) {
+					return;
 				}
+
+				logger.debug('🔌 Attempting to reestablish WebSocket connection...');
+
+				// Ensure we have a fresh session token before reconnecting
+				// This handles the case where JWT expired during long sleep
+				try {
+					const {data: {session}, error} = await db.auth.refreshSession();
+					if (error) {
+						logger.debug('⚠️ Session refresh failed:', error.message);
+						// Don't give up - attempt reconnection anyway in case it's a transient error
+					} else if (session) {
+						logger.debug('✅ Session refreshed successfully');
+					}
+				} catch (error) {
+					logger.debug('⚠️ Session refresh exception:', error);
+					// Continue with reconnection attempt
+				}
+
+				this.onReconnect(userId);
 			})();
 		}, delayMs);
 	}

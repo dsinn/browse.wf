@@ -45,10 +45,12 @@ export class CloudSyncHealthMonitor {
 		setLastFreshTimestamp: (ts: number) => void,
 	): void {
 		globalThis.setInterval(() => {
-			if (getChannelState() === 'joined') {
-				setLastFreshTimestamp(Date.now());
-				logger.debug('💓 Heartbeat: Connection healthy');
+			if (getChannelState() !== 'joined') {
+				return;
 			}
+
+			setLastFreshTimestamp(Date.now());
+			logger.debug('💓 Heartbeat: Connection healthy');
 		}, CloudSyncHealthMonitor.heartbeatIntervalMs);
 	}
 

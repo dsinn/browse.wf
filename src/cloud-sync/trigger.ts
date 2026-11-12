@@ -40,11 +40,13 @@ export function triggerCloudSyncWithDebounce(): void {
 Cancel any pending debounced push and fire it immediately.
 */
 export async function flushDebounce(): Promise<void> {
-	if (debounceTimer !== undefined) {
-		clearTimeout(debounceTimer);
-		debounceTimer = undefined;
-		await handler?.();
+	if (debounceTimer === undefined) {
+		return;
 	}
+
+	clearTimeout(debounceTimer);
+	debounceTimer = undefined;
+	await handler?.();
 }
 
 /**

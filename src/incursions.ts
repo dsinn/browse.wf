@@ -72,11 +72,13 @@ function getNavbarHeight(): number {
 
 function scrollToToday(): void {
 	const todayCell = document.querySelector('.is-today');
-	if (todayCell) {
-		const controls = document.querySelector('#incursions-controls')!;
-		const offset = getNavbarHeight() + controls.clientHeight;
-		window.scrollTo({top: todayCell.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth'});
+	if (!todayCell) {
+		return;
 	}
+
+	const controls = document.querySelector('#incursions-controls')!;
+	const offset = getNavbarHeight() + controls.clientHeight;
+	window.scrollTo({top: todayCell.getBoundingClientRect().top + window.scrollY - offset, behavior: 'smooth'});
 }
 
 const VIEW_MODE_BUTTONS = {

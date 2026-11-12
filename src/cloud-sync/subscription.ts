@@ -61,10 +61,12 @@ export class CloudSyncSubscription {
 	}
 
 	unsubscribe(): void {
-		if (this.channel) {
-			this.channel.unsubscribe();
-			this.channel = undefined;
+		if (!this.channel) {
+			return;
 		}
+
+		this.channel.unsubscribe();
+		this.channel = undefined;
 	}
 
 	private async onStatusChange(status: string): Promise<void> {

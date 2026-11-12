@@ -374,13 +374,15 @@ export async function updateInvasions(): Promise<void> {
 	}
 
 	const invasionsTable = document.querySelector('#invasions-table');
-	if (invasionsTable) {
-		for (const x of invasionsTable.querySelectorAll('[data-bs-toggle=tooltip]')) {
-			(window.bootstrap).Tooltip.getInstance(x).dispose();
-		}
-
-		invasionsTable.replaceChildren(tbody);
+	if (!invasionsTable) {
+		return;
 	}
+
+	for (const x of invasionsTable.querySelectorAll('[data-bs-toggle=tooltip]')) {
+		(window.bootstrap).Tooltip.getInstance(x).dispose();
+	}
+
+	invasionsTable.replaceChildren(tbody);
 }
 
 window.calculatePercentage = calculatePercentage;

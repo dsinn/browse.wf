@@ -400,14 +400,16 @@ export function initRivenCalc(data: CalcData, root: ParentNode = document): Rive
 	const pickWeapon = (): void => {
 		const weapon = weapons.find(candidate => candidate.label === weaponInput.value);
 		// The change event that follows once the box loses focus finds the weapon already picked
-		if (weapon && weapon.uniqueName !== state.weapon?.uniqueName) {
-			state.weapon = weapon;
-			state.rivenClassKey = weapon.rivenClassKey;
-			// A different weapon is a different Riven
-			rolls.clear();
-			syncControls();
-			update();
+		if (!weapon || weapon.uniqueName === state.weapon?.uniqueName) {
+			return;
 		}
+
+		state.weapon = weapon;
+		state.rivenClassKey = weapon.rivenClassKey;
+		// A different weapon is a different Riven
+		rolls.clear();
+		syncControls();
+		update();
 	};
 
 	weaponInput.addEventListener('change', pickWeapon);

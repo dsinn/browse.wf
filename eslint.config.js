@@ -73,7 +73,6 @@ const config = [
 			'unicorn/prefer-array-from-map': 'off',
 			'unicorn/prefer-combined-guards': 'off',
 			'unicorn/prefer-dom-node-html-methods': 'off',
-			'unicorn/prefer-early-return': 'off',
 			'unicorn/prefer-group-by': 'off',
 			'unicorn/prefer-includes-over-repeated-comparisons': 'off',
 			'unicorn/prefer-iterator-to-array': 'off',

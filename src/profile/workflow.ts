@@ -89,10 +89,12 @@ function showStatusError(message: string): void {
 function updateDownloadLink(): void {
 	const accountId = document.querySelector<HTMLInputElement>('#account-id')?.value ?? '';
 	const downloadLink = document.querySelector<HTMLAnchorElement>('#download-link');
-	if (downloadLink && platformSelect.value && validateAccountId(accountId)) {
-		const platformSuffix = platformSelect.value === 'pc' ? '' : `-${platformSelect.value}`;
-		downloadLink.href = `https://api${platformSuffix}.warframe.com/cdn/getProfileViewingData.php?playerId=${encodeURIComponent(accountId)}`;
+	if (!downloadLink || !platformSelect.value || !validateAccountId(accountId)) {
+		return;
 	}
+
+	const platformSuffix = platformSelect.value === 'pc' ? '' : `-${platformSelect.value}`;
+	downloadLink.href = `https://api${platformSuffix}.warframe.com/cdn/getProfileViewingData.php?playerId=${encodeURIComponent(accountId)}`;
 }
 
 function switchToManualFlow(message: string): void {
@@ -356,17 +358,19 @@ function updateFormFromLocalStorage(): void {
 		platformSelect.value = savedPlatform;
 	}
 
-	if (savedAccountId && validateAccountId(savedAccountId)) {
-		currentAccountId = savedAccountId;
-		const accountIdInput = document.querySelector<HTMLInputElement>('#account-id');
-		if (accountIdInput) {
-			accountIdInput.value = savedAccountId;
-		}
-
-		updateStepStatus('#step2-container', true);
-		updateDownloadLink();
-		updateRefreshAlert();
+	if (!savedAccountId || !validateAccountId(savedAccountId)) {
+		return;
 	}
+
+	currentAccountId = savedAccountId;
+	const accountIdInput = document.querySelector<HTMLInputElement>('#account-id');
+	if (accountIdInput) {
+		accountIdInput.value = savedAccountId;
+	}
+
+	updateStepStatus('#step2-container', true);
+	updateDownloadLink();
+	updateRefreshAlert();
 }
 
 /**

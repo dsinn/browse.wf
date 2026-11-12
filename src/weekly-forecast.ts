@@ -226,23 +226,25 @@ async function renderCalendarSeasonTabs(
 
 	// Build two-column layout for below-xl viewports
 	const columnsElement = document.querySelector<HTMLElement>('#calendar-season-columns');
-	if (columnsElement) {
-		columnsElement.replaceChildren();
-		const row = document.createElement('div');
-		row.className = 'row';
-		for (const [i, season] of seasons.entries()) {
-			const col = document.createElement('div');
-			col.className = 'col-6';
-			const heading = document.createElement('h5');
-			heading.className = 'mb-3';
-			heading.textContent = getSeasonLabel(season.Season);
-			col.append(heading);
-			col.append(seasonPanesForColumns[i]);
-			row.append(col);
-		}
-
-		columnsElement.append(row);
+	if (!columnsElement) {
+		return;
 	}
+
+	columnsElement.replaceChildren();
+	const row = document.createElement('div');
+	row.className = 'row';
+	for (const [i, season] of seasons.entries()) {
+		const col = document.createElement('div');
+		col.className = 'col-6';
+		const heading = document.createElement('h5');
+		heading.className = 'mb-3';
+		heading.textContent = getSeasonLabel(season.Season);
+		col.append(heading);
+		col.append(seasonPanesForColumns[i]);
+		row.append(col);
+	}
+
+	columnsElement.append(row);
 }
 
 async function renderClanWeeklyColumns(

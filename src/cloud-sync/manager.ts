@@ -44,10 +44,12 @@ export class CloudSyncManager {
 	private currentUserId: string | undefined; // Track current user UUID for reconnection
 
 	private constructor() {
-		if (isDatabaseConfigured()) {
-			this.startHeartbeat();
-			this.startVisibilityPullFallback();
+		if (!isDatabaseConfigured()) {
+			return;
 		}
+
+		this.startHeartbeat();
+		this.startVisibilityPullFallback();
 	}
 
 	/**

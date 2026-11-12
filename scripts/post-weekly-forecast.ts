@@ -229,10 +229,12 @@ async function postToDiscord(content: string, webhookUrl: string) {
 		headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({content}),
 	});
-	if (!response.ok) {
-		const body = await response.text();
-		throw new Error(`Discord webhook failed: HTTP ${response.status} — ${body}`);
+	if (response.ok) {
+		return;
 	}
+
+	const body = await response.text();
+	throw new Error(`Discord webhook failed: HTTP ${response.status} — ${body}`);
 }
 
 // Produces an array of Discord messages. The first section is included in the

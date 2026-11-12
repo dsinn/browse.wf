@@ -45,35 +45,37 @@ export async function setup() {
 	regenerateFixtures();
 
 	// In watch mode, set up PHP file watching
-	if (process.env.VITEST_WATCH === 'true') {
-		console.log('👀 Watching PHP files for changes...\n');
-
-		watcher = chokidar.watch(['**/*.php', 'components/**/*.php'], {
-			ignored: [
-				'**/node_modules/**',
-				'**/vendor/**',
-				'**/typestripped/**',
-			],
-			persistent: true,
-			ignoreInitial: true,
-		});
-
-		watcher.on('change', (file: any) => {
-			console.log(`\n📝 PHP file changed: ${file}`);
-
-			// Debounce: wait 300ms for multiple changes
-			if (regenerationTimer) {
-				clearTimeout(regenerationTimer);
-			}
-
-			regenerationTimer = setTimeout(() => {
-				regenerateFixtures();
-
-				// Vitest will automatically re-run tests when fixtures change
-				// No need to manually trigger - it watches public/**
-			}, 300);
-		});
+	if (process.env.VITEST_WATCH !== 'true') {
+		return;
 	}
+
+	console.log('👀 Watching PHP files for changes...\n');
+
+	watcher = chokidar.watch(['**/*.php', 'components/**/*.php'], {
+		ignored: [
+			'**/node_modules/**',
+			'**/vendor/**',
+			'**/typestripped/**',
+		],
+		persistent: true,
+		ignoreInitial: true,
+	});
+
+	watcher.on('change', (file: any) => {
+		console.log(`\n📝 PHP file changed: ${file}`);
+
+		// Debounce: wait 300ms for multiple changes
+		if (regenerationTimer) {
+			clearTimeout(regenerationTimer);
+		}
+
+		regenerationTimer = setTimeout(() => {
+			regenerateFixtures();
+
+			// Vitest will automatically re-run tests when fixtures change
+			// No need to manually trigger - it watches public/**
+		}, 300);
+	});
 }
 
 export async function teardown() {

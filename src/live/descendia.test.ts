@@ -10,32 +10,34 @@ describe('Descendia Card', () => {
 		expect(Array.isArray(worldState.Descents)).toBe(true);
 		expect(worldState.Descents.length).toBe(6);
 
-		if (worldState.Descents.length > 0) {
-			const descent = worldState.Descents[0];
-
-			// Check top-level properties
-			expect(descent).toHaveProperty('Activation');
-			expect(descent).toHaveProperty('Expiry');
-			expect(descent).toHaveProperty('RandSeed');
-			expect(descent).toHaveProperty('Challenges');
-
-			// Check Challenges array
-			expect(Array.isArray(descent.Challenges)).toBe(true);
-			expect(descent.Challenges.length).toBe(21);
-
-			// Check first challenge properties
-			const challenge = descent.Challenges[0];
-			expect(challenge).toHaveProperty('Index');
-			expect(challenge).toHaveProperty('Type');
-			expect(challenge).toHaveProperty('Challenge');
-			expect(challenge).toHaveProperty('Level');
-			expect(challenge).toHaveProperty('Specs');
-			expect(challenge).toHaveProperty('Auras');
-
-			// Specs and Auras should be arrays
-			expect(Array.isArray(challenge.Specs)).toBe(true);
-			expect(Array.isArray(challenge.Auras)).toBe(true);
+		if (worldState.Descents.length === 0) {
+			return;
 		}
+
+		const descent = worldState.Descents[0];
+
+		// Check top-level properties
+		expect(descent).toHaveProperty('Activation');
+		expect(descent).toHaveProperty('Expiry');
+		expect(descent).toHaveProperty('RandSeed');
+		expect(descent).toHaveProperty('Challenges');
+
+		// Check Challenges array
+		expect(Array.isArray(descent.Challenges)).toBe(true);
+		expect(descent.Challenges.length).toBe(21);
+
+		// Check first challenge properties
+		const challenge = descent.Challenges[0];
+		expect(challenge).toHaveProperty('Index');
+		expect(challenge).toHaveProperty('Type');
+		expect(challenge).toHaveProperty('Challenge');
+		expect(challenge).toHaveProperty('Level');
+		expect(challenge).toHaveProperty('Specs');
+		expect(challenge).toHaveProperty('Auras');
+
+		// Specs and Auras should be arrays
+		expect(Array.isArray(challenge.Specs)).toBe(true);
+		expect(Array.isArray(challenge.Auras)).toBe(true);
 	});
 
 	test('finds active Descent by timestamp', () => {

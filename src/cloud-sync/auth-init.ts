@@ -30,15 +30,17 @@ async function initializeAuth() {
 
 	// Clean up OAuth-related hashes from URL after redirect
 	const {hash} = globalThis.location;
-	if (hash && (hash.includes('access_token') || hash.includes('refresh_token') || hash === '#')) {
-		// Check if we saved a legitimate hash before OAuth redirect
-		const savedHash = sessionStorage.getItem('pre_auth_hash');
-		sessionStorage.removeItem('pre_auth_hash');
-
-		// Restore the original hash, or clean URL if there wasn't one
-		const cleanUrl = globalThis.location.pathname + globalThis.location.search + (savedHash || '');
-		history.replaceState(null, '', cleanUrl);
+	if (!hash || (!hash.includes('access_token') && !hash.includes('refresh_token') && hash !== '#')) {
+		return;
 	}
+
+	// Check if we saved a legitimate hash before OAuth redirect
+	const savedHash = sessionStorage.getItem('pre_auth_hash');
+	sessionStorage.removeItem('pre_auth_hash');
+
+	// Restore the original hash, or clean URL if there wasn't one
+	const cleanUrl = globalThis.location.pathname + globalThis.location.search + (savedHash || '');
+	history.replaceState(null, '', cleanUrl);
 }
 
 // Call immediately or wait for DOMContentLoaded (module scripts are deferred, so DOM is usually already loaded)
@@ -59,10 +61,12 @@ globalThis.addEventListener('auth-signed-in', () => {
 globalThis.addEventListener('auth-signed-out', () => {
 	void (async () => {
 		const userId = AuthService.getInstance().getUserId();
-		if (userId) {
-			await flushDebounce();
-			CloudSyncManager.getInstance().unsubscribeFromRealtimeUpdates();
+		if (!userId) {
+			return;
 		}
+
+		await flushDebounce();
+		CloudSyncManager.getInstance().unsubscribeFromRealtimeUpdates();
 	})();
 });
 
@@ -191,13 +195,15 @@ function showToast(message: string): void {
 
 	container.append(toast);
 
-	if (window.bootstrap) {
-		const bsToast = new window.bootstrap.Toast(toast);
-		bsToast.show();
-		toast.addEventListener('hidden.bs.toast', () => {
-			toast.remove();
-		});
+	if (!window.bootstrap) {
+		return;
 	}
+
+	const bsToast = new window.bootstrap.Toast(toast);
+	bsToast.show();
+	toast.addEventListener('hidden.bs.toast', () => {
+		toast.remove();
+	});
 }
 
 // Wire triggerCloudSync (exported by trigger.ts, also exposed globally there) to the real handler

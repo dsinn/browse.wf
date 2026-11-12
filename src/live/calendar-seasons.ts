@@ -57,9 +57,11 @@ export async function updateCalendarSeason(): Promise<void> {
 	}
 
 	const body = document.querySelector('#calendar-season-body');
-	if (body) {
-		body.replaceChildren(await renderCalendarSeasonPane(activeSeason));
+	if (!body) {
+		return;
 	}
+
+	body.replaceChildren(await renderCalendarSeasonPane(activeSeason));
 }
 
 window.updateCalendarSeason = updateCalendarSeason;

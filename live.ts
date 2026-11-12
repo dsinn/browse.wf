@@ -794,7 +794,7 @@ async function updateAlerts(forceRender = false)
 				{
 					const span = document.createElement("span");
 					span.className = "d-block";
-					span.appendChild(createExpiryBadge(alert.Expiry.$date.$numberLong));
+					span.appendChild(createExpiryBadge(alert.Expiry.$date.$numberLong, "Expired"));
 					span.appendChild(document.createTextNode(" "));
 					span.appendChild(createCompletionToggle(alert._id.$oid));
 					block.appendChild(span);

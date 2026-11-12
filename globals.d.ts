@@ -67,7 +67,7 @@ type IRegion = {
 
 // Upstream functions from common.js / live.ts used by fork modules
 declare function getDictPromise(): Promise<Record<string, string>>;
-declare function createExpiryBadge(expiry: number): HTMLSpanElement;
+declare function createExpiryBadge(expiry: number, expiredLabel?: string): HTMLSpanElement;
 declare function createCompletionToggle(oid: string): HTMLAnchorElement;
 declare function setImageSource(img: HTMLImageElement, icon: string): void;
 declare function toTitleCase(string_: string): string;
@@ -107,7 +107,7 @@ interface Window {
 	baseSuitTypes?: string[];
 	checkLoadButtonState?: () => void;
 	createCompletionToggle?: (oid: string) => HTMLAnchorElement;
-	createExpiryBadge?: (expiry: number) => HTMLSpanElement;
+	createExpiryBadge?: (expiry: number, expiredLabel?: string) => HTMLSpanElement;
 	// Upstream names — cannot be renamed
 
 	dicts_promise?: Promise<void>;

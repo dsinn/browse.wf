@@ -41,7 +41,7 @@ function buildFissureRow(
 	// Expiry column
 	{
 		const td = document.createElement('td');
-		td.append(window.createExpiryBadge(fissure.Expiry.$date.$numberLong));
+		td.append(window.createExpiryBadge(fissure.Expiry.$date.$numberLong, 'Expired'));
 		tr.append(td);
 	}
 

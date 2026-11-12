@@ -29,7 +29,8 @@ export function deltaToUnits(delta: number): string[] {
 }
 
 /**
- * Sets the badge's text from its data-expiry. Returns false once the pending label is showing.
+ * Sets the badge's text from its data-expiry. Returns false once the expired label is showing, which is
+ * the badge's data-expired-label if it has one and the default pending label otherwise.
  */
 function updateExpiryBadge(badge: HTMLElement): boolean {
 	let expiry = Number.parseInt(badge.dataset.expiry ?? '', 10);
@@ -37,7 +38,7 @@ function updateExpiryBadge(badge: HTMLElement): boolean {
 	expiry += 1000; // Normalise the ms so everything ticks at the same time
 	const delta = expiry - Date.now();
 	if (delta < 1000) {
-		setTimerText(badge, getPendingLabel());
+		setTimerText(badge, badge.dataset.expiredLabel ?? getPendingLabel());
 		return false;
 	}
 
@@ -45,9 +46,13 @@ function updateExpiryBadge(badge: HTMLElement): boolean {
 	return true;
 }
 
-export function createExpiryBadge(expiry: number): HTMLSpanElement {
+export function createExpiryBadge(expiry: number, expiredLabel?: string): HTMLSpanElement {
 	const span = document.createElement('span');
 	span.dataset.expiry = expiry.toString();
+	if (expiredLabel !== undefined) {
+		span.dataset.expiredLabel = expiredLabel;
+	}
+
 	span.className = 'badge text-bg-secondary';
 	registerTimerBadge(span, () => updateExpiryBadge(span));
 	return span;

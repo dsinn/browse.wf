@@ -89,7 +89,6 @@ const config = [
 			'unicorn/prefer-group-by': 'off',
 			'unicorn/prefer-includes-over-repeated-comparisons': 'off',
 			'unicorn/prefer-iterator-to-array': 'off',
-			'unicorn/prefer-math-abs': 'off',
 			'unicorn/prefer-number-coercion': 'off',
 			'unicorn/prefer-object-iterable-methods': 'off',
 			'unicorn/prefer-scoped-selector': 'off',

@@ -160,7 +160,7 @@ const GRADE_THRESHOLDS: ReadonlyArray<readonly [number, string]> = [
 /** Letter grade for a roll where 1 is the best possible. Anything outside the possible rolls is "X". */
 export function gradeRoll(roll: number): string {
 	const score = -10 + (20 * roll);
-	if (score < -11.5 || score > 11.5) {
+	if (Math.abs(score) > 11.5) {
 		return 'X';
 	}
 

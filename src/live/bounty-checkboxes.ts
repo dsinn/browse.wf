@@ -4,6 +4,7 @@
  */
 
 import {getNextDailyResetMs} from '../helpers/time-helpers.js';
+import {createDataWarning} from './data-warning.js';
 
 let dailyResetTimer: ReturnType<typeof setTimeout> | undefined;
 
@@ -27,6 +28,10 @@ export function updateBountyCheckboxes(): void {
 			span.replaceChildren();
 		} else {
 			heading.classList.add('d-flex', 'align-items-center');
+			if (headingId === 'EntratiLabSyndicate-name') {
+				heading.append(createDataWarning('EntratiLabSyndicate-warning', 'Bounty objectives may be incorrect.'));
+			}
+
 			span = document.createElement('span');
 			span.id = spanId;
 			span.className = 'ms-2';

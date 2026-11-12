@@ -40,7 +40,7 @@ function fixPathsForGitHubPages(html) {
 	// Fix .html links to include base path (e.g., href="/live.html" → href="/browse.wf/live.html")
 		.replaceAll(/href="\/([^"]+\.html)"/gu, `href="${BASE_PATH}/$1"`)
 	// Fix root path (e.g., href="/" → href="/browse.wf/")
-		.replaceAll(/href="\/"(?=[^/]|")/gu, `href="${BASE_PATH}/"`)
+		.replaceAll(/href="\/"(?=[^/])/gu, `href="${BASE_PATH}/"`)
 	// Fix script sources (e.g., src="/common.js" → src="/browse.wf/common.js")
 		.replaceAll(/src="\/([^"]+\.js)"/gu, `src="${BASE_PATH}/$1"`)
 	// GitHub Pages caches assets for 10 minutes; append cache-buster to all local assets

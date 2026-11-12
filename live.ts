@@ -768,7 +768,10 @@ async function updateAlerts(forceRender = false)
 						b.textContent = toTitleCase(dict[ExportMissionTypes[alert.MissionInfo.missionType].name]) + " - " + dict[ExportFactions[alert.MissionInfo.faction].name];
 						span.appendChild(b);
 					}
-					span.innerHTML += ` (${alert.MissionInfo.minEnemyLevel}-${alert.MissionInfo.maxEnemyLevel}) @ `;
+					span.innerHTML += ` (${alert.MissionInfo.minEnemyLevel}-${alert.MissionInfo.maxEnemyLevel}) `;
+					const locationElem = document.createElement("span");
+					locationElem.className = "text-nowrap";
+					locationElem.appendChild(document.createTextNode("@ "));
 					{
 						const node = ExportRegions[alert.MissionInfo.location];
 						const locationText = `${dict[node.name]}, ${dict[node.systemName]}`;
@@ -778,14 +781,19 @@ async function updateAlerts(forceRender = false)
 							const whereElem = document.createElement("abbr");
 							whereElem.textContent = locationText;
 							addTooltip(whereElem, formattedTileset);
-							span.appendChild(whereElem);
+							locationElem.appendChild(whereElem);
 						}
 						else
 						{
-							span.appendChild(document.createTextNode(locationText));
+							locationElem.appendChild(document.createTextNode(locationText));
 						}
 					}
-					span.appendChild(document.createTextNode(" "));
+					span.appendChild(locationElem);
+					block.appendChild(span);
+				}
+				{
+					const span = document.createElement("span");
+					span.className = "d-block";
 					span.appendChild(createExpiryBadge(alert.Expiry.$date.$numberLong));
 					span.appendChild(document.createTextNode(" "));
 					span.appendChild(createCompletionToggle(alert._id.$oid));
@@ -810,7 +818,7 @@ async function updateAlerts(forceRender = false)
 						}
 					}
 					const span = document.createElement("span");
-					span.className = "d-block";
+					span.className = "d-block alert-rewards";
 					span.textContent = (window as any).formatAlertRewards(rewards, alert.MissionInfo.missionReward.credits);
 					block.appendChild(span);
 				}

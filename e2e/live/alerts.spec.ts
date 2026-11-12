@@ -43,7 +43,7 @@ test.describe('Live Page - Alerts Card', () => {
 	});
 
 	test('credits-only reward is a single line without stray delimiters', async ({page}) => {
-		const rewardLines = page.locator('#alerts-body .card-block > span.d-block:nth-child(2)');
+		const rewardLines = page.locator('#alerts-body .alert-rewards');
 		await expect(rewardLines).toHaveCount(3);
 		for (const line of await rewardLines.all()) {
 			await expect(line).toHaveText(/^[\d,]+ Credits$/u);
@@ -82,8 +82,7 @@ test.describe('Live Page - Alerts Card rewards', () => {
 	});
 
 	test('rewards are a single comma-delimited line with Credits last', async ({page}) => {
-		// The reward line is the block's second span (the first is the mission header)
-		const rewardLines = page.locator('#alerts-body .card-block > span.d-block:nth-child(2)');
+		const rewardLines = page.locator('#alerts-body .alert-rewards');
 		// Alerts are sorted by ascending expiry
 		await expect(rewardLines).toHaveText([
 			'50X Moonflesh, 17,000 Credits',
@@ -92,6 +91,5 @@ test.describe('Live Page - Alerts Card rewards', () => {
 			'Rifle Riven Mod, 10,000 Credits', // Items
 			'500000X Kuva, 10,000 Credits', // Counted items
 		]);
-		await expect(page.locator('#alerts-body .card-block > span.d-block')).toHaveCount(5 * 2);
 	});
 });

@@ -30,7 +30,6 @@ const config = [
 		rules: {
 			'@eslint-community/eslint-comments/require-description': 'off',
 			'@typescript-eslint/no-meaningless-void-operator': 'off',
-			'@typescript-eslint/no-shadow': 'off',
 			'@typescript-eslint/strict-boolean-expressions': 'off',
 			'markdown/fenced-code-language': 'off',
 			'n/file-extension-in-import': 'off',

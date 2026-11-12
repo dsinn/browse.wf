@@ -114,8 +114,8 @@ export async function setupMockRoutes(page: Page, options?: {worldStateFile?: st
 	// Now register specific mocks (these will be checked FIRST due to reverse order)
 
 	// Prohibited Oracle endpoints — these were removed from the app; calls indicate a regression
-	for (const path of ['/min', '/invasions', '/weekly', '/worldState*']) {
-		await page.route(`**/oracle.browse.wf${path}`, route => {
+	for (const endpoint of ['/min', '/invasions', '/weekly', '/worldState*']) {
+		await page.route(`**/oracle.browse.wf${endpoint}`, route => {
 			console.error(`TEST SAFEGUARD: Prohibited Oracle endpoint called: ${route.request().url()}`);
 			void route.abort('failed');
 		});

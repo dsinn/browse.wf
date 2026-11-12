@@ -51,8 +51,8 @@ export function testCardFilters(cardName: string) {
 
 			// Mock refreshCollapseStatus (needed by card-filters.js but not defined there)
 			(globalThis as any).refreshCollapseStatus = function (elm: HTMLElement) {
-				const cardName = elm.dataset.collapseToggle;
-				const engaged = localStorage.getItem(`live.collapse.${cardName}`);
+				const collapsedCardName = elm.dataset.collapseToggle;
+				const engaged = localStorage.getItem(`live.collapse.${collapsedCardName}`);
 				elm.classList.toggle('engaged', engaged !== null);
 			};
 

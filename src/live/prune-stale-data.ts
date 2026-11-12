@@ -56,7 +56,7 @@ export function pruneStaleOids(): void {
 	const cleaned = allOids.filter((oid: string) => {
 		// Millisecond-timestamp OIDs (weekly missions, vendors, daily syndicates, Archimedea, calendar season)
 		// eslint-disable-next-line @stylistic/max-len
-		const m = /^(?:calendarseason|circuit-(?:normal|hard)|clem|descent[1-2]|EntratiLabSyndicate-check|hexconquest|HexSyndicate-check|ironwake|kahl(?:b[1-6])?|labconquest|maroo|netracell[1-5]|teshin)-(\d+)$/u.exec(oid);
+		const m = /^(?:calendarseason|circuit-(?:normal|hard)|clem|descent[12]|EntratiLabSyndicate-check|hexconquest|HexSyndicate-check|ironwake|kahl(?:b[1-6])?|labconquest|maroo|netracell[1-5]|teshin)-(\d+)$/u.exec(oid);
 		if (m) {
 			return Number.parseInt(m[1], 10) >= now;
 		}

@@ -54,7 +54,6 @@ const config = [
 			'regexp/no-dupe-disjunctions': 'off',
 			'regexp/no-empty-alternative': 'off',
 			'regexp/no-super-linear-move': 'off',
-			'regexp/no-useless-range': 'off',
 			'regexp/prefer-lookaround': 'off',
 			'regexp/prefer-named-capture-group': 'off',
 			'regexp/prefer-question-quantifier': 'off',

@@ -18,7 +18,7 @@ The fork's modifications to the live page are kept in dedicated files under `src
 
 ## Data Flow Overview
 
-```
+```text
 live.php loads
     ↓
 live.ts (upstream): fetchWorldState() → worldState global

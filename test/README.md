@@ -68,7 +68,7 @@ npm run test:api-validation
 
 ## Test Structure
 
-```
+```text
 test/
 ├── __mocks__/              # Real API responses (captured 2026-01-10)
 │   ├── bounty-cycle.json
@@ -143,7 +143,7 @@ Tests have built-in safeguards to prevent accidentally hitting production `brows
 1. ✅ **Mocked endpoints** - Explicitly mocked URLs return mock data (defined in `test/helpers/api-mocks.ts` and `e2e/helpers/api-mocks.ts`)
 2. ✅ **Image files** - Requests to `.png`, `.jpg`, `.webp`, etc. silently return empty responses (don't break tests)
 3. ❌ **Other requests** - Non-image requests to production domains throw clear errors:
-   ```
+   ```text
    TEST SAFEGUARD: Attempted to fetch from production domain: https://oracle.browse.wf/unknown
    Tests must never hit browse.wf domains. Use mocked data instead.
    ```

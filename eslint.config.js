@@ -16,6 +16,8 @@ const ignores = [
 	'typestripped/**',
 	// Build artifacts
 	'public/**',
+	// Private planning notes (git-excluded)
+	'plans/**',
 	// Generated test artifacts
 	'coverage/**',
 	'playwright-report/**',
@@ -30,7 +32,6 @@ const config = [
 		rules: {
 			'@typescript-eslint/no-meaningless-void-operator': 'off',
 			'@typescript-eslint/strict-boolean-expressions': 'off',
-			'markdown/fenced-code-language': 'off',
 			'n/file-extension-in-import': 'off',
 			'regexp/no-super-linear-move': 'off',
 			'unicorn/better-dom-traversing': 'off',

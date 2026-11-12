@@ -191,13 +191,13 @@ Use a two-hop architecture. The two components are named by their role in the ch
 
 The app defaults to using the front proxy at `https://warframe-api-front-proxy.dsinn69.workers.dev`. To use it, add the token to your `.env`:
 
-```
+```dotenv
 WARFRAME_API_FRONT_PROXY_TOKEN=<value of X-Warframe-API-Front-Proxy-Token from browser dev tools>
 ```
 
 To use a different front proxy, also set:
 
-```
+```dotenv
 WARFRAME_API_FRONT_PROXY_BASE_URL=https://your-worker.workers.dev
 ```
 

@@ -44,7 +44,7 @@ export function startPhpServer(options) {
 }
 
 /**
- Stop PHP server
+ Stop the PHP server by killing whatever process is listening on the port
  @param {number} port - Port the server is listening on
  */
 export function stopPhpServer(port) {

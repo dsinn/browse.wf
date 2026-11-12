@@ -52,7 +52,6 @@ const config = [
 			'package-json/require-entry-point': 'off',
 			'package-json/require-fields': 'off',
 			'regexp/no-dupe-disjunctions': 'off',
-			'regexp/no-empty-alternative': 'off',
 			'regexp/no-super-linear-move': 'off',
 			'regexp/prefer-lookaround': 'off',
 			'regexp/prefer-named-capture-group': 'off',

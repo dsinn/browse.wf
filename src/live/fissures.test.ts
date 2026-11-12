@@ -68,7 +68,7 @@ describe('Void Fissures Card', () => {
 		}
 
 		// Verify each tier group is sorted chronologically by expiry
-		for (const [tier, group] of Object.entries(tierGroups)) {
+		for (const group of Object.values(tierGroups)) {
 			if (group.length <= 1) {
 				continue; // Single-item groups are trivially sorted
 			}

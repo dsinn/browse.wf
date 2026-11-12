@@ -64,7 +64,6 @@ const config = [
 			'unicorn/prefer-includes-over-repeated-comparisons': 'off',
 			'unicorn/prefer-iterator-to-array': 'off',
 			'unicorn/prefer-number-coercion': 'off',
-			'unicorn/prefer-object-iterable-methods': 'off',
 			'unicorn/prefer-scoped-selector': 'off',
 			'unicorn/prefer-simple-condition-first': 'off',
 			'unicorn/prefer-toggle-attribute': 'off',

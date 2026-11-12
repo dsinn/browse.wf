@@ -50,7 +50,6 @@ const config = [
 			'unicorn/no-break-in-nested-loop': 'off',
 			'unicorn/no-computed-property-existence-check': 'off',
 			'unicorn/no-declarations-before-early-exit': 'off',
-			'unicorn/no-duplicate-loops': 'off',
 			'unicorn/no-exports-in-scripts': 'off',
 			'unicorn/no-global-object-property-assignment': 'off',
 			'unicorn/no-immediate-mutation': 'off',

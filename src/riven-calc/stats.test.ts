@@ -95,7 +95,11 @@ describe('getRivenStats', () => {
 	});
 
 	test('spliced traits can only be positive', () => {
-		for (const stat of getRivenStats(RIFLE, exportUpgrades).filter(candidate => candidate.spliced)) {
+		for (const stat of getRivenStats(RIFLE, exportUpgrades)) {
+			if (!stat.spliced) {
+				continue;
+			}
+
 			expect(stat.canBeBuff).toBe(true);
 			expect(stat.canBeCurse).toBe(false);
 		}

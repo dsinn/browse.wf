@@ -84,7 +84,11 @@ describe('Weekly Missions Filtering', () => {
 		localStorage.setItem('live.filter.weekly-missions.clem', '0');
 		filterWeeklyMissions();
 
-		for (const mission of missions.filter(m => m !== 'clem')) {
+		for (const mission of missions) {
+			if (mission === 'clem') {
+				continue;
+			}
+
 			const element = document.querySelector<HTMLElement>(`[data-mission="${mission}"]`);
 			expect(element?.style.display, mission).not.toBe('none');
 		}

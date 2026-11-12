@@ -85,7 +85,7 @@
     "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
 
     /* Type Checking */
-    // "strict": true,                                   /* Enable all strict type-checking options. */
+    "strict": false,                                     /* Off mainly for upstream (senpai) files, which are not strict-clean. Fork code is checked strictly via tsconfig.lint.json. */
     // "noImplicitAny": true,                            /* Enable error reporting for expressions and declarations with an implied 'any' type. */
     // "strictNullChecks": true,                         /* When type checking, take into account 'null' and 'undefined'. */
     // "strictFunctionTypes": true,                      /* When assigning functions, check to ensure parameters and the return values are subtype-compatible. */

@@ -36,8 +36,8 @@ export function testCardFilters(cardName: string) {
 			(globalThis as any).addTooltip = function (element: HTMLElement, title: string) {
 				element.dataset.bsToggle = 'tooltip';
 				element.dataset.bsTitle = title;
-				if (globalThis.bootstrap?.Tooltip) {
-					void new globalThis.bootstrap.Tooltip(element);
+				if ((globalThis as any).bootstrap?.Tooltip) {
+					void new (globalThis as any).bootstrap.Tooltip(element);
 				}
 			};
 

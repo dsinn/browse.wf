@@ -32,10 +32,10 @@
     "eslint": "^10.0.3",
     "jsdom": "^29.0.0",
     "timezone-mock": "^1.4.2",
-    "typescript": "^5.9.2",
+    "typescript": "^6.0.3",
     "vite": "^8.0.0",
     "vitest": "^4.0.18",
-    "xo": "^2.0.2"
+    "xo": "^5.0.1"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.90.1",

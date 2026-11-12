@@ -47,7 +47,6 @@ if (document.readyState === 'loading') {
 		void initializeAuth();
 	});
 } else {
-	// eslint-disable-next-line unicorn/prefer-top-level-await
 	void initializeAuth();
 }
 

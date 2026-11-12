@@ -32,6 +32,6 @@ describe('tooltip', () => {
 	it('initialises a Bootstrap Tooltip instance on the element', () => {
 		const elm = document.createElement('span');
 		addTooltip(elm, 'Hello');
-		expect(globalThis.bootstrap.Tooltip.getInstance(elm)).toBeTruthy();
+		expect((globalThis as any).bootstrap.Tooltip.getInstance(elm)).toBeTruthy();
 	});
 });

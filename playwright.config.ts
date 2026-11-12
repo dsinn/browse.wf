@@ -26,7 +26,7 @@ export default defineConfig({
 	// Run Vite dev server before tests (serves pre-rendered HTML from public/)
 	webServer: {
 		command: 'vite --config vitest.config.ts --port 61969',
-		port: 61969, // eslint-disable-line unicorn/numeric-separators-style
+		port: 61969,
 		reuseExistingServer: !process.env.CI,
 		timeout: 42_069,
 	},

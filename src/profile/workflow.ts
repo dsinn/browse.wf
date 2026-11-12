@@ -31,7 +31,7 @@ const cloudSyncEvent = waitForCloudSync();
 
 // Get initial profile (from localStorage or fallback).
 // `.then()` is used instead of `await` because this is a non-module script — top-level await is unavailable.
-const initialProfilePromise = cloudSyncEvent.then(async () => { // eslint-disable-line unicorn/prefer-top-level-await
+const initialProfilePromise = cloudSyncEvent.then(async () => {
 	const profileJson = localStorage.getItem(PROFILE_DATA_STORAGE_KEY);
 	if (profileJson) {
 		return JSON.parse(profileJson);

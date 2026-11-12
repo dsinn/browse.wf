@@ -17,8 +17,8 @@ type IWorldStateInvasion = {
 	DefenderFaction: string;
 	Completed: boolean;
 	Activation: IMongoDate;
-	AttackerReward: {countedItems: Array<{ItemType: string; ItemCount: number}>} | never[];
-	DefenderReward: {countedItems: Array<{ItemType: string; ItemCount: number}>} | never[];
+	AttackerReward: never[] | {countedItems: Array<{ItemType: string; ItemCount: number}>};
+	DefenderReward: never[] | {countedItems: Array<{ItemType: string; ItemCount: number}>};
 };
 
 type IDescent = {

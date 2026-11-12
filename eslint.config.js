@@ -93,7 +93,6 @@ const config = [
 			'unicorn/prefer-split-limit': 'off',
 			'unicorn/prefer-ternary': 'off',
 			'unicorn/prefer-toggle-attribute': 'off',
-			'unicorn/prefer-type-literal-last': 'off',
 			'unicorn/prefer-unicode-code-point-escapes': 'off',
 			'unicorn/require-css-escape': 'off',
 			'unicorn/single-line-block-comment-style': 'off',

@@ -56,7 +56,6 @@ const config = [
 			'regexp/no-super-linear-move': 'off',
 			'regexp/prefer-lookaround': 'off',
 			'regexp/prefer-named-capture-group': 'off',
-			'regexp/prefer-question-quantifier': 'off',
 			'regexp/sort-character-class-elements': 'off',
 			'regexp/unicode-escape': 'off',
 			'unicorn/better-dom-traversing': 'off',

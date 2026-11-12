@@ -205,7 +205,7 @@ describe('formatDescendia', () => {
 		const lines = result!.split('\n').slice(1);
 		for (const line of lines) {
 			// Index. arena [__]**Type** · challenge[__]
-			expect(line).toMatch(/^\d+\. .+ (?:__|)\*\*.+\*\* · /u);
+			expect(line).toMatch(/^\d+\. .+ (?:__)?\*\*.+\*\* · /u);
 		}
 	});
 

@@ -24,11 +24,7 @@ async function simulateLoggedIn(page: any) {
 	await page.addInitScript(() => {
 		const original = window.dispatchEvent.bind(globalThis);
 		window.dispatchEvent = function (event: Event) {
-			if (event.type.startsWith('cloud-sync-') && event.type !== 'cloud-sync-complete') {
-				return original(new CustomEvent('cloud-sync-complete'));
-			}
-
-			return original(event);
+			return original(event.type.startsWith('cloud-sync-') && event.type !== 'cloud-sync-complete' ? new CustomEvent('cloud-sync-complete') : event);
 		};
 	});
 }

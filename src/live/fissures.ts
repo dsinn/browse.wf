@@ -142,11 +142,7 @@ export async function updateFissures(forceRender = false) {
 	// Sort by tier first, then by expiry within each tier
 	fissures.sort((a, b) => {
 		const tierDiff = (a.Modifier.codePointAt(5) ?? 0) - (b.Modifier.codePointAt(5) ?? 0);
-		if (tierDiff !== 0) {
-			return tierDiff;
-		}
-
-		return Number.parseInt(a.Expiry.$date.$numberLong, 10) - Number.parseInt(b.Expiry.$date.$numberLong, 10);
+		return tierDiff === 0 ? Number.parseInt(a.Expiry.$date.$numberLong, 10) - Number.parseInt(b.Expiry.$date.$numberLong, 10) : tierDiff;
 	});
 
 	const tbody = {

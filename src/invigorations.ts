@@ -37,11 +37,7 @@ export function loadCache(): InvigorationCache {
 	try {
 		const parsed = JSON.parse(cacheString);
 		// Must be an object (not array, null, etc.)
-		if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-			return {};
-		}
-
-		return parsed;
+		return typeof parsed !== 'object' || parsed === null || Array.isArray(parsed) ? {} : parsed;
 	} catch (error) {
 		console.error('Failed to parse invigoration cache:', error);
 		return {};

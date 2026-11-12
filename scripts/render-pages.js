@@ -202,11 +202,7 @@ async function watchMode() {
 				return false;
 			}
 
-			if (stats.isDirectory()) {
-				return IGNORED_DIRS.test(filePath);
-			}
-
-			return !filePath.endsWith('.php') && !filePath.endsWith('.html');
+			return stats.isDirectory() ? IGNORED_DIRS.test(filePath) : !filePath.endsWith('.php') && !filePath.endsWith('.html');
 		},
 		persistent: true,
 		ignoreInitial: true,

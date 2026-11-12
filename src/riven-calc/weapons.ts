@@ -136,11 +136,7 @@ export function canWeaponRollStat(weapon: Record<string, any> | undefined, tag: 
 		return false;
 	}
 
+	// Elemental damage can be rolled as a buff on any weapon; everything else needs the damage type
 	const damageType = DAMAGE_TYPE_BY_STAT_TAG[tag];
-	if (damageType && !weaponCanRollDamageType(weapon, damageType)) {
-		// Elemental damage can be rolled as a buff on any weapon; everything else needs the damage type
-		return isBuff && !PHYSICAL_DAMAGE_TYPES.has(damageType);
-	}
-
-	return true;
+	return !damageType || weaponCanRollDamageType(weapon, damageType) || (isBuff && !PHYSICAL_DAMAGE_TYPES.has(damageType));
 }

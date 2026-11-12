@@ -111,11 +111,9 @@ Returns the calendar-day timestamp (local midnight or UTC midnight) that `timest
 */
 export function getDayBucket(timestamp: number, timeZone: 'local' | 'utc'): number {
 	const date = new Date(timestamp);
-	if (timeZone === 'utc') {
-		return Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-	}
-
-	return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+	return timeZone === 'utc'
+		? Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
+		: new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
 /**

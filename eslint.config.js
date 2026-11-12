@@ -81,7 +81,6 @@ const config = [
 			'unicorn/prefer-object-iterable-methods': 'off',
 			'unicorn/prefer-scoped-selector': 'off',
 			'unicorn/prefer-simple-condition-first': 'off',
-			'unicorn/prefer-ternary': 'off',
 			'unicorn/prefer-toggle-attribute': 'off',
 			'unicorn/require-css-escape': 'off',
 		},

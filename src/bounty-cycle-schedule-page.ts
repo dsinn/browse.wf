@@ -31,11 +31,7 @@ function getPhase(): CyclePhase {
 
 function getHourFormat(): HourFormat {
 	const select = document.querySelector<HTMLSelectElement>('#select-hourfmt')!;
-	if (select.value === 'mil' || select.value === '12') {
-		return select.value;
-	}
-
-	return '24';
+	return select.value === 'mil' || select.value === '12' ? select.value : '24';
 }
 
 type DayColumn = {

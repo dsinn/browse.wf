@@ -113,11 +113,7 @@ function getIncursionsForDay(
 	}
 
 	const index = (utcDayTimestamp - epochDay) / SECONDS_PER_DAY;
-	if (index < 0 || index >= incursions.length) {
-		return undefined;
-	}
-
-	return incursions[index][1].split(',');
+	return index < 0 || index >= incursions.length ? undefined : incursions[index][1].split(',');
 }
 
 describe('getIncursionsForDay', () => {

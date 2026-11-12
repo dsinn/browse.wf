@@ -50,11 +50,7 @@ export function getWeekIndex(timestamp: number): number {
 Zero-pads a number below 10 to two digits, e.g. 3 -> "03", 12 -> "12".
 */
 export function totwo(number_: number): string {
-	if (number_ < 10) {
-		return '0' + number_;
-	}
-
-	return number_.toString();
+	return number_ < 10 ? '0' + number_ : number_.toString();
 }
 
 /**
@@ -66,11 +62,7 @@ export function formattz(offsetMinutes: number): string {
 	}
 
 	const offsetHours = offsetMinutes / 60;
-	if (offsetHours < 0) {
-		return 'UTC+' + (-offsetHours);
-	}
-
-	return 'UTC-' + offsetHours;
+	return offsetHours < 0 ? 'UTC+' + (-offsetHours) : 'UTC-' + offsetHours;
 }
 
 // Exposed for non-module scripts (e.g. arbys.ts) that can't use `import`.

@@ -41,11 +41,7 @@ export function setNewsItemData(item: NewsItem, element: HTMLElement): void {
 export function isNewsItemRead(item: NewsItem): boolean {
 	const key = generateNewsItemKey(item);
 	const threshold = getAllReadThreshold();
-	if (threshold !== undefined && item.time <= threshold) {
-		return true;
-	}
-
-	return getReadItems().includes(key);
+	return (threshold !== undefined && item.time <= threshold) || getReadItems().includes(key);
 }
 
 /**

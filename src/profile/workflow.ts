@@ -33,11 +33,7 @@ const cloudSyncEvent = waitForCloudSync();
 // `.then()` is used instead of `await` because this is a non-module script — top-level await is unavailable.
 const initialProfilePromise = cloudSyncEvent.then(async () => {
 	const profileJson = localStorage.getItem(PROFILE_DATA_STORAGE_KEY);
-	if (profileJson) {
-		return JSON.parse(profileJson);
-	}
-
-	return fetch('supplemental-data/profile-[DE]Rebecca.json').then(async response => response.json());
+	return profileJson ? JSON.parse(profileJson) : fetch('supplemental-data/profile-[DE]Rebecca.json').then(async response => response.json());
 });
 
 // Expose promises so profile.ts can include them in its Promise.all

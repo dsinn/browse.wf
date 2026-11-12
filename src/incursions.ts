@@ -36,11 +36,8 @@ function getDefaultViewMode(): 'calendar' | 'list' | 'table' {
 		return 'calendar';
 	}
 
-	if (window.innerWidth >= 992) { // Bootstrap lg
-		return 'table';
-	}
-
-	return 'list';
+	// Bootstrap lg
+	return window.innerWidth >= 992 ? 'table' : 'list';
 }
 
 let viewMode: 'calendar' | 'list' | 'table' = getDefaultViewMode();
@@ -61,11 +58,7 @@ function getIncursionsForDay(utcDayTimestamp: number): string[] | undefined {
 	}
 
 	const index = (utcDayTimestamp - epochDay) / SECONDS_PER_DAY;
-	if (index < 0 || index >= incursions.length) {
-		return undefined;
-	}
-
-	return incursions[index][1].split(',');
+	return index < 0 || index >= incursions.length ? undefined : incursions[index][1].split(',');
 }
 
 function syncDropdownsToAnchor(): void {
@@ -147,11 +140,7 @@ function makeFactionIcon(node: IRegion): HTMLElement {
 }
 
 function makeArchwingIconIfApplicable(node: IRegion): HTMLImageElement | undefined {
-	if (!node.tileset?.includes('Archwing')) {
-		return undefined;
-	}
-
-	return makeArchwingIcon('incursion-archwing-icon');
+	return node.tileset?.includes('Archwing') ? makeArchwingIcon('incursion-archwing-icon') : undefined;
 }
 
 function makePlanetAbbr(node: IRegion, nodeId: string): HTMLElement {

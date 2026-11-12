@@ -64,15 +64,13 @@ function resolveChallengeText(event: any, dict: Record<string, string>, exportCh
 	const iconPath: string | undefined = challengeData.icon || undefined;
 	const desc = challengeData.description ? dict[challengeData.description] : null;
 	const count = challengeData.requiredCount;
+	const challengeName = camelToWords(lastSegment(event.challenge));
+	let text = count ? `${challengeName} \u{D7}${String(count)}` : challengeName;
 	if (desc && count) {
-		return {text: desc.replace('|COUNT|', String(count)), iconPath};
+		text = desc.replace('|COUNT|', String(count));
 	}
 
-	if (count) {
-		return {text: `${camelToWords(lastSegment(event.challenge))} \u{D7}${String(count)}`, iconPath};
-	}
-
-	return {text: camelToWords(lastSegment(event.challenge)), iconPath};
+	return {text, iconPath};
 }
 
 let itemMapsPromise: Promise<{itemIconMap: Record<string, string>; itemNameMap: Record<string, string>}> | undefined;

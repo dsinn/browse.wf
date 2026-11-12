@@ -14,11 +14,9 @@
  standing falls toward the rank floor (most negative value).
  */
 export function calcSyndicateRankPct(standing: number, rankMin: number, rankMax: number, level: number): number {
-	if (level < 0) {
-		return Math.min(100, Math.max(0, Math.round(standing / rankMin * 100)));
-	}
-
-	return Math.min(100, Math.max(0, Math.round((standing - rankMin) / (rankMax - rankMin) * 100)));
+	return level < 0
+		? Math.min(100, Math.max(0, Math.round(standing / rankMin * 100)))
+		: Math.min(100, Math.max(0, Math.round((standing - rankMin) / (rankMax - rankMin) * 100)));
 }
 
 /**

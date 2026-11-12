@@ -57,17 +57,10 @@ export function pruneStaleOids(): void {
 		// Millisecond-timestamp OIDs (weekly missions, vendors, daily syndicates, Archimedea, calendar season)
 		// eslint-disable-next-line @stylistic/max-len
 		const m = /^(?:calendarseason|circuit-(?:normal|hard)|clem|descent[12]|EntratiLabSyndicate-check|hexconquest|HexSyndicate-check|ironwake|kahl(?:b[1-6])?|labconquest|maroo|netracell[1-5]|teshin)-(\d+)$/u.exec(oid);
-		if (m) {
-			return Number.parseInt(m[1], 10) >= now;
-		}
 
-		// MongoDB ObjectIDs (sortie, archon hunt, invasions, alerts)
-		if (/^[0-9a-f]{24}$/u.test(oid)) {
-			return !mongoCardsLoaded || validMongoOids.has(oid);
-		}
-
-		// Unknown format — keep
-		return true;
+		// Timestamp OIDs are kept until they expire. MongoDB ObjectIDs (sortie, archon hunt, invasions, alerts) are
+		// kept only while their card is rendered. Unknown formats are always kept.
+		return m ? Number.parseInt(m[1], 10) >= now : !/^[0-9a-f]{24}$/u.test(oid) || !mongoCardsLoaded || validMongoOids.has(oid);
 	});
 
 	if (cleaned.length > 0) {

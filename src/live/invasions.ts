@@ -81,11 +81,7 @@ function invasionBucket(invasion: InvasionData, isDuplicate: boolean): number {
 		return INVASION_BUCKET_DUPLICATE;
 	}
 
-	if (isPendingStart(invasion)) {
-		return INVASION_BUCKET_PENDING_START;
-	}
-
-	return INVASION_BUCKET_ACTIVE;
+	return isPendingStart(invasion) ? INVASION_BUCKET_PENDING_START : INVASION_BUCKET_ACTIVE;
 }
 
 function sortInvasions(invasions: InvasionData[], duplicates: Set<string>, percentages: Map<string, number>): InvasionData[] {
@@ -98,11 +94,9 @@ function sortInvasions(invasions: InvasionData[], duplicates: Set<string>, perce
 			return aBucket - bBucket;
 		}
 
-		if (aBucket === INVASION_BUCKET_PENDING_START) {
-			return Number.parseInt(a.Activation.$date.$numberLong, 10) - Number.parseInt(b.Activation.$date.$numberLong, 10);
-		}
-
-		return (percentages.get(a._id.$oid) ?? 0) - (percentages.get(b._id.$oid) ?? 0);
+		return aBucket === INVASION_BUCKET_PENDING_START
+			? Number.parseInt(a.Activation.$date.$numberLong, 10) - Number.parseInt(b.Activation.$date.$numberLong, 10)
+			: (percentages.get(a._id.$oid) ?? 0) - (percentages.get(b._id.$oid) ?? 0);
 	});
 }
 

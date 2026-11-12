@@ -493,11 +493,11 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 				const text = await badge.textContent();
 
 				// Should match patterns like "5d 23h", "23h 45m", "45m 32s", or "Started"
-				const isTwoUnitFormat
-					= /^\d+d \d+h$/u.test(text!) // Days + hours
-						|| /^\d+h \d+m$/u.test(text!) // Hours + minutes
-						|| /^\d+m \d+s$/u.test(text!) // Minutes + seconds
-						|| text === 'Started'; // Past event
+				const isTwoUnitFormat =
+					/^\d+d \d+h$/u.test(text!) // Days + hours
+					|| /^\d+h \d+m$/u.test(text!) // Hours + minutes
+					|| /^\d+m \d+s$/u.test(text!) // Minutes + seconds
+					|| text === 'Started'; // Past event
 
 				expect(isTwoUnitFormat, `Badge text "${text}" should be in two-unit format`).toBe(true);
 			}

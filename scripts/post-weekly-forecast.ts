@@ -24,9 +24,9 @@ import osdict from '../test/__mocks__/dicts/en.json' with {type: 'json'};
 
 type AnyRecord = Record<string, any>;
 
-const PROXY_BASE_URL
-	= process.env.WARFRAME_API_FRONT_PROXY_BASE_URL
-		|| 'https://warframe-api-front-proxy.dsinn69.workers.dev';
+const PROXY_BASE_URL =
+	process.env.WARFRAME_API_FRONT_PROXY_BASE_URL
+	|| 'https://warframe-api-front-proxy.dsinn69.workers.dev';
 const PROXY_TOKEN = process.env.WARFRAME_API_FRONT_PROXY_TOKEN || '';
 
 async function fetchJson(url: string, options: RequestInit = {}) {

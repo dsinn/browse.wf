@@ -383,7 +383,7 @@ function profileWorkflowReady(syncResult: string, showAutoFetchFlow: boolean): v
 	stepsElement?.classList.toggle('manual-flow', !showAutoFetchFlow);
 
 	const storedNextFetch = Number.parseInt(localStorage.getItem(NEXT_FETCH_AVAILABLE_AT_STORAGE_KEY) ?? '0', 10);
-	if (syncResult === 'complete' && storedNextFetch - Date.now() > 0) {
+	if (syncResult === 'complete' && storedNextFetch > Date.now()) {
 		showRateLimitNotice(storedNextFetch);
 	}
 

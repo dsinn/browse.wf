@@ -32,7 +32,6 @@ const config = [
 			'@typescript-eslint/strict-boolean-expressions': 'off',
 			'markdown/fenced-code-language': 'off',
 			'n/file-extension-in-import': 'off',
-			'package-json/no-orphan-types': 'off',
 			'package-json/prefer-files-field': 'off',
 			'package-json/require-entry-point': 'off',
 			'package-json/require-fields': 'off',
@@ -125,6 +124,12 @@ const config = [
 	{
 		files: ['src/teshin/index.ts'],
 		rules: {'unicorn/no-abusive-eslint-disable': 'off'},
+	},
+	// @types/bootstrap and @types/showdown are upstream devDependencies for libraries that are loaded
+	// from a CDN at runtime, so there is no matching package to depend on. Kept to minimize upstream diffs.
+	{
+		files: ['package.json'],
+		rules: {'package-json/no-orphan-types': 'off'},
 	},
 ];
 

@@ -30,6 +30,8 @@ const EXCLUDED_PHP_FILES = new Set([
 
 /**
  * Start PHP built-in server
+ * @param {{port: number, cwd?: string, startupDelay?: number}} options - Port to listen on, working directory,
+ * and milliseconds to wait for the server to start
  */
 export function startPhpServer(options) {
 	const {port, cwd, startupDelay = 1000} = options;
@@ -43,6 +45,7 @@ export function startPhpServer(options) {
 
 /**
  * Stop PHP server
+ * @param {number} port - Port the server is listening on
  */
 export function stopPhpServer(port) {
 	try {
@@ -54,6 +57,8 @@ export function stopPhpServer(port) {
 
 /**
  * Fetch HTML from PHP server
+ * @param {string} url - Root-relative URL path to fetch
+ * @param {number} port - Port the server is listening on
  */
 export function fetchHtml(url, port) {
 	return new Promise((resolve, reject) => {
@@ -76,6 +81,9 @@ export function discoverPhpPages() {
 
 /**
  * Render PHP files to static HTML
+ * @param {{files: string[], outputDir: string, port: number, transform?: (html: string) => string,
+ * keepServerRunning?: boolean}} options - PHP files to render, where to write the HTML, the server port,
+ * an optional HTML transform, and whether to leave an already-running server alone
  */
 export async function renderPhpFiles(options) {
 	const {files, outputDir, port, transform, keepServerRunning = false} = options;
@@ -113,6 +121,7 @@ export async function renderPhpFiles(options) {
 /**
  * Transform PHP links to HTML links in rendered output.
  * Applied universally so all environments (dev, test, GitHub Pages) serve .html URLs.
+ * @param {string} html - Rendered page HTML
  */
 export function transformPhpLinks(html) {
 	return html.replaceAll(/href="\/([^"]+)\.php"/gu, 'href="/$1.html"');

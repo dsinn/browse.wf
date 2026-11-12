@@ -18,6 +18,7 @@ const VALID_EXPORT_FILES = new Set(fs.readdirSync(EXPORT_PLUS_DIR)
  * data itself — content is covered by Vitest unit tests using real export data. Without this,
  * tests load multi-MB JSON files from disk, causing flakiness under CI load.
  *
+ * @param page - The Playwright page instance
  * @param exportFiles - File names without extensions (e.g. 'ExportResources'). Must exist in
  *                      the warframe-public-export-plus package.
  */

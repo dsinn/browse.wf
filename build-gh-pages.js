@@ -27,6 +27,7 @@ const CACHE_BUSTER = process.env.GITHUB_SHA?.slice(0, 8) ?? Date.now().toString(
 /**
  * Fix paths for GitHub Pages base path
  * Converts root-relative paths to work with /browse.wf/ base
+ * @param {string} html - Rendered page HTML
  */
 function fixPathsForGitHubPages(html) {
 	const BASE_PATH = '/browse.wf';
@@ -45,6 +46,7 @@ function fixPathsForGitHubPages(html) {
 
 /**
  * Render PHP file to HTML
+ * @param {string} phpFile - PHP file name, relative to the project root
  */
 async function renderPhpFile(phpFile) {
 	const url = `/${phpFile}`;
@@ -78,6 +80,8 @@ ${html}`;
 
 /**
  * Copy directory recursively
+ * @param {string} src - Directory to copy from
+ * @param {string} dest - Directory to copy to
  */
 function copyDirectory(src, dest) {
 	if (!fs.existsSync(dest)) {

@@ -27,6 +27,7 @@ export function expiryBadge(element: Locator): Locator {
  * Mocks all large warframe-public-export-plus files fetched by live.ts with empty objects.
  *
  * @param page - The Playwright page instance
+ * @param options - Optional settings
  * @param options.skip - File names to skip mocking (e.g. when a test asserts on that data)
  */
 export async function mockLiveExports(page: Page, options?: {skip?: string[]}): Promise<void> {

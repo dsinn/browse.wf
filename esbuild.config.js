@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * Bundles all fork-specific src/*.ts modules into a single IIFE script.
- *
- * Output: typestripped/src-bundle.js
- *
- * The bundle registers every public function/variable on `window` so that
- * upstream non-module scripts (live.js, arbys.js, etc.) can call them the
- * same way they did before.
- *
- * Usage:
- *   node esbuild.config.js           # one-off build
+ Bundles all fork-specific src/*.ts modules into a single IIFE script.
+ 
+ Output: typestripped/src-bundle.js
+ 
+ The bundle registers every public function/variable on `window` so that
+ upstream non-module scripts (live.js, arbys.js, etc.) can call them the
+ same way they did before.
+ 
+ Usage:
+ node esbuild.config.js           # one-off build
  *   node esbuild.config.js --watch   # rebuild on change
  */
 import process from 'node:process';

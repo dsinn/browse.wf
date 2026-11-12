@@ -1,5 +1,5 @@
 /**
- * Tests for src/clan-weekly/index.ts — updateClanWeekly()
+ Tests for src/clan-weekly/index.ts — updateClanWeekly()
  */
 import {
 	describe, test, expect, beforeAll, beforeEach, afterEach, vi,

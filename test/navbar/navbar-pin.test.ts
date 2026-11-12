@@ -1,6 +1,6 @@
 /**
- * Integration tests for navbar pin toggle feature
- * Tests functionality, appearance, and tooltip behavior
+ Integration tests for navbar pin toggle feature
+ Tests functionality, appearance, and tooltip behavior
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,
@@ -294,8 +294,8 @@ describe('Navbar Pin Toggle', () => {
 });
 
 /**
- * Helper function to load navbar functions from common.js
- * This simulates loading the actual functions
+ Helper function to load navbar functions from common.js
+ This simulates loading the actual functions
  */
 function loadNavbarFunctions() {
 	// Recreate the functions from common.js

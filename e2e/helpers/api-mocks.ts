@@ -12,15 +12,15 @@ const VALID_EXPORT_FILES = new Set(fs.readdirSync(EXPORT_PLUS_DIR)
 	.map(f => f.slice(0, -5)));
 
 /**
- * Mocks warframe-public-export-plus/* endpoints with empty objects.
- *
- * Call this in beforeEach for tests that trigger export data fetches but don't assert on the
- * data itself — content is covered by Vitest unit tests using real export data. Without this,
- * tests load multi-MB JSON files from disk, causing flakiness under CI load.
- *
- * @param page - The Playwright page instance
- * @param exportFiles - File names without extensions (e.g. 'ExportResources'). Must exist in
- * the warframe-public-export-plus package.
+ Mocks warframe-public-export-plus/* endpoints with empty objects.
+
+ Call this in beforeEach for tests that trigger export data fetches but don't assert on the
+ data itself — content is covered by Vitest unit tests using real export data. Without this,
+ tests load multi-MB JSON files from disk, causing flakiness under CI load.
+
+ @param page - The Playwright page instance
+ @param exportFiles - File names without extensions (e.g. 'ExportResources'). Must exist in
+ the warframe-public-export-plus package.
  */
 export async function mockExportData(page: Page, exportFiles: string[]): Promise<void> {
 	for (const exportFile of exportFiles) {
@@ -35,7 +35,7 @@ export async function mockExportData(page: Page, exportFiles: string[]): Promise
 }
 
 /**
- * Reloads the page and re-freezes the clock, since page.clock does not persist across reloads.
+ Reloads the page and re-freezes the clock, since page.clock does not persist across reloads.
  */
 export async function reloadWithFrozenClock(page: Page, timestamp: number = MOCK_TIMESTAMP): Promise<void> {
 	await page.reload();
@@ -43,16 +43,16 @@ export async function reloadWithFrozenClock(page: Page, timestamp: number = MOCK
 }
 
 /**
- * Sets up mock routes for all oracle.browse.wf API endpoints used by E2E tests.
- *
- * This intercepts network requests and serves mock data from test/__mocks__/
- * instead of hitting real APIs, making tests faster, deterministic, and offline-capable.
- *
- * @param page - The Playwright page instance to set up routes on
- * @param options - Optional configuration
- * @param options.worldStateFile - Custom worldState mock file name (default: 'worldState.json')
- * @param options.freezeTime - Whether to freeze time (default: true)
- * @param options.frozenTime - Custom timestamp to freeze at (default: MOCK_TIMESTAMP)
+ Sets up mock routes for all oracle.browse.wf API endpoints used by E2E tests.
+ 
+ This intercepts network requests and serves mock data from test/__mocks__/
+ instead of hitting real APIs, making tests faster, deterministic, and offline-capable.
+ 
+ @param page - The Playwright page instance to set up routes on
+ @param options - Optional configuration
+ @param options.worldStateFile - Custom worldState mock file name (default: 'worldState.json')
+ @param options.freezeTime - Whether to freeze time (default: true)
+ @param options.frozenTime - Custom timestamp to freeze at (default: MOCK_TIMESTAMP)
  */
 export async function setupMockRoutes(page: Page, options?: {worldStateFile?: string; freezeTime?: boolean; frozenTime?: number}): Promise<void> {
 	// Freeze time for deterministic tests (unless explicitly disabled)

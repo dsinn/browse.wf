@@ -1,8 +1,8 @@
 /**
- * Tests for bounty-checkboxes.ts
- *
- * Verifies that daily completion checkboxes are appended to the Cavia and
- * The Hex bounty headings, and that the OID changes after a daily reset.
+ Tests for bounty-checkboxes.ts
+
+ Verifies that daily completion checkboxes are appended to the Cavia and
+ The Hex bounty headings, and that the OID changes after a daily reset.
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

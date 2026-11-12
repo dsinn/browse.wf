@@ -34,18 +34,18 @@ type DayColumn = {
 	dayBucket: number;
 	dayWindows: CycleWindow[];
 	/**
-	 * Index of the last truly-past window, or -1 if none - where the "now" boundary belongs.
-	 * Only defined for the first column, since startDayBucket in render() is always "today" in
-	 * the selected timezone, so day 0 is always the one containing "now".
+	 Index of the last truly-past window, or -1 if none - where the "now" boundary belongs.
+	 Only defined for the first column, since startDayBucket in render() is always "today" in
+	 the selected timezone, so day 0 is always the one containing "now".
 	 */
 	lastPastIndex: number | undefined;
 };
 
 /**
- * Pairs each day's header cell and window data with a live iterator over that column's <td>
- * slots (walking straight down the fixed-size tbody rows), so a cell and the data that fills
- * it are always looked up together at the same point in the code rather than computed
- * separately and threaded through as parallel day/slot indices.
+ Pairs each day's header cell and window data with a live iterator over that column's <td>
+ slots (walking straight down the fixed-size tbody rows), so a cell and the data that fills
+ it are always looked up together at the same point in the code rather than computed
+ separately and threaded through as parallel day/slot indices.
  */
 function * dayColumns(headingsRow: HTMLTableRowElement, grouped: Map<number, CycleWindow[]>, now: number): Generator<DayColumn & {slots: () => Generator<HTMLTableCellElement>}> {
 	const tbody = document.querySelector<HTMLTableSectionElement>('#schedule-table-body')!;

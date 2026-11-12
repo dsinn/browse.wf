@@ -1,5 +1,5 @@
 /**
- * Tests for conditional logger utility
+ Tests for conditional logger utility
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

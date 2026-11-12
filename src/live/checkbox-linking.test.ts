@@ -1,8 +1,8 @@
 /**
- * Tests for checkbox-linking module
- *
- * Tests sequential group checking (Netracells, Narmer) and
- * Archimedea → Netracells additive linking behaviour.
+ Tests for checkbox-linking module
+
+ Tests sequential group checking (Netracells, Narmer) and
+ Archimedea → Netracells additive linking behaviour.
  */
 import {
 	describe, test, expect, beforeEach, afterEach,

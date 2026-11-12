@@ -1,9 +1,9 @@
 /**
- * Cloud sync manager
- *
- * Facade and coordinator for all cloud sync operations. Owns one instance of each
- * service (handler, subscription, reconnection, health monitor) and wires them
- * together via callbacks.
+ Cloud sync manager
+
+ Facade and coordinator for all cloud sync operations. Owns one instance of each
+ service (handler, subscription, reconnection, health monitor) and wires them
+ together via callbacks.
  */
 
 import {logger} from '../logger.js';
@@ -51,8 +51,8 @@ export class CloudSyncManager {
 	}
 
 	/**
-	 * Called when user logs in
-	 * Cloud is source of truth - always pull if remote data exists
+	 Called when user logs in
+	 Cloud is source of truth - always pull if remote data exists
 	 */
 	async handleLogin() {
 		if (this.loginSyncComplete || this.handler.syncing) {
@@ -96,15 +96,15 @@ export class CloudSyncManager {
 	}
 
 	/**
-	 * Upload localStorage data to database (last write wins)
+	 Upload localStorage data to database (last write wins)
 	 */
 	async pushToDatabase(userId: string) {
 		return this.handler.pushToDatabase(userId);
 	}
 
 	/**
-	 * Download database data to localStorage (single query)
-	 * Automatically refreshes UI after updating localStorage
+	 Download database data to localStorage (single query)
+	 Automatically refreshes UI after updating localStorage
 	 */
 	async pullFromDatabase(userId: string) {
 		return this.handler.pullFromDatabase(userId);
@@ -116,7 +116,7 @@ export class CloudSyncManager {
 	}
 
 	/**
-	 * Unsubscribe from real-time updates
+	 Unsubscribe from real-time updates
 	 */
 	unsubscribeFromRealtimeUpdates() {
 		this.loginSyncComplete = false;
@@ -126,7 +126,7 @@ export class CloudSyncManager {
 	}
 
 	/**
-	 * Called by CloudSyncSubscription when SUBSCRIBED status fires
+	 Called by CloudSyncSubscription when SUBSCRIBED status fires
 	 */
 	private async onSubscribed(isResubscribe: boolean) {
 		const {attempts} = this.reconnection;

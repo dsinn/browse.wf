@@ -1,6 +1,6 @@
 /**
- * Tests for CloudSyncHandler
- * Push/pull operations and justPushed deduplication
+ Tests for CloudSyncHandler
+ Push/pull operations and justPushed deduplication
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

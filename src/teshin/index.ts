@@ -1,11 +1,11 @@
 /**
- * Steel Path Honors (Teshin) forecast table for the /weekly-forecast page.
- *
- * The EPOCH, week math, and teshinOffer item list below are copied verbatim
- * from updateTeshin() in live.ts — that is upstream code we don't touch, so
- * this list is intentionally duplicated (including its formatting, via the
- * eslint-disable below) rather than restructured or shared. If upstream ever
- * changes the offer rotation, this list must be updated to match by hand.
+ Steel Path Honors (Teshin) forecast table for the /weekly-forecast page.
+
+ The EPOCH, week math, and teshinOffer item list below are copied verbatim
+ from updateTeshin() in live.ts — that is upstream code we don't touch, so
+ this list is intentionally duplicated (including its formatting, via the
+ eslint-disable below) rather than restructured or shared. If upstream ever
+ changes the offer rotation, this list must be updated to match by hand.
  */
 
 // Bootstrap breakpoint class per appearance column beyond the first (always-visible) one.

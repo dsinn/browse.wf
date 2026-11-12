@@ -1,5 +1,5 @@
 /**
- * Tests for database client configuration
+ Tests for database client configuration
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

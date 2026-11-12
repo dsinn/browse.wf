@@ -1,11 +1,11 @@
 /**
- * Live page cloud sync handler
- *
- * Listens for 'cloud-sync-pulled' and refreshes all live-page UI to reflect
- * the newly pulled localStorage values.
- *
- * Call initLiveSync() to activate — this ensures listeners are
- * registered synchronously during page load, before any auth events fire.
+ Live page cloud sync handler
+
+ Listens for 'cloud-sync-pulled' and refreshes all live-page UI to reflect
+ the newly pulled localStorage values.
+
+ Call initLiveSync() to activate — this ensures listeners are
+ registered synchronously during page load, before any auth events fire.
  */
 
 import {refreshFilterStatus} from '../card-filters.js';

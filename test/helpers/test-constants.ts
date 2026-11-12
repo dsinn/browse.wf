@@ -1,5 +1,5 @@
 /**
- * Shared constants for tests
+ Shared constants for tests
  */
 
 import process from 'node:process';

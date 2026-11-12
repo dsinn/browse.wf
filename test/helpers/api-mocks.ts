@@ -1,5 +1,5 @@
 /**
- * API mocking utilities for tests
+ API mocking utilities for tests
  */
 
 import {readFileSync} from 'node:fs';
@@ -14,7 +14,7 @@ const projectRoot = process.cwd();
 const MOCKS_DIR = join(projectRoot, 'test', '__mocks__');
 
 /**
- * Loads mock data from __mocks__ directory
+ Loads mock data from __mocks__ directory
  */
 export function loadMock(filename: string): any {
 	const path = join(MOCKS_DIR, filename);
@@ -23,15 +23,15 @@ export function loadMock(filename: string): any {
 }
 
 /**
- * Loads a JSON file from warframe-public-export-plus/
+ Loads a JSON file from warframe-public-export-plus/
  */
 export function loadExportJson(filename: string): any {
 	return JSON.parse(readFileSync(join(projectRoot, 'warframe-public-export-plus', filename), 'utf8'));
 }
 
 /**
- * Sets up mock fetch responses for oracle.browse.wf endpoints and installs a
- * fetchExport global shim that loads warframe-public-export-plus files directly from disk.
+ Sets up mock fetch responses for oracle.browse.wf endpoints and installs a
+ fetchExport global shim that loads warframe-public-export-plus files directly from disk.
  */
 export function setupMockFetch() {
 	const mocks = {
@@ -105,7 +105,7 @@ export function setupMockFetch() {
 }
 
 /**
- * Mock a specific API endpoint with custom data
+ Mock a specific API endpoint with custom data
  */
 export function mockEndpoint(url: string, data: any) {
 	const existingFetch = globalThis.fetch as any;
@@ -125,7 +125,7 @@ export function mockEndpoint(url: string, data: any) {
 }
 
 /**
- * Mock a failed API response
+ Mock a failed API response
  */
 export function mockEndpointError(url: string, statusCode = 500) {
 	const existingFetch = globalThis.fetch as any;

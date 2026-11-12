@@ -2,9 +2,9 @@ import {test, expect} from '@playwright/test';
 import {setupMockRoutes} from '../helpers/api-mocks';
 
 /**
- * E2E tests for the syndicates tab on /profile.php.
- *
- * Uses the auto-loaded [DE]Rebecca demo profile.
+ E2E tests for the syndicates tab on /profile.php.
+
+ Uses the auto-loaded [DE]Rebecca demo profile.
  */
 
 test.describe('Syndicates tab (/profile.php)', () => {

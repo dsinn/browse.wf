@@ -1,8 +1,8 @@
 /**
- * Unit tests for src/archimedea/helpers.ts
- *
- * Data resolution logic (tag remapping, difficulty selection, |val| substitution) is
- * tested via src/archimedea/data.ts. These tests cover the DOM rendering layer only.
+ Unit tests for src/archimedea/helpers.ts
+
+ Data resolution logic (tag remapping, difficulty selection, |val| substitution) is
+ tested via src/archimedea/data.ts. These tests cover the DOM rendering layer only.
  */
 import {
 	describe, test, expect, beforeEach, vi,

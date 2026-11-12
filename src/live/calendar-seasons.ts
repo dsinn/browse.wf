@@ -1,10 +1,10 @@
 /**
- * Calendar Seasons card lifecycle for the /live page.
- * Handles active season detection, expiry-triggered re-renders,
- * and injection of the expiry badge and completion toggle.
- *
- * Depends on globals from common.js: createExpiryBadge, createCompletionToggle, setImageSource
- * Depends on globals from calendar-seasons.ts: renderCalendarSeasonPane
+ Calendar Seasons card lifecycle for the /live page.
+ Handles active season detection, expiry-triggered re-renders,
+ and injection of the expiry badge and completion toggle.
+
+ Depends on globals from common.js: createExpiryBadge, createCompletionToggle, setImageSource
+ Depends on globals from calendar-seasons.ts: renderCalendarSeasonPane
  */
 
 import {fetchExport} from '../public-export-fetcher.js';

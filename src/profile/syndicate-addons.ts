@@ -1,17 +1,17 @@
 /**
- * Fork-specific helpers for profile.php / profile.ts.
- *
- * Pure functions are exported for unit testing; window registration
- * makes them available to the non-module profile.ts script at runtime.
+ Fork-specific helpers for profile.php / profile.ts.
+
+ Pure functions are exported for unit testing; window registration
+ makes them available to the non-module profile.ts script at runtime.
  */
 
 /**
- * Returns the filled percentage (0–100) of a syndicate standing progress bar
- * for the player's current rank.
- *
- * For positive ranks the bar fills left-to-right as standing increases toward
- * the rank ceiling.  For negative ranks the bar fills red from the left as
- * standing falls toward the rank floor (most negative value).
+ Returns the filled percentage (0–100) of a syndicate standing progress bar
+ for the player's current rank.
+
+ For positive ranks the bar fills left-to-right as standing increases toward
+ the rank ceiling.  For negative ranks the bar fills red from the left as
+ standing falls toward the rank floor (most negative value).
  */
 export function calcSyndicateRankPct(standing: number, rankMin: number, rankMax: number, level: number): number {
 	if (level < 0) {
@@ -22,8 +22,8 @@ export function calcSyndicateRankPct(standing: number, rankMin: number, rankMax:
 }
 
 /**
- * Appends a standing progress bar to a syndicate card body element.
- * No-op for KahlSyndicate (Garrison), whose token-based titles are meaningless as standing progress.
+ Appends a standing progress bar to a syndicate card body element.
+ No-op for KahlSyndicate (Garrison), whose token-based titles are meaningless as standing progress.
  */
 export function appendSyndicateProgressBar(body: HTMLElement, tag: string, standing: number, level: number, title: {minStanding: number; maxStanding: number}): void {
 	if (tag === 'KahlSyndicate') {

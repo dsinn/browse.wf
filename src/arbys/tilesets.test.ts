@@ -1,5 +1,5 @@
 /**
- * Tests for src/arbys/tilesets.ts
+ Tests for src/arbys/tilesets.ts
  */
 import {
 	describe, test, expect, beforeEach, afterEach,

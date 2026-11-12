@@ -1,9 +1,9 @@
 /**
- * Integration tests for src/riven-calc/index.ts: the real riven-calc.php markup (rendered to a fixture),
- * real game data from warframe-public-export-plus, and the page's event handlers, in jsdom.
- *
- * The maths itself is covered by formula.test.ts; these check that the pieces are wired together. The
- * end-to-end behaviour in a real browser is covered by e2e/riven-calc.spec.ts.
+ Integration tests for src/riven-calc/index.ts: the real riven-calc.php markup (rendered to a fixture),
+ real game data from warframe-public-export-plus, and the page's event handlers, in jsdom.
+
+ The maths itself is covered by formula.test.ts; these check that the pieces are wired together. The
+ end-to-end behaviour in a real browser is covered by e2e/riven-calc.spec.ts.
  */
 import {
 	beforeAll, beforeEach, describe, expect, test, vi,

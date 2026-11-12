@@ -3,7 +3,7 @@ import {ENTRY_MAG_VOLT_EXCALIBUR} from '../test/invigorations/cache-fixtures';
 import {setupMockRoutes} from './helpers/api-mocks';
 
 /**
- * E2E tests for Invigorations Page (/invigorations.php)
+ E2E tests for Invigorations Page (/invigorations.php)
  */
 
 test.describe('Invigorations Page (/invigorations.php)', () => {

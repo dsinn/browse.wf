@@ -1,6 +1,6 @@
 /**
- * Daily completion checkboxes for Cavia and The Hex bounty headings.
- * Resets at midnight UTC, matching the Steel Path Incursions timer.
+ Daily completion checkboxes for Cavia and The Hex bounty headings.
+ Resets at midnight UTC, matching the Steel Path Incursions timer.
  */
 
 import {getNextDailyResetMs} from '../helpers/time-helpers.js';

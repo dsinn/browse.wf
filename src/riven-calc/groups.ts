@@ -1,8 +1,8 @@
 /**
- * The order in which the traits are listed. The game's own order is the order of its data file,
- * which says nothing about how to assess a Riven, so traits are listed by how much builds tend to care about them,
- * with traits that are obviously related (the crits, the elements, the physical types, status) kept together.
- * A trait that is not listed here is shown last, in a group of its own, so a stat added to the game is never lost.
+ The order in which the traits are listed. The game's own order is the order of its data file,
+ which says nothing about how to assess a Riven, so traits are listed by how much builds tend to care about them,
+ with traits that are obviously related (the crits, the elements, the physical types, status) kept together.
+ A trait that is not listed here is shown last, in a group of its own, so a stat added to the game is never lost.
  */
 import {type StatDef} from './stats.js';
 

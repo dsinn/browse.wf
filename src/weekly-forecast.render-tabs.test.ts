@@ -1,10 +1,10 @@
 /**
- * Integration tests for the async tab-rendering functions in src/weekly-forecast.ts:
- *   - renderArchimedeaTabs  (via initWeeklyForecast with CT_LAB / CT_HEX data)
- *   - renderDescentTabs   (via initWeeklyForecast with Descents data)
- *   - renderCalendarSeasonTabs (via initWeeklyForecast with KnownCalendarSeasons data)
- *   - initWeeklyMissionsNotice
- *   - initWeeklyForecast  (main entry point — conditional rendering, tab preservation)
+ Integration tests for the async tab-rendering functions in src/weekly-forecast.ts:
+ - renderArchimedeaTabs  (via initWeeklyForecast with CT_LAB / CT_HEX data)
+ - renderDescentTabs   (via initWeeklyForecast with Descents data)
+ - renderCalendarSeasonTabs (via initWeeklyForecast with KnownCalendarSeasons data)
+ - initWeeklyMissionsNotice
+ - initWeeklyForecast  (main entry point — conditional rendering, tab preservation)
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

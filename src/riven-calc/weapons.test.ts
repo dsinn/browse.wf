@@ -1,5 +1,5 @@
 /**
- * Unit tests for src/riven-calc/weapons.ts, using the real ExportWeapons/ExportUpgrades/dict.
+ Unit tests for src/riven-calc/weapons.ts, using the real ExportWeapons/ExportUpgrades/dict.
  */
 import {
 	beforeAll, describe, expect, test,

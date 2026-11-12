@@ -1,5 +1,5 @@
 /**
- * Unit tests for src/riven-calc/stats.ts, using the real ExportUpgrades from warframe-public-export-plus.
+ Unit tests for src/riven-calc/stats.ts, using the real ExportUpgrades from warframe-public-export-plus.
  */
 import {describe, expect, test} from 'vitest';
 import {loadExportJson} from '../../test/helpers/api-mocks';

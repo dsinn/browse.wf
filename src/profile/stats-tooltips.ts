@@ -1,8 +1,8 @@
 /**
- * Augmentations for the profile Stats tab summary row.
- *
- * Each function is called from profile.ts immediately after the upstream
- * one-liner that sets the element's text content.
+ Augmentations for the profile Stats tab summary row.
+
+ Each function is called from profile.ts immediately after the upstream
+ one-liner that sets the element's text content.
  */
 
 import {SECONDS_PER_DAY, SECONDS_PER_HOUR} from '../helpers/time-helpers.js';
@@ -17,8 +17,8 @@ function addTooltipDecoration(elm: HTMLElement): void {
 }
 
 /**
- * Adds a breakdown tooltip to a time stat element (TimePlayedSec or CipherTime).
- * Called after the upstream textContent assignment for those stats.
+ Adds a breakdown tooltip to a time stat element (TimePlayedSec or CipherTime).
+ Called after the upstream textContent assignment for those stats.
  */
 export function addTimeStatTooltip(elm: HTMLElement, stat: string, value: number): void {
 	addTooltipDecoration(elm);
@@ -38,9 +38,9 @@ export function addTimeStatTooltip(elm: HTMLElement, stat: string, value: number
 }
 
 /**
- * Appends a percentage to a mission or cipher stat element.
- * Computes the relevant total from window.profile so no extra args are needed.
- * Called after the upstream textContent assignment for non-time stats.
+ Appends a percentage to a mission or cipher stat element.
+ Computes the relevant total from window.profile so no extra args are needed.
+ Called after the upstream textContent assignment for non-time stats.
  */
 export function addStatPercentage(stat: string, value: number): void {
 	const stats = window.profile?.Stats ?? {};
@@ -61,9 +61,9 @@ export function addStatPercentage(stat: string, value: number): void {
 }
 
 /**
- * Replaces the cipher average element's text with a more precise value and
- * adds a tooltip showing the full unrounded figure.
- * Called after the upstream one-liner sets the element's text content.
+ Replaces the cipher average element's text with a more precise value and
+ adds a tooltip showing the full unrounded figure.
+ Called after the upstream one-liner sets the element's text content.
  */
 export function addCipherAvgTooltip(elm: HTMLElement, profile: any): void {
 	const avgCipherTime = profile.Stats.CipherTime / profile.Stats.CiphersSolved;

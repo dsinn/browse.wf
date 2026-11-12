@@ -1,7 +1,7 @@
 /**
- * Playwright global setup - runs before all E2E tests
- *
- * This file sets up safeguards to prevent tests from hitting production domains.
+ Playwright global setup - runs before all E2E tests
+
+ This file sets up safeguards to prevent tests from hitting production domains.
  */
 import {Buffer} from 'node:buffer';
 import {execSync} from 'node:child_process';

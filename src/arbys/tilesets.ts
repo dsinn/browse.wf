@@ -1,10 +1,10 @@
 /**
- * Arbys tileset filter and display helpers
+ Arbys tileset filter and display helpers
  */
 import type {IRegion} from 'warframe-public-export-plus';
 
 /**
- * Appends the formatted tileset name to a log entry span, if the node has one.
+ Appends the formatted tileset name to a log entry span, if the node has one.
  */
 export function appendTilesetText(span: HTMLElement, node: IRegion): void {
 	const formattedTileset = window.formatTileset!(window.getTileset!(node));
@@ -14,8 +14,8 @@ export function appendTilesetText(span: HTMLElement, node: IRegion): void {
 }
 
 /**
- * Returns true if the tileset checkbox for the given node is checked (or absent).
- * Returns false if the checkbox exists and is unchecked.
+ Returns true if the tileset checkbox for the given node is checked (or absent).
+ Returns false if the checkbox exists and is unchecked.
  */
 export function isTilesetChecked(node: IRegion): boolean {
 	const tileset = window.getTileset!(node);
@@ -28,8 +28,8 @@ export function isTilesetChecked(node: IRegion): boolean {
 }
 
 /**
- * Populates the "next occurrence" table row for the tileset of the given node,
- * if the row exists and hasn't been filled yet.
+ Populates the "next occurrence" table row for the tileset of the given node,
+ if the row exists and hasn't been filled yet.
  */
 export function updateTilesetNextOccurrence(
 	node: IRegion,

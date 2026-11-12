@@ -1,15 +1,15 @@
 /**
- * DOM helper utilities for testing
- *
- * Tests load actual PHP-rendered HTML via loadFixture('name')
- * instead of duplicating HTML structure here.
+ DOM helper utilities for testing
+
+ Tests load actual PHP-rendered HTML via loadFixture('name')
+ instead of duplicating HTML structure here.
  */
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import process from 'node:process';
 
 /**
- * Helper to get element by ID with type safety
+ Helper to get element by ID with type safety
  */
 export function getById<T extends HTMLElement = HTMLElement>(id: string): T {
 	const element = document.querySelector<T>(`#${id}`);
@@ -21,14 +21,14 @@ export function getById<T extends HTMLElement = HTMLElement>(id: string): T {
 }
 
 /**
- * Helper to check if element exists
+ Helper to check if element exists
  */
 export function elementExists(id: string): boolean {
 	return document.querySelector(`#${id}`) !== null;
 }
 
 /**
- * Mock Bootstrap Tooltip for testing
+ Mock Bootstrap Tooltip for testing
  */
 export function mockBootstrapTooltip() {
 	const tooltipInstances = new Map<HTMLElement, any>();
@@ -60,16 +60,16 @@ export function mockBootstrapTooltip() {
 }
 
 /**
- * Load common.js and promote the named plain function declarations to window.
- *
- * common.js uses plain function declarations rather than explicit window
- * assignments. In a browser, the global scope is window so these are
- * automatically accessible as window.fn. In vitest, eval() runs inside a
- * strict ES module where function declarations are local to the eval scope
- * and never reach globalThis. This wrapper appends explicit window assignments
- * for the requested names as a workaround.
- *
- * @param functionNames - Names of functions from common.js to expose on window
+ Load common.js and promote the named plain function declarations to window.
+ 
+ common.js uses plain function declarations rather than explicit window
+ assignments. In a browser, the global scope is window so these are
+ automatically accessible as window.fn. In vitest, eval() runs inside a
+ strict ES module where function declarations are local to the eval scope
+ and never reach globalThis. This wrapper appends explicit window assignments
+ for the requested names as a workaround.
+ 
+ @param functionNames - Names of functions from common.js to expose on window
  */
 export function loadCommonJsFunctions(functionNames: string[]) {
 	const scriptContent = fs.readFileSync(path.join(process.cwd(), 'common.js'), 'utf8');

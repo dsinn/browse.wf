@@ -1,7 +1,7 @@
 /**
- * Unit tests for the hand-maintained tables in src/riven-calc/data.ts.
- *
- * Their numbers come from the wiki, so these guard against typos.
+ Unit tests for the hand-maintained tables in src/riven-calc/data.ts.
+
+ Their numbers come from the wiki, so these guard against typos.
  */
 import {describe, expect, test} from 'vitest';
 import {

@@ -1,10 +1,10 @@
 import {totwo} from './helpers/time-helpers.js';
 
 /**
- * Cetus/Deimos bounty-cycle constants. No network fetch is used to compute these - the cycle
- * is a fixed period with no detectable drift, measured against real `worldState` data over a
- * large (multi-year) time interval. `EPOCH_EXPIRY` is a real, verified `CetusSyndicate.Expiry`
- * timestamp, used only to anchor the projection's phase.
+ Cetus/Deimos bounty-cycle constants. No network fetch is used to compute these - the cycle
+ is a fixed period with no detectable drift, measured against real `worldState` data over a
+ large (multi-year) time interval. `EPOCH_EXPIRY` is a real, verified `CetusSyndicate.Expiry`
+ timestamp, used only to anchor the projection's phase.
  */
 export const PERIOD_MS = 8_998_874.803232359;
 export const NIGHT_MS = 3_000_000; // 50 min
@@ -13,13 +13,13 @@ export const EPOCH_EXPIRY = 1_684_177_115_703;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
- * A safe upper bound on how many cycle windows (of either phase) a single calendar day can
- * contain: `ceil(day length / period length)` already accounts for a day catching a partial
- * window at each end, since that's the maximum number of period-length intervals (complete or
- * partial) that can fit within a fixed-length span. Verified empirically against 10 years of
- * real day boundaries (max observed: 10, matching this formula exactly). Used to size a fixed
- * pool of table rows/cells so they can be pre-created once and reused across re-renders
- * instead of created/destroyed each time.
+ A safe upper bound on how many cycle windows (of either phase) a single calendar day can
+ contain: `ceil(day length / period length)` already accounts for a day catching a partial
+ window at each end, since that's the maximum number of period-length intervals (complete or
+ partial) that can fit within a fixed-length span. Verified empirically against 10 years of
+ real day boundaries (max observed: 10, matching this formula exactly). Used to size a fixed
+ pool of table rows/cells so they can be pre-created once and reused across re-renders
+ instead of created/destroyed each time.
  */
 export const MAX_WINDOWS_PER_DAY = Math.ceil(DAY_MS / PERIOD_MS);
 
@@ -39,12 +39,12 @@ const DAY_HEADING_FORMAT_LOCAL = new Intl.DateTimeFormat(undefined, {
 });
 
 /**
- * Returns the `cycleExpiry` timestamp (ms) of the cycle whose expiry is at or after `from`.
- * Computed directly via modular arithmetic (`from` rounded up to the next `PERIOD_MS`
- * boundary relative to `EPOCH_EXPIRY`) rather than via a floor-to-index-then-multiply-back
- * step, since the index itself is never otherwise needed here. The inner `% PERIOD_MS` makes
- * this branch-free: it collapses the "already on a boundary" case (offset === 0) to a 0
- * distance-to-next-boundary instead of a full extra period.
+ Returns the `cycleExpiry` timestamp (ms) of the cycle whose expiry is at or after `from`.
+ Computed directly via modular arithmetic (`from` rounded up to the next `PERIOD_MS`
+ boundary relative to `EPOCH_EXPIRY`) rather than via a floor-to-index-then-multiply-back
+ step, since the index itself is never otherwise needed here. The inner `% PERIOD_MS` makes
+ this branch-free: it collapses the "already on a boundary" case (offset === 0) to a 0
+ distance-to-next-boundary instead of a full extra period.
  */
 function getCycleExpiryAtOrAfter(from: number): number {
 	const offsetFromLastBoundary = (from - EPOCH_EXPIRY) % PERIOD_MS;
@@ -53,8 +53,8 @@ function getCycleExpiryAtOrAfter(from: number): number {
 }
 
 /**
- * Returns every cycle-window (of the given phase) whose start falls within
- * `[from, from + spanMs]`. Windows are returned in chronological order.
+ Returns every cycle-window (of the given phase) whose start falls within
+ `[from, from + spanMs]`. Windows are returned in chronological order.
  */
 export function getCycleWindows(phase: CyclePhase, from: number, spanMs: number): CycleWindow[] {
 	const windows: CycleWindow[] = [];
@@ -119,10 +119,10 @@ export function getDayBucket(timestamp: number, timeZone: 'local' | 'utc'): numb
 }
 
 /**
- * Returns the calendar-day timestamp `dayOffset` calendar days after `dayBucket` (in the given
- * timezone). Unlike adding `dayOffset * DAY_MS`, this correctly lands on the next calendar
- * midnight across a DST transition, where a "day" isn't always exactly 24 hours of wall-clock
- * time in local mode.
+ Returns the calendar-day timestamp `dayOffset` calendar days after `dayBucket` (in the given
+ timezone). Unlike adding `dayOffset * DAY_MS`, this correctly lands on the next calendar
+ midnight across a DST transition, where a "day" isn't always exactly 24 hours of wall-clock
+ time in local mode.
  */
 export function addCalendarDays(dayBucket: number, dayOffset: number, timeZone: 'local' | 'utc'): number {
 	if (timeZone === 'utc') {
@@ -142,9 +142,9 @@ export function formatDayHeading(dayBucket: number, timeZone: 'local' | 'utc'): 
 }
 
 /**
- * Groups cycle windows into one bucket per calendar day (in the given timezone),
- * covering exactly `dayCount` days starting from `startDayBucket`. Days with no
- * windows still get an entry (empty array).
+ Groups cycle windows into one bucket per calendar day (in the given timezone),
+ covering exactly `dayCount` days starting from `startDayBucket`. Days with no
+ windows still get an entry (empty array).
  */
 export function groupWindowsByDay(
 	windows: CycleWindow[],
@@ -180,10 +180,10 @@ export function isWindowActive(window: CycleWindow, now: number): boolean {
 }
 
 /**
- * Returns the timestamp (ms) of the next moment the rendered schedule could visibly change:
- * either a day/night (Fass/Vome) phase transition, or the calendar day rolling over in the
- * given timezone — whichever comes first. Two phase transitions occur per cycle (start and
- * end of the night window), so this is finer-grained than the cycle period itself.
+ Returns the timestamp (ms) of the next moment the rendered schedule could visibly change:
+ either a day/night (Fass/Vome) phase transition, or the calendar day rolling over in the
+ given timezone — whichever comes first. Two phase transitions occur per cycle (start and
+ end of the night window), so this is finer-grained than the cycle period itself.
  */
 export function getNextBoundary(now: number, timeZone: 'local' | 'utc'): number {
 	const cycleExpiry = getCycleExpiryAtOrAfter(now);

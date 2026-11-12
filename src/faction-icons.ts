@@ -19,8 +19,8 @@ export const FACTION_ICON_PATHS: Record<TFaction, string> = {
 };
 
 /**
- * Maps ExportEnemies avatar faction strings to their TFaction key.
- * Multiple aliases may map to the same faction.
+ Maps ExportEnemies avatar faction strings to their TFaction key.
+ Multiple aliases may map to the same faction.
  */
 export const ENEMY_FACTION_TO_TFACTION: Record<string, TFaction> = {
 	Corpus: 'FC_CORPUS',

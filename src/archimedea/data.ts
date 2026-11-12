@@ -1,10 +1,10 @@
 /**
- * Data transformation layer for Deep Archimedea (CT_LAB) and Temporal Archimedea (CT_HEX).
- * Usable in both browser and Node.js environments.
- *
- * Consumed by:
- *   - src/archimedea/helpers.ts             (browser DOM rendering, via globals)
- *   - scripts/post-weekly-forecast.js       (Node.js, via compiled archimedea/data.js)
+ Data transformation layer for Deep Archimedea (CT_LAB) and Temporal Archimedea (CT_HEX).
+ Usable in both browser and Node.js environments.
+
+ Consumed by:
+ - src/archimedea/helpers.ts             (browser DOM rendering, via globals)
+ - scripts/post-weekly-forecast.js       (Node.js, via compiled archimedea/data.js)
  */
 
 import {fetchExport} from '../public-export-fetcher.js';
@@ -60,8 +60,8 @@ function findHardDifficulty(mission: any): any {
 }
 
 /**
- * Resolves a raw Archimedea object into display-ready data.
- * Returns resolved mission rows and frame variable rows, with all text lookups applied.
+ Resolves a raw Archimedea object into display-ready data.
+ Returns resolved mission rows and frame variable rows, with all text lookups applied.
  */
 export async function resolveArchimedea(
 	archimedea: any,

@@ -2,7 +2,7 @@ import process from 'node:process';
 import {defineConfig, devices} from '@playwright/test';
 
 /**
- * Playwright configuration for E2E tests
+ Playwright configuration for E2E tests
  */
 export default defineConfig({
 	testDir: './e2e',

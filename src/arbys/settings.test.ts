@@ -1,9 +1,9 @@
 /**
- * Tests for src/arbys/settings.ts
- *
- * Covers save/load settings persistence and Load button enable/disable logic.
- * The module registers cloud-sync event listeners at import time; tests verify
- * they fire checkLoadButtonState correctly.
+ Tests for src/arbys/settings.ts
+
+ Covers save/load settings persistence and Load button enable/disable logic.
+ The module registers cloud-sync event listeners at import time; tests verify
+ they fire checkLoadButtonState correctly.
  */
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';

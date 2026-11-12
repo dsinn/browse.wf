@@ -27,9 +27,9 @@ function isRivenClassKey(value: string): boolean {
 }
 
 /**
- * Reads the state from a URL hash. The format is the one the original Riven calculator used
- * (`#weapon=<name or class>&lvl=<rank>&buffs=<n>&curses=<n>`), so that old links keep working. Its
- * `<class>:<disposition>` form for `weapon` is accepted too, with the disposition ignored.
+ Reads the state from a URL hash. The format is the one the original Riven calculator used
+ (`#weapon=<name or class>&lvl=<rank>&buffs=<n>&curses=<n>`), so that old links keep working. Its
+ `<class>:<disposition>` form for `weapon` is accepted too, with the disposition ignored.
  */
 export function parseHash(hash: string, weapons: readonly WeaponOption[]): CalcState {
 	const state = createDefaultState();

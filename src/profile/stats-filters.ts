@@ -1,8 +1,8 @@
 /**
- * Equipment and enemy category filter definitions for the profile Stats tab.
- *
- * Icon paths are resolved via ExportImages (warframe-public-export-plus) using
- * the same CDN lookup as setImageSource() in common.js.
+ Equipment and enemy category filter definitions for the profile Stats tab.
+
+ Icon paths are resolved via ExportImages (warframe-public-export-plus) using
+ the same CDN lookup as setImageSource() in common.js.
  */
 
 import {addTooltip} from '../tooltip.js';
@@ -32,9 +32,9 @@ export const EQUIPMENT_CATEGORIES: Record<string, {tooltip: string; icon: string
 const STALKER_ICON = '/Lotus/Interface/Icons/MarkedForDeathStalker.png';
 
 /**
- * Maps faction strings (from ExportEnemies.avatars[x].faction) to display metadata.
- * Multiple source faction strings may map to the same display bucket.
- * Icons are sourced from faction-icons.ts; Stalker is a special case with no TFaction.
+ Maps faction strings (from ExportEnemies.avatars[x].faction) to display metadata.
+ Multiple source faction strings may map to the same display bucket.
+ Icons are sourced from faction-icons.ts; Stalker is a special case with no TFaction.
  */
 export const ENEMY_FACTIONS: Array<{tooltip: string; icon?: string; factions: string[]}> = [
 	{tooltip: 'Grineer', icon: getFactionIconPath('Grineer'), factions: ['Grineer']},
@@ -51,13 +51,13 @@ export const ENEMY_FACTIONS: Array<{tooltip: string; icon?: string; factions: st
 ];
 
 /**
- * Sets up sequential rank numbers in the first cell of each visible row, and
- * re-runs whenever rows are added/removed. Disconnects any previously returned
- * observer before creating a new one, so it is safe to call on re-render.
- *
- * @param tbody - The <tbody> whose rows to number.
- * @param previousObserver - Observer returned from a prior call, to disconnect.
- * @returns The renumber function and the new MutationObserver.
+ Sets up sequential rank numbers in the first cell of each visible row, and
+ re-runs whenever rows are added/removed. Disconnects any previously returned
+ observer before creating a new one, so it is safe to call on re-render.
+
+ @param tbody - The <tbody> whose rows to number.
+ @param previousObserver - Observer returned from a prior call, to disconnect.
+ @returns The renumber function and the new MutationObserver.
  */
 export function makeRenumber(tbody: HTMLElement, previousObserver?: MutationObserver): {renumber: () => void; observer: MutationObserver} {
 	const renumber = () => {
@@ -94,16 +94,16 @@ export function getEnemyFactionLabel(faction: string): string | undefined {
 }
 
 /**
- * Renders a filter bar and wires up filtering for a stats table.
- *
- * @param filterBar - The <div> that will receive the filter buttons.
- * @param tbody - The <tbody> whose rows carry data-category attributes.
- * @param entries - Ordered list of { key, tooltip, icon } to show as buttons.
- * key must match the data-category values on the rows.
- * icon is a Warframe asset path resolved via setImageSource;
- * pass an empty string to fall back to displayText.
- * @param presentKeys - Set of category keys that actually appear in the tbody,
- * used to skip buttons for absent categories.
+ Renders a filter bar and wires up filtering for a stats table.
+ 
+ @param filterBar - The <div> that will receive the filter buttons.
+ @param tbody - The <tbody> whose rows carry data-category attributes.
+ @param entries - Ordered list of { key, tooltip, icon } to show as buttons.
+ key must match the data-category values on the rows.
+ icon is a Warframe asset path resolved via setImageSource;
+ pass an empty string to fall back to displayText.
+ @param presentKeys - Set of category keys that actually appear in the tbody,
+ used to skip buttons for absent categories.
  * @param onFilter - Optional callback invoked after each filter change,
  * including when "All" is selected.
  */

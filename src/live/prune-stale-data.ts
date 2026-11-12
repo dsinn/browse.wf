@@ -1,7 +1,7 @@
 /**
- * Stale data pruning for localStorage.
- *
- * Runs periodically, a few seconds after a successful worldState fetch.
+ Stale data pruning for localStorage.
+
+ Runs periodically, a few seconds after a successful worldState fetch.
  */
 
 import {MILLIS_PER_DAY} from '../helpers/time-helpers.js';

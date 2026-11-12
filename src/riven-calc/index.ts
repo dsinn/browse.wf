@@ -1,6 +1,6 @@
 /**
- * Riven calculator page logic: shows the range of values that each trait of a Riven can roll, and grades
- * the values of a Riven you own. The maths lives in ./formula.ts; this file is the DOM glue.
+ Riven calculator page logic: shows the range of values that each trait of a Riven can roll, and grades
+ the values of a Riven you own. The maths lives in ./formula.ts; this file is the DOM glue.
  */
 import {RIVEN_CLASSES} from './data.js';
 import {
@@ -37,8 +37,8 @@ const VALUE_WITH_UNIT = /\|(?:val|STAT1)\|(?:\s*%|s\b)?\s*/gu;
 const TEXT_ICON = /<([^>]+)>/gu;
 
 /**
- * Turns a display template such as "|val|% <DT_FIRE_COLOR>Heat" into DOM that names the stat ("Heat"), dropping the
- * number, which the slider shows, and replacing the text icons with images.
+ Turns a display template such as "|val|% <DT_FIRE_COLOR>Heat" into DOM that names the stat ("Heat"), dropping the
+ number, which the slider shows, and replacing the text icons with images.
  */
 export function buildStatLabel(template: string, exportTextIcons: Record<string, any>): DocumentFragment {
 	const fragment = document.createDocumentFragment();

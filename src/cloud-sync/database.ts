@@ -1,8 +1,8 @@
 /**
- * Database client setup for cloud sync
- *
- * This module creates and exports a database client instance.
- * If credentials are not configured, the app falls back to localStorage-only mode.
+ Database client setup for cloud sync
+
+ This module creates and exports a database client instance.
+ If credentials are not configured, the app falls back to localStorage-only mode.
  */
 
 import {createClient} from '@supabase/supabase-js';
@@ -30,7 +30,7 @@ export const db = (databaseUrl && databaseKey)
 	})();
 
 /**
- * Check if database is configured
- * @returns true if database credentials are set, false otherwise
+ Check if database is configured
+ @returns true if database credentials are set, false otherwise
  */
 export const isDatabaseConfigured = () => Boolean(databaseUrl && databaseKey);

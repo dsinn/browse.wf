@@ -11,9 +11,9 @@ export type WeaponOption = {
 	*/
 	rivenClassKey: string;
 	/**
-	 * Whether the weapon is a variant (Prime, Vandal, Wraith, Prisma, ...) of another weapon in the list. Variants
-	 * take the same Riven as their base weapon, so the picker suggests only the base, but a variant's name is
-	 * still understood (e.g. in links).
+	 Whether the weapon is a variant (Prime, Vandal, Wraith, Prisma, ...) of another weapon in the list. Variants
+	 take the same Riven as their base weapon, so the picker suggests only the base, but a variant's name is
+	 still understood (e.g. in links).
 	 */
 	isVariant: boolean;
 };
@@ -21,8 +21,8 @@ export type WeaponOption = {
 const UPGRADES_PREFIX = '/Lotus/Upgrades/Mods/Randomized/';
 
 /**
- * Finds which Riven class a weapon takes, following `parentName` up the weapon's inheritance chain so that
- * variants (e.g. Prisma, Wraith, and shotgun-like weapons such as the Convectrix) resolve like their parent.
+ Finds which Riven class a weapon takes, following `parentName` up the weapon's inheritance chain so that
+ variants (e.g. Prisma, Wraith, and shotgun-like weapons such as the Convectrix) resolve like their parent.
  */
 export function getCompatibleRivenClass(
 	weaponType: string,
@@ -45,8 +45,8 @@ export function getCompatibleRivenClass(
 }
 
 /**
- * Every weapon the picker understands. Riven dispositions are retired, so the only thing a weapon decides is its
- * class (and which damage types it can roll), and kitgun chambers and zaw strikes need no per-variant entries.
+ Every weapon the picker understands. Riven dispositions are retired, so the only thing a weapon decides is its
+ class (and which damage types it can roll), and kitgun chambers and zaw strikes need no per-variant entries.
  */
 export function buildWeaponOptions(
 	exportWeapons: Record<string, any>,
@@ -96,14 +96,14 @@ const DAMAGE_TYPE_BY_STAT_TAG: Record<string, string> = {
 const PHYSICAL_DAMAGE_TYPES = new Set(['DT_IMPACT', 'DT_PUNCTURE', 'DT_SLASH']);
 
 /**
- * A damage type can only be rolled if it makes up more than a fifth of the weapon's damage.
- *
- * Only the first attack mode counts.
- *
- * This appears to be a bug in the upstream calculator: it read `weapon.behaviors`, but ExportWeapons spells the key
- * "behaviours", so it never found any damage data. It treated every weapon as able to roll every damage type, and
- * only its Projectile Speed warning ever appeared, even though its own test vectors (kept in weapons.test.ts) expect
- * the damage types to be limited. This follows those vectors.
+ A damage type can only be rolled if it makes up more than a fifth of the weapon's damage.
+
+ Only the first attack mode counts.
+
+ This appears to be a bug in the upstream calculator: it read `weapon.behaviors`, but ExportWeapons spells the key
+ "behaviours", so it never found any damage data. It treated every weapon as able to roll every damage type, and
+ only its Projectile Speed warning ever appeared, even though its own test vectors (kept in weapons.test.ts) expect
+ the damage types to be limited. This follows those vectors.
  */
 export function weaponCanRollDamageType(weapon: Record<string, any>, damageType: string): boolean {
 	const behaviour = weapon.behaviours?.[0];
@@ -124,8 +124,8 @@ export function weaponCanRollDamageType(weapon: Record<string, any>, damageType:
 }
 
 /**
- * Whether the weapon can currently roll the stat as a buff (or, if `isBuff` is false, as a curse).
- * Unknown weapons can roll anything.
+ Whether the weapon can currently roll the stat as a buff (or, if `isBuff` is false, as a curse).
+ Unknown weapons can roll anything.
  */
 export function canWeaponRollStat(weapon: Record<string, any> | undefined, tag: string, isBuff: boolean): boolean {
 	if (!weapon) {

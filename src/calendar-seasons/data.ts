@@ -1,10 +1,10 @@
 /**
- * Data transformation layer for the 1999 Calendar Seasons.
- * Usable in both browser and Node.js environments.
- *
- * Consumed by:
- *   - src/calendar-seasons.ts          (browser DOM rendering, via globals)
- *   - src/calendar-seasons-data.mts    (ES module re-export for Node/tests)
+ Data transformation layer for the 1999 Calendar Seasons.
+ Usable in both browser and Node.js environments.
+
+ Consumed by:
+ - src/calendar-seasons.ts          (browser DOM rendering, via globals)
+ - src/calendar-seasons-data.mts    (ES module re-export for Node/tests)
  */
 
 import {fetchExport} from '../public-export-fetcher.js';
@@ -40,8 +40,8 @@ export function getSeasonLabel(season: string): string {
 }
 
 /**
- * Converts a 1-indexed day of the 1999 in-game calendar to a short date string.
- * Day 1 = Jan 1, Day 101 = Apr 11, etc.
+ Converts a 1-indexed day of the 1999 in-game calendar to a short date string.
+ Day 1 = Jan 1, Day 101 = Apr 11, etc.
  */
 export function formatSeasonDay(day: number): string {
 	return new Date(1999, 0, day).toLocaleDateString('en', {month: 'short', day: 'numeric'});
@@ -109,8 +109,8 @@ async function fetchItemMaps(): Promise<{itemIconMap: Record<string, string>; it
 }
 
 /**
- * Resolves a calendar season's days into display-ready rows.
- * Returns one IResolvedCalendarDay per day that has events, in order.
+ Resolves a calendar season's days into display-ready rows.
+ Returns one IResolvedCalendarDay per day that has events, in order.
  */
 export async function resolveCalendarSeasonDays(
 	season: any,

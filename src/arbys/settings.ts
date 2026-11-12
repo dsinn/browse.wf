@@ -1,9 +1,9 @@
 /**
- * Arbys save/load settings
- *
- * Handles persisting arbitration filter and display settings to localStorage,
- * wiring up Save/Load button click handlers, and re-checking the Load button
- * state after cloud sync events.
+ Arbys save/load settings
+
+ Handles persisting arbitration filter and display settings to localStorage,
+ wiring up Save/Load button click handlers, and re-checking the Load button
+ state after cloud sync events.
  */
 
 import {waitForCloudSync} from '../cloud-sync/trigger.js';

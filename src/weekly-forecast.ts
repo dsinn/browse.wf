@@ -1,9 +1,9 @@
 /**
- * Weekly Forecast page — renders tabs for Deep Archimedea, Temporal Archimedea, and Descendia
- * across all available weeks from worldState.
- *
- * Uses globals exposed by common.js:
- *   - getDictPromise, getOSDictPromise
+ Weekly Forecast page — renders tabs for Deep Archimedea, Temporal Archimedea, and Descendia
+ across all available weeks from worldState.
+
+ Uses globals exposed by common.js:
+ - getDictPromise, getOSDictPromise
  */
 
 import {renderArchimedeaTable} from './archimedea/helpers.js';
@@ -32,8 +32,8 @@ export function formatTabDate(ms: number): string {
 }
 
 /**
- * Builds a Bootstrap tab nav item and its corresponding tab pane.
- * Stores the activation timestamp on the button as data-activation for refresh identity.
+ Builds a Bootstrap tab nav item and its corresponding tab pane.
+ Stores the activation timestamp on the button as data-activation for refresh identity.
  */
 export function buildTab(
 	tabsElement: HTMLElement,
@@ -72,7 +72,7 @@ export function buildTab(
 }
 
 /**
- * Returns the activation timestamp of the active tab button, or null if none is active.
+ Returns the activation timestamp of the active tab button, or null if none is active.
  */
 export function getActiveTabActivation(tabsElement: HTMLElement): string | undefined {
 	const active = tabsElement.querySelector<HTMLElement>('.nav-link.active');
@@ -80,11 +80,11 @@ export function getActiveTabActivation(tabsElement: HTMLElement): string | undef
 }
 
 /**
- * Re-activates the tab whose data-activation matches the given timestamp string.
- * No-ops if not found (the tab no longer exists after a refresh).
- *
- * Directly manipulates classes instead of using Bootstrap's Tab JS API to avoid
- * stale cached instances from the previous render confusing Bootstrap's hide/show logic.
+ Re-activates the tab whose data-activation matches the given timestamp string.
+ No-ops if not found (the tab no longer exists after a refresh).
+
+ Directly manipulates classes instead of using Bootstrap's Tab JS API to avoid
+ stale cached instances from the previous render confusing Bootstrap's hide/show logic.
  */
 export function restoreActiveTab(tabsElement: HTMLElement, activation: string): void {
 	const target = tabsElement.querySelector<HTMLElement>(`.nav-link[data-activation="${activation}"]`);
@@ -276,10 +276,10 @@ async function renderClanWeeklyColumns(
 }
 
 /**
- * Returns the Unix timestamp (seconds) of the next Sunday at 23:02 UTC,
- * when the weekly forecast is expected to be published (23:00 UTC) and both
- * proxy hops (up to 1 minute cache each) have had time to refresh.
- * If today is Sunday and it's before 23:02 UTC, returns today's target time.
+ Returns the Unix timestamp (seconds) of the next Sunday at 23:02 UTC,
+ when the weekly forecast is expected to be published (23:00 UTC) and both
+ proxy hops (up to 1 minute cache each) have had time to refresh.
+ If today is Sunday and it's before 23:02 UTC, returns today's target time.
  */
 export function nextForecastPublishedMs(): number {
 	// The forecast is published at Sunday 23:02 UTC, which is 58 minutes before the Monday 00:00 weekly reset.
@@ -289,7 +289,7 @@ export function nextForecastPublishedMs(): number {
 }
 
 /**
- * Populates the weekly missions notice with a timer badge and local-time update text.
+ Populates the weekly missions notice with a timer badge and local-time update text.
  */
 export function initWeeklyMissionsNotice(): void {
 	const timerElement = document.querySelector('#weekly-missions-timer');

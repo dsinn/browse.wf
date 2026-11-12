@@ -37,7 +37,6 @@ const config = [
 			'jsdoc/check-param-names': 'off',
 			'jsdoc/check-tag-names': 'off',
 			'jsdoc/informative-docs': 'off',
-			'jsdoc/require-asterisk-prefix': 'off',
 			'jsdoc/require-yields': 'off',
 			'markdown/fenced-code-language': 'off',
 			'n/file-extension-in-import': 'off',

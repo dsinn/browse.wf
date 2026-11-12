@@ -1,11 +1,11 @@
 /**
- * Circuit forecast table for the /weekly-forecast page.
- *
- * The Circuit's frame/weapon rotation is a fixed, predictable cycle (week index
- * modulo the choice list length), so unlike the rest of the page's worldState-driven
- * sections, it can be forecast without live data. worldState's EndlessXpSchedule
- * (used by src/live/circuit.ts on /live) only ever reports the current week, so it
- * can't answer "what's coming next" — the rotation tables below are that source of truth.
+ Circuit forecast table for the /weekly-forecast page.
+
+ The Circuit's frame/weapon rotation is a fixed, predictable cycle (week index
+ modulo the choice list length), so unlike the rest of the page's worldState-driven
+ sections, it can be forecast without live data. worldState's EndlessXpSchedule
+ (used by src/live/circuit.ts on /live) only ever reports the current week, so it
+ can't answer "what's coming next" — the rotation tables below are that source of truth.
  */
 
 const CIRCUIT_EPOCH_MS = 1_734_307_200_000;

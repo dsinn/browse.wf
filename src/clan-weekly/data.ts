@@ -83,8 +83,8 @@ async function fetchItemMaps(): Promise<{itemNameMap: Record<string, string>; it
 }
 
 /**
- * Resolves rewards for a single WeeklyVaultBonusRewards entry.
- * Sorts ascending by PointThreshold; renders each as a percentage of the max threshold.
+ Resolves rewards for a single WeeklyVaultBonusRewards entry.
+ Sorts ascending by PointThreshold; renders each as a percentage of the max threshold.
  */
 export async function resolveClanWeeklyRewards(
 	entry: any,

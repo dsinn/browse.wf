@@ -1,5 +1,5 @@
 /**
- * Tests for src/live/calendar-seasons.ts — updateCalendarSeason()
+ Tests for src/live/calendar-seasons.ts — updateCalendarSeason()
  */
 import {
 	describe, test, expect, beforeAll, beforeEach, afterEach, vi,

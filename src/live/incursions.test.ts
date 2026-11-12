@@ -1,5 +1,5 @@
 /**
- * Tests for Steel Path Incursions card
+ Tests for Steel Path Incursions card
  */
 import {
 	describe, test, expect, beforeEach, afterEach,

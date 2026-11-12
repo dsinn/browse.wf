@@ -1,8 +1,8 @@
 /**
- * Entry point of the Riven calculator page (riven-calc.php): loads the game data, then starts the calculator.
- *
- * Uses globals exposed by common.js and the src bundle:
- *   - getDictPromise, withTranslationFallback
+ Entry point of the Riven calculator page (riven-calc.php): loads the game data, then starts the calculator.
+
+ Uses globals exposed by common.js and the src bundle:
+ - getDictPromise, withTranslationFallback
  */
 import {fetchExport} from '../public-export-fetcher.js';
 import {initRivenCalc} from './index.js';

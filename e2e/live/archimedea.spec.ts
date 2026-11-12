@@ -3,7 +3,7 @@ import {setupMockRoutes} from '../helpers/api-mocks';
 import {expiryBadge} from './helpers';
 
 /**
- * Archimedea E2E Tests
+ Archimedea E2E Tests
  */
 
 test.beforeEach(async ({page}) => {

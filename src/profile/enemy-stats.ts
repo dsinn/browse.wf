@@ -1,9 +1,9 @@
 /**
- * Augments the upstream enemy stats table with rank column and faction
- * filter bar.
- *
- * Called via (window as any).augmentEnemyStats() immediately after the
- * upstream rendering block in profile.ts populates #enemy-stats.
+ Augments the upstream enemy stats table with rank column and faction
+ filter bar.
+
+ Called via (window as any).augmentEnemyStats() immediately after the
+ upstream rendering block in profile.ts populates #enemy-stats.
  */
 
 import {logger} from '../logger.js';

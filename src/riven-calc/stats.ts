@@ -48,8 +48,8 @@ function getDisplayKind(tag: string): DisplayKind {
 }
 
 /**
- * Every stat that a Riven of the given class can roll: the ones in ExportUpgrades, plus the ones the page adds
- * (see ./data.ts). A stat in the export always wins over an added one with the same tag.
+ Every stat that a Riven of the given class can roll: the ones in ExportUpgrades, plus the ones the page adds
+ (see ./data.ts). A stat in the export always wins over an added one with the same tag.
  */
 export function getRivenStats(rivenClassKey: string, exportUpgrades: Record<string, any>): StatDef[] {
 	const entries: any[] = exportUpgrades[UPGRADES_PREFIX + rivenClassKey]?.upgradeEntries ?? [];

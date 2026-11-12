@@ -1,6 +1,6 @@
 /**
- * Tests for CloudSyncSerializer
- * Pure data transforms between localStorage and nested objects
+ Tests for CloudSyncSerializer
+ Pure data transforms between localStorage and nested objects
  */
 import {
 	describe, test, expect, beforeEach, afterEach,

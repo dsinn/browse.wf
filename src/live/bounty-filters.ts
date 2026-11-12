@@ -1,8 +1,8 @@
 /**
- * Bounty filter functionality for browse.wf
- *
- * Provides dropdown-based filtering for bounty tiers per syndicate.
- * Integrates with the card-filters system and cloud sync.
+ Bounty filter functionality for browse.wf
+
+ Provides dropdown-based filtering for bounty tiers per syndicate.
+ Integrates with the card-filters system and cloud sync.
  */
 
 import {triggerCloudSyncWithDebounce as triggerCloudSync} from '../cloud-sync/trigger.js';
@@ -14,10 +14,10 @@ const SYNDICATE_TAGS = [
 ];
 
 /**
- * Check if a mission type is enabled for a given syndicate
- * @param syndicateTag - The syndicate tag (e.g., "ZarimanSyndicate")
- * @param missionType - The mission type key (e.g., "MT_CORRUPTION")
- * @returns true if the mission type should be shown
+ Check if a mission type is enabled for a given syndicate
+ @param syndicateTag - The syndicate tag (e.g., "ZarimanSyndicate")
+ @param missionType - The mission type key (e.g., "MT_CORRUPTION")
+ @returns true if the mission type should be shown
  */
 export function isBountyMissionTypeEnabled(syndicateTag: string, missionType: string): boolean {
 	const storageKey = `live.filter.bounties.${syndicateTag}.${missionType}`;
@@ -25,9 +25,9 @@ export function isBountyMissionTypeEnabled(syndicateTag: string, missionType: st
 }
 
 /**
- * Get the minimum tier setting for a syndicate
- * @param syndicateTag - The syndicate tag (e.g., "ZarimanSyndicate")
- * @returns The minimum tier to display (-1 = hide, 1 = show all, higher = hide lower tiers)
+ Get the minimum tier setting for a syndicate
+ @param syndicateTag - The syndicate tag (e.g., "ZarimanSyndicate")
+ @returns The minimum tier to display (-1 = hide, 1 = show all, higher = hide lower tiers)
  */
 export function getMinimumTier(syndicateTag: string): number {
 	const storageKey = `live.filter.bounties.${syndicateTag}.minTier`;
@@ -45,7 +45,7 @@ export function getMinimumTier(syndicateTag: string): number {
 }
 
 /**
- * Initialize the Deimos bounties checkbox
+ Initialize the Deimos bounties checkbox
  */
 function initializeDeimosFilter(): void {
 	const checkbox = document.querySelector<HTMLInputElement>('#bounty-filter-deimos');
@@ -63,7 +63,7 @@ function initializeDeimosFilter(): void {
 }
 
 /**
- * Initialize bounty filter dropdowns and mission type checkboxes
+ Initialize bounty filter dropdowns and mission type checkboxes
  */
 export function initializeBountyFilters(): void {
 	initializeDeimosFilter();

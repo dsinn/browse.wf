@@ -1,15 +1,15 @@
 /**
- * Descendia card functionality for browse.wf
- *
- * Handles rendering the Descendia (Devil's Lair) weekly rotation challenges.
- * Displays 21 challenges from the active Descent with mission types, arenas,
- * specs, and auras.
+ Descendia card functionality for browse.wf
+
+ Handles rendering the Descendia (Devil's Lair) weekly rotation challenges.
+ Displays 21 challenges from the active Descent with mission types, arenas,
+ specs, and auras.
  */
 
 import {resolveDescentChallenges} from './data.js';
 
 /**
- * Updates the Descendia table with the currently active Descent rotation
+ Updates the Descendia table with the currently active Descent rotation
  */
 export function updateDescendia(): void {
 	// WorldState must be available before calling this
@@ -65,12 +65,12 @@ export function updateDescendia(): void {
 }
 
 /**
- * Renders the challenges of a given Descent into a <tbody> element.
- * Extracted from updateDescendia() so weekly-forecast can render any descent, not just the active one.
- *
- * @param descent An IDescent object from worldState.Descents[]
- * @param dict The main dictionary (key → localized string)
- * @returns A <tbody> element ready to be inserted into a table
+ Renders the challenges of a given Descent into a <tbody> element.
+ Extracted from updateDescendia() so weekly-forecast can render any descent, not just the active one.
+
+ @param descent An IDescent object from worldState.Descents[]
+ @param dict The main dictionary (key → localized string)
+ @returns A <tbody> element ready to be inserted into a table
  */
 export function renderDescentChallenges(descent: IDescent, dict: Record<string, string>): HTMLTableSectionElement {
 	const tbody = document.createElement('tbody');

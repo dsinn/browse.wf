@@ -1,14 +1,14 @@
 /**
- * Card filter functionality for browse.wf
- *
- * Provides accordion-based filtering for card widgets with gear icon toggle
- * and checkbox-based filter controls. Integrates with cloud sync system.
+ Card filter functionality for browse.wf
+
+ Provides accordion-based filtering for card widgets with gear icon toggle
+ and checkbox-based filter controls. Integrates with cloud sync system.
  */
 
 import {triggerCloudSyncWithDebounce as triggerCloudSync} from './cloud-sync/trigger.js';
 
 /**
- * Refresh the visual state of a filter gear icon based on panel open/closed state
+ Refresh the visual state of a filter gear icon based on panel open/closed state
  */
 export function refreshFilterStatus(elm: HTMLElement): void {
 	const cardName = elm.dataset.filterToggle;
@@ -31,7 +31,7 @@ export function refreshFilterStatus(elm: HTMLElement): void {
 }
 
 /**
- * Initialize filter toggle functionality for all cards with [data-filter-toggle]
+ Initialize filter toggle functionality for all cards with [data-filter-toggle]
  */
 export function initializeFilterToggles(): void {
 	for (const elm of document.querySelectorAll<HTMLAnchorElement>('[data-filter-toggle]')) {
@@ -76,9 +76,9 @@ export function initializeFilterToggles(): void {
 }
 
 /**
- * Initialize filter checkboxes for a specific card
- * @param cardName - The name of the card (e.g., "news")
- * @param onFilterChange - Optional callback when filters change (omit for CSS-filtered cards)
+ Initialize filter checkboxes for a specific card
+ @param cardName - The name of the card (e.g., "news")
+ @param onFilterChange - Optional callback when filters change (omit for CSS-filtered cards)
  */
 export function initializeCardFilters(cardName: string, onFilterChange?: () => void): void {
 	for (const checkbox of document.querySelectorAll<HTMLInputElement>(`#${cardName}-filters input[type=checkbox]`)) {
@@ -110,10 +110,10 @@ export function initializeCardFilters(cardName: string, onFilterChange?: () => v
 }
 
 /**
- * Check if a specific filter type is enabled for a card
- * @param cardName - The name of the card (e.g., "news", "incursions")
- * @param filterType - The filter type value from the checkbox's data-filter-type attribute
- * @returns true if the filter is enabled (should show items), false if disabled (should hide items)
+ Check if a specific filter type is enabled for a card
+ @param cardName - The name of the card (e.g., "news", "incursions")
+ @param filterType - The filter type value from the checkbox's data-filter-type attribute
+ @returns true if the filter is enabled (should show items), false if disabled (should hide items)
  */
 export function isFilterEnabled(cardName: string, filterType: string): boolean {
 	const filterKey = `live.filter.${cardName}.${filterType}`;

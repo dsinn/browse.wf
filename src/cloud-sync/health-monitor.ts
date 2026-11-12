@@ -1,8 +1,8 @@
 /**
- * Connection health monitor
- *
- * Tracks WebSocket connection health via periodic heartbeat.
- * Falls back to HTTP pull when tab becomes visible after a stale connection.
+ Connection health monitor
+
+ Tracks WebSocket connection health via periodic heartbeat.
+ Falls back to HTTP pull when tab becomes visible after a stale connection.
  */
 
 import {logger} from '../logger.js';
@@ -37,8 +37,8 @@ export class CloudSyncHealthMonitor {
 	}
 
 	/**
-	 * Start periodic heartbeat to track connection health.
-	 * Updates lastFreshTimestamp only when channel is in 'joined' state.
+	 Start periodic heartbeat to track connection health.
+	 Updates lastFreshTimestamp only when channel is in 'joined' state.
 	 */
 	startHeartbeat(
 		getChannelState: () => string | undefined,
@@ -53,10 +53,10 @@ export class CloudSyncHealthMonitor {
 	}
 
 	/**
-	 * Pull fresh data when tab becomes visible and WebSocket is unhealthy.
-	 * Handles the case where the WebSocket can't reconnect (e.g., extended
-	 * connectivity issues) so completion checkboxes and other synced state
-	 * still get refreshed when the user returns to the tab.
+	 Pull fresh data when tab becomes visible and WebSocket is unhealthy.
+	 Handles the case where the WebSocket can't reconnect (e.g., extended
+	 connectivity issues) so completion checkboxes and other synced state
+	 still get refreshed when the user returns to the tab.
 	 */
 	startVisibilityFallback(options: VisibilityFallbackOptions): void {
 		const {

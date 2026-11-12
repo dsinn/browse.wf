@@ -1,5 +1,5 @@
 /**
- * Integration tests to verify production domain safeguards work in test environment
+ Integration tests to verify production domain safeguards work in test environment
  */
 import {
 	describe, it, expect, beforeEach,

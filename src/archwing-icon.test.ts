@@ -1,5 +1,5 @@
 /**
- * Tests for src/archwing-icon.ts
+ Tests for src/archwing-icon.ts
  */
 import {
 	describe, test, expect, beforeEach,

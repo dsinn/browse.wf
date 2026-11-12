@@ -1,5 +1,5 @@
 /**
- * Tests for domain blocker safeguards
+ Tests for domain blocker safeguards
  */
 import {describe, it, expect} from 'vitest';
 import {isBlockedDomain, isImageRequest, validateTestRequest} from './domain-blocker';

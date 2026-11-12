@@ -1,5 +1,5 @@
 /**
- * Tests for src/calendar-seasons/index.ts — renderCalendarSeasonPane()
+ Tests for src/calendar-seasons/index.ts — renderCalendarSeasonPane()
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

@@ -1,11 +1,11 @@
 /**
- * Tests for CloudSyncManager
- * Integration tests for login orchestration, realtime subscription wiring,
- * reconnect/pull coordination, heartbeat, and visibility fallback.
- *
- * Unit-level tests for serialization → serializer.test.ts
- * Unit-level tests for push/pull/justPushed → handler.test.ts
- * Unit-level tests for backoff/session-refresh → reconnection.test.ts
+ Tests for CloudSyncManager
+ Integration tests for login orchestration, realtime subscription wiring,
+ reconnect/pull coordination, heartbeat, and visibility fallback.
+
+ Unit-level tests for serialization → serializer.test.ts
+ Unit-level tests for push/pull/justPushed → handler.test.ts
+ Unit-level tests for backoff/session-refresh → reconnection.test.ts
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

@@ -1,7 +1,7 @@
 /**
- * Unit tests for renderDescentChallenges() exported from src/descendia.ts
- *
- * Imports the real production code directly to avoid test drift.
+ Unit tests for renderDescentChallenges() exported from src/descendia.ts
+
+ Imports the real production code directly to avoid test drift.
  */
 import {
 	describe, test, expect, beforeEach,

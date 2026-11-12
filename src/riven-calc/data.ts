@@ -1,12 +1,12 @@
 /**
- * Riven data that warframe-public-export-plus does not provide (yet): the spliced traits introduced by
- * Riven Splicing in Update 44.1, and Zoom on shotguns (Hotfix 44.0.2).
- *
- * Base coefficients are from the Warframe Wiki's "Riven Mods" page. Once the export gains real entries for
- * these, they take precedence over this table (see {@link getRivenStats}).
- *
- * The tags below are internal to this page. The real in-game tags are unknown, and nothing here needs them
- * because the calculator works from displayed values rather than Riven fingerprints.
+ Riven data that warframe-public-export-plus does not provide (yet): the spliced traits introduced by
+ Riven Splicing in Update 44.1, and Zoom on shotguns (Hotfix 44.0.2).
+
+ Base coefficients are from the Warframe Wiki's "Riven Mods" page. Once the export gains real entries for
+ these, they take precedence over this table (see {@link getRivenStats}).
+
+ The tags below are internal to this page. The real in-game tags are unknown, and nothing here needs them
+ because the calculator works from displayed values rather than Riven fingerprints.
  */
 import {type DisplayKind} from './formula.js';
 

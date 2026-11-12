@@ -1,6 +1,6 @@
 /**
- * Expiry badge helpers extracted from upstream live.ts for performance refactoring and extension.
- * Badges register with the shared ticker in timer-registry.ts.
+ Expiry badge helpers extracted from upstream live.ts for performance refactoring and extension.
+ Badges register with the shared ticker in timer-registry.ts.
  */
 
 import {getPendingLabel, registerTimerBadge, setTimerText} from './timer-registry.js';
@@ -29,8 +29,8 @@ export function deltaToUnits(delta: number): string[] {
 }
 
 /**
- * Sets the badge's text from its data-expiry. Returns false once the expired label is showing, which is
- * the badge's data-expired-label if it has one and the default pending label otherwise.
+ Sets the badge's text from its data-expiry. Returns false once the expired label is showing, which is
+ the badge's data-expired-label if it has one and the default pending label otherwise.
  */
 function updateExpiryBadge(badge: HTMLElement): boolean {
 	let expiry = Number.parseInt(badge.dataset.expiry ?? '', 10);

@@ -1,9 +1,9 @@
 /**
- * Unit tests for the formatter functions in scripts/post-weekly-forecast.js
- *
- * These test pure string formatting logic — no DOM, no network calls.
- * The formatters are imported directly from the script (which is an ES module
- * with a main-guard, so importing it does not trigger any side effects).
+ Unit tests for the formatter functions in scripts/post-weekly-forecast.js
+
+ These test pure string formatting logic — no DOM, no network calls.
+ The formatters are imported directly from the script (which is an ES module
+ with a main-guard, so importing it does not trigger any side effects).
  */
 import {describe, test, expect} from 'vitest';
 import {loadMock} from '@test/helpers/api-mocks';

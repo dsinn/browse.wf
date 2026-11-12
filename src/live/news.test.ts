@@ -1,5 +1,5 @@
 /**
- * Tests for the News card — rendering (updateNewsTicker) and mark-as-read
+ Tests for the News card — rendering (updateNewsTicker) and mark-as-read
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

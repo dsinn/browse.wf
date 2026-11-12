@@ -1,8 +1,8 @@
 /**
- * Unit tests for src/riven-calc/formula.ts.
- *
- * The expected ranges are the rank 8 ranges on the Warframe Wiki's "Riven Mods" page (which uses the fixed
- * 1.2 disposition), so these pin the calculator to the numbers players see in game.
+ Unit tests for src/riven-calc/formula.ts.
+
+ The expected ranges are the rank 8 ranges on the Warframe Wiki's "Riven Mods" page (which uses the fixed
+ 1.2 disposition), so these pin the calculator to the numbers players see in game.
  */
 import {describe, expect, test} from 'vitest';
 import {

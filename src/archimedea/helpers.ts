@@ -1,8 +1,8 @@
 /**
- * DOM rendering helpers for Deep Archimedea (CT_LAB) and Temporal Archimedea (CT_HEX).
- *
- * Data resolution (text lookups, tag remapping, difficulty selection) is handled by
- * archimedea/data.ts. This module is responsible only for turning resolved data into DOM.
+ DOM rendering helpers for Deep Archimedea (CT_LAB) and Temporal Archimedea (CT_HEX).
+
+ Data resolution (text lookups, tag remapping, difficulty selection) is handled by
+ archimedea/data.ts. This module is responsible only for turning resolved data into DOM.
  */
 
 import {resolveArchimedea, type IResolvedArchimedeaMission, type IResolvedFrameVariable} from './data.js';
@@ -24,7 +24,7 @@ function tooltipElement(name: string, desc: string | undefined): HTMLElement | T
 }
 
 /**
- * Renders a missions tbody from pre-resolved mission data.
+ Renders a missions tbody from pre-resolved mission data.
  */
 export function renderArchimedeaMissions(missions: IResolvedArchimedeaMission[]): HTMLTableSectionElement {
 	const tbody = document.createElement('tbody');
@@ -52,7 +52,7 @@ export function renderArchimedeaMissions(missions: IResolvedArchimedeaMission[])
 }
 
 /**
- * Renders a frame variables row from pre-resolved frame variable data.
+ Renders a frame variables row from pre-resolved frame variable data.
  */
 export function renderArchimedeaFrameVariables(frameVariables: IResolvedFrameVariable[]): HTMLTableRowElement {
 	const tr = document.createElement('tr');
@@ -66,13 +66,13 @@ export function renderArchimedeaFrameVariables(frameVariables: IResolvedFrameVar
 }
 
 /**
- * Renders Archimedea missions and frame variables as two tables into a container.
- * Clears the container first, disposing any existing Bootstrap tooltips.
- *
- * @param container Element to render into
- * @param archimedea The raw Archimedea object from worldState.Conquests[]
- * @param archimedeaType "CT_LAB" or "CT_HEX"
- * @param variantKeyPrefix e.g. "/Lotus/Language/Conquest/MissionVariant_LabConquest_"
+ Renders Archimedea missions and frame variables as two tables into a container.
+ Clears the container first, disposing any existing Bootstrap tooltips.
+
+ @param container Element to render into
+ @param archimedea The raw Archimedea object from worldState.Conquests[]
+ @param archimedeaType "CT_LAB" or "CT_HEX"
+ @param variantKeyPrefix e.g. "/Lotus/Language/Conquest/MissionVariant_LabConquest_"
  */
 export async function renderArchimedeaTable(
 	container: HTMLElement,

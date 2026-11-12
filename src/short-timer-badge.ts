@@ -1,16 +1,16 @@
 /**
- * Short timer badge: countdown badge showing only two units (e.g., "1h 23m" instead of "1h 23m 45s")
+ Short timer badge: countdown badge showing only two units (e.g., "1h 23m" instead of "1h 23m 45s")
  */
 
 import {SECONDS_PER_DAY, SECONDS_PER_HOUR} from './helpers/time-helpers.js';
 import {registerTimerBadge, setTimerText} from './timer-registry.js';
 
 /**
- * Converts seconds to a human-readable format with only TWO units
- * Examples:
- *   - 90,061s → ["1d", "1h"]     (not "1d 1h 1m 01s")
- *   - 3,661s  → ["1h", "1m"]     (not "1h 1m 01s")
- *   - 61s     → ["1m", "01s"]    (not "1m 01s" alone)
+ Converts seconds to a human-readable format with only TWO units
+ Examples:
+ - 90,061s → ["1d", "1h"]     (not "1d 1h 1m 01s")
+ - 3,661s  → ["1h", "1m"]     (not "1h 1m 01s")
+ - 61s     → ["1m", "01s"]    (not "1m 01s" alone)
  */
 function deltaToTwoUnits(deltaSeconds: number): string[] {
 	deltaSeconds = Math.abs(deltaSeconds);
@@ -47,8 +47,8 @@ function deltaToTwoUnits(deltaSeconds: number): string[] {
 }
 
 /**
- * Sets a badge's text to its countdown with two units or its expired label.
- * Returns false once the expired label is showing.
+ Sets a badge's text to its countdown with two units or its expired label.
+ Returns false once the expired label is showing.
  */
 function updateShortTimer(elm: HTMLElement): boolean {
 	const timestamp = Number.parseInt(elm.dataset.shortTimerExpiry ?? '', 10);
@@ -64,8 +64,8 @@ function updateShortTimer(elm: HTMLElement): boolean {
 }
 
 /**
- * Renders the badge, then schedules its next update based on which units are showing: a timeout for
- * days + hours and hours + minutes, handing over to the shared ticker once seconds are showing
+ Renders the badge, then schedules its next update based on which units are showing: a timeout for
+ days + hours and hours + minutes, handing over to the shared ticker once seconds are showing
  */
 function scheduleShortTimerUpdate(elm: HTMLElement): void {
 	const timestamp = Number.parseInt(elm.dataset.shortTimerExpiry ?? '', 10);
@@ -93,7 +93,7 @@ function scheduleShortTimerUpdate(elm: HTMLElement): void {
 }
 
 /**
- * Creates a countdown badge element for a given timestamp
+ Creates a countdown badge element for a given timestamp
  */
 export function createShortTimerBadge(timestamp: number, expiredLabel: string, extraClasses?: string): HTMLSpanElement {
 	const span = document.createElement('span');
@@ -109,7 +109,7 @@ export function createShortTimerBadge(timestamp: number, expiredLabel: string, e
 }
 
 /**
- * Initializes short timer badges already present in the DOM
+ Initializes short timer badges already present in the DOM
  */
 export function initializeShortTimerBadges(): void {
 	// Schedule updates for any existing badges

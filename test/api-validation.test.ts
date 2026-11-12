@@ -6,16 +6,16 @@ import {describe, test, expect} from 'vitest';
 import {TEST_FRONT_PROXY_BASE_URL} from './helpers/test-constants';
 
 /**
- * API Structure Validation Tests
- *
- * These tests verify that the real oracle.browse.wf API responses match the structure
- * of our mock files. This catches "mock drift" where the real API changes but our
- * mocks don't get updated.
- *
- * IMPORTANT: These tests DO NOT use mocks - they hit real external APIs.
- * Run these manually or in CI to detect when mocks need updating.
- *
- * If a test fails:
+ API Structure Validation Tests
+ 
+ These tests verify that the real oracle.browse.wf API responses match the structure
+ of our mock files. This catches "mock drift" where the real API changes but our
+ mocks don't get updated.
+ 
+ IMPORTANT: These tests DO NOT use mocks - they hit real external APIs.
+ Run these manually or in CI to detect when mocks need updating.
+ 
+ If a test fails:
  * 1. Check if the API structure actually changed
  * 2. Update the mock file: ./test/update-mocks.sh
  * 3. Update tests if new fields are critical for functionality

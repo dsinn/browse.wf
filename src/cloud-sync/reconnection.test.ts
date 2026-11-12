@@ -1,6 +1,6 @@
 /**
- * Tests for CloudSyncReconnection
- * Exponential backoff state machine, session refresh, and indefinite retry
+ Tests for CloudSyncReconnection
+ Exponential backoff state machine, session refresh, and indefinite retry
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

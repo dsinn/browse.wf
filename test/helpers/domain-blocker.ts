@@ -1,12 +1,12 @@
 /**
- * Domain blocking utilities to prevent tests from hitting production browse.wf
- *
- * This module provides safeguards to ensure tests never accidentally hit the
- * production oracle.browse.wf domain or other browse.wf subdomains.
- *
- * Rules:
- * - Image files (.png, .jpg, .webp): silently do nothing
- * - All other requests (especially fetch): throw an error
+ Domain blocking utilities to prevent tests from hitting production browse.wf
+
+ This module provides safeguards to ensure tests never accidentally hit the
+ production oracle.browse.wf domain or other browse.wf subdomains.
+
+ Rules:
+ - Image files (.png, .jpg, .webp): silently do nothing
+ - All other requests (especially fetch): throw an error
  */
 
 const BLOCKED_DOMAINS = [
@@ -18,7 +18,7 @@ const BLOCKED_DOMAINS = [
 const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'];
 
 /**
- * Checks if a URL points to a blocked domain
+ Checks if a URL points to a blocked domain
  */
 export function isBlockedDomain(url: string): boolean {
 	try {
@@ -32,7 +32,7 @@ export function isBlockedDomain(url: string): boolean {
 }
 
 /**
- * Checks if a URL points to an image file
+ Checks if a URL points to an image file
  */
 export function isImageRequest(url: string): boolean {
 	try {
@@ -45,10 +45,10 @@ export function isImageRequest(url: string): boolean {
 }
 
 /**
- * Validates a request URL and throws if it's an unauthorized production request
- *
- * @param url - The URL being requested
- * @throws Error if the URL points to a blocked domain (non-image)
+ Validates a request URL and throws if it's an unauthorized production request
+
+ @param url - The URL being requested
+ @throws Error if the URL points to a blocked domain (non-image)
  */
 export function validateTestRequest(url: string): void {
 	if (!isBlockedDomain(url)) {

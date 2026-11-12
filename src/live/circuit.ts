@@ -1,9 +1,9 @@
 /**
- * Circuit card functionality for browse.wf
- *
- * Renders the two "The Circuit" entries in the Weekly Missions card using
- * the EndlessXpSchedule array from worldState: wait for worldState, find the
- * active entry by Activation/Expiry, re-schedule at expiry.
+ Circuit card functionality for browse.wf
+
+ Renders the two "The Circuit" entries in the Weekly Missions card using
+ the EndlessXpSchedule array from worldState: wait for worldState, find the
+ active entry by Activation/Expiry, re-schedule at expiry.
  */
 
 import {pascalToTitleCase} from '../helpers/string-helpers.js';

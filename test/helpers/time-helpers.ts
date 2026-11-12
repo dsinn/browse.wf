@@ -1,12 +1,12 @@
 /**
- * Time-freezing utilities for predictable time-dependent tests
+ Time-freezing utilities for predictable time-dependent tests
  */
 
 import {vi} from 'vitest';
 import {MOCK_TIMESTAMP} from './test-constants';
 
 /**
- * Freezes time to a specific timestamp for predictable tests
+ Freezes time to a specific timestamp for predictable tests
  */
 export function freezeTime(timestamp: number = MOCK_TIMESTAMP) {
 	// Mock Date.now() to return our frozen timestamp
@@ -30,7 +30,7 @@ export function freezeTime(timestamp: number = MOCK_TIMESTAMP) {
 }
 
 /**
- * Advances frozen time by a duration in milliseconds
+ Advances frozen time by a duration in milliseconds
  */
 export function advanceTime(ms: number) {
 	const currentTime = Date.now();

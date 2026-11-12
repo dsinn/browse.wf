@@ -1,14 +1,14 @@
 /**
- * Riven stat maths, as documented on the Warframe Wiki's "Riven Mods" page:
- *
- *   v = b × 10 × (rank + 1) × D × L × W
- *
- *   b  the stat's base coefficient (signed)
- *   D  the disposition multiplier; dispositions were retired in Hotfix 44.1.3, so it is always 1.2
- *   L  the multiplier for the Riven's trait layout (positive/negative trait counts)
- *   W  the stat's random roll, 0.9 to 1.1
- *
- * Everything here is pure so that it can be unit-tested without a DOM.
+ Riven stat maths, as documented on the Warframe Wiki's "Riven Mods" page:
+ 
+ v = b × 10 × (rank + 1) × D × L × W
+ 
+ b  the stat's base coefficient (signed)
+ D  the disposition multiplier; dispositions were retired in Hotfix 44.1.3, so it is always 1.2
+ L  the multiplier for the Riven's trait layout (positive/negative trait counts)
+ W  the stat's random roll, 0.9 to 1.1
+ 
+ Everything here is pure so that it can be unit-tested without a DOM.
  */
 
 export const DISPOSITION = 1.2;
@@ -97,8 +97,8 @@ export function computeValue(stat: StatMaths, trait: TraitContext, roll: number)
 }
 
 /**
- * Rounds a value to the number shown in game, flipping the sign for stats whose display is reversed. A multiplier is
- * shown as a total, so a bonus of 0.45 reads x1.45 and a penalty of 0.3 reads x0.7.
+ Rounds a value to the number shown in game, flipping the sign for stats whose display is reversed. A multiplier is
+ shown as a total, so a bonus of 0.45 reads x1.45 and a penalty of 0.3 reads x0.7.
  */
 export function toDisplayValue(stat: StatMaths, value: number): number {
 	const signed = stat.reverseDisplay ? -value : value;

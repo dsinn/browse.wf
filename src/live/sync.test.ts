@@ -1,8 +1,8 @@
 /**
- * Tests for src/live/sync.ts
- *
- * This module registers listeners for 'cloud-sync-before-push' and 'cloud-sync-pulled'.
- * Tests verify that each listener performs the correct actions given different DOM/localStorage states.
+ Tests for src/live/sync.ts
+
+ This module registers listeners for 'cloud-sync-before-push' and 'cloud-sync-pulled'.
+ Tests verify that each listener performs the correct actions given different DOM/localStorage states.
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

@@ -1,8 +1,8 @@
 /**
- * Weekly Forecast table of contents — highlights the entry for the section currently being read.
- *
- * Bootstrap's scrollspy can't be used here: it never activates the last section when that section
- * is too short to reach the top of the viewport, so this does the (small) bookkeeping itself.
+ Weekly Forecast table of contents — highlights the entry for the section currently being read.
+
+ Bootstrap's scrollspy can't be used here: it never activates the last section when that section
+ is too short to reach the top of the viewport, so this does the (small) bookkeeping itself.
  */
 
 /**
@@ -115,9 +115,9 @@ export function initWeeklyForecastToc(): void {
 }
 
 /**
- * The cards fill in asynchronously, so the browser's own jump to a `#section` URL fragment can land on the position the
- * section had before its content loaded (intermittent in every major engine, most often in Chromium and WebKit).
- * Call this once the content is in place to jump again.
+ The cards fill in asynchronously, so the browser's own jump to a `#section` URL fragment can land on the position the
+ section had before its content loaded (intermittent in every major engine, most often in Chromium and WebKit).
+ Call this once the content is in place to jump again.
  */
 export function scrollToHashedSection(): void {
 	if (!location.hash) {

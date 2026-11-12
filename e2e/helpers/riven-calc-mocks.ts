@@ -23,8 +23,8 @@ function readExport(name: string): any {
 let cachedData: {weapons: string; upgrades: string; dict: string; textIcons: string} | undefined;
 
 /**
- * Trims the (multi-megabyte) game data down to what the Riven calculator tests need, keeping the real
- * values. Trimming happens at test time, so the mocks cannot drift from warframe-public-export-plus.
+ Trims the (multi-megabyte) game data down to what the Riven calculator tests need, keeping the real
+ values. Trimming happens at test time, so the mocks cannot drift from warframe-public-export-plus.
  */
 function getTrimmedData() {
 	if (cachedData) {
@@ -62,8 +62,8 @@ function getTrimmedData() {
 }
 
 /**
- * Serves the Riven calculator a small slice of the real game data instead of ~7 MB of JSON, which makes the
- * page load quickly and keeps the tests from being flaky under CI load. Call after setupMockRoutes.
+ Serves the Riven calculator a small slice of the real game data instead of ~7 MB of JSON, which makes the
+ page load quickly and keeps the tests from being flaky under CI load. Call after setupMockRoutes.
  */
 export async function mockRivenCalcData(page: Page): Promise<void> {
 	const data = getTrimmedData();

@@ -31,11 +31,11 @@ function wrappedProfileResponse(data = profileData) {
 }
 
 /**
- * Simulates a completed cloud sync (logged-in state) so that showAutoFetchFlow is true.
- *
- * Intercepts any cloud-sync-* event dispatched by auth-init.ts and replaces it with
- * cloud-sync-complete. This wins the { once: true } race regardless of which event
- * auth-init.ts fires (unauthenticated, unavailable, etc.).
+ Simulates a completed cloud sync (logged-in state) so that showAutoFetchFlow is true.
+
+ Intercepts any cloud-sync-* event dispatched by auth-init.ts and replaces it with
+ cloud-sync-complete. This wins the { once: true } race regardless of which event
+ auth-init.ts fires (unauthenticated, unavailable, etc.).
  */
 async function simulateLoggedIn(page: any) {
 	await page.addInitScript(() => {
@@ -51,9 +51,9 @@ async function simulateLoggedIn(page: any) {
 }
 
 /**
- * E2E tests for Profile Viewer workflow
- *
- * Tests the happy path for entering an account ID and viewing a profile through the step-by-step workflow.
+ E2E tests for Profile Viewer workflow
+
+ Tests the happy path for entering an account ID and viewing a profile through the step-by-step workflow.
  */
 
 test.describe('Profile Workflow - Happy Path (logged in, not rate-limited)', () => {

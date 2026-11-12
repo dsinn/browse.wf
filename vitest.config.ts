@@ -17,11 +17,11 @@ for (const key of TEST_SECRETS) {
 const DEV_PORT = Number.parseInt(process.env.PORT || '60969', 10);
 
 /**
- * Vite plugin to serve pre-rendered PHP pages from public/ with HMR support.
- *
- * Routes: /live, /live.php, /live.html all serve public/live.html
- * The HTML is transformed by Vite to inject the HMR client script,
- * so the browser auto-reloads when any watched file changes.
+ Vite plugin to serve pre-rendered PHP pages from public/ with HMR support.
+
+ Routes: /live, /live.php, /live.html all serve public/live.html
+ The HTML is transformed by Vite to inject the HMR client script,
+ so the browser auto-reloads when any watched file changes.
  */
 function phpPagesPlugin(): Plugin {
 	const publicDir = path.resolve('public');

@@ -1,9 +1,9 @@
 /**
- * News card rendering
- *
- * Extracted from live.ts so it can be tested in isolation.
- * Depends on globals set by live.ts (sendNotification) and
- * worldState.
+ News card rendering
+
+ Extracted from live.ts so it can be tested in isolation.
+ Depends on globals set by live.ts (sendNotification) and
+ worldState.
  */
 
 import {addTooltip} from '../tooltip.js';

@@ -1,14 +1,14 @@
 /**
- * Tests for AuthService.handleAuthChange (private method, called directly)
- *
- * After the cloud-sync refactor, auth.ts is responsible only for dispatching
- * events — it no longer orchestrates sync. Covered here:
- *
- *  - SIGNED_IN with user → dispatches 'auth-signed-in' with userId detail
- *  - SIGNED_IN without user → no event dispatched
- *  - INITIAL_SESSION with user → dispatches 'auth-signed-in'
- *  - SIGNED_OUT → dispatches 'auth-signed-out' and 'auth-state-changed'
- *  - Unrecognized events → no events dispatched
+ Tests for AuthService.handleAuthChange (private method, called directly)
+ 
+ After the cloud-sync refactor, auth.ts is responsible only for dispatching
+ events — it no longer orchestrates sync. Covered here:
+ 
+ - SIGNED_IN with user → dispatches 'auth-signed-in' with userId detail
+ - SIGNED_IN without user → no event dispatched
+ - INITIAL_SESSION with user → dispatches 'auth-signed-in'
+ - SIGNED_OUT → dispatches 'auth-signed-out' and 'auth-state-changed'
+ - Unrecognized events → no events dispatched
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

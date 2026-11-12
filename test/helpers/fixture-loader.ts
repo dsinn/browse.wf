@@ -1,5 +1,5 @@
 /**
- * Helper to load pre-rendered PHP fixtures
+ Helper to load pre-rendered PHP fixtures
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -10,14 +10,14 @@ const projectRoot = process.cwd();
 const FIXTURES_DIR = path.join(projectRoot, 'public');
 
 /**
- * Load a pre-rendered HTML fixture
- *
- * @param name - Fixture name (e.g., 'navbar')
- * @returns HTML string
- *
- * @example
- * const navbarHtml = loadFixture('navbar');
- * document.body.innerHTML = navbarHtml;
+ Load a pre-rendered HTML fixture
+
+ @param name - Fixture name (e.g., 'navbar')
+ @returns HTML string
+
+ @example
+ const navbarHtml = loadFixture('navbar');
+ document.body.innerHTML = navbarHtml;
  */
 export function loadFixture(name: string): string {
 	const fixturePath = path.join(FIXTURES_DIR, `${name}.html`);
@@ -30,7 +30,7 @@ export function loadFixture(name: string): string {
 }
 
 /**
- * Check if fixture exists
+ Check if fixture exists
  */
 export function fixtureExists(name: string): boolean {
 	const fixturePath = path.join(FIXTURES_DIR, `${name}.html`);
@@ -38,7 +38,7 @@ export function fixtureExists(name: string): boolean {
 }
 
 /**
- * List available fixtures
+ List available fixtures
  */
 export function listFixtures(): string[] {
 	if (!fs.existsSync(FIXTURES_DIR)) {

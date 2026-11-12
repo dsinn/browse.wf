@@ -1,13 +1,13 @@
 /**
- * Entry point for the esbuild bundle (typestripped/src-bundle.js).
- *
- * Each module self-registers its public API on `window` as a side effect,
- * so side-effect imports are all that's needed here.  esbuild bundles
- * everything into a single IIFE (typestripped/src-bundle.js) that upstream
- * non-module scripts can consume via the window globals.
- *
- * Cloud-sync modules (including Supabase) are bundled here as well,
- * eliminating the need for a separate importmap or ES module script tag.
+ Entry point for the esbuild bundle (typestripped/src-bundle.js).
+
+ Each module self-registers its public API on `window` as a side effect,
+ so side-effect imports are all that's needed here.  esbuild bundles
+ everything into a single IIFE (typestripped/src-bundle.js) that upstream
+ non-module scripts can consume via the window globals.
+
+ Cloud-sync modules (including Supabase) are bundled here as well,
+ eliminating the need for a separate importmap or ES module script tag.
  */
 
 /* eslint-disable import-x/no-unassigned-import */

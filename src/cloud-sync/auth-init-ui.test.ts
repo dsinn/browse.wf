@@ -1,9 +1,9 @@
 /**
- * Tests for auth-init.ts UI functions: updateAuthUI, generateGenericAvatar, showToast,
- * and the registerSyncHandler wiring.
- *
- * The global test setup (setup.ts) loads live.html as the DOM fixture before each test,
- * which already contains #auth-button. We use that element directly.
+ Tests for auth-init.ts UI functions: updateAuthUI, generateGenericAvatar, showToast,
+ and the registerSyncHandler wiring.
+
+ The global test setup (setup.ts) loads live.html as the DOM fixture before each test,
+ which already contains #auth-button. We use that element directly.
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

@@ -1,9 +1,9 @@
 /**
- * Tests for updateCircuit() in src/live/circuit.ts
- *
- * The global test setup (setup.ts) loads live.html as the DOM fixture, which
- * contains #circuit-frames, #circuit-weapons, #circuit-frames-check,
- * #circuit-weapons-check, and [data-collapse-toggle="weekly-missions"].
+ Tests for updateCircuit() in src/live/circuit.ts
+
+ The global test setup (setup.ts) loads live.html as the DOM fixture, which
+ contains #circuit-frames, #circuit-weapons, #circuit-frames-check,
+ #circuit-weapons-check, and [data-collapse-toggle="weekly-missions"].
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

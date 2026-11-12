@@ -1,8 +1,8 @@
 /**
- * Realtime subscription manager
- *
- * Manages the Supabase WebSocket channel lifecycle: subscribe, unsubscribe,
- * and routing of incoming UPDATE events to the pull handler.
+ Realtime subscription manager
+
+ Manages the Supabase WebSocket channel lifecycle: subscribe, unsubscribe,
+ and routing of incoming UPDATE events to the pull handler.
  */
 
 import {logger} from '../logger.js';

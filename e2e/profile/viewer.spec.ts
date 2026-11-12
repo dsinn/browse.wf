@@ -2,12 +2,12 @@ import {test, expect} from '@playwright/test';
 import {setupMockRoutes} from '../helpers/api-mocks';
 
 /**
- * Smoke tests for Profile Viewer (/profile.php)
- *
- * These tests verify that the profile page loads without errors and displays
- * the auto-loaded demo profile data correctly.
- *
- * Profile.ts auto-loads a demo profile from supplemental-data/profile-[DE]Rebecca.json
+ Smoke tests for Profile Viewer (/profile.php)
+
+ These tests verify that the profile page loads without errors and displays
+ the auto-loaded demo profile data correctly.
+
+ Profile.ts auto-loads a demo profile from supplemental-data/profile-[DE]Rebecca.json
  */
 
 test.describe('Profile Page (/profile.php)', () => {

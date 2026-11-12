@@ -1,14 +1,14 @@
 /**
- * Checkbox linking: cross-card completion checkbox relationships
- *
- * Behaviour is declared in the HTML via data-* attributes — no registration needed:
- *
- * Sequential groups: containers with [data-checkbox-group] treat their .completion-check
- * children as an ordered sequence. Checking any box checks all to its left; unchecking
- * unchecks all to its right.
- *
- * Autocheck links: elements with [data-autocheck-target] and [data-autocheck-count]
- * drive an automatic relationship. When a .completion-check inside such an element is
+ Checkbox linking: cross-card completion checkbox relationships
+ 
+ Behaviour is declared in the HTML via data-* attributes — no registration needed:
+ 
+ Sequential groups: containers with [data-checkbox-group] treat their .completion-check
+ children as an ordered sequence. Checking any box checks all to its left; unchecking
+ unchecks all to its right.
+ 
+ Autocheck links: elements with [data-autocheck-target] and [data-autocheck-count]
+ drive an automatic relationship. When a .completion-check inside such an element is
  * toggled, the checked count of the target group adjusts by ±count.
  */
 

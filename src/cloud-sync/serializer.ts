@@ -1,8 +1,8 @@
 /**
- * Storage serializer for cloud sync
- *
- * Pure data transforms between localStorage and nested objects.
- * No auth, database, or WebSocket dependencies.
+ Storage serializer for cloud sync
+
+ Pure data transforms between localStorage and nested objects.
+ No auth, database, or WebSocket dependencies.
  */
 
 // LocalStorage keys excluded from cloud sync:
@@ -11,9 +11,9 @@
 export const localOnlyKeyRegex = /^(?:sb-.*-auth-token|profile\.data)/u;
 
 /**
- * Set a value in a nested object using dot-separated path
- * e.g., setNestedValue({}, "live.filter.news.danger", "0")
- *   → {live: {filter: {news: {danger: "0"}}}}
+ Set a value in a nested object using dot-separated path
+ e.g., setNestedValue({}, "live.filter.news.danger", "0")
+ → {live: {filter: {news: {danger: "0"}}}}
  */
 export function setNestedValue(object: Record<string, any>, path: string, value: any): void {
 	const keys = path.split('.');
@@ -32,8 +32,8 @@ export function setNestedValue(object: Record<string, any>, path: string, value:
 }
 
 /**
- * Flatten nested object back to dot-separated keys
- * e.g., {live: {collapse: {news: "1"}}} → {"live.collapse.news": "1"}
+ Flatten nested object back to dot-separated keys
+ e.g., {live: {collapse: {news: "1"}}} → {"live.collapse.news": "1"}
  */
 export function flattenObject(object: Record<string, any>, prefix = ''): Record<string, any> {
 	const result: Record<string, any> = {};
@@ -52,8 +52,8 @@ export function flattenObject(object: Record<string, any>, prefix = ''): Record<
 }
 
 /**
- * Convert localStorage to nested object based on dot-separated keys
- * Stores values exactly as they appear in localStorage (no transformations)
+ Convert localStorage to nested object based on dot-separated keys
+ Stores values exactly as they appear in localStorage (no transformations)
  */
 export function localStorageToData(): Record<string, any> {
 	const data: Record<string, any> = {};
@@ -71,8 +71,8 @@ export function localStorageToData(): Record<string, any> {
 }
 
 /**
- * Convert nested object to localStorage using dot-separated keys
- * Stores values exactly as they are (no transformations)
+ Convert nested object to localStorage using dot-separated keys
+ Stores values exactly as they are (no transformations)
  */
 export function dataToLocalStorage(data: Record<string, any>): void {
 	// Clear all localStorage except local-only keys (e.g., auth token)

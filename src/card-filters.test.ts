@@ -1,5 +1,5 @@
 /**
- * Unit tests for src/card-filters.ts
+ Unit tests for src/card-filters.ts
  */
 import {
 	describe, test, expect, beforeEach, vi,

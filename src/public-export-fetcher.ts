@@ -1,11 +1,11 @@
 /**
- * Lazy singleton fetcher for warframe-public-export-plus JSON files.
- * Each export is fetched at most once per page load; subsequent calls
- * return the cached promise.
- *
- * Context-aware:
- *   - Browser: fetches via HTTP (warframe-public-export-plus/<name>.json)
- *   - Node.js: imports directly from the warframe-public-export-plus package
+ Lazy singleton fetcher for warframe-public-export-plus JSON files.
+ Each export is fetched at most once per page load; subsequent calls
+ return the cached promise.
+
+ Context-aware:
+ - Browser: fetches via HTTP (warframe-public-export-plus/<name>.json)
+ - Node.js: imports directly from the warframe-public-export-plus package
  */
 
 export const exportCache = new Map<string, Promise<any>>();

@@ -1,9 +1,9 @@
 /**
- * Cloud sync trigger — zero-dependency shim that lets any src/ module request
- * a sync push without importing the full sync stack.
- *
- * auth-init.ts wires up the real handler via registerSyncHandler() once the
- * sync service is available.  Until then, calls are silently no-ops.
+ Cloud sync trigger — zero-dependency shim that lets any src/ module request
+ a sync push without importing the full sync stack.
+
+ auth-init.ts wires up the real handler via registerSyncHandler() once the
+ sync service is available.  Until then, calls are silently no-ops.
  */
 
 const DEBOUNCE_MS = 5000;
@@ -48,9 +48,9 @@ export async function flushDebounce(): Promise<void> {
 }
 
 /**
- * Returns a promise that resolves when cloud sync emits a status event,
- * or 'timeout' if no event fires. Used to gate initialization on cloud sync
- * readiness.
+ Returns a promise that resolves when cloud sync emits a status event,
+ or 'timeout' if no event fires. Used to gate initialization on cloud sync
+ readiness.
  */
 export async function waitForCloudSync(): Promise<string> {
 	return new Promise<string>(resolve => {

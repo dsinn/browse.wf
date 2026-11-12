@@ -1,10 +1,10 @@
 /**
- * Fork-specific profile workflow: step indicators, cloud-sync gating,
- * rate-limit handling, and localStorage persistence.
- *
- * Exposes cloudSyncEvent and initialProfilePromise on globalThis so that
- * the non-module profile.ts script can include them in its Promise.all.
- * Also exposes all onclick handlers and profileWorkflowReady/updateProfileAge.
+ Fork-specific profile workflow: step indicators, cloud-sync gating,
+ rate-limit handling, and localStorage persistence.
+
+ Exposes cloudSyncEvent and initialProfilePromise on globalThis so that
+ the non-module profile.ts script can include them in its Promise.all.
+ Also exposes all onclick handlers and profileWorkflowReady/updateProfileAge.
  */
 
 // `alert()` is used intentionally for user-facing error messages
@@ -374,8 +374,8 @@ function updateFormFromLocalStorage(): void {
 }
 
 /**
- * Called from profile.ts Promise.all callback after exports are loaded.
- * Handles rate-limit check, step UI reveal, and form restoration.
+ Called from profile.ts Promise.all callback after exports are loaded.
+ Handles rate-limit check, step UI reveal, and form restoration.
  */
 function profileWorkflowReady(syncResult: string, showAutoFetchFlow: boolean): void {
 	const stepsElement = document.querySelector('#steps');

@@ -1,6 +1,6 @@
 /**
- * Tests for CloudSyncHealthMonitor
- * Heartbeat interval tracking and visibility-triggered pull fallback.
+ Tests for CloudSyncHealthMonitor
+ Heartbeat interval tracking and visibility-triggered pull fallback.
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

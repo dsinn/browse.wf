@@ -1,6 +1,6 @@
 /**
- * Activation badge: shows how long ago something happened, as a single unit (e.g. "1m", "3h", "4d").
- * Anything under a minute old shows "1m".
+ Activation badge: shows how long ago something happened, as a single unit (e.g. "1m", "3h", "4d").
+ Anything under a minute old shows "1m".
  */
 
 import {MILLIS_PER_DAY, MILLIS_PER_HOUR} from '../helpers/time-helpers.js';
@@ -12,7 +12,7 @@ const MINUTE = 60 * 1000;
 const MAX_TIMEOUT = (2 ** 31) - 1;
 
 /**
- * Sets the badge's text from its data-activation, then schedules the next update for when the unit changes
+ Sets the badge's text from its data-activation, then schedules the next update for when the unit changes
  */
 function updateActivationBadge(badge: HTMLElement): void {
 	const activation = Number.parseInt(badge.dataset.activation ?? '', 10);

@@ -1,9 +1,9 @@
 /**
- * Unit tests for src/teshin/index.ts.
- *
- * Covers: one row per offer (8, matching upstream's teshinOffer.length), 6 appearance
- * columns per row, and correct appearance-date math (each offer appears every 8 weeks
- * starting from its rotation index).
+ Unit tests for src/teshin/index.ts.
+
+ Covers: one row per offer (8, matching upstream's teshinOffer.length), 6 appearance
+ columns per row, and correct appearance-date math (each offer appears every 8 weeks
+ starting from its rotation index).
  */
 import {
 	describe, test, expect, vi, afterEach,

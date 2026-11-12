@@ -1,9 +1,9 @@
 /**
- * Augments the upstream equipment stats table with rank column, category
- * filter bar, Used% column, and Archwing icon handling.
- *
- * Called via (window as any).augmentEquipmentStats() immediately after the
- * upstream rendering block in profile.ts populates #equipment-stats.
+ Augments the upstream equipment stats table with rank column, category
+ filter bar, Used% column, and Archwing icon handling.
+
+ Called via (window as any).augmentEquipmentStats() immediately after the
+ upstream rendering block in profile.ts populates #equipment-stats.
  */
 
 import {logger} from '../logger.js';

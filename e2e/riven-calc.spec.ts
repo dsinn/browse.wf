@@ -3,10 +3,10 @@ import {setupMockRoutes} from './helpers/api-mocks';
 import {mockRivenCalcData} from './helpers/riven-calc-mocks';
 
 /**
- * E2E tests for the Riven calculator (/riven-calc).
- *
- * Only the journeys a user takes are covered here. The maths is covered by src/riven-calc/formula.test.ts and
- * the wiring by src/riven-calc/index.test.ts, both of which run much faster and in far greater detail.
+ E2E tests for the Riven calculator (/riven-calc).
+
+ Only the journeys a user takes are covered here. The maths is covered by src/riven-calc/formula.test.ts and
+ the wiring by src/riven-calc/index.test.ts, both of which run much faster and in far greater detail.
  */
 
 const MELEE = 'PlayerMeleeWeaponRandomModRare';

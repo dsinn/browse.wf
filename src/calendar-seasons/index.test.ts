@@ -1,7 +1,7 @@
 /**
- * Unit tests for renderCalendarSeasonPane() exported from src/calendar-seasons.ts
- *
- * Imports the real production code directly to avoid test drift.
+ Unit tests for renderCalendarSeasonPane() exported from src/calendar-seasons.ts
+
+ Imports the real production code directly to avoid test drift.
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

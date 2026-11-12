@@ -1,9 +1,9 @@
 /**
- * Tests for the Steel Path Incursion Schedule page (incursions.ts)
- *
- * Tests cover:
- * - HTML structure from the rendered fixture
- * - Pure helper functions that can be tested in isolation
+ Tests for the Steel Path Incursion Schedule page (incursions.ts)
+
+ Tests cover:
+ - HTML structure from the rendered fixture
+ - Pure helper functions that can be tested in isolation
  */
 import {readFileSync} from 'node:fs';
 import {join} from 'node:path';

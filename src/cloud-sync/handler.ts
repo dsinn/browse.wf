@@ -1,8 +1,8 @@
 /**
- * Cloud sync handler
- *
- * Handles push/pull operations between localStorage and the cloud database.
- * Manages the justPushed deduplication flag to avoid reacting to self-updates.
+ Cloud sync handler
+
+ Handles push/pull operations between localStorage and the cloud database.
+ Manages the justPushed deduplication flag to avoid reacting to self-updates.
  */
 
 import {logger} from '../logger.js';
@@ -20,7 +20,7 @@ export class CloudSyncHandler {
 	}
 
 	/**
-	 * Upload localStorage data to database (last write wins)
+	 Upload localStorage data to database (last write wins)
 	 */
 	async pushToDatabase(userId: string): Promise<void> {
 		globalThis.dispatchEvent(new CustomEvent('cloud-sync-before-push'));
@@ -63,8 +63,8 @@ export class CloudSyncHandler {
 	}
 
 	/**
-	 * Download database data to localStorage (single query)
-	 * Automatically refreshes UI after updating localStorage
+	 Download database data to localStorage (single query)
+	 Automatically refreshes UI after updating localStorage
 	 */
 	async pullFromDatabase(userId: string): Promise<void> {
 		const {data: row, error} = await db

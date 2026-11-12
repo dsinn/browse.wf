@@ -1,6 +1,6 @@
 /**
- * Calendar Seasons rendering for the live page and weekly-forecast page.
- * Displays the 1999 in-game calendar days with challenges, rewards, and upgrades.
+ Calendar Seasons rendering for the live page and weekly-forecast page.
+ Displays the 1999 in-game calendar days with challenges, rewards, and upgrades.
  */
 
 import {formatSeasonDay, resolveCalendarSeasonDays} from './data.js';
@@ -19,8 +19,8 @@ function makeIcon(iconPath: string): HTMLImageElement {
 }
 
 /**
- * Renders the content pane for a single calendar season.
- * Returns a div containing day rows for each day with events.
+ Renders the content pane for a single calendar season.
+ Returns a div containing day rows for each day with events.
  */
 export async function renderCalendarSeasonPane(season: any): Promise<HTMLDivElement> {
 	const dict = await getDictPromise();

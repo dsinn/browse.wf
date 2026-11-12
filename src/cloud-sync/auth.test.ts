@@ -1,6 +1,6 @@
 /**
- * Tests for AuthService
- * Discord OAuth authentication and session management
+ Tests for AuthService
+ Discord OAuth authentication and session management
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

@@ -1,11 +1,11 @@
 /**
- * Generic card filter test factory
- *
- * Export testCardFilters() to test filter functionality for any card.
- * Each card that implements filters should call this function to ensure
- * correct integration.
- *
- * Imports the REAL production code (src/card-filters.ts) to avoid test drift.
+ Generic card filter test factory
+
+ Export testCardFilters() to test filter functionality for any card.
+ Each card that implements filters should call this function to ensure
+ correct integration.
+
+ Imports the REAL production code (src/card-filters.ts) to avoid test drift.
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,
@@ -17,10 +17,10 @@ import {
 } from '../../src/card-filters';
 
 /**
- * Test factory function that tests generic card filter functionality for a specific card.
- * Call this from a card's test file to verify filter integration.
- *
- * @param cardName - The name of the card to test (e.g., 'news', 'fissures', 'invasions')
+ Test factory function that tests generic card filter functionality for a specific card.
+ Call this from a card's test file to verify filter integration.
+
+ @param cardName - The name of the card to test (e.g., 'news', 'fissures', 'invasions')
  */
 export function testCardFilters(cardName: string) {
 	describe(`Card Filters - ${cardName}`, () => {

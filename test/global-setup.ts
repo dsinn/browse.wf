@@ -1,8 +1,8 @@
 /**
- * Vitest global setup - runs before all tests
- *
- * Generates PHP fixtures to ensure they're fresh before tests run.
- * In watch mode, also sets up PHP file watching.
+ Vitest global setup - runs before all tests
+
+ Generates PHP fixtures to ensure they're fresh before tests run.
+ In watch mode, also sets up PHP file watching.
  */
 import {execSync} from 'node:child_process';
 import process from 'node:process';
@@ -13,7 +13,7 @@ let regenerationTimer: NodeJS.Timeout | undefined;
 let isRegenerating = false;
 
 /**
- * Regenerate fixtures synchronously
+ Regenerate fixtures synchronously
  */
 function regenerateFixtures() {
 	if (isRegenerating) {

@@ -1,5 +1,5 @@
 /**
- * Global type declarations for libraries that extend the window object
+ Global type declarations for libraries that extend the window object
  */
 
 type IMongoDate = {

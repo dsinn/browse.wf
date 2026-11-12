@@ -1,9 +1,9 @@
 /**
- * Tests for auth-init.ts global side effects
- *
- * Specifically: __getSupabaseAccessToken behaviour when the database is
- * configured vs. unconfigured (the unconfigured path caused CI failures
- * because db is null and calling db.auth.getSession() throws).
+ Tests for auth-init.ts global side effects
+
+ Specifically: __getSupabaseAccessToken behaviour when the database is
+ configured vs. unconfigured (the unconfigured path caused CI failures
+ because db is null and calling db.auth.getSession() throws).
  */
 import {
 	describe, test, expect, beforeEach, vi,

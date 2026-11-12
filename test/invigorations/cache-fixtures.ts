@@ -1,14 +1,14 @@
 /**
- * Shared mock cache fixtures for invigoration tests
- *
- * These fixtures represent invigoration cache entries with various warframe combinations.
- * The peek flag is no longer semantically meaningful for caching (since we index by week),
- * so fixtures are named by their response content only.
+ Shared mock cache fixtures for invigoration tests
+
+ These fixtures represent invigoration cache entries with various warframe combinations.
+ The peek flag is no longer semantically meaningful for caching (since we index by week),
+ so fixtures are named by their response content only.
  */
 
 /**
- * Entry 1: Mag, Volt, Excalibur with ability-focused invigorations
- * Request: peek=false
+ Entry 1: Mag, Volt, Excalibur with ability-focused invigorations
+ Request: peek=false
  */
 export const ENTRY_MAG_VOLT_EXCALIBUR = {
 	request: {
@@ -40,8 +40,8 @@ export const ENTRY_MAG_VOLT_EXCALIBUR = {
 };
 
 /**
- * Entry 2: Rhino, Frost, Loki with weapon-focused invigorations
- * Request: peek=true
+ Entry 2: Rhino, Frost, Loki with weapon-focused invigorations
+ Request: peek=true
  */
 export const ENTRY_RHINO_FROST_LOKI_PEEK = {
 	request: {
@@ -73,9 +73,9 @@ export const ENTRY_RHINO_FROST_LOKI_PEEK = {
 };
 
 /**
- * Entry 3: Rhino, Frost, Loki with mixed invigorations
- * Request: peek=false
- * (Useful for testing history table with visually distinct data)
+ Entry 3: Rhino, Frost, Loki with mixed invigorations
+ Request: peek=false
+ (Useful for testing history table with visually distinct data)
  */
 export const ENTRY_RHINO_FROST_LOKI = {
 	request: {

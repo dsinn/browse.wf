@@ -1,10 +1,10 @@
 /**
- * Unit tests for pure utility functions in src/weekly-forecast.ts.
- *
- * Covers: mongoMs, formatTabDate, nextForecastPublishedMs,
- *         buildTab, getActiveTabActivation, restoreActiveTab.
- *
- * warframe-api-proxy-client is mocked to prevent the module's top-level await from firing.
+ Unit tests for pure utility functions in src/weekly-forecast.ts.
+
+ Covers: mongoMs, formatTabDate, nextForecastPublishedMs,
+ buildTab, getActiveTabActivation, restoreActiveTab.
+
+ warframe-api-proxy-client is mocked to prevent the module's top-level await from firing.
  */
 import {
 	describe, test, expect, vi, beforeEach, afterEach,

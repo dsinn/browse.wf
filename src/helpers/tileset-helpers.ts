@@ -17,10 +17,10 @@ function getTilesetPrefixes(): string[] {
 }
 
 /**
- * Get tileset from a region node.
- * Falls back to inferring the tileset from levelOverride for nodes that lack tileset data,
- * by matching the segment against prefixes derived from known tilesets in ExportRegions.
- * @param node - The region node from ExportRegions
+ Get tileset from a region node.
+ Falls back to inferring the tileset from levelOverride for nodes that lack tileset data,
+ by matching the segment against prefixes derived from known tilesets in ExportRegions.
+ @param node - The region node from ExportRegions
  */
 export function getTileset(node: IRegion): string | undefined {
 	if (node.tileset) {
@@ -39,8 +39,8 @@ export function getTileset(node: IRegion): string | undefined {
 }
 
 /**
- * Format tileset string for display
- * Converts "GrineerGalleonTileset" to "Grineer Galleon"
+ Format tileset string for display
+ Converts "GrineerGalleonTileset" to "Grineer Galleon"
  */
 export function formatTileset(tileset: string | undefined): string {
 	if (!tileset) {

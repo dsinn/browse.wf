@@ -1,8 +1,8 @@
 /**
- * Cloud sync authentication initialization
- *
- * This module initializes the auth system on page load and sets up the UI.
- * Import this file in pages that need cloud sync functionality.
+ Cloud sync authentication initialization
+
+ This module initializes the auth system on page load and sets up the UI.
+ Import this file in pages that need cloud sync functionality.
  */
 
 import {logger} from '../logger.js';
@@ -140,8 +140,8 @@ function updateAuthUI(isAuthenticated: boolean, user: any) {
 }
 
 /**
- * Generate a generic avatar using a data URI
- * Creates a simple gray circle with a white user icon
+ Generate a generic avatar using a data URI
+ Creates a simple gray circle with a white user icon
  */
 function generateGenericAvatar(): string {
 	// SVG of a simple user icon in a circle
@@ -155,7 +155,7 @@ function generateGenericAvatar(): string {
 }
 
 /**
- * Show a Bootstrap toast notification
+ Show a Bootstrap toast notification
  */
 function showToast(message: string): void {
 	const toast = document.createElement('div');
@@ -214,7 +214,7 @@ registerSyncHandler(async () => {
 });
 
 /**
- * Get the current Supabase access token for use by non-module scripts (e.g. warframe-api-proxy-client.ts)
+ Get the current Supabase access token for use by non-module scripts (e.g. warframe-api-proxy-client.ts)
  */
 window.__getSupabaseAccessToken = async () => {
 	if (!isDatabaseConfigured()) {

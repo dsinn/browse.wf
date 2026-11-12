@@ -1,5 +1,5 @@
 /**
- * Tests for src/arbys/title.ts
+ Tests for src/arbys/title.ts
  */
 import {
 	describe, test, expect, beforeEach, afterEach, vi,

@@ -1,9 +1,9 @@
 /**
- * Reconnection manager with exponential backoff
- *
- * Handles WebSocket reconnection after failures (CLOSED, TIMED_OUT, CHANNEL_ERROR).
- * Uses exponential backoff starting at 1.875s, capping at 5 minutes.
- * Retries indefinitely — no max attempt limit.
+ Reconnection manager with exponential backoff
+
+ Handles WebSocket reconnection after failures (CLOSED, TIMED_OUT, CHANNEL_ERROR).
+ Uses exponential backoff starting at 1.875s, capping at 5 minutes.
+ Retries indefinitely — no max attempt limit.
  */
 
 import {logger} from '../logger.js';
@@ -51,8 +51,8 @@ export class CloudSyncReconnection {
 	}
 
 	/**
-	 * Clear reconnect counter and pending timer (e.g. on successful connection).
-	 * Does NOT clear lastFreshTimestamp — use clearAll() for that.
+	 Clear reconnect counter and pending timer (e.g. on successful connection).
+	 Does NOT clear lastFreshTimestamp — use clearAll() for that.
 	 */
 	reset(): void {
 		this.reconnectAttempts = 0;
@@ -63,7 +63,7 @@ export class CloudSyncReconnection {
 	}
 
 	/**
-	 * Clear all state including the fresh timestamp (e.g. on logout/unsubscribe).
+	 Clear all state including the fresh timestamp (e.g. on logout/unsubscribe).
 	 */
 	clearAll(): void {
 		this.reset();
@@ -71,10 +71,10 @@ export class CloudSyncReconnection {
 	}
 
 	/**
-	 * Schedule a reconnection attempt with exponential backoff.
-	 * Clears any pending timer before scheduling a new one.
-	 * The user ID is read lazily when the timer fires, so logout between
-	 * schedule and fire is respected.
+	 Schedule a reconnection attempt with exponential backoff.
+	 Clears any pending timer before scheduling a new one.
+	 The user ID is read lazily when the timer fires, so logout between
+	 schedule and fire is respected.
 	 */
 	attemptReconnect(): void {
 		// Clear any existing reconnect timer

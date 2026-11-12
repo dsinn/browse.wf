@@ -1,5 +1,5 @@
 /**
- * Unit tests for src/riven-calc/state.ts: the URL hash format.
+ Unit tests for src/riven-calc/state.ts: the URL hash format.
  */
 import {describe, expect, test} from 'vitest';
 import {

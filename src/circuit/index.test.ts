@@ -1,8 +1,8 @@
 /**
- * Unit tests for src/circuit/index.ts.
- *
- * Covers: forecast week count, rotation math (independent per column), and
- * dict-key-to-display-name resolution.
+ Unit tests for src/circuit/index.ts.
+
+ Covers: forecast week count, rotation math (independent per column), and
+ dict-key-to-display-name resolution.
  */
 import {
 	describe, test, expect, vi, afterEach,

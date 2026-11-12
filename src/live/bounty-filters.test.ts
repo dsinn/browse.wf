@@ -1,13 +1,13 @@
 /**
- * Tests for Bounty Filters
- *
- * Tests dropdown-based tier filtering for bounties:
- * - Dropdown selectors for each syndicate
- * - localStorage persistence
- * - getMinimumTier function
- *
- * Note: Gear icon behavior is tested in card-filters tests.
- * Content filtering behavior (updateBountyCycleLocalised) is tested via E2E tests.
+ Tests for Bounty Filters
+
+ Tests dropdown-based tier filtering for bounties:
+ - Dropdown selectors for each syndicate
+ - localStorage persistence
+ - getMinimumTier function
+
+ Note: Gear icon behavior is tested in card-filters tests.
+ Content filtering behavior (updateBountyCycleLocalised) is tested via E2E tests.
  */
 import {
 	describe, test, expect, beforeEach, afterEach,

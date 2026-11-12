@@ -1,10 +1,10 @@
 /**
- * Pure data transformation layer for Descendia (Devil's Lair) challenges.
- * No DOM dependencies — usable in both browser and Node.js environments.
- *
- * Consumed by:
- *   - src/descendia.ts              (browser DOM rendering, via globals)
- *   - scripts/post-weekly-forecast.js (Node.js, via compiled descendia-data.mjs)
+ Pure data transformation layer for Descendia (Devil's Lair) challenges.
+ No DOM dependencies — usable in both browser and Node.js environments.
+
+ Consumed by:
+ - src/descendia.ts              (browser DOM rendering, via globals)
+ - scripts/post-weekly-forecast.js (Node.js, via compiled descendia-data.mjs)
  */
 
 type IDescentChallenge = {

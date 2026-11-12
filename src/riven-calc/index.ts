@@ -37,7 +37,7 @@ const VALUE_PLACEHOLDER = /\|(?:val|STAT1)\|/gu;
 // space there ("|val| % Hitzeschaden" in German, "|val| % de zoom" in Spanish); without it, the % would stay behind
 // in the label, since the number it belonged to is shown by the slider instead.
 const VALUE_WITH_UNIT = /\|(?:val|STAT1)\|(?:\s*%|s\b)?\s*/gu;
-const TEXT_ICON = /<([^>]+)>/gu;
+const TEXT_ICON = /<(?<name>[^>]+)>/gu;
 
 /**
  Turns a display template such as "|val|% <DT_FIRE_COLOR>Heat" into DOM that names the stat ("Heat"), dropping the
@@ -49,7 +49,7 @@ export function buildStatLabel(template: string, exportTextIcons: Record<string,
 	let lastIndex = 0;
 	for (const match of text.matchAll(TEXT_ICON)) {
 		fragment.append(text.slice(lastIndex, match.index));
-		const iconUrl: string | undefined = exportTextIcons[match[1]]?.DIT_AUTO;
+		const iconUrl: string | undefined = exportTextIcons[match.groups!.name]?.DIT_AUTO;
 		if (iconUrl) {
 			const icon = document.createElement('img');
 			icon.className = 'riven-text-icon';

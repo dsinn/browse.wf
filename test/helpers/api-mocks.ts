@@ -54,9 +54,9 @@ export function setupMockFetch() {
 		const urlString = url.toString();
 
 		// Serve warframe-public-export-plus JSON files from disk
-		const exportMatch = /warframe-public-export-plus\/(.+\.json)$/u.exec(urlString);
+		const exportMatch = /warframe-public-export-plus\/(?<file>.+\.json)$/u.exec(urlString);
 		if (exportMatch) {
-			const data = loadExportJson(exportMatch[1]);
+			const data = loadExportJson(exportMatch.groups!.file);
 			// Partial mock object — only implements the methods used in tests
 			// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 			return {ok: true, status: 200, json: async () => data} as Response;

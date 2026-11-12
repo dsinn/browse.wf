@@ -39,7 +39,6 @@ const config = [
 			'package-json/require-entry-point': 'off',
 			'package-json/require-fields': 'off',
 			'regexp/no-super-linear-move': 'off',
-			'regexp/prefer-named-capture-group': 'off',
 			'unicorn/better-dom-traversing': 'off',
 			'unicorn/consistent-boolean-name': 'off',
 			'unicorn/consistent-class-member-order': 'off',

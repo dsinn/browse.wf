@@ -124,7 +124,7 @@ export async function renderPhpFiles(options) {
  @param {string} html - Rendered page HTML
  */
 export function transformPhpLinks(html) {
-	return html.replaceAll(/href="\/([^"]+)\.php"/gu, 'href="/$1.html"');
+	return html.replaceAll(/href="\/(?<page>[^"]+)\.php"/gu, 'href="/$<page>.html"');
 }
 
 /**

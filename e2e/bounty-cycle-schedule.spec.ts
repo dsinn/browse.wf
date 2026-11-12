@@ -91,7 +91,7 @@ test.describe('Cetus/Deimos Cycle Schedule (/bounty-cycle-schedule)', () => {
 	test('setting 12-hour format re-renders with zero-padded hours and period-free am/pm', async ({page}) => {
 		await page.locator('#select-hourfmt').selectOption('12');
 		const firstWindow = await page.locator('#schedule-table-body td:not(.is-empty-slot)').first().textContent();
-		expect(firstWindow).toMatch(/^\d{2}:\d{2}(am|pm)–\d{2}:\d{2}(am|pm)$/u);
+		expect(firstWindow).toMatch(/^\d{2}:\d{2}(?:am|pm)–\d{2}:\d{2}(?:am|pm)$/u);
 	});
 
 	test('setting military time re-renders without a colon', async ({page}) => {

@@ -98,7 +98,7 @@ describe('Navbar Pin Toggle', () => {
 
 			// Toggle to unfixed - should be 0 or 0px (browser normalizes it)
 			(globalThis as any).toggleNavbarFixed();
-			expect(spacer.style.height).toMatch(/^0(px)?$/u);
+			expect(spacer.style.height).toMatch(/^0(?:px)?$/u);
 
 			// Toggle back - should be 56px
 			(globalThis as any).toggleNavbarFixed();

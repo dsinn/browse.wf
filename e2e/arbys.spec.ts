@@ -69,9 +69,9 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 			// Test 12-hour time
 			await page.selectOption('#select-hourfmt', '12');
-			await expect(firstEntry).toContainText(/\d{1,2}(am|pm)/u); // Wait for am/pm
+			await expect(firstEntry).toContainText(/\d{1,2}(?:am|pm)/u); // Wait for am/pm
 			text = await firstEntry.textContent();
-			expect(text).toMatch(/\d{1,2}(am|pm)/u); // Should have am/pm
+			expect(text).toMatch(/\d{1,2}(?:am|pm)/u); // Should have am/pm
 		});
 	});
 
@@ -237,7 +237,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 			// Verify 12-hour format is applied
 			const firstEntry = await page.locator('#log [data-timestamp]').first().textContent();
-			expect(firstEntry).toMatch(/\d{1,2}(am|pm)/u);
+			expect(firstEntry).toMatch(/\d{1,2}(?:am|pm)/u);
 		});
 
 		test('loads with exclude parameter unchecking filters', async ({page}) => {
@@ -297,7 +297,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 				return;
 			}
 
-			expect(dateText).toMatch(/(Sun|Mon|Tue|Wed|Thu|Fri|Sat)/u);
+			expect(dateText).toMatch(/(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat)/u);
 			expect(detailsText).toBeTruthy();
 		});
 
@@ -308,7 +308,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 			const dateText = await dateCell.textContent();
 			expect(dateText).not.toBe('N/A');
-			expect(dateText).toMatch(/(Sun|Mon|Tue|Wed|Thu|Fri|Sat)/u);
+			expect(dateText).toMatch(/(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat)/u);
 		});
 
 		test('populates with correct data for factions', async ({page}) => {
@@ -318,7 +318,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 			const dateText = await dateCell.textContent();
 			if (dateText !== 'N/A') {
-				expect(dateText).toMatch(/(Sun|Mon|Tue|Wed|Thu|Fri|Sat)/u);
+				expect(dateText).toMatch(/(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat)/u);
 			}
 		});
 
@@ -380,7 +380,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 			// Headers should have correct format
 			const firstHeaderText = await headers[0].textContent();
-			expect(firstHeaderText).toMatch(/(Sun|Mon|Tue|Wed|Thu|Fri|Sat), (January|February|March|April|May|June|July|August|September|October|November|December) \d+/u);
+			expect(firstHeaderText).toMatch(/(?:Sun|Mon|Tue|Wed|Thu|Fri|Sat), (?:January|February|March|April|May|June|July|August|September|October|November|December) \d+/u);
 		});
 
 		test('displays arbitration details', async ({page}) => {
@@ -668,7 +668,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			await saveBtn.click();
 
 			// Button should show "Saving..." then "Saved!"
-			await expect(saveBtn).toContainText(/Sav(ing|ed)/u);
+			await expect(saveBtn).toContainText(/Sav(?:ing|ed)/u);
 
 			// Load button should become enabled
 			await expect(page.locator('#btn-load-settings')).not.toBeDisabled();

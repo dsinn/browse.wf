@@ -1,5 +1,6 @@
 {
   "name": "browse.wf",
+  "private": true,
   "type": "module",
   "engines": {
     "node": ">=24"

@@ -200,7 +200,7 @@ function buildPercentageCell(percentage: number, isDuplicate: boolean, nodeLabel
 
 async function buildRewardCell(item: {ItemType: string; ItemCount: number}): Promise<HTMLTableCellElement> {
 	const td = document.createElement('td');
-	td.textContent = `${item.ItemCount > 1 ? `${String(item.ItemCount)}x ` : ''}${String(await window.getItemNamePromise!(item.ItemType))}`;
+	td.textContent = `${item.ItemCount > 1 ? `${String(item.ItemCount)}x ` : ''}${(await window.getItemNamePromise!(item.ItemType))}`;
 	return td;
 }
 
@@ -361,7 +361,7 @@ export async function updateInvasions(): Promise<void> {
 		}
 
 		const node = ExportRegions[invasion.Node];
-		const nodeLabel = `${String(dict[node.name])}, ${String(dict[node.systemName])}`;
+		const nodeLabel = `${dict[node.name]}, ${dict[node.systemName]}`;
 
 		// eslint-disable-next-line no-await-in-loop
 		const rows = await buildInvasionRows({

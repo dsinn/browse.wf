@@ -84,7 +84,7 @@ export async function resolveArchimedea(
 			type = 'DualDefense';
 		}
 
-		const rawTypeName = toTitleCase(dict['/Lotus/Language/Missions/MissionName_' + String(type)] ?? camelToWords(String(type)));
+		const rawTypeName = toTitleCase(dict['/Lotus/Language/Missions/MissionName_' + type] ?? camelToWords(type));
 
 		const variantKey = variantKeyPrefix + String(hardDiff.deviation);
 		const variantName = osdict[variantKey] ?? hardDiff.deviation;

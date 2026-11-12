@@ -77,5 +77,5 @@ export function loadCommonJsFunctions(functionNames: string[]) {
 	// `eval` is necessary here: common.js is a non-module script that declares globals
 	// via `var`, which only become visible to tests when executed in the current scope.
 	// eslint-disable-next-line no-eval
-	eval(String(scriptContent) + '\n' + promotions);
+	eval(scriptContent + '\n' + promotions);
 }

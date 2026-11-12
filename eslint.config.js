@@ -29,7 +29,6 @@ const config = [
 	{
 		rules: {
 			'@eslint-community/eslint-comments/require-description': 'off',
-			'@html-eslint/sort-attrs': 'off',
 			'@stylistic/no-mixed-operators': 'off',
 			'@stylistic/operator-linebreak': 'off',
 			'@typescript-eslint/no-meaningless-void-operator': 'off',

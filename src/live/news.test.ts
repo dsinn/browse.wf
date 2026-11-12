@@ -151,7 +151,7 @@ describe('updateNewsTicker', () => {
 		test('renders badge text as the time elapsed since the item', () => {
 			updateNewsTicker();
 			const badge = document.querySelector('#news-body .badge');
-			expect(badge?.textContent).toMatch(/^\d+[mhd]$/u);
+			expect(badge?.textContent).toMatch(/^\d+[dhm]$/u);
 		});
 
 		test('renders items newest-first', () => {

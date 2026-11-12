@@ -90,7 +90,7 @@ function discordTimestamp(ms: number) {
 }
 
 export function escapeMarkdown(s: string) {
-	return s.replaceAll(/(?=[*_~`|>[\\\]])/gu, '\\');
+	return s.replaceAll(/(?=[*>[\\\]_`|~])/gu, '\\');
 }
 
 // Deep / Temporal Archimedea

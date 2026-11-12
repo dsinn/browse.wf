@@ -1,6 +1,9 @@
 {
   "name": "browse.wf",
   "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "dev": "node scripts/dev.js",
     "lint": "eslint",

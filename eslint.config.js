@@ -35,7 +35,6 @@ const config = [
 			'package-json/no-orphan-script-hooks': 'off',
 			'package-json/no-orphan-types': 'off',
 			'package-json/prefer-files-field': 'off',
-			'package-json/require-engines': 'off',
 			'package-json/require-entry-point': 'off',
 			'package-json/require-fields': 'off',
 			'regexp/no-super-linear-move': 'off',

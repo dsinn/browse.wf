@@ -32,18 +32,14 @@ describe('Void Fissures Card', () => {
 		const worldState = loadMock('worldState.json');
 
 		// Combine ActiveMissions and VoidStorms into fissures array, mimicking live.ts logic
-		const fissures = [];
-
-		for (const fissure of worldState.ActiveMissions) {
-			fissures.push({
-				Category: fissure.Hard ? 'sp-fissures' : 'fissures',
-				Hard: fissure.Hard,
-				Activation: fissure.Activation,
-				Expiry: fissure.Expiry,
-				Node: fissure.Node,
-				Modifier: fissure.Modifier,
-			});
-		}
+		const fissures = Array.from(worldState.ActiveMissions, (fissure: any) => ({
+			Category: fissure.Hard ? 'sp-fissures' : 'fissures',
+			Hard: fissure.Hard,
+			Activation: fissure.Activation,
+			Expiry: fissure.Expiry,
+			Node: fissure.Node,
+			Modifier: fissure.Modifier,
+		}));
 
 		for (const fissure of worldState.VoidStorms) {
 			fissures.push({

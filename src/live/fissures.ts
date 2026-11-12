@@ -116,17 +116,14 @@ export async function updateFissures(forceRender = false) {
 
 	latestRenderedFissureTime = maxActivation;
 
-	const fissures: any[] = [];
-	for (const fissure of (window as any).worldState.ActiveMissions) {
-		fissures.push({
-			Category: fissure.Hard ? 'sp-fissures' : 'fissures',
-			Hard: fissure.Hard,
-			Activation: fissure.Activation,
-			Expiry: fissure.Expiry,
-			Node: fissure.Node,
-			Modifier: fissure.Modifier,
-		});
-	}
+	const fissures: any[] = Array.from((window as any).worldState.ActiveMissions, (fissure: any) => ({
+		Category: fissure.Hard ? 'sp-fissures' : 'fissures',
+		Hard: fissure.Hard,
+		Activation: fissure.Activation,
+		Expiry: fissure.Expiry,
+		Node: fissure.Node,
+		Modifier: fissure.Modifier,
+	}));
 
 	for (const fissure of (window as any).worldState.VoidStorms) {
 		fissures.push({

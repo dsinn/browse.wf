@@ -69,7 +69,6 @@ const config = [
 			'unicorn/no-subtraction-comparison': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
 			'unicorn/no-unsafe-string-replacement': 'off',
-			'unicorn/prefer-array-from-map': 'off',
 			'unicorn/prefer-combined-guards': 'off',
 			'unicorn/prefer-dom-node-html-methods': 'off',
 			'unicorn/prefer-group-by': 'off',

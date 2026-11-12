@@ -200,7 +200,8 @@ describe('toDisplayValue', () => {
 	});
 
 	test('never returns negative zero', () => {
-		expect(Object.is(toDisplayValue(stat(1), -0.00001), 0)).toBe(true);
+		// `toBe` compares with `Object.is`, so this fails for -0
+		expect(toDisplayValue(stat(1), -0.00001)).toBe(0);
 	});
 });
 

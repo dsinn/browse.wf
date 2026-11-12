@@ -183,7 +183,8 @@ describe('loadIncursionData', () => {
 		};
 
 		setupMockFetch();
-		mockEndpoint('sp-incursions.txt', readFileSync(join(process.cwd(), 'sp-incursions.txt'), 'utf8'));
+		const incursionsText = readFileSync(join(process.cwd(), 'sp-incursions.txt'), 'utf8');
+		mockEndpoint('sp-incursions.txt', incursionsText);
 		mockBootstrapTooltip();
 
 		(globalThis as any).toTitleCase = (s: string) => s;

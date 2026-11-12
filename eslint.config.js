@@ -46,7 +46,6 @@ const config = [
 			'unicorn/consistent-class-member-order': 'off',
 			'unicorn/consistent-compound-words': 'off',
 			'unicorn/isolated-functions': 'off',
-			'unicorn/max-nested-calls': 'off',
 			'unicorn/no-break-in-nested-loop': 'off',
 			'unicorn/no-computed-property-existence-check': 'off',
 			'unicorn/no-declarations-before-early-exit': 'off',

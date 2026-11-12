@@ -35,13 +35,11 @@ test.describe('Profile Stats Filters', () => {
 		await simulateLoggedIn(page);
 
 		await page.route(`**/${proxyHost}/profile*`, route => {
+			const nextFetchAvailableAt = new Date(Date.now() + (23 * 60 * 60 * 1000)).toISOString();
 			void route.fulfill({
 				status: 200,
 				contentType: 'application/json',
-				body: JSON.stringify({
-					nextFetchAvailableAt: new Date(Date.now() + (23 * 60 * 60 * 1000)).toISOString(),
-					profile: profileData,
-				}),
+				body: JSON.stringify({nextFetchAvailableAt, profile: profileData}),
 			});
 		});
 

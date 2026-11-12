@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.90.1",
+    "crc-32": "^1.2.2",
     "warframe-public-export-plus": "^0.6.0"
   },
   "devDependencies": {

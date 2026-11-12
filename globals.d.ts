@@ -281,6 +281,9 @@ interface Window {
 	filterWeeklyMissions?: () => void;
 	updateWeekly?: () => void;
 
+	// src/profile/discriminator.ts
+	getDiscriminator?: (name: string, platformId: number) => number | undefined;
+
 	// src/profile/enemy-stats.ts
 	augmentEnemyStats?: (...args: any[]) => void;
 

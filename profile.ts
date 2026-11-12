@@ -1,9 +1,5 @@
 import type { IAchievement, IColour, ICustom, IExportEnemies, IExportNightwave, IFlavourItem, IPowersuit, IRegion, ISentinel, ISyndicate, IWeapon } from "warframe-public-export-plus";
 
-// PlutoScript
-declare const pluto_require: (file: string) => Promise<void>;
-declare function pluto_invoke(name: string, ...args: any[]): Promise<any>;
-
 // common.js
 declare let onLanguageUpdate: () => void;
 declare function getDictPromise(): Promise<Record<string, string>>;
@@ -31,8 +27,6 @@ declare let ExportWeapons: Record<string, IWeapon>;
 
 // state
 declare let profile: any;
-
-const platform_suffix_pluto_promise = pluto_require("platform-suffix.pluto");
 
 /*document.getElementById("username").onfocus = function()
 {
@@ -237,11 +231,11 @@ function renderProfile(): void
 	document.getElementById("profile-discriminator").textContent = "";
 	if (isXplatName(profile.Results[0].DisplayName))
 	{
-		platform_suffix_pluto_promise.then(() => {
-			pluto_invoke("get_discriminator", sanitisedName, xplatNameToPlatformId(profile.Results[0].DisplayName)).then(discriminator => {
-				document.getElementById("profile-discriminator").textContent = "#" + discriminator.toString().padStart(3, "0");
-			});
-		});
+		const discriminator = (window as any).getDiscriminator?.(sanitisedName, xplatNameToPlatformId(profile.Results[0].DisplayName));
+		if (discriminator !== undefined)
+		{
+			document.getElementById("profile-discriminator").textContent = "#" + discriminator.toString().padStart(3, "0");
+		}
 	}
 
 	const createdAt = parseInt(profile.Results[0].AccountId.$oid.substr(0, 8), 16);

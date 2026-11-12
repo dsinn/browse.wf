@@ -46,14 +46,11 @@
 		</div>
 	</div>
 	<?php require "components/commonjs.html"; ?>
-	<script src="https://pluto-lang.org/wasm-builds/out/libpluto/0.9.5/libpluto.js"></script>
-	<script src="https://pluto-lang.org/PlutoScript/plutoscript.js"></script>
-	<script type="pluto" src="platform-suffix.pluto"></script>
 	<script>
 		async function partial2full()
 		{
 			document.getElementById("partial2full-res").classList.remove("d-none");
-			document.getElementById("partial2full-res").textContent = document.getElementById("partial-name").value + "#" + (await pluto_invoke("get_discriminator", document.getElementById("partial-name").value, parseInt(document.getElementById("platform").value))).toString().padStart(3, "0");
+			document.getElementById("partial2full-res").textContent = document.getElementById("partial-name").value + "#" + getDiscriminator(document.getElementById("partial-name").value, parseInt(document.getElementById("platform").value)).toString().padStart(3, "0");
 		}
 
 		const platform_names = [ "PC", "PlayStation", "Xbox", "Switch", "iOS", "Android", "Invalid" ];
@@ -63,7 +60,7 @@
 			let i = 0;
 			for (; i != 6; ++i)
 			{
-				if (await pluto_invoke("get_discriminator", arr[0], i) == arr[1])
+				if (getDiscriminator(arr[0], i) == arr[1])
 				{
 					break;
 				}

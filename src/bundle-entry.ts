@@ -45,6 +45,7 @@ import './live/prune-stale-data.js';
 import './live/sortie.js';
 import './live/sync.js';
 import './live/weekly.js';
+import './profile/discriminator.js';
 import './profile/enemy-stats.js';
 import './profile/equipment-stats.js';
 import './profile/stats-filters.js';

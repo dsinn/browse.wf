@@ -103,7 +103,7 @@ export class CloudSyncReconnection {
 			logger.debug(`🔄 WebSocket disconnected. Reconnecting in ${delayMs / 1000}s (attempt ${this.reconnectAttempts}). ${lastConnectedMessage}`);
 		}
 
-		this.reconnectTimer = globalThis.setTimeout(() => {
+		this.reconnectTimer = setTimeout(() => {
 			this.reconnectTimer = undefined;
 			void (async () => {
 				const userId = this.getCurrentUserId();

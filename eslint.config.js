@@ -68,7 +68,6 @@ const config = [
 			'unicorn/no-optional-chaining-on-undeclared-variable': 'off',
 			'unicorn/no-subtraction-comparison': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
-			'unicorn/no-unnecessary-global-this': 'off',
 			'unicorn/no-unsafe-string-replacement': 'off',
 			'unicorn/prefer-array-from-map': 'off',
 			'unicorn/prefer-combined-guards': 'off',

@@ -30,7 +30,7 @@ export function triggerCloudSyncWithDebounce(): void {
 		clearTimeout(debounceTimer);
 	}
 
-	debounceTimer = globalThis.setTimeout(() => {
+	debounceTimer = setTimeout(() => {
 		debounceTimer = undefined;
 		void handler?.();
 	}, DEBOUNCE_MS);

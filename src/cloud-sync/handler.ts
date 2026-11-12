@@ -47,7 +47,7 @@ export class CloudSyncHandler {
 			}
 
 			// Clear flag after push completes + 5 second buffer to ignore our own real-time update
-			this.justPushedTimeout = globalThis.setTimeout(() => {
+			this.justPushedTimeout = setTimeout(() => {
 				this.justPushed = false;
 				this.justPushedTimeout = undefined;
 			}, 5000);

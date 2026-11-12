@@ -108,7 +108,7 @@ export function setupMockFetch() {
  Mock a specific API endpoint with custom data
  */
 export function mockEndpoint(url: string, data: any) {
-	const existingFetch = globalThis.fetch as any;
+	const existingFetch = fetch as any;
 
 	globalThis.fetch = vi.fn((requestUrl: any) => {
 		if (requestUrl === url) {
@@ -128,7 +128,7 @@ export function mockEndpoint(url: string, data: any) {
  Mock a failed API response
  */
 export function mockEndpointError(url: string, statusCode = 500) {
-	const existingFetch = globalThis.fetch as any;
+	const existingFetch = fetch as any;
 
 	globalThis.fetch = vi.fn((requestUrl: any) => {
 		if (requestUrl === url) {

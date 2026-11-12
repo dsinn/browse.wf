@@ -44,7 +44,7 @@ export class CloudSyncHealthMonitor {
 		getChannelState: () => string | undefined,
 		setLastFreshTimestamp: (ts: number) => void,
 	): void {
-		globalThis.setInterval(() => {
+		setInterval(() => {
 			if (getChannelState() !== 'joined') {
 				return;
 			}

@@ -16,6 +16,10 @@
     "build": "node build-gh-pages.js",
     "post-weekly-forecast": "tsc && node --env-file-if-exists=.env typestripped/scripts/post-weekly-forecast.js"
   },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.90.1",
+    "warframe-public-export-plus": "^0.6.0"
+  },
   "devDependencies": {
     "@playwright/test": "^1.57.0",
     "@testing-library/dom": "^10.4.0",
@@ -36,9 +40,5 @@
     "vite": "^8.0.0",
     "vitest": "^4.0.18",
     "xo": "^5.0.1"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.90.1",
-    "warframe-public-export-plus": "^0.6.0"
   }
 }

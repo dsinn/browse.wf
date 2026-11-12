@@ -51,7 +51,6 @@ const config = [
 			'package-json/require-engines': 'off',
 			'package-json/require-entry-point': 'off',
 			'package-json/require-fields': 'off',
-			'package-json/sort-properties': 'off',
 			'regexp/no-dupe-disjunctions': 'off',
 			'regexp/no-empty-alternative': 'off',
 			'regexp/no-super-linear-move': 'off',

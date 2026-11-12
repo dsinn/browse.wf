@@ -31,26 +31,13 @@ export function updateWeekly(): void {
 		}
 
 		if (weeklyExpiry) {
-			const subscribed = [];
-			if (localStorage.getItem('live.notif.litesortie')) {
-				subscribed.push('Archon Hunt');
-			}
-
-			if (localStorage.getItem('live.notif.teshin')) {
-				subscribed.push('Vendors');
-			}
-
-			if (localStorage.getItem('live.notif.circuit')) {
-				subscribed.push('Weekly Missions');
-			}
-
-			if (localStorage.getItem('live.notif.labconquest')) {
-				subscribed.push('Deep Archimedea');
-			}
-
-			if (localStorage.getItem('live.notif.hexconquest')) {
-				subscribed.push('Temporal Archimedea');
-			}
+			const subscribed = [
+				['litesortie', 'Archon Hunt'],
+				['teshin', 'Vendors'],
+				['circuit', 'Weekly Missions'],
+				['labconquest', 'Deep Archimedea'],
+				['hexconquest', 'Temporal Archimedea'],
+			].filter(([notification]) => localStorage.getItem(`live.notif.${notification}`)).map(([, label]) => label);
 
 			if (subscribed.length > 0) {
 				window.sendNotification!('It\'s a new week. ' + subscribed.join(', ') + ' refreshed.');

@@ -50,7 +50,6 @@ const config = [
 			'unicorn/no-computed-property-existence-check': 'off',
 			'unicorn/no-exports-in-scripts': 'off',
 			'unicorn/no-global-object-property-assignment': 'off',
-			'unicorn/no-immediate-mutation': 'off',
 			'unicorn/no-optional-chaining-on-undeclared-variable': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
 			'unicorn/no-unsafe-string-replacement': 'off',

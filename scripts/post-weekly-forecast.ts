@@ -41,10 +41,8 @@ async function fetchJson(url: string, options: RequestInit = {}) {
 async function fetchWorldState() {
 	const headers: Record<string, string> = {
 		Origin: 'http://localhost',
+		...(PROXY_TOKEN && {'X-Warframe-API-Front-Proxy-Token': PROXY_TOKEN}),
 	};
-	if (PROXY_TOKEN) {
-		headers['X-Warframe-API-Front-Proxy-Token'] = PROXY_TOKEN;
-	}
 
 	return fetchJson(`${PROXY_BASE_URL}/worldState`, {headers});
 }
@@ -144,14 +142,11 @@ export async function formatDescendia(worldState: AnyRecord, find = findWeekly, 
 
 	for (const row of resolveDescentChallenges(next as any, dictEn)) {
 		const arena = row.arenaEmoji;
-		const parts = [row.challenge];
-		if (row.specs.length > 0) {
-			parts.push(row.specs.join(', '));
-		}
-
-		if (row.auras.length > 0) {
-			parts.push(row.auras.join(', '));
-		}
+		const parts = [
+			row.challenge,
+			...(row.specs.length > 0 ? [row.specs.join(', ')] : []),
+			...(row.auras.length > 0 ? [row.auras.join(', ')] : []),
+		];
 
 		const content = `**${escapeMarkdown(row.typeLabel)}** · ${parts.map(p => escapeMarkdown(p)).join(' · ')}`;
 		const formatted = row.type === 'DT_PROTOFRAME' ? `__${content}__` : content;

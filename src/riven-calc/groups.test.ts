@@ -4,7 +4,14 @@
 import {describe, expect, test} from 'vitest';
 import {loadExportJson} from '../../test/helpers/api-mocks';
 import {
-	ARCHGUN, KITGUN, MELEE, PISTOL, RIFLE, RIVEN_CLASSES, SHOTGUN, ZAW,
+	ARCHGUN,
+	KITGUN,
+	MELEE,
+	PISTOL,
+	RIFLE,
+	RIVEN_CLASSES,
+	SHOTGUN,
+	ZAW,
 } from './data.js';
 import {GROUP_DEFINITIONS, groupStats, OTHER_GROUP_ID} from './groups.js';
 import {getRivenStats, type StatDef} from './stats.js';

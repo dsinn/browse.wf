@@ -1,21 +1,21 @@
 /**
  Shared ticker for countdown badges.
- 
+
  This exists to improve performance over the upstream in the following ways:
- 
+
  - A tick only visits the badges that were registered, instead of searching the whole document
  (which is big on the /live page) in a hot loop.
  - Only touch the DOM when a badge's text actually changed instead of eagerly doing so every tick.
- 
+
  Because badges are tracked by element, a registered badge must stay the same node. Re-serializing or
  cloning its container (e.g. `container.innerHTML += ' '`) replaces it with an unregistered copy that
- * never updates again; use `append()` and friends instead.
- *
- * Badges register an update function that sets their own text; a single interval calls all of them.
- * The interval starts when the first badge registers and then runs for the rest of the page's life.
- * Registered badges are dropped automatically once they have been attached to the DOM and then removed,
- * or once their update function returns false to say it has written its final text. A badge that has
- * not been attached yet is kept, as it may be built well before the page attaches it.
+ never updates again; use `append()` and friends instead.
+
+ Badges register an update function that sets their own text; a single interval calls all of them.
+ The interval starts when the first badge registers and then runs for the rest of the page's life.
+ Registered badges are dropped automatically once they have been attached to the DOM and then removed,
+ or once their update function returns false to say it has written its final text. A badge that has
+ not been attached yet is kept, as it may be built well before the page attaches it.
  */
 
 type Entry = {

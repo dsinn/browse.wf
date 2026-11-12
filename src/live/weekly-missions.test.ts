@@ -1,5 +1,9 @@
 import {
-	describe, test, expect, beforeEach, afterEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
 } from 'vitest';
 import {getById} from '@test/helpers/dom-helpers';
 import {testCardFilters} from '@test/live/card-filters-factory';

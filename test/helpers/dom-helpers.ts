@@ -61,14 +61,14 @@ export function mockBootstrapTooltip() {
 
 /**
  Load common.js and promote the named plain function declarations to window.
- 
+
  common.js uses plain function declarations rather than explicit window
  assignments. In a browser, the global scope is window so these are
  automatically accessible as window.fn. In vitest, eval() runs inside a
  strict ES module where function declarations are local to the eval scope
  and never reach globalThis. This wrapper appends explicit window assignments
  for the requested names as a workaround.
- 
+
  @param functionNames - Names of functions from common.js to expose on window
  */
 export function loadCommonJsFunctions(functionNames: string[]) {

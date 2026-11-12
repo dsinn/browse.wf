@@ -4,7 +4,10 @@
 import {describe, expect, test} from 'vitest';
 import {loadExportJson} from '../../test/helpers/api-mocks';
 import {
-	ARCHGUN, MELEE, RIFLE, SHOTGUN,
+	ARCHGUN,
+	MELEE,
+	RIFLE,
+	SHOTGUN,
 } from './data.js';
 import {getRivenStats} from './stats.js';
 

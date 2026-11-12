@@ -2,7 +2,12 @@
  Tests for conditional logger utility
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 
 describe('Logger', () => {

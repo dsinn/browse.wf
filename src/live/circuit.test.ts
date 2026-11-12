@@ -6,7 +6,12 @@
  #circuit-weapons-check, and [data-collapse-toggle="weekly-missions"].
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {loadMock} from '@test/helpers/api-mocks';
 import {freezeTime, MOCK_TIMESTAMP} from '@test/helpers/time-helpers';

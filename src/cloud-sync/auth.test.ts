@@ -3,7 +3,12 @@
  Discord OAuth authentication and session management
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {AuthService} from './auth';
 import {db, isDatabaseConfigured} from './database';

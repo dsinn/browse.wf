@@ -6,7 +6,11 @@
  because db is null and calling db.auth.getSession() throws).
  */
 import {
-	describe, test, expect, beforeEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	vi,
 } from 'vitest';
 import {isDatabaseConfigured} from './database';
 

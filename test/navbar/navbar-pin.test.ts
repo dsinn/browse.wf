@@ -3,7 +3,12 @@
  Tests functionality, appearance, and tooltip behavior
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {loadFixture} from '../helpers/fixture-loader';
 import {mockBootstrapTooltip, getById} from '../helpers/dom-helpers';

@@ -2,11 +2,20 @@
  Unit tests for src/riven-calc/weapons.ts, using the real ExportWeapons/ExportUpgrades/dict.
  */
 import {
-	beforeAll, describe, expect, test,
+	beforeAll,
+	describe,
+	expect,
+	test,
 } from 'vitest';
 import {loadExportJson} from '../../test/helpers/api-mocks';
 import {
-	ARCHGUN, KITGUN, MELEE, PISTOL, RIFLE, SHOTGUN, ZAW,
+	ARCHGUN,
+	KITGUN,
+	MELEE,
+	PISTOL,
+	RIFLE,
+	SHOTGUN,
+	ZAW,
 } from './data.js';
 import {
 	buildWeaponOptions,

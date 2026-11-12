@@ -7,22 +7,22 @@ import {TEST_FRONT_PROXY_BASE_URL} from './helpers/test-constants';
 
 /**
  API Structure Validation Tests
- 
+
  These tests verify that the real oracle.browse.wf API responses match the structure
  of our mock files. This catches "mock drift" where the real API changes but our
  mocks don't get updated.
- 
+
  IMPORTANT: These tests DO NOT use mocks - they hit real external APIs.
  Run these manually or in CI to detect when mocks need updating.
- 
+
  If a test fails:
- * 1. Check if the API structure actually changed
- * 2. Update the mock file: ./test/update-mocks.sh
- * 3. Update tests if new fields are critical for functionality
- *
- * @TODO: Add validation for array element structures. Current tests only check if
- * arrays exist (Array.isArray), but don't validate the structure of items within
- * those arrays (e.g., Events[0], Invasions[0], etc. should have specific fields).
+ 1. Check if the API structure actually changed
+ 2. Update the mock file: ./test/update-mocks.sh
+ 3. Update tests if new fields are critical for functionality
+
+ @TODO: Add validation for array element structures. Current tests only check if
+ arrays exist (Array.isArray), but don't validate the structure of items within
+ those arrays (e.g., Events[0], Invasions[0], etc. should have specific fields).
  */
 
 describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', () => {

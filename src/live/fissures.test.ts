@@ -1,5 +1,10 @@
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {loadMock, setupMockFetch} from '@test/helpers/api-mocks';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';

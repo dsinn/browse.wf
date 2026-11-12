@@ -1,5 +1,10 @@
 import {
-	describe, it, expect, beforeEach, afterEach, vi,
+	describe,
+	it,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {TEST_FRONT_PROXY_BASE_URL as DEFAULT_BASE_URL} from '@test/helpers/test-constants';
 import {MILLIS_PER_HOUR} from './helpers/time-helpers';

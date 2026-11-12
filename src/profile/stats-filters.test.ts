@@ -1,10 +1,18 @@
 import {
-	describe, it, expect, beforeEach, vi,
+	describe,
+	it,
+	expect,
+	beforeEach,
+	vi,
 } from 'vitest';
 import {loadCommonJsFunctions, mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {loadExportJson} from '@test/helpers/api-mocks';
 import {
-	EQUIPMENT_CATEGORIES, ENEMY_FACTIONS, getEquipmentCategoryLabel, getEnemyFactionLabel, initStatsFilterBar,
+	EQUIPMENT_CATEGORIES,
+	ENEMY_FACTIONS,
+	getEquipmentCategoryLabel,
+	getEnemyFactionLabel,
+	initStatsFilterBar,
 } from './stats-filters';
 
 const ExportImages = loadExportJson('ExportImages.json');

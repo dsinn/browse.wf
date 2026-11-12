@@ -2,7 +2,13 @@
  Tests for src/clan-weekly/index.ts — updateClanWeekly()
  */
 import {
-	describe, test, expect, beforeAll, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeAll,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {freezeTime, MOCK_TIMESTAMP} from '@test/helpers/time-helpers';
 import {updateClanWeekly} from './index';

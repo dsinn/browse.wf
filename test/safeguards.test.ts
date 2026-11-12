@@ -2,7 +2,10 @@
  Integration tests to verify production domain safeguards work in test environment
  */
 import {
-	describe, it, expect, beforeEach,
+	describe,
+	it,
+	expect,
+	beforeEach,
 } from 'vitest';
 
 describe('Production Domain Safeguards', () => {

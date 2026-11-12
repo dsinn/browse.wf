@@ -3,10 +3,17 @@
  Pure data transforms between localStorage and nested objects
  */
 import {
-	describe, test, expect, beforeEach, afterEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
 } from 'vitest';
 import {
-	localStorageToData, dataToLocalStorage, setNestedValue, flattenObject,
+	localStorageToData,
+	dataToLocalStorage,
+	setNestedValue,
+	flattenObject,
 } from './serializer';
 
 describe('CloudSyncSerializer', () => {

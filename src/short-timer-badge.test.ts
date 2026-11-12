@@ -1,5 +1,10 @@
 import {
-	describe, test, expect, beforeEach, vi, afterEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	vi,
+	afterEach,
 } from 'vitest';
 import {createShortTimerBadge, initializeShortTimerBadges} from './short-timer-badge';
 import {SECONDS_PER_DAY, SECONDS_PER_HOUR} from './helpers/time-helpers';

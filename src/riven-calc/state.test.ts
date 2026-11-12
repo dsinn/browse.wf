@@ -3,7 +3,10 @@
  */
 import {describe, expect, test} from 'vitest';
 import {
-	ARCHGUN, MELEE, RIFLE, SHOTGUN,
+	ARCHGUN,
+	MELEE,
+	RIFLE,
+	SHOTGUN,
 } from './data.js';
 import {createDefaultState, parseHash, serializeState} from './state.js';
 import {type WeaponOption} from './weapons.js';

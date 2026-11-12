@@ -7,7 +7,12 @@
  warframe-api-proxy-client is mocked to prevent the module's top-level await from firing.
  */
 import {
-	describe, test, expect, vi, beforeEach, afterEach,
+	describe,
+	test,
+	expect,
+	vi,
+	beforeEach,
+	afterEach,
 } from 'vitest';
 import {
 	mongoMs,

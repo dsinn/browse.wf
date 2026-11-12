@@ -14,7 +14,11 @@ import path from 'node:path';
 import process from 'node:process';
 import {fileURLToPath} from 'node:url';
 import {
-	discoverPhpPages, startPhpServer, stopPhpServer, fetchHtml, transformPhpLinks,
+	discoverPhpPages,
+	startPhpServer,
+	stopPhpServer,
+	fetchHtml,
+	transformPhpLinks,
 } from './scripts/render-pages.js';
 
 const __filename = fileURLToPath(import.meta.url);

@@ -1,13 +1,13 @@
 /**
  Riven stat maths, as documented on the Warframe Wiki's "Riven Mods" page:
- 
+
  v = b × 10 × (rank + 1) × D × L × W
- 
+
  b  the stat's base coefficient (signed)
  D  the disposition multiplier; dispositions were retired in Hotfix 44.1.3, so it is always 1.2
  L  the multiplier for the Riven's trait layout (positive/negative trait counts)
  W  the stat's random roll, 0.9 to 1.1
- 
+
  Everything here is pure so that it can be unit-tested without a DOM.
  */
 

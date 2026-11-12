@@ -5,7 +5,11 @@
  dict-key-to-display-name resolution.
  */
 import {
-	describe, test, expect, vi, afterEach,
+	describe,
+	test,
+	expect,
+	vi,
+	afterEach,
 } from 'vitest';
 import {getForecastWeekCount, renderCircuitForecastTable} from './index.js';
 

@@ -2,7 +2,11 @@
  Tests for src/arbys/tilesets.ts
  */
 import {
-	describe, test, expect, beforeEach, afterEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
 } from 'vitest';
 import type {IRegion} from 'warframe-public-export-plus';
 import {appendTilesetText, isTilesetChecked, updateTilesetNextOccurrence} from './tilesets.js';

@@ -8,7 +8,12 @@
  Unit-level tests for backoff/session-refresh → reconnection.test.ts
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import * as loggerModule from '../logger';
 import type {UserData} from './types';

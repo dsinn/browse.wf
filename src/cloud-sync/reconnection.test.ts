@@ -3,7 +3,12 @@
  Exponential backoff state machine, session refresh, and indefinite retry
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {CloudSyncReconnection} from './reconnection';
 import {db} from './database';

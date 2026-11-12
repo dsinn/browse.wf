@@ -2,7 +2,11 @@
  Unit tests for src/card-filters.ts
  */
 import {
-	describe, test, expect, beforeEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	vi,
 } from 'vitest';
 import {loadFixture} from '@test/helpers/fixture-loader';
 import {initializeCardFilters} from './card-filters';

@@ -1,5 +1,8 @@
 import {
-	describe, it, expect, beforeEach,
+	describe,
+	it,
+	expect,
+	beforeEach,
 } from 'vitest';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {addTimeStatTooltip, addStatPercentage, addCipherAvgTooltip} from './stats-tooltips';

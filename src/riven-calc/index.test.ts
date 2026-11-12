@@ -6,7 +6,12 @@
  end-to-end behaviour in a real browser is covered by e2e/riven-calc.spec.ts.
  */
 import {
-	beforeAll, beforeEach, describe, expect, test, vi,
+	beforeAll,
+	beforeEach,
+	describe,
+	expect,
+	test,
+	vi,
 } from 'vitest';
 import {loadFixture} from '../../test/helpers/fixture-loader';
 import {loadExportJson} from '../../test/helpers/api-mocks';
@@ -14,7 +19,10 @@ import {withTranslationFallback} from '../translation-fallback.js';
 import {RIFLE, SHOTGUN} from './data.js';
 import {getRivenStats} from './stats.js';
 import {
-	buildStatLabel, getStatName, initRivenCalc, type CalcData,
+	buildStatLabel,
+	getStatName,
+	initRivenCalc,
+	type CalcData,
 } from './index.js';
 
 let data: CalcData;

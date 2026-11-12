@@ -7,7 +7,12 @@
  - initWeeklyForecast  (main entry point — conditional rendering, tab preservation)
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {loadMock} from '@test/helpers/api-mocks';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';

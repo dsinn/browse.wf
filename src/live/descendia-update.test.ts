@@ -1,19 +1,25 @@
 /**
  Tests for updateDescendia() in src/descendia.ts
- 
+
  The global test setup (setup.ts) loads live.html as the DOM fixture, which already
  contains #descendia-table, #descent-checks, and [data-collapse-toggle="descendia"].
  We use those elements directly.
- 
+
  Covers:
  - Retry when worldState is missing or empty (setTimeout)
  - Retry when no active descent found (stale worldState)
  - Active descent: header update, expiry badge, table rendered
- *  - Re-render scheduled at expiry
- *  - Missing header / table handled gracefully
+ - Re-render scheduled at expiry
+ - Missing header / table handled gracefully
  */
 import {
-	describe, test, expect, beforeAll, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeAll,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {loadMock} from '@test/helpers/api-mocks';

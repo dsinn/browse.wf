@@ -1,5 +1,10 @@
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {loadFixture} from '@test/helpers/fixture-loader';
 import {
@@ -8,8 +13,14 @@ import {
 	ENTRY_RHINO_FROST_LOKI,
 } from '@test/invigorations/cache-fixtures';
 import {
-	loadCache, saveToCache, preFillForm, showResults, showHistory,
-	showCacheAlert, initInvigorationsFromCache, initInvigorations,
+	loadCache,
+	saveToCache,
+	preFillForm,
+	showResults,
+	showHistory,
+	showCacheAlert,
+	initInvigorationsFromCache,
+	initInvigorations,
 } from './invigorations';
 import {getWeekIndex, getNextWeeklyResetMs} from './helpers/time-helpers';
 import {registerSyncHandler} from './cloud-sync/trigger';

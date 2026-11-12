@@ -3,7 +3,12 @@
  Heartbeat interval tracking and visibility-triggered pull fallback.
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {CloudSyncHealthMonitor} from './health-monitor';
 

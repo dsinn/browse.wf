@@ -1,5 +1,8 @@
 import {
-	describe, it, expect, beforeEach,
+	describe,
+	it,
+	expect,
+	beforeEach,
 } from 'vitest';
 import {mockBootstrapTooltip, loadCommonJsFunctions} from '@test/helpers/dom-helpers';
 import {loadExportJson} from '@test/helpers/api-mocks';

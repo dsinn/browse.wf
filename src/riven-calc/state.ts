@@ -1,6 +1,9 @@
 import {DEFAULT_RIVEN_CLASS, RIVEN_CLASSES} from './data.js';
 import {
-	clampRank, MAX_RANK, normalizeLayout, type Layout,
+	clampRank,
+	MAX_RANK,
+	normalizeLayout,
+	type Layout,
 } from './formula.js';
 import {type WeaponOption} from './weapons.js';
 

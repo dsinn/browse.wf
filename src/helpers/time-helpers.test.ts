@@ -1,5 +1,9 @@
 import {
-	describe, it, expect, vi, afterEach,
+	describe,
+	it,
+	expect,
+	vi,
+	afterEach,
 } from 'vitest';
 import timezoneMock from 'timezone-mock';
 import {

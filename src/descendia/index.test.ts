@@ -4,7 +4,10 @@
  Imports the real production code directly to avoid test drift.
  */
 import {
-	describe, test, expect, beforeEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
 } from 'vitest';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {loadMock} from '@test/helpers/api-mocks';

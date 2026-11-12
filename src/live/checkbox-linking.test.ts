@@ -5,7 +5,11 @@
  Archimedea → Netracells additive linking behaviour.
  */
 import {
-	describe, test, expect, beforeEach, afterEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
 } from 'vitest';
 import {applyCheckboxLinking} from './checkbox-linking';
 

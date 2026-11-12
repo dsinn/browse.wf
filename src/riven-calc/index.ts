@@ -17,7 +17,10 @@ import {
 } from './formula.js';
 import {groupStats} from './groups.js';
 import {
-	createDefaultState, parseHash, serializeState, type CalcState,
+	createDefaultState,
+	parseHash,
+	serializeState,
+	type CalcState,
 } from './state.js';
 import {getRivenStats, type StatDef} from './stats.js';
 import {buildWeaponOptions, canWeaponRollStat, type WeaponOption} from './weapons.js';

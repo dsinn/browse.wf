@@ -2,7 +2,12 @@
  Tests for src/calendar-seasons/index.ts — renderCalendarSeasonPane()
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {renderCalendarSeasonPane} from '../calendar-seasons/index';
 

@@ -6,7 +6,12 @@
  which already contains #auth-button. We use that element directly.
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 
 const {

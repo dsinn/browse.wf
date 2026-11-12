@@ -10,7 +10,11 @@
  Content filtering behavior (updateBountyCycleLocalised) is tested via E2E tests.
  */
 import {
-	describe, test, expect, beforeEach, afterEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
 } from 'vitest';
 import {loadFixture} from '@test/helpers/fixture-loader';
 import {initializeBountyFilters, getMinimumTier, isBountyMissionTypeEnabled} from './bounty-filters';

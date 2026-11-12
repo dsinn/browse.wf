@@ -5,7 +5,12 @@
  The Hex bounty headings, and that the OID changes after a daily reset.
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {freezeTime} from '@test/helpers/time-helpers';

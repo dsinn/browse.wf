@@ -85,7 +85,6 @@ const config = [
 			'unicorn/prefer-ternary': 'off',
 			'unicorn/prefer-toggle-attribute': 'off',
 			'unicorn/require-css-escape': 'off',
-			'xo/import-specifier-newline': 'off',
 		},
 	},
 	// Require 'u' flag (not 'v') — v requires ES2024, incompatible with tsconfig.json target of ES2021

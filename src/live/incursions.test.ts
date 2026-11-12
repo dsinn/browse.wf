@@ -2,7 +2,11 @@
  Tests for Steel Path Incursions card
  */
 import {
-	describe, test, expect, beforeEach, afterEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
 } from 'vitest';
 import {getById, mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {setupMockFetch, loadExportJson} from '@test/helpers/api-mocks';

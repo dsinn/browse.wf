@@ -10,7 +10,10 @@ import {addTooltip} from '../tooltip.js';
 import {isFilterEnabled} from '../card-filters.js';
 import {createActivationBadge} from './activation-badge.js';
 import {
-	isNewsItemRead, markNewsItemAsRead, setNewsItemData, type NewsItem,
+	isNewsItemRead,
+	markNewsItemAsRead,
+	setNewsItemData,
+	type NewsItem,
 } from './news-mark-read.js';
 
 let latestRenderedNewsTime = 0;

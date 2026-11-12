@@ -4,7 +4,12 @@
  Imports the real production code directly to avoid test drift.
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {loadMock, loadExportJson} from '@test/helpers/api-mocks';
 import {updateCalendarSeason} from '../live/calendar-seasons';

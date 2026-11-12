@@ -1,15 +1,15 @@
 /**
  Post-weekly-forecast.js
- 
+
  Fetches the weekly forecast data and posts a summary to Discord via webhook.
  Designed to run in Node.js (no DOM) on a weekly schedule.
- 
+
  Required environment variables:
  WEEKLY_FORECAST_DISCORD_WEBHOOK_URL  — the Discord webhook URL to POST to
- 
+
  Optional environment variables:
  WARFRAME_API_FRONT_PROXY_BASE_URL  — override the proxy base URL
- *   WARFRAME_API_FRONT_PROXY_TOKEN     — auth token for the proxy
+ WARFRAME_API_FRONT_PROXY_TOKEN     — auth token for the proxy
  */
 
 import './node-window-shim.js'; // eslint-disable-line import-x/no-unassigned-import, import-x/order -- must be first; downstream modules assign to window at load time

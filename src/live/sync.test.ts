@@ -5,7 +5,12 @@
  Tests verify that each listener performs the correct actions given different DOM/localStorage states.
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {MOCK_TIMESTAMP} from '@test/helpers/test-constants';
 import {MILLIS_PER_DAY, MILLIS_PER_WEEK} from '../helpers/time-helpers';

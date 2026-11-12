@@ -1,15 +1,15 @@
 /**
  Authentication service for cloud sync
- 
+
  Handles Discord OAuth authentication and manages user session state.
  Dispatches the following events for other modules to react to:
- 
+
  - **'auth-signed-in'**: Emitted on SIGNED_IN and INITIAL_SESSION with a user.
  detail: { userId: string }
- 
+
  - **'auth-signed-out'**: Emitted on SIGNED_OUT.
- 
- * - **'auth-state-changed'**: Emitted on SIGNED_OUT, for UI refresh.
+
+ - **'auth-state-changed'**: Emitted on SIGNED_OUT, for UI refresh.
  */
 
 import type {User} from '@supabase/supabase-js';

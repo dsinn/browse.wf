@@ -1,5 +1,10 @@
 import {
-	describe, it, expect, beforeEach, afterEach, vi,
+	describe,
+	it,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {loadFixture} from '@test/helpers/fixture-loader';
 // WarframeApiFrontProxyClient is imported after module reset in each test group,

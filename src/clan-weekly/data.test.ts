@@ -1,9 +1,15 @@
 import {
-	describe, test, expect, beforeEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
 } from 'vitest';
 import {loadMock, setupMockFetch, loadExportJson} from '@test/helpers/api-mocks';
 import {
-	resolveBonusRegion, findClanWeeklyEntry, weekCountToActivationMs, resolveClanWeeklyRewards,
+	resolveBonusRegion,
+	findClanWeeklyEntry,
+	weekCountToActivationMs,
+	resolveClanWeeklyRewards,
 } from './data';
 
 const worldState = loadMock('worldState.json');

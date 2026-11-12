@@ -2,7 +2,10 @@
  Tests for src/archwing-icon.ts
  */
 import {
-	describe, test, expect, beforeEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
 } from 'vitest';
 import {makeArchwingIcon} from './archwing-icon';
 

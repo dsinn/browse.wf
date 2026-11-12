@@ -2,7 +2,12 @@
  Tests for src/arbys/title.ts
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {BASE_TITLE, updateArbyTitle} from './title.js';
 

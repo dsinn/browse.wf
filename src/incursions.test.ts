@@ -9,7 +9,11 @@ import {readFileSync} from 'node:fs';
 import {join} from 'node:path';
 import process from 'node:process';
 import {
-	describe, test, expect, beforeEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	vi,
 } from 'vitest';
 import {JSDOM} from 'jsdom';
 import {loadFixture} from '@test/helpers/fixture-loader';

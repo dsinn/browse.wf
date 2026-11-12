@@ -44,10 +44,10 @@ export async function reloadWithFrozenClock(page: Page, timestamp: number = MOCK
 
 /**
  Sets up mock routes for all oracle.browse.wf API endpoints used by E2E tests.
- 
+
  This intercepts network requests and serves mock data from test/__mocks__/
  instead of hitting real APIs, making tests faster, deterministic, and offline-capable.
- 
+
  @param page - The Playwright page instance to set up routes on
  @param options - Optional configuration
  @param options.worldStateFile - Custom worldState mock file name (default: 'worldState.json')

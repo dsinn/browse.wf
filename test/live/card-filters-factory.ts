@@ -8,12 +8,20 @@
  Imports the REAL production code (src/card-filters.ts) to avoid test drift.
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {loadFixture} from '../helpers/fixture-loader';
 import {mockBootstrapTooltip} from '../helpers/dom-helpers';
 import {
-	initializeFilterToggles, initializeCardFilters, isFilterEnabled, refreshFilterStatus,
+	initializeFilterToggles,
+	initializeCardFilters,
+	isFilterEnabled,
+	refreshFilterStatus,
 } from '../../src/card-filters';
 
 /**

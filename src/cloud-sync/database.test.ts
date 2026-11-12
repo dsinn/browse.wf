@@ -2,7 +2,12 @@
  Tests for database client configuration
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 
 // Mock logger before other imports

@@ -2,7 +2,12 @@
  Tests for the News card — rendering (updateNewsTicker) and mark-as-read
  */
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {loadMock} from '@test/helpers/api-mocks';
 import {getById, mockBootstrapTooltip} from '@test/helpers/dom-helpers';
@@ -10,7 +15,12 @@ import {testCardFilters} from '@test/live/card-filters-factory';
 import * as triggerModule from '../cloud-sync/trigger.js';
 import {resetTimerRegistry} from '../timer-registry';
 import {
-	setNewsItemData, isNewsItemRead, markNewsItemAsRead, markAllNewsAsRead, pruneStaleNewsRead, initializeMarkAsRead,
+	setNewsItemData,
+	isNewsItemRead,
+	markNewsItemAsRead,
+	markAllNewsAsRead,
+	pruneStaleNewsRead,
+	initializeMarkAsRead,
 } from './news-mark-read';
 import {updateNewsTicker, resetNewsState} from './news';
 

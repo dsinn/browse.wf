@@ -5,12 +5,18 @@
  tested via src/archimedea/data.ts. These tests cover the DOM rendering layer only.
  */
 import {
-	describe, test, expect, beforeEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	vi,
 } from 'vitest';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {loadMock} from '@test/helpers/api-mocks';
 import {
-	renderArchimedeaMissions, renderArchimedeaFrameVariables, renderArchimedeaTable,
+	renderArchimedeaMissions,
+	renderArchimedeaFrameVariables,
+	renderArchimedeaTable,
 } from './helpers';
 import type {IResolvedArchimedeaMission, IResolvedFrameVariable} from './data';
 

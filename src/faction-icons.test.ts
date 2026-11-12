@@ -1,5 +1,8 @@
 import {
-	describe, test, expect, beforeEach,
+	describe,
+	test,
+	expect,
+	beforeEach,
 } from 'vitest';
 import {loadExportJson} from '@test/helpers/api-mocks';
 import {loadCommonJsFunctions} from '@test/helpers/dom-helpers';

@@ -2,7 +2,13 @@
  Tests for src/live/calendar-seasons.ts — updateCalendarSeason()
  */
 import {
-	describe, test, expect, beforeAll, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeAll,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {testCardFilters} from '@test/live/card-filters-factory';
 import {loadMock} from '@test/helpers/api-mocks';

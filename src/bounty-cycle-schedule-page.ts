@@ -1,7 +1,16 @@
 import {
-	getCycleWindows, formatWindow, getDayBucket, formatDayHeading, groupWindowsByDay, isWindowPast, isWindowActive,
-	getNextBoundary, MAX_WINDOWS_PER_DAY,
-	type CyclePhase, type HourFormat, type CycleWindow,
+	getCycleWindows,
+	formatWindow,
+	getDayBucket,
+	formatDayHeading,
+	groupWindowsByDay,
+	isWindowPast,
+	isWindowActive,
+	getNextBoundary,
+	MAX_WINDOWS_PER_DAY,
+	type CyclePhase,
+	type HourFormat,
+	type CycleWindow,
 } from './bounty-cycle-schedule.js';
 
 const DAY_COUNT = 7;

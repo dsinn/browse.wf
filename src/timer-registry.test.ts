@@ -1,8 +1,17 @@
 import {
-	describe, test, expect, beforeEach, afterEach, vi,
+	describe,
+	test,
+	expect,
+	beforeEach,
+	afterEach,
+	vi,
 } from 'vitest';
 import {
-	registerTimerBadge, resetTimerRegistry, setTimerText, getPendingLabel, TICK_MS,
+	registerTimerBadge,
+	resetTimerRegistry,
+	setTimerText,
+	getPendingLabel,
+	TICK_MS,
 } from './timer-registry';
 
 function attachedBadge(): HTMLSpanElement {

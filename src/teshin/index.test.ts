@@ -6,7 +6,11 @@
  starting from its rotation index).
  */
 import {
-	describe, test, expect, vi, afterEach,
+	describe,
+	test,
+	expect,
+	vi,
+	afterEach,
 } from 'vitest';
 import {renderTeshinForecastHeader, renderTeshinForecastTable} from './index.js';
 

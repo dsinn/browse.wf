@@ -95,7 +95,7 @@ export function getEnemyFactionLabel(faction: string): string | undefined {
 
 /**
  Renders a filter bar and wires up filtering for a stats table.
- 
+
  @param filterBar - The <div> that will receive the filter buttons.
  @param tbody - The <tbody> whose rows carry data-category attributes.
  @param entries - Ordered list of { key, tooltip, icon } to show as buttons.
@@ -104,8 +104,8 @@ export function getEnemyFactionLabel(faction: string): string | undefined {
  pass an empty string to fall back to displayText.
  @param presentKeys - Set of category keys that actually appear in the tbody,
  used to skip buttons for absent categories.
- * @param onFilter - Optional callback invoked after each filter change,
- * including when "All" is selected.
+ @param onFilter - Optional callback invoked after each filter change,
+ including when "All" is selected.
  */
 export function initStatsFilterBar(
 	filterBar: HTMLElement,

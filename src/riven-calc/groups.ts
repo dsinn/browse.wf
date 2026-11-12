@@ -145,10 +145,12 @@ export function groupStats(stats: readonly StatDef[]): TraitGroup[] {
 		const members: StatDef[] = [];
 		for (const tag of definition.tags) {
 			const stat = remaining.get(tag);
-			if (stat) {
-				members.push(stat);
-				remaining.delete(tag);
+			if (!stat) {
+				continue;
 			}
+
+			members.push(stat);
+			remaining.delete(tag);
 		}
 
 		if (members.length > 0) {

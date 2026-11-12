@@ -122,12 +122,14 @@ describe('Void Fissures Card', () => {
 			const sorted = [...expiries].sort((a: string, b: string) => Number.parseInt(a, 10) - Number.parseInt(b, 10));
 			const alreadySorted = JSON.stringify(expiries) === JSON.stringify(sorted);
 
-			if (!alreadySorted) {
-				foundUnsorted = true;
-				// Verify specific tiers we know are unsorted from our analysis
-				if (tier === 'SP-VoidT2' || tier === 'SP-VoidT3' || tier === 'VoidT4' || tier === 'VoidT5') {
-					expect(alreadySorted).toBe(false);
-				}
+			if (alreadySorted) {
+				continue;
+			}
+
+			foundUnsorted = true;
+			// Verify specific tiers we know are unsorted from our analysis
+			if (tier === 'SP-VoidT2' || tier === 'SP-VoidT3' || tier === 'VoidT4' || tier === 'VoidT5') {
+				expect(alreadySorted).toBe(false);
 			}
 		}
 

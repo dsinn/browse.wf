@@ -223,10 +223,12 @@ async function build() {
 		const staticFiles = ['arbys.txt', 'sp-incursions.txt', 'arbys-old.txt'];
 		for (const file of staticFiles) {
 			const srcPath = path.join(__dirname, file);
-			if (fs.existsSync(srcPath)) {
-				fs.copyFileSync(srcPath, path.join(BUILD_DIR, file));
-				console.log(`  ✓ Copied ${file}`);
+			if (!fs.existsSync(srcPath)) {
+				continue;
 			}
+
+			fs.copyFileSync(srcPath, path.join(BUILD_DIR, file));
+			console.log(`  ✓ Copied ${file}`);
 		}
 
 		console.log('\n✅ Build complete! Output: dist/');

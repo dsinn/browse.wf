@@ -28,24 +28,26 @@ export function updateNewsTicker(forceRender = false): void {
 		const languageCode = (localStorage.getItem('lang') ?? 'en');
 
 		for (const event of (window as any).worldState.Events) {
-			if (event.Date) {
-				const time = Math.trunc(event.Date.$date.$numberLong / 1000);
+			if (!event.Date) {
+				continue;
+			}
 
-				if (time > highestTime) {
-					highestTime = time;
-				}
+			const time = Math.trunc(event.Date.$date.$numberLong / 1000);
 
-				let message = event.Messages?.find((x: any) => x.LanguageCode === languageCode)?.Message;
-				message ??= event.Msg;
+			if (time > highestTime) {
+				highestTime = time;
+			}
 
-				if (message && message !== '/Lotus/Language/CommunityMessages/JoinDiscord') {
-					items.push({
-						type: event.Community ? 'success' : 'primary',
-						data: message,
-						time,
-						link: event.Prop,
-					});
-				}
+			let message = event.Messages?.find((x: any) => x.LanguageCode === languageCode)?.Message;
+			message ??= event.Msg;
+
+			if (message && message !== '/Lotus/Language/CommunityMessages/JoinDiscord') {
+				items.push({
+					type: event.Community ? 'success' : 'primary',
+					data: message,
+					time,
+					link: event.Prop,
+				});
 			}
 		}
 	}

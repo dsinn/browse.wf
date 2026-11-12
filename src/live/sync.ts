@@ -48,14 +48,16 @@ export function initLiveSync() {
 		// Refresh filter checkboxes
 		for (const checkbox of document.querySelectorAll<HTMLInputElement>('[data-filter-type]')) {
 			const {filterType} = checkbox.dataset;
-			if (filterType) {
-				// Extract card name from checkbox ID (e.g., "filter-news-danger" -> "news", "filter-bounty-cycle-credits" -> "bounty")
-				const cardName = checkbox.id.replace(/^filter-/u, '').split('-', 1)[0];
-				const storageKey = `live.filter.${cardName}.${filterType}`;
-				const savedState = localStorage.getItem(storageKey);
-				if (savedState !== null) {
-					checkbox.checked = savedState === '1';
-				}
+			if (!filterType) {
+				continue;
+			}
+
+			// Extract card name from checkbox ID (e.g., "filter-news-danger" -> "news", "filter-bounty-cycle-credits" -> "bounty")
+			const cardName = checkbox.id.replace(/^filter-/u, '').split('-', 1)[0];
+			const storageKey = `live.filter.${cardName}.${filterType}`;
+			const savedState = localStorage.getItem(storageKey);
+			if (savedState !== null) {
+				checkbox.checked = savedState === '1';
 			}
 		}
 

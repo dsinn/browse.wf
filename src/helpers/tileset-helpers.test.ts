@@ -35,11 +35,13 @@ describe('tileset-helpers', () => {
 			const regions: Record<string, IRegion> = (globalThis as any).ExportRegions;
 			const knownTilesets = new Set(Object.values(regions).map(n => n.tileset).filter(Boolean));
 			for (const [key, node] of Object.entries(regions)) {
-				if (!node.tileset) {
-					const inferred = getTileset(node);
-					if (inferred !== undefined) {
-						expect(knownTilesets, `${key} inferred tileset "${inferred}" should be a known tileset`).toContain(inferred);
-					}
+				if (node.tileset) {
+					continue;
+				}
+
+				const inferred = getTileset(node);
+				if (inferred !== undefined) {
+					expect(knownTilesets, `${key} inferred tileset "${inferred}" should be a known tileset`).toContain(inferred);
 				}
 			}
 		});

@@ -192,13 +192,15 @@ export async function updateFissures(forceRender = false) {
 
 	// Show empty state message if no missions rendered for a category
 	for (const category of Object.keys(tbody)) {
-		if (renderedTierHeadings[category].size === 0) {
-			const tr = document.createElement('tr');
-			const td = document.createElement('td');
-			td.textContent = 'No missions to display based on the current filters.';
-			tr.append(td);
-			tbody[category as keyof typeof tbody].append(tr);
+		if (renderedTierHeadings[category].size > 0) {
+			continue;
 		}
+
+		const tr = document.createElement('tr');
+		const td = document.createElement('td');
+		td.textContent = 'No missions to display based on the current filters.';
+		tr.append(td);
+		tbody[category as keyof typeof tbody].append(tr);
 	}
 
 	document.querySelector('#fissures-table')!.replaceChildren(tbody.fissures);

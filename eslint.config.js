@@ -72,7 +72,6 @@ const config = [
 			'unicorn/no-unsafe-string-replacement': 'off',
 			'unicorn/prefer-array-from-map': 'off',
 			'unicorn/prefer-combined-guards': 'off',
-			'unicorn/prefer-continue': 'off',
 			'unicorn/prefer-dom-node-html-methods': 'off',
 			'unicorn/prefer-early-return': 'off',
 			'unicorn/prefer-group-by': 'off',

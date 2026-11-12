@@ -35,10 +35,12 @@ function computeCategoryTotals(weapons: any[], exportWarframes: Record<string, a
 		}
 
 		const category = type.productCategory ?? 'SpecialItems';
-		if (category !== 'SpecialItems') {
-			const key = denominatorKeyFor(category);
-			totals[key] = (totals[key] ?? 0) + (Number(item.equipTime) || 0);
+		if (category === 'SpecialItems') {
+			continue;
 		}
+
+		const key = denominatorKeyFor(category);
+		totals[key] = (totals[key] ?? 0) + (Number(item.equipTime) || 0);
 	}
 
 	return totals;

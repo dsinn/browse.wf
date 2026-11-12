@@ -314,7 +314,7 @@ describe('renderCalendarSeasonPane', () => {
 			const eventRows = getEventsColumn(getFirstDayRow(pane)).children;
 
 			// First upgrade event should have sparkles
-			expect(eventRows[0].textContent).toContain('\u2728');
+			expect(eventRows[0].textContent).toContain('\u{2728}');
 		});
 
 		test('renders upgrade name as camelToWords of the path tail', async () => {

@@ -117,7 +117,7 @@ export function renderDescentChallenges(descent: IDescent, dict: Record<string, 
 		// Column 5: Specs & Auras (merged, middot-separated)
 		{
 			const td = document.createElement('td');
-			td.textContent = [...row.specs, ...row.auras].join('\u00A0\u00B7 ') || '\u2014';
+			td.textContent = [...row.specs, ...row.auras].join('\u{A0}\u{B7} ') || '\u{2014}';
 			tr.append(td);
 		}
 

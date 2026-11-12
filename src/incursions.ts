@@ -141,7 +141,7 @@ function makeFactionIcon(node: IRegion): HTMLElement {
 
 	const fallback = document.createElement('span');
 	fallback.className = 'incursion-faction-icon';
-	fallback.textContent = '\u2754'; // ❔
+	fallback.textContent = '\u{2754}'; // ❔
 	addTooltip(fallback, `(${levelRange})`);
 	return fallback;
 }

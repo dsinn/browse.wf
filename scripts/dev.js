@@ -18,7 +18,7 @@ try {
 	await result;
 } catch {
 	if (!interrupted) {
-		console.error('\u0007\n*** A dev server process exited unexpectedly. ***\n');
+		console.error('\u{7}\n*** A dev server process exited unexpectedly. ***\n');
 		process.exit(1);
 	}
 }

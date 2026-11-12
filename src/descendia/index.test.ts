@@ -112,7 +112,7 @@ describe('renderDescentChallenges', () => {
 		const tbody = renderDescentChallenges(descent, dict);
 		const rows = tbody.querySelectorAll('tr');
 		const idx = descent.Challenges.indexOf(emptyBothChallenge);
-		expect(rows[idx].querySelectorAll('td')[4].textContent).toBe('\u2014');
+		expect(rows[idx].querySelectorAll('td')[4].textContent).toBe('\u{2014}');
 	});
 
 	test('specs & auras column uses middot separator between spec and aura values', () => {
@@ -128,7 +128,7 @@ describe('renderDescentChallenges', () => {
 		const rows = tbody.querySelectorAll('tr');
 		const idx = descent.Challenges.indexOf(bothChallenge);
 		const cell = rows[idx].querySelectorAll('td')[4];
-		expect(cell.textContent).toContain('\u00A0\u00B7');
+		expect(cell.textContent).toContain('\u{A0}\u{B7}');
 	});
 
 	test('works for any descent in the Descents array (not just first)', () => {

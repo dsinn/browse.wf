@@ -69,7 +69,7 @@ function resolveChallengeText(event: any, dict: Record<string, string>, exportCh
 	}
 
 	if (count) {
-		return {text: `${camelToWords(lastSegment(event.challenge))} \u00D7${String(count)}`, iconPath};
+		return {text: `${camelToWords(lastSegment(event.challenge))} \u{D7}${String(count)}`, iconPath};
 	}
 
 	return {text: camelToWords(lastSegment(event.challenge)), iconPath};

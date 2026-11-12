@@ -65,8 +65,8 @@ export function updateCircuitChoices(): void {
 	const normalChoices = active.CategoryChoices.find(c => c.Category === 'EXC_NORMAL')?.Choices ?? [];
 	const hardChoices = active.CategoryChoices.find(c => c.Category === 'EXC_HARD')?.Choices ?? [];
 
-	document.querySelector('#circuit-frames')!.textContent = normalChoices.map(c => choiceToDisplay(c)).join('\u00A0\u00B7 ') + ' ';
-	document.querySelector('#circuit-weapons')!.textContent = hardChoices.map(c => choiceToDisplay(c)).join('\u00A0\u00B7 ') + ' ';
+	document.querySelector('#circuit-frames')!.textContent = normalChoices.map(c => choiceToDisplay(c)).join('\u{A0}\u{B7} ') + ' ';
+	document.querySelector('#circuit-weapons')!.textContent = hardChoices.map(c => choiceToDisplay(c)).join('\u{A0}\u{B7} ') + ' ';
 
 	filterWeeklyMissions();
 }

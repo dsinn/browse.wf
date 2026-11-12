@@ -101,7 +101,7 @@ export const SPLICED_STATS: readonly ExtraStat[] = [
 /** Shotguns gained Zoom in Hotfix 44.0.2 so that they can be spliced into Weak Point traits. */
 export const SHOTGUN_ZOOM: ExtraStat = {
 	tag: 'WeaponZoomFovMod',
-	baseValue: 0.004_666,
+	baseValue: 0.004666,
 	labelKey: '/Lotus/Language/Upgrades/WeaponZoomModDesc',
 	displayKind: 'percent',
 	reverseDisplay: false,

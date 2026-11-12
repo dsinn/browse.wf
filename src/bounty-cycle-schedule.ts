@@ -6,7 +6,7 @@ import {totwo} from './helpers/time-helpers.js';
  * large (multi-year) time interval. `EPOCH_EXPIRY` is a real, verified `CetusSyndicate.Expiry`
  * timestamp, used only to anchor the projection's phase.
  */
-export const PERIOD_MS = 8_998_874.803_232_359;
+export const PERIOD_MS = 8_998_874.803232359;
 export const NIGHT_MS = 3_000_000; // 50 min
 export const EPOCH_EXPIRY = 1_684_177_115_703;
 

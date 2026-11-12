@@ -32,9 +32,9 @@ function layoutOf(buffs: number, curses: number): Layout {
 	return {buffs, curses};
 }
 
-const DAMAGE = stat(0.018_333);
-const CRITICAL_CHANCE = stat(0.016_666);
-const CRITICAL_DAMAGE = stat(0.013_333);
+const DAMAGE = stat(0.018333);
+const CRITICAL_CHANCE = stat(0.016666);
+const CRITICAL_DAMAGE = stat(0.013333);
 const MULTISHOT = stat(0.01);
 
 describe('getLayoutMultiplier', () => {
@@ -200,7 +200,7 @@ describe('toDisplayValue', () => {
 	});
 
 	test('never returns negative zero', () => {
-		expect(Object.is(toDisplayValue(stat(1), -0.000_01), 0)).toBe(true);
+		expect(Object.is(toDisplayValue(stat(1), -0.00001), 0)).toBe(true);
 	});
 });
 

@@ -48,13 +48,13 @@ describe('getRivenStats', () => {
 	test('adds Zoom to shotguns, which the export lacks', () => {
 		expect(exportUpgrades['/Lotus/Upgrades/Mods/Randomized/' + SHOTGUN].upgradeEntries
 			.some((entry: {tag: string}) => entry.tag === 'WeaponZoomFovMod')).toBe(false);
-		expect(find(SHOTGUN, 'WeaponZoomFovMod')).toMatchObject({baseValue: 0.004_666, spliced: false});
+		expect(find(SHOTGUN, 'WeaponZoomFovMod')).toMatchObject({baseValue: 0.004666, spliced: false});
 	});
 
 	test('keeps the export\'s Zoom for rifles rather than adding a second one', () => {
 		const zoomStats = getRivenStats(RIFLE, exportUpgrades).filter(stat => stat.tag === 'WeaponZoomFovMod');
 		expect(zoomStats).toHaveLength(1);
-		expect(zoomStats[0].baseValue).toBe(0.006_666);
+		expect(zoomStats[0].baseValue).toBe(0.006666);
 	});
 
 	test('a stat in the export wins over an added one with the same tag', () => {

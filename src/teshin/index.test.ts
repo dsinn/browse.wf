@@ -23,7 +23,7 @@ describe('renderTeshinForecastHeader', () => {
 		const theadRow = document.createElement('tr');
 		renderTeshinForecastHeader(theadRow);
 		expect(theadRow.querySelectorAll('th')).toHaveLength(7);
-		expect(theadRow.querySelectorAll('th')[0].textContent).toBe('Offer');
+		expect(theadRow.querySelector('th')?.textContent).toBe('Offer');
 	});
 });
 
@@ -51,9 +51,9 @@ describe('renderTeshinForecastTable', () => {
 	test('at EPOCH week 0, rows start with the active offer (index 0) in upstream order', () => {
 		const tbody = render(1_736_121_600_000);
 		const rows = tbody.querySelectorAll('tr');
-		expect(rows[0].querySelectorAll('td')[0].textContent).toBe('Umbra Forma Blueprint');
-		expect(rows[1].querySelectorAll('td')[0].textContent).toBe('50,000x Kuva');
-		expect(rows[7].querySelectorAll('td')[0].textContent).toBe('Shotgun Riven Mod');
+		expect(rows[0].querySelector('td')?.textContent).toBe('Umbra Forma Blueprint');
+		expect(rows[1].querySelector('td')?.textContent).toBe('50,000x Kuva');
+		expect(rows[7].querySelector('td')?.textContent).toBe('Shotgun Riven Mod');
 	});
 
 	test('the currently active offer is always the top row, rotation order preserved after it', () => {
@@ -61,27 +61,27 @@ describe('renderTeshinForecastTable', () => {
 		const weekMs = 1_736_121_600_000 + (3 * 604_800_000);
 		const tbody = render(weekMs);
 		const rows = tbody.querySelectorAll('tr');
-		expect(rows[0].querySelectorAll('td')[0].textContent).toBe('3x Forma');
-		expect(rows[1].querySelectorAll('td')[0].textContent).toBe('Zaw Riven Mod');
-		expect(rows[4].querySelectorAll('td')[0].textContent).toBe('Shotgun Riven Mod');
+		expect(rows[0].querySelector('td')?.textContent).toBe('3x Forma');
+		expect(rows[1].querySelector('td')?.textContent).toBe('Zaw Riven Mod');
+		expect(rows[4].querySelector('td')?.textContent).toBe('Shotgun Riven Mod');
 		// Wraps back to the start of teshinOffer
-		expect(rows[5].querySelectorAll('td')[0].textContent).toBe('Umbra Forma Blueprint');
-		expect(rows[7].querySelectorAll('td')[0].textContent).toBe('Kitgun Riven Mod');
+		expect(rows[5].querySelector('td')?.textContent).toBe('Umbra Forma Blueprint');
+		expect(rows[7].querySelector('td')?.textContent).toBe('Kitgun Riven Mod');
 	});
 
 	test('first appearance column is the current week for the active offer', () => {
 		// At EPOCH (week 0), teshinOffer[0] ("Umbra Forma Blueprint") is the active offer
 		const tbody = render(1_736_121_600_000);
-		const firstRowCells = tbody.querySelectorAll('tr')[0].querySelectorAll('td');
-		expect(firstRowCells[1].textContent).toBe(new Date(1_736_121_600_000).toLocaleDateString('en', {month: 'short', day: 'numeric'}));
+		const firstRowCells = tbody.querySelector('tr')?.querySelectorAll('td');
+		expect(firstRowCells?.[1].textContent).toBe(new Date(1_736_121_600_000).toLocaleDateString('en', {month: 'short', day: 'numeric'}));
 	});
 
 	test('successive appearance columns are 8 weeks (56 days) apart', () => {
 		const tbody = render(1_736_121_600_000);
-		const firstRowCells = tbody.querySelectorAll('tr')[0].querySelectorAll('td');
+		const firstRowCells = tbody.querySelector('tr')?.querySelectorAll('td');
 		const firstAppearanceMs = 1_736_121_600_000;
 		const secondAppearanceMs = firstAppearanceMs + (8 * 604_800_000);
-		expect(firstRowCells[2].textContent).toBe(new Date(secondAppearanceMs).toLocaleDateString('en', {month: 'short', day: 'numeric'}));
+		expect(firstRowCells?.[2].textContent).toBe(new Date(secondAppearanceMs).toLocaleDateString('en', {month: 'short', day: 'numeric'}));
 	});
 
 	test('an offer not active this week shows its next upcoming appearance first', () => {

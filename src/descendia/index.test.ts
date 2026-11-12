@@ -49,8 +49,8 @@ describe('renderDescentChallenges', () => {
 		const rows = tbody.querySelectorAll('tr');
 
 		for (const [i, challenge] of (descent.Challenges as any[]).entries()) {
-			const levelCell = rows[i].querySelectorAll('td')[0];
-			expect(levelCell.textContent).toBe(String(challenge.Index));
+			const levelCell = rows[i].querySelector('td');
+			expect(levelCell?.textContent).toBe(String(challenge.Index));
 		}
 	});
 

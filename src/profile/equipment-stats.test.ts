@@ -91,24 +91,24 @@ describe('augmentEquipmentStats', () => {
 		setupDOM();
 		await augmentEquipmentStats(mockProfile);
 		// Cells after augment: [rank, name, used%, hours, kills, headshots, assists, xp]
-		const bratonRow = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')[0];
-		expect(bratonRow.cells[2].textContent).toMatch(/^\d+\.\d{2}%$/u);
+		const bratonRow = document.querySelector<HTMLTableRowElement>('#equipment-stats tr');
+		expect(bratonRow?.cells[2].textContent).toMatch(/^\d+\.\d{2}%$/u);
 	});
 
 	it('"Used" is 100% when a category has only one item', async () => {
 		setupDOM();
 		await augmentEquipmentStats(mockProfile);
 		// LongGuns has only Braton — should be 100%
-		const bratonRow = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')[0];
-		expect(bratonRow.cells[2].textContent).toBe('100.00%');
+		const bratonRow = document.querySelector<HTMLTableRowElement>('#equipment-stats tr');
+		expect(bratonRow?.cells[2].textContent).toBe('100.00%');
 	});
 
 	it('reformats the hours cell to locale string with 1 decimal', async () => {
 		setupDOM();
 		await augmentEquipmentStats(mockProfile);
 		// Braton: 7200s / 3600 = 2.0h
-		const bratonRow = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')[0];
-		expect(bratonRow.cells[3].textContent).toBe((2).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1}));
+		const bratonRow = document.querySelector<HTMLTableRowElement>('#equipment-stats tr');
+		expect(bratonRow?.cells[3].textContent).toBe((2).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1}));
 	});
 
 	it('initialises a filter bar with an "All" button', async () => {

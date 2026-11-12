@@ -235,7 +235,7 @@ describe('showToast', () => {
 			await Promise.resolve();
 		}
 
-		expect(document.querySelectorAll('#toast-container')).toHaveLength(1);
+		expect(document.querySelectorAll('[id="toast-container"]')).toHaveLength(1);
 	});
 
 	test('calls Bootstrap Toast.show() when bootstrap is present', async () => {

@@ -120,7 +120,7 @@ describe('Void Fissures Card', () => {
 
 			foundUnsorted = true;
 			// Verify specific tiers we know are unsorted from our analysis
-			if (tier === 'SP-VoidT2' || tier === 'SP-VoidT3' || tier === 'VoidT4' || tier === 'VoidT5') {
+			if (['SP-VoidT2', 'SP-VoidT3', 'VoidT4', 'VoidT5'].includes(tier)) {
 				expect(alreadySorted).toBe(false);
 			}
 		}

@@ -73,7 +73,7 @@ export class CloudSyncSubscription {
 		if (status === 'SUBSCRIBED') {
 			await this.onSubscribed(this.hasSubscribedBefore);
 			this.hasSubscribedBefore = true;
-		} else if (status === 'CLOSED' || status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
+		} else if (['CLOSED', 'TIMED_OUT', 'CHANNEL_ERROR'].includes(status)) {
 			logger.debug('⚠️ WebSocket entered failed state:', status);
 			this.onFailedStatus();
 		}

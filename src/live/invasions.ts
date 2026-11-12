@@ -126,7 +126,7 @@ export function isInvasionRewardShown(itemType: string): boolean {
 function formatActivationLabel(activationMs: number): string {
 	const activationDate = new Date(activationMs);
 	const nbsp = String.fromCodePoint(160);
-	const timeString = activationDate.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}).replace(/ ([ap])/u, `${nbsp}$1`);
+	const timeString = activationDate.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'}).replace(/ (?=[ap])/u, nbsp);
 	const totalMinutes = Math.floor((Date.now() - activationMs) / 60_000);
 	const days = Math.floor(totalMinutes / 1440);
 	if (days >= 1) {

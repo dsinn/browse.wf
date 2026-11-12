@@ -55,7 +55,7 @@ export function formattz(offsetMinutes: number): string {
 
 	const offsetHours = offsetMinutes / 60;
 	if (offsetHours < 0) {
-		return 'UTC+' + (offsetHours * -1);
+		return 'UTC+' + (-offsetHours);
 	}
 
 	return 'UTC-' + offsetHours;

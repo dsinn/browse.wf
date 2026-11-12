@@ -53,7 +53,7 @@ function phpPagesPlugin(): Plugin {
 					return;
 				}
 
-				const urlPath = request.url.split('?')[0];
+				const urlPath = request.url.split('?', 1)[0];
 
 				// Determine which HTML file to serve
 				let htmlFile: string | undefined;

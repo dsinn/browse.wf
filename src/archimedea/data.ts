@@ -79,7 +79,7 @@ export async function resolveArchimedea(
 			continue;
 		}
 
-		let type = exportMissionTypes[mission.missionType]?.name?.split('MissionName_')[1] ?? mission.missionType;
+		let type = exportMissionTypes[mission.missionType]?.name?.split('MissionName_', 2)[1] ?? mission.missionType;
 		if (archimedeaType === 'CT_LAB' && type === 'Defense') {
 			type = 'DualDefense';
 		}

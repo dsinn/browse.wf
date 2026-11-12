@@ -29,7 +29,7 @@ export function getTileset(node: IRegion): string | undefined {
 
 	if (node.levelOverride) {
 		const segment = node.levelOverride.split('/').pop() ?? '';
-		const match = getTilesetPrefixes().find(t => segment.startsWith(t.split('Tileset')[0]));
+		const match = getTilesetPrefixes().find(t => segment.startsWith(t.split('Tileset', 1)[0]));
 		if (match) {
 			return match;
 		}

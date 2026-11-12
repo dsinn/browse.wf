@@ -35,7 +35,7 @@ export function parseHash(hash: string, weapons: readonly WeaponOption[]): CalcS
 
 	const weaponParameter = parameters.get('weapon');
 	if (weaponParameter) {
-		const [classPart] = weaponParameter.split(':');
+		const [classPart] = weaponParameter.split(':', 1);
 		const namedWeapon = weapons.find(weapon => weapon.label === weaponParameter);
 		if (namedWeapon) {
 			state.weapon = namedWeapon;

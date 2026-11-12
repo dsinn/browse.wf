@@ -299,7 +299,7 @@ describe('formatDescendia', () => {
 			}],
 		};
 		const result = await formatDescendia({Descents: [descentWithEmpty]});
-		const challengeLine = result!.split('\n')[1];
+		const challengeLine = result!.split('\n', 2)[1];
 		// Only one · between type and challenge name; no trailing ·
 		expect((challengeLine.match(/ · /gu) ?? []).length).toBe(1);
 		expect(challengeLine).not.toContain('-');

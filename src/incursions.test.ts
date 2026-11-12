@@ -166,7 +166,7 @@ describe('sp-incursions.txt parsing', () => {
 	test('timestamps are strictly increasing by one day', () => {
 		const text = readFileSync(join(process.cwd(), 'sp-incursions.txt'), 'utf8');
 		const lines = text.split('\n').filter(Boolean);
-		const timestamps = lines.map(l => Number.parseInt(l.split(';')[0], 10));
+		const timestamps = lines.map(l => Number.parseInt(l.split(';', 1)[0], 10));
 
 		for (let i = 1; i < Math.min(timestamps.length, 10); i++) {
 			expect(timestamps[i] - timestamps[i - 1]).toBe(SECONDS_PER_DAY);

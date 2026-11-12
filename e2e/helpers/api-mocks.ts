@@ -20,7 +20,7 @@ const VALID_EXPORT_FILES = new Set(fs.readdirSync(EXPORT_PLUS_DIR)
  *
  * @param page - The Playwright page instance
  * @param exportFiles - File names without extensions (e.g. 'ExportResources'). Must exist in
- *                      the warframe-public-export-plus package.
+ * the warframe-public-export-plus package.
  */
 export async function mockExportData(page: Page, exportFiles: string[]): Promise<void> {
 	for (const exportFile of exportFiles) {

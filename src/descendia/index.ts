@@ -68,9 +68,9 @@ export function updateDescendia(): void {
  * Renders the challenges of a given Descent into a <tbody> element.
  * Extracted from updateDescendia() so weekly-forecast can render any descent, not just the active one.
  *
- * @param descent  An IDescent object from worldState.Descents[]
- * @param dict     The main dictionary (key → localized string)
- * @returns        A <tbody> element ready to be inserted into a table
+ * @param descent An IDescent object from worldState.Descents[]
+ * @param dict The main dictionary (key → localized string)
+ * @returns A <tbody> element ready to be inserted into a table
  */
 export function renderDescentChallenges(descent: IDescent, dict: Record<string, string>): HTMLTableSectionElement {
 	const tbody = document.createElement('tbody');

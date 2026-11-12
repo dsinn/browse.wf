@@ -35,7 +35,6 @@ const config = [
 			'@typescript-eslint/strict-boolean-expressions': 'off',
 			'import-x/no-useless-path-segments': 'off',
 			'jsdoc/check-indentation': 'off',
-			'jsdoc/check-line-alignment': 'off',
 			'jsdoc/check-param-names': 'off',
 			'jsdoc/check-tag-names': 'off',
 			'jsdoc/informative-docs': 'off',

@@ -69,9 +69,9 @@ export function renderArchimedeaFrameVariables(frameVariables: IResolvedFrameVar
  * Renders Archimedea missions and frame variables as two tables into a container.
  * Clears the container first, disposing any existing Bootstrap tooltips.
  *
- * @param container        Element to render into
- * @param archimedea       The raw Archimedea object from worldState.Conquests[]
- * @param archimedeaType   "CT_LAB" or "CT_HEX"
+ * @param container Element to render into
+ * @param archimedea The raw Archimedea object from worldState.Conquests[]
+ * @param archimedeaType "CT_LAB" or "CT_HEX"
  * @param variantKeyPrefix e.g. "/Lotus/Language/Conquest/MissionVariant_LabConquest_"
  */
 export async function renderArchimedeaTable(

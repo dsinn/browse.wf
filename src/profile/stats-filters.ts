@@ -53,7 +53,7 @@ export const ENEMY_FACTIONS: Array<{tooltip: string; icon?: string; factions: st
  * re-runs whenever rows are added/removed. Disconnects any previously returned
  * observer before creating a new one, so it is safe to call on re-render.
  *
- * @param tbody            - The <tbody> whose rows to number.
+ * @param tbody - The <tbody> whose rows to number.
  * @param previousObserver - Observer returned from a prior call, to disconnect.
  * @returns The renumber function and the new MutationObserver.
  */
@@ -90,16 +90,16 @@ export function getEnemyFactionLabel(faction: string): string | undefined {
 /**
  * Renders a filter bar and wires up filtering for a stats table.
  *
- * @param filterBar  - The <div> that will receive the filter buttons.
- * @param tbody      - The <tbody> whose rows carry data-category attributes.
- * @param entries    - Ordered list of { key, tooltip, icon } to show as buttons.
- *                     key must match the data-category values on the rows.
- *                     icon is a Warframe asset path resolved via setImageSource;
- *                     pass an empty string to fall back to displayText.
+ * @param filterBar - The <div> that will receive the filter buttons.
+ * @param tbody - The <tbody> whose rows carry data-category attributes.
+ * @param entries - Ordered list of { key, tooltip, icon } to show as buttons.
+ * key must match the data-category values on the rows.
+ * icon is a Warframe asset path resolved via setImageSource;
+ * pass an empty string to fall back to displayText.
  * @param presentKeys - Set of category keys that actually appear in the tbody,
- *                      used to skip buttons for absent categories.
- * @param onFilter    - Optional callback invoked after each filter change,
- *                      including when "All" is selected.
+ * used to skip buttons for absent categories.
+ * @param onFilter - Optional callback invoked after each filter change,
+ * including when "All" is selected.
  */
 export function initStatsFilterBar(
 	filterBar: HTMLElement,

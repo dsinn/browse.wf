@@ -55,7 +55,6 @@ const config = [
 			'regexp/prefer-lookaround': 'off',
 			'regexp/prefer-named-capture-group': 'off',
 			'regexp/sort-character-class-elements': 'off',
-			'regexp/unicode-escape': 'off',
 			'unicorn/better-dom-traversing': 'off',
 			'unicorn/class-reference-in-static-methods': 'off',
 			'unicorn/consistent-boolean-name': 'off',

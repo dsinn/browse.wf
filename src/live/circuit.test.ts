@@ -160,7 +160,7 @@ describe('updateCircuit — active entry', () => {
 		updateCircuit();
 
 		const element = document.querySelector('#circuit-frames');
-		expect(element?.textContent).toMatch(/Nidus\u00A0·\s*Octavia\u00A0·\s*Harrow/u);
+		expect(element?.textContent).toMatch(/Nidus\u{A0}·\s*Octavia\u{A0}·\s*Harrow/u);
 	});
 });
 

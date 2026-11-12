@@ -178,16 +178,16 @@ export function initInvigorationTimer(): void {
 		return;
 	}
 
-	const weekEnd = getNextWeeklyResetSeconds();
-	const badge = createShortTimerBadge(weekEnd, 'Pending Refresh');
+	const weeklyResetSeconds = getNextWeeklyResetSeconds();
+	const badge = createShortTimerBadge(weeklyResetSeconds, 'Pending Refresh');
 	timerElement.append(badge);
 }
 
 export function scheduleInvigorationReload(): void {
-	const weekEnd = getNextWeeklyResetSeconds();
+	const weeklyResetSeconds = getNextWeeklyResetSeconds();
 	setTimeout(() => {
 		location.reload();
-	}, (weekEnd * 1000) - Date.now());
+	}, (weeklyResetSeconds * 1000) - Date.now());
 }
 
 export function showCacheAlert(type: string, message: string): void {

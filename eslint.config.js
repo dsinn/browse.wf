@@ -44,7 +44,6 @@ const config = [
 			'unicorn/better-dom-traversing': 'off',
 			'unicorn/consistent-boolean-name': 'off',
 			'unicorn/consistent-class-member-order': 'off',
-			'unicorn/consistent-compound-words': 'off',
 			'unicorn/isolated-functions': 'off',
 			'unicorn/no-break-in-nested-loop': 'off',
 			'unicorn/no-computed-property-existence-check': 'off',

@@ -447,8 +447,8 @@ describe('initInvigorationsFromCache()', () => {
 		vi.stubGlobal('location', {reload: reloadMock});
 		initInvigorationsFromCache(false);
 		// Advance time past the week boundary
-		const weekEnd = getNextWeeklyResetMs();
-		vi.advanceTimersByTime(weekEnd - Date.now() + 1000);
+		const weeklyResetMs = getNextWeeklyResetMs();
+		vi.advanceTimersByTime(weeklyResetMs - Date.now() + 1000);
 		expect(reloadMock).toHaveBeenCalled();
 	});
 });

@@ -17,9 +17,9 @@ import {db, isDatabaseConfigured} from './database.js';
 
 export class AuthService {
 	static getInstance(): AuthService {
-		AuthService.instance ||= new AuthService();
+		this.instance ||= new AuthService();
 
-		return AuthService.instance;
+		return this.instance;
 	}
 
 	private static instance: AuthService;

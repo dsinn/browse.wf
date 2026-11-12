@@ -42,7 +42,6 @@ const config = [
 			'regexp/no-super-linear-move': 'off',
 			'regexp/prefer-named-capture-group': 'off',
 			'unicorn/better-dom-traversing': 'off',
-			'unicorn/class-reference-in-static-methods': 'off',
 			'unicorn/consistent-boolean-name': 'off',
 			'unicorn/consistent-class-member-order': 'off',
 			'unicorn/consistent-compound-words': 'off',

@@ -16,9 +16,9 @@ import {CloudSyncReconnection} from './reconnection.js';
 
 export class CloudSyncManager {
 	static getInstance(): CloudSyncManager {
-		CloudSyncManager.instance ||= new CloudSyncManager();
+		this.instance ||= new CloudSyncManager();
 
-		return CloudSyncManager.instance;
+		return this.instance;
 	}
 
 	private static instance: CloudSyncManager;

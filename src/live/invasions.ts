@@ -385,8 +385,7 @@ export async function updateInvasions(): Promise<void> {
 			(window.bootstrap).Tooltip.getInstance(x).dispose();
 		}
 
-		invasionsTable.innerHTML = '';
-		invasionsTable.append(tbody);
+		invasionsTable.replaceChildren(tbody);
 	}
 }
 

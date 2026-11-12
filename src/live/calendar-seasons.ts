@@ -46,22 +46,19 @@ export async function updateCalendarSeason(): Promise<void> {
 	// Inject expiry badge into header
 	const expirySpan = document.querySelector('#calendar-season-expiry');
 	if (expirySpan) {
-		expirySpan.innerHTML = '';
-		expirySpan.append(createExpiryBadge(Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10)));
+		expirySpan.replaceChildren(createExpiryBadge(Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10)));
 	}
 
 	// Inject completion toggle into header span
 	const checksSpan = document.querySelector('#calendar-season-checks');
 	if (checksSpan) {
 		const oid = `calendarseason-${String(activeSeason.Expiry.$date.$numberLong)}`;
-		checksSpan.innerHTML = '';
-		checksSpan.append(createCompletionToggle(oid));
+		checksSpan.replaceChildren(createCompletionToggle(oid));
 	}
 
 	const body = document.querySelector('#calendar-season-body');
 	if (body) {
-		body.innerHTML = '';
-		body.append(await renderCalendarSeasonPane(activeSeason));
+		body.replaceChildren(await renderCalendarSeasonPane(activeSeason));
 	}
 }
 

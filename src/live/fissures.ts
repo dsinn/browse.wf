@@ -201,12 +201,9 @@ export async function updateFissures(forceRender = false) {
 		}
 	}
 
-	document.querySelector('#fissures-table')!.innerHTML = '';
-	document.querySelector('#fissures-table')!.append(tbody.fissures);
-	document.querySelector('#sp-fissures-table')!.innerHTML = '';
-	document.querySelector('#sp-fissures-table')!.append(tbody['sp-fissures']);
-	document.querySelector('#rj-fissures-table')!.innerHTML = '';
-	document.querySelector('#rj-fissures-table')!.append(tbody['rj-fissures']);
+	document.querySelector('#fissures-table')!.replaceChildren(tbody.fissures);
+	document.querySelector('#sp-fissures-table')!.replaceChildren(tbody['sp-fissures']);
+	document.querySelector('#rj-fissures-table')!.replaceChildren(tbody['rj-fissures']);
 }
 
 window.updateFissures = updateFissures;

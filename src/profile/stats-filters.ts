@@ -114,7 +114,7 @@ export function initStatsFilterBar(
 	presentKeys: Set<string>,
 	onFilter?: () => void,
 ): void {
-	filterBar.innerHTML = '';
+	filterBar.replaceChildren();
 	delete tbody.dataset.filter;
 
 	const applyFilter = (filter: string) => {

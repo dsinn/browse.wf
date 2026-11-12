@@ -266,7 +266,7 @@ describe('cloud-sync-pulled', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		localStorage.clear();
-		document.body.innerHTML = '';
+		document.body.replaceChildren();
 	});
 
 	test('calls refreshAllCompletionToggles', () => {

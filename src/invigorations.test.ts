@@ -339,7 +339,7 @@ describe('showCacheAlert()', () => {
 	});
 
 	test('does nothing when element is absent', () => {
-		document.body.innerHTML = '';
+		document.body.replaceChildren();
 		expect(() => {
 			showCacheAlert('info', 'x');
 		}).not.toThrow();

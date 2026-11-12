@@ -87,7 +87,7 @@ export async function renderArchimedeaTable(
 		window.bootstrap.Tooltip.getInstance(x)?.dispose();
 	}
 
-	container.innerHTML = '';
+	container.replaceChildren();
 
 	const missionsTable = document.createElement('table');
 	missionsTable.className = 'table table-sm table-borderless table-hover mb-2';

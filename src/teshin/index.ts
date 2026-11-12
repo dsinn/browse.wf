@@ -56,7 +56,7 @@ function formatWeekStart(epoch: number, week: number): string {
 }
 
 export function renderTeshinForecastHeader(theadRow: HTMLElement): void {
-	theadRow.innerHTML = '';
+	theadRow.replaceChildren();
 
 	const offerTh = document.createElement('th');
 	offerTh.textContent = 'Offer';
@@ -76,7 +76,7 @@ export function renderTeshinForecastHeader(theadRow: HTMLElement): void {
 export function renderTeshinForecastTable(tbody: HTMLElement): void {
 	const {epoch, week, teshinOffer} = getTeshinOfferSchedule();
 
-	tbody.innerHTML = '';
+	tbody.replaceChildren();
 
 	// Start the row order at this week's active offer so it's always the top row.
 	const activeOfferIndex = ((week % teshinOffer.length) + teshinOffer.length) % teshinOffer.length;

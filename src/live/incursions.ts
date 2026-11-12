@@ -29,7 +29,7 @@ export async function updateIncursionsLocalised() {
 
 		if (isVisible) {
 			(elms[i] as HTMLElement).classList.remove('d-none');
-			elms[i].innerHTML = '';
+			elms[i].replaceChildren();
 			const b = document.createElement('b');
 			b.textContent = window.toTitleCase(dict[node.missionName]);
 			if (node.systemIndex !== 21) {

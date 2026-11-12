@@ -112,8 +112,8 @@ async function renderArchimedeaTabs(
 	preserveActivation: string | undefined = undefined,
 ): Promise<void> {
 	const now = Date.now();
-	tabsElement.innerHTML = '';
-	contentElement.innerHTML = '';
+	tabsElement.replaceChildren();
+	contentElement.replaceChildren();
 
 	// There's usually only one entry per Archimedea type, but handle multiple for robustness
 	const firstFutureIdx = archimedeas.findIndex(a => mongoMs(a.Activation) > now);
@@ -145,8 +145,8 @@ async function renderDescentTabs(
 	preserveActivation: string | undefined = undefined,
 ): Promise<void> {
 	const now = Date.now();
-	tabsElement.innerHTML = '';
-	contentElement.innerHTML = '';
+	tabsElement.replaceChildren();
+	contentElement.replaceChildren();
 
 	const dict = await getDictPromise();
 
@@ -193,8 +193,8 @@ async function renderCalendarSeasonTabs(
 	preserveActivation: string | undefined = undefined,
 ): Promise<void> {
 	const now = Date.now();
-	tabsElement.innerHTML = '';
-	contentElement.innerHTML = '';
+	tabsElement.replaceChildren();
+	contentElement.replaceChildren();
 
 	const firstFutureSeasonIdx = seasons.findIndex(s => mongoMs(s.Activation) > now);
 	const defaultSeasonIdx = Math.max(firstFutureSeasonIdx, 0);
@@ -227,7 +227,7 @@ async function renderCalendarSeasonTabs(
 	// Build two-column layout for below-xl viewports
 	const columnsElement = document.querySelector<HTMLElement>('#calendar-season-columns');
 	if (columnsElement) {
-		columnsElement.innerHTML = '';
+		columnsElement.replaceChildren();
 		const row = document.createElement('div');
 		row.className = 'row';
 		for (const [i, season] of seasons.entries()) {
@@ -249,7 +249,7 @@ async function renderClanWeeklyColumns(
 	columnsElement: HTMLElement,
 	entries: any[],
 ): Promise<void> {
-	columnsElement.innerHTML = '';
+	columnsElement.replaceChildren();
 
 	if (entries.length === 0) {
 		return;

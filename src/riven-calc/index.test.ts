@@ -956,7 +956,7 @@ describe('initRivenCalc', () => {
 	});
 
 	test('fails loudly when the page markup is missing a piece', () => {
-		document.body.innerHTML = '';
+		document.body.replaceChildren();
 		expect(() => initRivenCalc(data)).toThrow('#weapon-name');
 	});
 });

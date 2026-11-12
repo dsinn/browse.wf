@@ -53,8 +53,7 @@ export function updateCircuitChoices(): void {
 			window.bootstrap?.Tooltip.getInstance(node)?.dispose();
 		}
 
-		element.innerHTML = '';
-		element.append(window.createCompletionToggle(key));
+		element.replaceChildren(window.createCompletionToggle(key));
 	};
 
 	clearAndSet('circuit-frames-check', `circuit-normal-${expiry}`);

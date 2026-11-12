@@ -49,7 +49,7 @@ describe('News Card - Basic Structure', () => {
 		const newsBody = getById('news-body');
 
 		// Simulate rendering a news item
-		newsBody.innerHTML = '';
+		newsBody.replaceChildren();
 		const p = document.createElement('p');
 		p.className = 'card-text mb-1';
 
@@ -376,7 +376,7 @@ describe('News Card - Mark as Read Module', () => {
 
 		test('skips element with empty data-news-time', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			const item = document.createElement('p');
 			item.className = 'news-item news-primary';
@@ -521,7 +521,7 @@ describe('News Card - Mark as Read Module', () => {
 	describe('markAllNewsAsRead', () => {
 		test('sets threshold to first (newest) item time and clears key array', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			// Items are in descending time order, as rendered by live.ts
 			const success = document.createElement('p');
@@ -552,7 +552,7 @@ describe('News Card - Mark as Read Module', () => {
 
 		test('does not lower an existing threshold', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			localStorage.setItem('live.news.all_read_timestamp', '9999');
 
@@ -575,15 +575,14 @@ describe('News Card - Mark as Read Module', () => {
 			expect(localStorage.getItem('live.news.all_read_timestamp')).toBe('20000');
 
 			// Re-running with only old items should not lower the threshold
-			newsBody.innerHTML = '';
-			newsBody.append(older);
+			newsBody.replaceChildren(older);
 			markAllNewsAsRead();
 			expect(localStorage.getItem('live.news.all_read_timestamp')).toBe('20000');
 		});
 
 		test('does not trigger cloud sync when threshold is unchanged', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			localStorage.setItem('live.news.all_read_timestamp', '9999');
 
@@ -604,7 +603,7 @@ describe('News Card - Mark as Read Module', () => {
 
 		test('does nothing when news body is empty', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			markAllNewsAsRead();
 
@@ -625,7 +624,7 @@ describe('News Card - Mark as Read Module', () => {
 
 		test('mark all button click handler works', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			const item = document.createElement('p');
 			item.className = 'news-item news-primary';
@@ -645,7 +644,7 @@ describe('News Card - Mark as Read Module', () => {
 	describe('pruneStaleNewsRead', () => {
 		test('removes stale keys that no longer exist in DOM', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			// Set up localStorage with old keys
 			localStorage.setItem('news_items_read', JSON.stringify([
@@ -671,7 +670,7 @@ describe('News Card - Mark as Read Module', () => {
 
 		test('removes localStorage key when all items are stale', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			localStorage.setItem('news_items_read', JSON.stringify(['old-key|111']));
 
@@ -691,7 +690,7 @@ describe('News Card - Mark as Read Module', () => {
 
 		test('does not prune when no items in DOM (guard against premature cleanup)', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			localStorage.setItem('news_items_read', JSON.stringify(['key-1|111', 'key-2|222']));
 
@@ -724,7 +723,7 @@ describe('News Card - Mark as Read Module', () => {
 
 		test('handles empty localStorage gracefully', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			const item = document.createElement('p');
 			setNewsItemData({
@@ -761,7 +760,7 @@ describe('News Card - Mark as Read Module', () => {
 
 		test('removes localStorage key when all items unmarked', () => {
 			const newsBody = getById('news-body');
-			newsBody.innerHTML = '';
+			newsBody.replaceChildren();
 
 			localStorage.setItem('news_items_read', JSON.stringify(['key-1|111']));
 

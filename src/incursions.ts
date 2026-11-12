@@ -413,7 +413,7 @@ function renderSchedule(): void {
 	const viewStart = new Date(viewAnchorDate.getFullYear(), viewAnchorDate.getMonth(), 1);
 	const totalDays = getDaysInMonth(viewStart);
 	const todayUtc = getUtcToday();
-	container.innerHTML = '';
+	container.replaceChildren();
 	container.className = (viewMode === 'calendar') ? 'incursions-grid-wrapper' : '';
 
 	switch (viewMode) {

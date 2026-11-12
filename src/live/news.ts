@@ -88,7 +88,7 @@ export function updateNewsTicker(forceRender = false): void {
 		return;
 	}
 
-	document.querySelector('#news-body')!.innerHTML = '';
+	document.querySelector('#news-body')!.replaceChildren();
 
 	for (let i = 0; i !== items.length; ++i) {
 		const p = document.createElement('p');

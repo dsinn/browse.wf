@@ -27,8 +27,7 @@ export function refreshFilterStatus(elm: HTMLElement): void {
 		window.bootstrap?.Tooltip.getInstance(x)?.dispose();
 	}
 
-	elm.innerHTML = '';
-	elm.append(span);
+	elm.replaceChildren(span);
 }
 
 /**

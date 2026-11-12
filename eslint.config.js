@@ -75,7 +75,6 @@ const config = [
 			'unicorn/prefer-combined-guards': 'off',
 			'unicorn/prefer-continue': 'off',
 			'unicorn/prefer-dom-node-html-methods': 'off',
-			'unicorn/prefer-dom-node-replace-children': 'off',
 			'unicorn/prefer-early-return': 'off',
 			'unicorn/prefer-group-by': 'off',
 			'unicorn/prefer-includes-over-repeated-comparisons': 'off',

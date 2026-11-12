@@ -151,7 +151,7 @@ export function renderCircuitForecastTable(tbody: HTMLElement, dict: Record<stri
 	const currentWeek = Math.trunc((Date.now() - CIRCUIT_EPOCH_MS) / MS_PER_WEEK);
 	const weekCount = getForecastWeekCount();
 
-	tbody.innerHTML = '';
+	tbody.replaceChildren();
 
 	for (let i = 0; i < weekCount; i++) {
 		const week = currentWeek + i;

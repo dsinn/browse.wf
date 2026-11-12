@@ -50,7 +50,7 @@ function augmentArchwingName(nameCell: HTMLTableCellElement): void {
 		return;
 	}
 
-	nameCell.innerHTML = '';
+	nameCell.replaceChildren();
 	const wrap = document.createElement('div');
 	wrap.className = 'item-name-wrap';
 	const img = document.createElement('img');

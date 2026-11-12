@@ -24,7 +24,7 @@ export function updateBountyCheckboxes(): void {
 				window.bootstrap?.Tooltip.getInstance(x)?.dispose();
 			}
 
-			span.innerHTML = '';
+			span.replaceChildren();
 		} else {
 			heading.classList.add('d-flex', 'align-items-center');
 			span = document.createElement('span');

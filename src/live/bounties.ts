@@ -3,8 +3,7 @@ export function renderAllyIcon(allyName: string, allyCell: Element): void {
 	allyImg.className = 'ally-icon';
 	window.setImageSource(allyImg, `/Lotus/Interface/Icons/Player/${allyName}PixelGlyph.png`);
 	window.addTooltip!(allyImg, allyName);
-	allyCell.innerHTML = '';
-	allyCell.append(allyImg);
+	allyCell.replaceChildren(allyImg);
 }
 
 export function applyBountyFilters(syndicateTag: string, rows: NodeListOf<Element>): void {

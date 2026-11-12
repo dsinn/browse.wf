@@ -72,7 +72,7 @@ function buildDom() {
 }
 
 function clearDom() {
-	document.body.innerHTML = '';
+	document.body.replaceChildren();
 }
 
 type SetupOptions = {

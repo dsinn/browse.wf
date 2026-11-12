@@ -35,7 +35,7 @@ beforeEach(() => {
 afterEach(() => {
 	delete (globalThis as any).getTileset;
 	delete (globalThis as any).formatTileset;
-	document.body.innerHTML = '';
+	document.body.replaceChildren();
 });
 
 describe('appendTilesetText', () => {
@@ -93,7 +93,7 @@ describe('updateTilesetNextOccurrence', () => {
 	});
 
 	test('does nothing when row is absent', () => {
-		document.body.innerHTML = '';
+		document.body.replaceChildren();
 		// Should not throw
 		expect(() => {
 			updateTilesetNextOccurrence(makeNode(), 0, 'date', 'detail');

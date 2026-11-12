@@ -84,22 +84,19 @@ export async function updateClanWeekly(): Promise<void> {
 
 	const expirySpan = document.querySelector('#clan-weekly-expiry');
 	if (expirySpan) {
-		expirySpan.innerHTML = '';
-		expirySpan.append(createExpiryBadge(expiryMs));
+		expirySpan.replaceChildren(createExpiryBadge(expiryMs));
 	}
 
 	const checksSpan = document.querySelector('#clan-weekly-checks');
 	if (checksSpan) {
-		checksSpan.innerHTML = '';
-		checksSpan.append(createCompletionToggle(`clanweekly-${String(entry.WeekCount)}`));
+		checksSpan.replaceChildren(createCompletionToggle(`clanweekly-${String(entry.WeekCount)}`));
 	}
 
 	window.ExportImages = await fetchExport('ExportImages');
 
 	const body = document.querySelector('#clan-weekly-body');
 	if (body) {
-		body.innerHTML = '';
-		body.append(await renderClanWeeklyPane(entry));
+		body.replaceChildren(await renderClanWeeklyPane(entry));
 	}
 }
 

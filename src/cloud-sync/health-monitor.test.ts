@@ -112,7 +112,7 @@ describe('CloudSyncHealthMonitor', () => {
 			const syncing = overrides.syncing ?? false;
 			const lastFreshTimestamp = overrides.noLastFreshTimestamp
 				? undefined
-				: (overrides.lastFreshTimestamp ?? Date.now() - 120_000);
+				: (overrides.lastFreshTimestamp ?? (Date.now() - 120_000));
 			const pullFn = overrides.pullFn ?? vi.fn<(userId: string) => Promise<void>>().mockResolvedValue(undefined);
 			const onPullComplete = overrides.onPullComplete ?? vi.fn<(ts: number) => void>();
 			const setSyncing = overrides.setSyncing ?? vi.fn<(value: boolean) => void>();

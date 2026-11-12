@@ -36,7 +36,6 @@ const config = [
 			'regexp/no-super-linear-move': 'off',
 			'unicorn/better-dom-traversing': 'off',
 			'unicorn/consistent-boolean-name': 'off',
-			'unicorn/consistent-class-member-order': 'off',
 			'unicorn/isolated-functions': 'off',
 			'unicorn/no-break-in-nested-loop': 'off',
 			'unicorn/no-exports-in-scripts': 'off',

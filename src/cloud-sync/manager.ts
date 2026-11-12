@@ -15,17 +15,18 @@ import {CloudSyncSubscription} from './subscription.js';
 import {CloudSyncReconnection} from './reconnection.js';
 
 export class CloudSyncManager {
+	private static instance: CloudSyncManager;
+
 	static getInstance(): CloudSyncManager {
 		this.instance ||= new CloudSyncManager();
 
 		return this.instance;
 	}
 
-	private static instance: CloudSyncManager;
-
 	private loginSyncComplete = false;
 	private readonly handler = new CloudSyncHandler();
 	private readonly healthMonitor = new CloudSyncHealthMonitor();
+
 	private readonly reconnection = new CloudSyncReconnection(
 		userId => {
 			this.subscribeToRealtimeUpdates(userId);
@@ -50,6 +51,74 @@ export class CloudSyncManager {
 
 		this.startHeartbeat();
 		this.startVisibilityPullFallback();
+	}
+
+	/**
+	 Called by CloudSyncSubscription when SUBSCRIBED status fires
+	 */
+	private async onSubscribed(isResubscribe: boolean) {
+		const {attempts} = this.reconnection;
+		logger.debug('📡 WebSocket SUBSCRIBED | isResubscribe:', isResubscribe, '| reconnectAttempts:', attempts);
+
+		if (attempts > 0) {
+			logger.debug('✅ WebSocket reconnected successfully after', attempts, 'attempts');
+		}
+
+		this.reconnection.reset();
+
+		if (isResubscribe) {
+			// Calculate time since last known fresh data (heartbeat check)
+			const lastFreshTs = this.reconnection.lastFreshTimestamp;
+			const timeSinceLastFreshMs = lastFreshTs ? Date.now() - lastFreshTs : Infinity;
+
+			if (timeSinceLastFreshMs <= CloudSyncHealthMonitor.quickReconnectThresholdMs) {
+				logger.debug(`⚡ Reconnected with recent heartbeat (${(timeSinceLastFreshMs / 1000).toFixed(1)}s ago) - skipping pull`);
+				// Recent heartbeat means connection was healthy - no need to pull
+				// This handles quick reconnects like JWT expiry (hourly)
+				return;
+			}
+
+			logger.debug(`🔄 Reconnected${lastFreshTs ? ` with stale heartbeat (${(timeSinceLastFreshMs / 1000).toFixed(1)}s ago)` : ''} - pulling fresh data`);
+			// Stale heartbeat - pull to catch up on missed updates
+			// This handles device sleep, long network outages, etc.
+			if (this.currentUserId && !this.handler.syncing) {
+				try {
+					this.handler.syncing = true;
+					await this.pullFromDatabase(this.currentUserId);
+					logger.log('☁️➡️💻 Synced data from cloud (reconnected)');
+				} finally {
+					this.handler.syncing = false;
+				}
+			}
+		} else {
+			logger.debug('✅ First subscription established');
+			// First subscription - no pull needed (already handled in handleLogin)
+		}
+	}
+
+	private startHeartbeat() {
+		this.healthMonitor.startHeartbeat(
+			() => this.subscription.channelState,
+			ts => {
+				this.reconnection.lastFreshTimestamp = ts;
+			},
+		);
+	}
+
+	private startVisibilityPullFallback() {
+		this.healthMonitor.startVisibilityFallback({
+			getCurrentUserId: () => this.currentUserId,
+			getChannelState: () => this.subscription.channelState,
+			isSyncing: () => this.handler.syncing,
+			getLastFreshTimestamp: () => this.reconnection.lastFreshTimestamp,
+			pullFn: async userId => this.pullFromDatabase(userId),
+			onPullComplete: ts => {
+				this.reconnection.lastFreshTimestamp = ts;
+			},
+			setSyncing: value => {
+				this.handler.syncing = value;
+			},
+		});
 	}
 
 	/**
@@ -125,73 +194,5 @@ export class CloudSyncManager {
 		this.currentUserId = undefined;
 		this.reconnection.clearAll();
 		this.subscription.unsubscribe();
-	}
-
-	/**
-	 Called by CloudSyncSubscription when SUBSCRIBED status fires
-	 */
-	private async onSubscribed(isResubscribe: boolean) {
-		const {attempts} = this.reconnection;
-		logger.debug('📡 WebSocket SUBSCRIBED | isResubscribe:', isResubscribe, '| reconnectAttempts:', attempts);
-
-		if (attempts > 0) {
-			logger.debug('✅ WebSocket reconnected successfully after', attempts, 'attempts');
-		}
-
-		this.reconnection.reset();
-
-		if (isResubscribe) {
-			// Calculate time since last known fresh data (heartbeat check)
-			const lastFreshTs = this.reconnection.lastFreshTimestamp;
-			const timeSinceLastFreshMs = lastFreshTs ? Date.now() - lastFreshTs : Infinity;
-
-			if (timeSinceLastFreshMs <= CloudSyncHealthMonitor.quickReconnectThresholdMs) {
-				logger.debug(`⚡ Reconnected with recent heartbeat (${(timeSinceLastFreshMs / 1000).toFixed(1)}s ago) - skipping pull`);
-				// Recent heartbeat means connection was healthy - no need to pull
-				// This handles quick reconnects like JWT expiry (hourly)
-				return;
-			}
-
-			logger.debug(`🔄 Reconnected${lastFreshTs ? ` with stale heartbeat (${(timeSinceLastFreshMs / 1000).toFixed(1)}s ago)` : ''} - pulling fresh data`);
-			// Stale heartbeat - pull to catch up on missed updates
-			// This handles device sleep, long network outages, etc.
-			if (this.currentUserId && !this.handler.syncing) {
-				try {
-					this.handler.syncing = true;
-					await this.pullFromDatabase(this.currentUserId);
-					logger.log('☁️➡️💻 Synced data from cloud (reconnected)');
-				} finally {
-					this.handler.syncing = false;
-				}
-			}
-		} else {
-			logger.debug('✅ First subscription established');
-			// First subscription - no pull needed (already handled in handleLogin)
-		}
-	}
-
-	private startHeartbeat() {
-		this.healthMonitor.startHeartbeat(
-			() => this.subscription.channelState,
-			ts => {
-				this.reconnection.lastFreshTimestamp = ts;
-			},
-		);
-	}
-
-	private startVisibilityPullFallback() {
-		this.healthMonitor.startVisibilityFallback({
-			getCurrentUserId: () => this.currentUserId,
-			getChannelState: () => this.subscription.channelState,
-			isSyncing: () => this.handler.syncing,
-			getLastFreshTimestamp: () => this.reconnection.lastFreshTimestamp,
-			pullFn: async userId => this.pullFromDatabase(userId),
-			onPullComplete: ts => {
-				this.reconnection.lastFreshTimestamp = ts;
-			},
-			setSyncing: value => {
-				this.handler.syncing = value;
-			},
-		});
 	}
 }

@@ -21,6 +21,16 @@ export class CloudSyncSubscription {
 		// Injected dependencies set via constructor parameters
 	}
 
+	private async onStatusChange(status: string): Promise<void> {
+		if (status === 'SUBSCRIBED') {
+			await this.onSubscribed(this.hasSubscribedBefore);
+			this.hasSubscribedBefore = true;
+		} else if (['CLOSED', 'TIMED_OUT', 'CHANNEL_ERROR'].includes(status)) {
+			logger.debug('⚠️ WebSocket entered failed state:', status);
+			this.onFailedStatus();
+		}
+	}
+
 	get channelState(): string | undefined {
 		return this.channel?.state;
 	}
@@ -67,15 +77,5 @@ export class CloudSyncSubscription {
 
 		this.channel.unsubscribe();
 		this.channel = undefined;
-	}
-
-	private async onStatusChange(status: string): Promise<void> {
-		if (status === 'SUBSCRIBED') {
-			await this.onSubscribed(this.hasSubscribedBefore);
-			this.hasSubscribedBefore = true;
-		} else if (['CLOSED', 'TIMED_OUT', 'CHANNEL_ERROR'].includes(status)) {
-			logger.debug('⚠️ WebSocket entered failed state:', status);
-			this.onFailedStatus();
-		}
 	}
 }

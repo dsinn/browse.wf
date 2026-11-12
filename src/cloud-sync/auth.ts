@@ -16,18 +16,31 @@ import type {User} from '@supabase/supabase-js';
 import {db, isDatabaseConfigured} from './database.js';
 
 export class AuthService {
+	private static instance: AuthService;
+
 	static getInstance(): AuthService {
 		this.instance ||= new AuthService();
 
 		return this.instance;
 	}
 
-	private static instance: AuthService;
-
 	private currentUser: User | undefined;
 
 	private constructor() {
 		// Singleton — no initialization needed
+	}
+
+	private handleAuthChange(event: string, session: any) {
+		if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+			if (session?.user) {
+				globalThis.dispatchEvent(new CustomEvent('auth-signed-in', {
+					detail: {userId: session.user.id},
+				}));
+			}
+		} else if (event === 'SIGNED_OUT') {
+			globalThis.dispatchEvent(new CustomEvent('auth-signed-out'));
+			globalThis.dispatchEvent(new CustomEvent('auth-state-changed'));
+		}
 	}
 
 	async initialize() {
@@ -103,18 +116,5 @@ export class AuthService {
 
 	getDiscordUserId(): string | undefined {
 		return this.currentUser?.user_metadata?.provider_id || undefined;
-	}
-
-	private handleAuthChange(event: string, session: any) {
-		if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-			if (session?.user) {
-				globalThis.dispatchEvent(new CustomEvent('auth-signed-in', {
-					detail: {userId: session.user.id},
-				}));
-			}
-		} else if (event === 'SIGNED_OUT') {
-			globalThis.dispatchEvent(new CustomEvent('auth-signed-out'));
-			globalThis.dispatchEvent(new CustomEvent('auth-state-changed'));
-		}
 	}
 }

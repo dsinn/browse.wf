@@ -10,10 +10,6 @@ import {logger} from '../logger.js';
 import {db} from './database.js';
 
 export class CloudSyncReconnection {
-	private reconnectAttempts = 0;
-	private reconnectTimer: ReturnType<typeof setTimeout> | undefined;
-	private lastKnownFreshDataTimestamp: number | undefined;
-
 	private static get initialBackoffMs() {
 		return 1875;
 	}
@@ -25,6 +21,10 @@ export class CloudSyncReconnection {
 	private static get errorThresholdMs() {
 		return 60 * 1000; // 1 minute — escalate to logger.error above this
 	}
+
+	private reconnectAttempts = 0;
+	private reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+	private lastKnownFreshDataTimestamp: number | undefined;
 
 	constructor(
 		private readonly onReconnect: (userId: string) => void,

@@ -11,9 +11,10 @@ import type {UserData} from './types.js';
 import {localStorageToData, dataToLocalStorage} from './serializer.js';
 
 export class CloudSyncHandler {
-	syncing = false;
 	private justPushed = false;
 	private justPushedTimeout: ReturnType<typeof setTimeout> | undefined;
+
+	syncing = false;
 
 	get isJustPushed(): boolean {
 		return this.justPushed;

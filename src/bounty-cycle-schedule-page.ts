@@ -51,6 +51,8 @@ type DayColumn = {
  slots (walking straight down the fixed-size tbody rows), so a cell and the data that fills
  it are always looked up together at the same point in the code rather than computed
  separately and threaded through as parallel day/slot indices.
+
+ @yields One column per day: its header cell, window data and a generator over its <td> slots.
  */
 function * dayColumns(headingsRow: HTMLTableRowElement, grouped: Map<number, CycleWindow[]>, now: number): Generator<DayColumn & {slots: () => Generator<HTMLTableCellElement>}> {
 	const tbody = document.querySelector<HTMLTableSectionElement>('#schedule-table-body')!;

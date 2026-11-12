@@ -32,7 +32,6 @@ const config = [
 			'@typescript-eslint/no-meaningless-void-operator': 'off',
 			'@typescript-eslint/no-shadow': 'off',
 			'@typescript-eslint/strict-boolean-expressions': 'off',
-			'jsdoc/require-yields': 'off',
 			'markdown/fenced-code-language': 'off',
 			'n/file-extension-in-import': 'off',
 			'package-json/no-orphan-script-hooks': 'off',

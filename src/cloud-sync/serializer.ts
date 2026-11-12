@@ -21,10 +21,7 @@ export function setNestedValue(object: Record<string, any>, path: string, value:
 
 	for (let i = 0; i < keys.length - 1; i++) {
 		const key = keys[i];
-		if (!(key in current)) {
-			current[key] = {};
-		}
-
+		current[key] ??= {};
 		current = current[key];
 	}
 

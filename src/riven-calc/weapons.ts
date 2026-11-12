@@ -112,12 +112,13 @@ export function weaponCanRollDamageType(weapon: Record<string, any>, damageType:
 		return true;
 	}
 
-	if (damageType in damageTable) {
+	const damage: number | undefined = damageTable[damageType];
+	if (damage !== undefined) {
 		// The table also holds non-damage fields such as procChance
 		const totalDamage = Object.entries(damageTable)
 			.filter(([key]) => key.startsWith('DT_'))
-			.reduce((sum, [, damage]) => sum + damage, 0);
-		return (damageTable[damageType] / totalDamage) > 0.2;
+			.reduce((sum, [, tableDamage]) => sum + tableDamage, 0);
+		return (damage / totalDamage) > 0.2;
 	}
 
 	return false;

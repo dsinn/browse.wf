@@ -97,8 +97,9 @@ export function saveToCache(request: InvigorationRequest, response: Invigoration
 
 	const prunedCache: InvigorationCache = {};
 	for (const week of [currentWeek - 1, currentWeek, currentWeek + 1]) {
-		if (cache[week]) {
-			prunedCache[week] = cache[week];
+		const entry = cache[week];
+		if (entry) {
+			prunedCache[week] = entry;
 		}
 	}
 

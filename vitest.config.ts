@@ -9,8 +9,9 @@ import chokidar from 'chokidar';
 const env = loadEnv('', process.cwd(), '');
 const TEST_SECRETS = ['WARFRAME_API_FRONT_PROXY_TOKEN'];
 for (const key of TEST_SECRETS) {
-	if (env[key]) {
-		process.env[key] = env[key];
+	const value = env[key];
+	if (value) {
+		process.env[key] = value;
 	}
 }
 

@@ -38,7 +38,6 @@ const config = [
 			'unicorn/consistent-class-member-order': 'off',
 			'unicorn/isolated-functions': 'off',
 			'unicorn/no-break-in-nested-loop': 'off',
-			'unicorn/no-computed-property-existence-check': 'off',
 			'unicorn/no-exports-in-scripts': 'off',
 			'unicorn/no-global-object-property-assignment': 'off',
 			'unicorn/no-optional-chaining-on-undeclared-variable': 'off',

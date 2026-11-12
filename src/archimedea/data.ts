@@ -93,9 +93,10 @@ export async function resolveArchimedea(
 		const conditions = hardDiff.risks.slice(0, 2).map((r: string) => {
 			const canonical = CONQUEST_RISK_REMAP[r] ?? r;
 			const condKey = '/Lotus/Language/Conquest/Condition_' + canonical;
+			const description = osdict[condKey + '_Desc'];
 			return {
 				name: osdict[condKey] ?? r,
-				desc: osdict[condKey + '_Desc'] ? stripHtml(osdict[condKey + '_Desc']) : undefined,
+				desc: description ? stripHtml(description) : undefined,
 			};
 		});
 

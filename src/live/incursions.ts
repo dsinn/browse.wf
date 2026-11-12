@@ -56,7 +56,7 @@ export async function updateIncursionsLocalised() {
 	// Show/hide empty message based on whether any items are visible
 	const emptyMessage = document.querySelector('#incursions-empty-message');
 	if (emptyMessage) {
-		emptyMessage.classList.toggle('d-none', !(visibleCount === 0));
+		emptyMessage.classList.toggle('d-none', visibleCount !== 0);
 	}
 }
 

@@ -60,7 +60,7 @@ export function getRivenStats(rivenClassKey: string, exportUpgrades: Record<stri
 	});
 
 	for (const extra of EXTRA_STATS) {
-		if (extra.classes.includes(rivenClassKey) && stats.every(stat => !(stat.tag === extra.tag))) {
+		if (extra.classes.includes(rivenClassKey) && stats.every(stat => stat.tag !== extra.tag)) {
 			stats.push({
 				tag: extra.tag,
 				baseValue: extra.baseValue,

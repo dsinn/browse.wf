@@ -72,7 +72,6 @@ const config = [
 			'unicorn/no-global-object-property-assignment': 'off',
 			'unicorn/no-immediate-mutation': 'off',
 			'unicorn/no-incorrect-query-selector': 'off',
-			'unicorn/no-negated-comparison': 'off',
 			'unicorn/no-optional-chaining-on-undeclared-variable': 'off',
 			'unicorn/no-subtraction-comparison': 'off',
 			'unicorn/no-top-level-side-effects': 'off',

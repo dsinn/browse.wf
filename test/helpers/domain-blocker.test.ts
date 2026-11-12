@@ -13,6 +13,11 @@ describe('Domain Blocker', () => {
 
 		it('blocks browse.wf', () => {
 			expect(isBlockedDomain('https://browse.wf/arbys.txt')).toBe(true);
+			expect(isBlockedDomain('https://browse.wf/some-path')).toBe(true);
+		});
+
+		it('blocks plain-HTTP browse.wf', () => {
+			// eslint-disable-next-line unicorn/prefer-https -- Plain-HTTP production URLs must stay blocked
 			expect(isBlockedDomain('http://browse.wf/some-path')).toBe(true);
 		});
 

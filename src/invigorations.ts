@@ -112,13 +112,14 @@ export function showHistory(currentWeek: number, cache: InvigorationCache): void
 	const nextWeekData = cache[currentWeek + 1];
 
 	const historyDiv = document.querySelector('#history');
-	const thisWeekDiv = document.querySelector('#history-this-week');
-	const lastWeekDiv = document.querySelector('#history-last-week');
 
 	if (!currentData && !lastWeekData) {
 		historyDiv?.classList.add('d-none');
 		return;
 	}
+
+	const thisWeekDiv = document.querySelector('#history-this-week');
+	const lastWeekDiv = document.querySelector('#history-last-week');
 
 	historyDiv?.classList.remove('d-none');
 

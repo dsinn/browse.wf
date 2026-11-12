@@ -244,11 +244,11 @@ function fetchAndRenderProfile(platform: string, accountId: string): void {
 }
 
 async function loadProfile(file?: File): Promise<void> {
-	const parameters = window.__profileParams!;
-
 	if (!file) {
 		return;
 	}
+
+	const parameters = window.__profileParams!;
 
 	try {
 		const data = JSON.parse(await file.text());

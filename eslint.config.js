@@ -32,7 +32,6 @@ const config = [
 			'@typescript-eslint/strict-boolean-expressions': 'off',
 			'markdown/fenced-code-language': 'off',
 			'n/file-extension-in-import': 'off',
-			'package-json/no-orphan-script-hooks': 'off',
 			'package-json/no-orphan-types': 'off',
 			'package-json/prefer-files-field': 'off',
 			'package-json/require-entry-point': 'off',

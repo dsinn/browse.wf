@@ -24,7 +24,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Post weekly forecast to Discord
-        run: npm run post-weekly-forecast -- ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.force && '--force' || '' }}
+        run: npm run weekly-forecast:post -- ${{ inputs.dry_run && '--dry-run' || '' }} ${{ inputs.force && '--force' || '' }}
         env:
           WEEKLY_FORECAST_DISCORD_WEBHOOK_URL: ${{ secrets.WEEKLY_FORECAST_DISCORD_WEBHOOK_URL }}
           WARFRAME_API_FRONT_PROXY_TOKEN: ${{ secrets.WARFRAME_API_FRONT_PROXY_TOKEN }}

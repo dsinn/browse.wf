@@ -269,7 +269,7 @@ See [test/README.md](test/README.md) for all test commands and options.
 
 ### Scripts
 
-- `npm run post-weekly-forecast` - Post the weekly forecast summary to Discord
+- `npm run weekly-forecast:post` - Post the weekly forecast summary to Discord
 
 ## Deployment
 

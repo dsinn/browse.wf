@@ -17,7 +17,7 @@
     "typecheck": "tsc && tsc -p tsconfig.lint.json",
     "compile": "npm run typecheck && node esbuild.config.js",
     "build": "node build-gh-pages.js",
-    "post-weekly-forecast": "tsc && node --env-file-if-exists=.env typestripped/scripts/post-weekly-forecast.js"
+    "weekly-forecast:post": "tsc && node --env-file-if-exists=.env typestripped/scripts/post-weekly-forecast.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.90.1",

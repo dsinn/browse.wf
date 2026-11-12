@@ -66,7 +66,7 @@ describe('normalizeLayout', () => {
 	});
 
 	test('falls back to the default layout for non-numbers', () => {
-		expect(normalizeLayout(Number.NaN, Number.NaN)).toEqual({buffs: 3, curses: 1});
+		expect(normalizeLayout(NaN, NaN)).toEqual({buffs: 3, curses: 1});
 	});
 });
 
@@ -77,7 +77,7 @@ describe('clampRank', () => {
 		[-3, 0],
 		[12, 8],
 		[4.7, 4],
-		[Number.NaN, 8],
+		[NaN, 8],
 	])('%d becomes %d', (rank, expected) => {
 		expect(clampRank(rank)).toBe(expected);
 	});

@@ -223,7 +223,7 @@ function createStatRow({
 	reset.addEventListener('click', () => {
 		slider.value = sliderMiddle;
 		input.value = sliderMiddle;
-		enter(Number.NaN);
+		enter(NaN);
 		reset.disabled = true;
 	});
 

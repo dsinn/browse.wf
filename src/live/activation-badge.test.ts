@@ -100,7 +100,7 @@ describe('activation-badge', () => {
 	});
 
 	test('schedules nothing for an invalid activation time', () => {
-		const badge = createActivationBadge(Number.NaN);
+		const badge = createActivationBadge(NaN);
 		document.body.append(badge);
 
 		expect(badge.textContent).toBe('');

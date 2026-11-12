@@ -82,7 +82,6 @@ const config = [
 			'unicorn/prefer-dom-node-html-methods': 'off',
 			'unicorn/prefer-dom-node-replace-children': 'off',
 			'unicorn/prefer-early-return': 'off',
-			'unicorn/prefer-global-number-constants': 'off',
 			'unicorn/prefer-group-by': 'off',
 			'unicorn/prefer-includes-over-repeated-comparisons': 'off',
 			'unicorn/prefer-iterator-to-array': 'off',

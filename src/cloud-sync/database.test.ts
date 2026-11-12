@@ -60,7 +60,7 @@ describe('Database Client', () => {
 			VITE_DATABASE_ANON_KEY: 'test-key-123',
 		};
 
-		const {isDatabaseConfigured} = await import('../../src/cloud-sync/database');
+		const {isDatabaseConfigured} = await import('./database');
 
 		expect(isDatabaseConfigured()).toBe(true);
 	});
@@ -71,7 +71,7 @@ describe('Database Client', () => {
 			VITE_DATABASE_ANON_KEY: 'test-key-123',
 		};
 
-		const {isDatabaseConfigured} = await import('../../src/cloud-sync/database');
+		const {isDatabaseConfigured} = await import('./database');
 
 		expect(isDatabaseConfigured()).toBe(false);
 	});
@@ -82,7 +82,7 @@ describe('Database Client', () => {
 			VITE_DATABASE_ANON_KEY: '',
 		};
 
-		const {isDatabaseConfigured} = await import('../../src/cloud-sync/database');
+		const {isDatabaseConfigured} = await import('./database');
 
 		expect(isDatabaseConfigured()).toBe(false);
 	});
@@ -90,7 +90,7 @@ describe('Database Client', () => {
 	test('should detect unconfigured database when __ENV__ missing', async () => {
 		// No window.__ENV__ set
 
-		const {isDatabaseConfigured} = await import('../../src/cloud-sync/database');
+		const {isDatabaseConfigured} = await import('./database');
 
 		expect(isDatabaseConfigured()).toBe(false);
 	});
@@ -101,7 +101,7 @@ describe('Database Client', () => {
 			VITE_DATABASE_ANON_KEY: 'test-key-123',
 		};
 
-		const {db} = await import('../../src/cloud-sync/database');
+		const {db} = await import('./database');
 
 		// Basic smoke test - Supabase client should have expected methods
 		expect(db).toBeDefined();
@@ -115,7 +115,7 @@ describe('Database Client', () => {
 			VITE_DATABASE_ANON_KEY: '',
 		};
 
-		await import('../../src/cloud-sync/database');
+		await import('./database');
 
 		expect(mockLoggerInfo).toHaveBeenCalledWith(expect.stringContaining('Database not configured'));
 	});

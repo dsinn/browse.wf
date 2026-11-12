@@ -24,7 +24,7 @@ function setupGlobals() {
 
 async function freshWorkflow() {
 	vi.resetModules();
-	return import('../../src/profile/workflow.js');
+	return import('./workflow.js');
 }
 
 beforeEach(() => {
@@ -383,7 +383,7 @@ describe('fetchAndRenderProfile', () => {
 	});
 
 	async function spyFetch(result: {status: number; data: any; nextFetchAvailableAt: number | undefined}) {
-		const {WarframeApiFrontProxyClient} = await import('../../src/warframe-api-proxy-client.js');
+		const {WarframeApiFrontProxyClient} = await import('../warframe-api-proxy-client.js');
 		return vi.spyOn(WarframeApiFrontProxyClient, 'fetchProfile').mockResolvedValue(result);
 	}
 
@@ -466,7 +466,7 @@ describe('fetchAndRenderProfile', () => {
 	});
 
 	it('on network error: shows error message in status', async () => {
-		const {WarframeApiFrontProxyClient} = await import('../../src/warframe-api-proxy-client.js');
+		const {WarframeApiFrontProxyClient} = await import('../warframe-api-proxy-client.js');
 		vi.spyOn(WarframeApiFrontProxyClient, 'fetchProfile').mockRejectedValue(new Error('Network error'));
 		(globalThis as any).fetchProfile();
 		await vi.advanceTimersByTimeAsync(0);

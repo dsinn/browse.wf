@@ -33,7 +33,6 @@ const config = [
 			'@typescript-eslint/no-shadow': 'off',
 			'@typescript-eslint/no-unnecessary-type-conversion': 'off',
 			'@typescript-eslint/strict-boolean-expressions': 'off',
-			'import-x/no-useless-path-segments': 'off',
 			'jsdoc/check-indentation': 'off',
 			'jsdoc/check-param-names': 'off',
 			'jsdoc/check-tag-names': 'off',

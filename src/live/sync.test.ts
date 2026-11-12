@@ -37,7 +37,7 @@ vi.mock('../../src/live/news-mark-read.js', () => ({
 }));
 
 // Import and call initLiveSync to register event listeners
-const {initLiveSync} = await import('../../src/live/sync.js');
+const {initLiveSync} = await import('./sync.js');
 initLiveSync();
 
 function dispatchBeforePush() {

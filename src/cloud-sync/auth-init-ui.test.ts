@@ -66,7 +66,7 @@ vi.mock('./trigger', () => ({
 
 async function importAuthInit() {
 	vi.resetModules();
-	await import('../../src/cloud-sync/auth-init');
+	await import('./auth-init');
 	// Drain microtasks so the async initialize() chain completes
 	for (let i = 0; i < 20; i++) {
 		await Promise.resolve();
@@ -405,7 +405,7 @@ describe('auth-signed-out handler', () => {
 
 	test('flushes and unsubscribes when userId is set', async () => {
 		const mockUnsubscribe = vi.fn();
-		const {CloudSyncManager} = await import('../../src/cloud-sync/manager');
+		const {CloudSyncManager} = await import('./manager');
 		vi.mocked(CloudSyncManager.getInstance).mockReturnValue({
 			unsubscribeFromRealtimeUpdates: mockUnsubscribe,
 		} as any);
@@ -441,7 +441,7 @@ describe('auth-signed-in handler', () => {
 		mockGetCurrentUser.mockReturnValue(null);
 
 		const mockHandleLogin = vi.fn();
-		const {CloudSyncManager} = await import('../../src/cloud-sync/manager');
+		const {CloudSyncManager} = await import('./manager');
 		vi.mocked(CloudSyncManager.getInstance).mockReturnValue({
 			handleLogin: mockHandleLogin,
 		} as any);
@@ -532,7 +532,7 @@ describe('DOMContentLoaded path', () => {
 		Object.defineProperty(document, 'readyState', {value: 'loading', configurable: true});
 
 		vi.resetModules();
-		await import('../../src/cloud-sync/auth-init');
+		await import('./auth-init');
 
 		document.dispatchEvent(new Event('DOMContentLoaded'));
 		for (let i = 0; i < 20; i++) {

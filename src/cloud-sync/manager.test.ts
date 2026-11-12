@@ -483,7 +483,7 @@ describe('CloudSyncManager', () => {
 
 	describe('handleLogin edge cases', () => {
 		test('should throw and dispatch cloud-sync-error when userId is missing', async () => {
-			const {AuthService} = await import('../../src/cloud-sync/auth');
+			const {AuthService} = await import('./auth');
 			vi.mocked(AuthService.getInstance).mockReturnValueOnce({
 				getUserId: vi.fn(() => undefined),
 			} as any);

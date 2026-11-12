@@ -50,7 +50,7 @@ describe('__getSupabaseAccessToken', () => {
 	test('returns null without calling db when database is not configured', async () => {
 		vi.mocked(isDatabaseConfigured).mockReturnValue(false);
 
-		await import('../../src/cloud-sync/auth-init');
+		await import('./auth-init');
 
 		const result = await (globalThis as any).__getSupabaseAccessToken();
 
@@ -62,7 +62,7 @@ describe('__getSupabaseAccessToken', () => {
 		vi.mocked(isDatabaseConfigured).mockReturnValue(true);
 		mockGetSession.mockResolvedValue({data: {session: {access_token: 'jwt-abc'}}});
 
-		await import('../../src/cloud-sync/auth-init');
+		await import('./auth-init');
 
 		const result = await (globalThis as any).__getSupabaseAccessToken();
 
@@ -73,7 +73,7 @@ describe('__getSupabaseAccessToken', () => {
 		vi.mocked(isDatabaseConfigured).mockReturnValue(true);
 		mockGetSession.mockResolvedValue({data: {session: null}});
 
-		await import('../../src/cloud-sync/auth-init');
+		await import('./auth-init');
 
 		const result = await (globalThis as any).__getSupabaseAccessToken();
 

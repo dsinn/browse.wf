@@ -237,7 +237,7 @@ export function initInvigorationsFromCache(inventoryDataUsed: boolean): void {
 		// No recent data - check for older data
 		let newestWeek = -Infinity;
 		for (const key of Object.keys(cache)) {
-			const week = Number.parseInt(key, 10);
+			const week = Number(key);
 			if (!Number.isNaN(week) && week > newestWeek) {
 				newestWeek = week;
 			}

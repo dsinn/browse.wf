@@ -20,10 +20,7 @@ import * as weekly from './weekly';
 
 const mockWorldState = {EndlessXpSchedule: loadMock('worldState.json').EndlessXpSchedule};
 
-const EXPIRY = Number.parseInt(
-	mockWorldState.EndlessXpSchedule[0].Expiry.$date.$numberLong,
-	10,
-);
+const EXPIRY = Number(mockWorldState.EndlessXpSchedule[0].Expiry.$date.$numberLong);
 
 function setupGlobals() {
 	(globalThis as any).worldState = mockWorldState;

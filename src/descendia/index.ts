@@ -22,7 +22,7 @@ export function updateDescendia(): void {
 	const now = Date.now();
 	// Find the active Descent (Activation <= now < Expiry)
 	const activeDescent: IDescent = (window as any).worldState.Descents.find((d: IDescent) =>
-		Number.parseInt(d.Activation.$date.$numberLong, 10) <= now && Number.parseInt(d.Expiry.$date.$numberLong, 10) > now);
+		Number(d.Activation.$date.$numberLong) <= now && Number(d.Expiry.$date.$numberLong) > now);
 
 	if (!activeDescent) {
 		setTimeout(updateDescendia, 5000); // Stale worldState — retry shortly
@@ -30,7 +30,7 @@ export function updateDescendia(): void {
 	}
 
 	// Update header with expiry timer
-	const expiry = Number.parseInt(activeDescent.Expiry.$date.$numberLong, 10);
+	const expiry = Number(activeDescent.Expiry.$date.$numberLong);
 	const header = document.querySelector('.card-header:has(#descent-checks) h5');
 	if (header) {
 		// Preserve collapse toggle, set title + badge, then append checks

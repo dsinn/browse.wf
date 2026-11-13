@@ -268,7 +268,7 @@ test.describe('Profile Stats Filters', () => {
 				const totals: Record<string, number> = {};
 				for (const tr of document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')) {
 					const category = tr.dataset.category ?? '';
-					const value = Number.parseFloat(tr.cells[2]?.textContent ?? '0');
+					const value = Number((tr.cells[2]?.textContent ?? '0').replaceAll('%', ''));
 					totals[category] = (totals[category] ?? 0) + value;
 				}
 

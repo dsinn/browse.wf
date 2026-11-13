@@ -15,7 +15,7 @@ for (const key of TEST_SECRETS) {
 	}
 }
 
-const DEV_PORT = Number.parseInt(process.env.PORT || '60969', 10);
+const DEV_PORT = Number(process.env.PORT || '60969');
 
 /**
  Vite plugin to serve pre-rendered PHP pages from public/ with HMR support.

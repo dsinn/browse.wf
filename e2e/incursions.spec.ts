@@ -25,7 +25,7 @@ test.describe('Steel Path Incursion Schedule (/incursions)', () => {
 			await page.locator('#btn-view-calendar').click();
 			await expect(page.locator('.incursion-day-header')).toHaveCount(7);
 			const text = await page.locator('.incursion-date-label').first().textContent();
-			expect(Number.parseInt(text!, 10)).toBeGreaterThan(0);
+			expect(Number(text!)).toBeGreaterThan(0);
 			expect(await page.locator('.incursions-grid .is-today').count()).toBe(1);
 			expect(await page.locator('.incursions-grid .incursion-faction-icon').count()).toBeGreaterThan(0);
 		});

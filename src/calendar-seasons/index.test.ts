@@ -351,7 +351,7 @@ describe('renderCalendarSeasonPane', () => {
 
 describe('updateCalendarSeason', () => {
 	const activeSeason = worldState.KnownCalendarSeasons[0];
-	const activeSeasonExpiry = Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10);
+	const activeSeasonExpiry = Number(activeSeason.Expiry.$date.$numberLong);
 
 	beforeEach(() => {
 		(globalThis as any).ExportChallenges = ExportChallenges;

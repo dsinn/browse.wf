@@ -25,6 +25,14 @@ export function createDefaultState(): CalcState {
 	};
 }
 
+/**
+ A missing or empty parameter is NaN, which the clamping functions default, where Number() would give 0
+ */
+function numberParameter(parameters: URLSearchParams, name: string): number {
+	const value = parameters.get(name);
+	return value === null || value === '' ? NaN : Number(value);
+}
+
 function isRivenClassKey(value: string): boolean {
 	return RIVEN_CLASSES.some(rivenClass => rivenClass.key === value);
 }
@@ -51,13 +59,13 @@ export function parseHash(hash: string, weapons: readonly WeaponOption[]): CalcS
 	}
 
 	if (parameters.has('lvl')) {
-		state.rank = clampRank(Number.parseInt(parameters.get('lvl')!, 10));
+		state.rank = clampRank(numberParameter(parameters, 'lvl'));
 	}
 
 	if (parameters.has('buffs') || parameters.has('curses')) {
 		state.layout = normalizeLayout(
-			Number.parseInt(parameters.get('buffs') ?? '', 10),
-			Number.parseInt(parameters.get('curses') ?? '', 10),
+			numberParameter(parameters, 'buffs'),
+			numberParameter(parameters, 'curses'),
 		);
 	}
 

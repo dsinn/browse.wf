@@ -33,7 +33,7 @@ export function deltaToUnits(delta: number): string[] {
  the badge's data-expired-label if it has one and the default pending label otherwise.
  */
 function updateExpiryBadge(badge: HTMLElement): boolean {
-	let expiry = Number.parseInt(badge.dataset.expiry ?? '', 10);
+	let expiry = Number(badge.dataset.expiry);
 	expiry -= expiry % 1000;
 	expiry += 1000; // Normalise the ms so everything ticks at the same time
 	const delta = expiry - Date.now();

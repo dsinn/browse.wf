@@ -46,8 +46,8 @@ describe('Descendia Card', () => {
 
 		// Find the active Descent (Activation <= now < Expiry)
 		const activeDescent = worldState.Descents.find((d: any) =>
-			Number.parseInt(d.Activation.$date.$numberLong, 10) <= now
-			&& Number.parseInt(d.Expiry.$date.$numberLong, 10) > now);
+			Number(d.Activation.$date.$numberLong) <= now
+			&& Number(d.Expiry.$date.$numberLong) > now);
 
 		// The mock data should have at least one active Descent
 		// If this fails, it means all Descents have expired or haven't started yet

@@ -104,8 +104,8 @@ export async function updateFissures(forceRender = false) {
 	const now = Date.now();
 	let maxActivation = 0;
 	for (const f of [...(window as any).worldState.ActiveMissions, ...(window as any).worldState.VoidStorms]) {
-		const activation = Number.parseInt(f.Activation.$date.$numberLong, 10);
-		if (activation <= now && now < Number.parseInt(f.Expiry.$date.$numberLong, 10)) {
+		const activation = Number(f.Activation.$date.$numberLong);
+		if (activation <= now && now < Number(f.Expiry.$date.$numberLong)) {
 			maxActivation = Math.max(maxActivation, activation);
 		}
 	}
@@ -139,7 +139,7 @@ export async function updateFissures(forceRender = false) {
 	// Sort by tier first, then by expiry within each tier
 	fissures.sort((a, b) => {
 		const tierDiff = (a.Modifier.codePointAt(5) ?? 0) - (b.Modifier.codePointAt(5) ?? 0);
-		return tierDiff === 0 ? Number.parseInt(a.Expiry.$date.$numberLong, 10) - Number.parseInt(b.Expiry.$date.$numberLong, 10) : tierDiff;
+		return tierDiff === 0 ? Number(a.Expiry.$date.$numberLong) - Number(b.Expiry.$date.$numberLong) : tierDiff;
 	});
 
 	const tbody = {
@@ -156,8 +156,8 @@ export async function updateFissures(forceRender = false) {
 
 	// Schedule re-render when each active fissure expires
 	const activeFissureExpiries = new Set(fissures
-		.filter(f => Date.now() >= Number.parseInt(f.Activation.$date.$numberLong, 10) && Date.now() < Number.parseInt(f.Expiry.$date.$numberLong, 10))
-		.map(f => Number.parseInt(f.Expiry.$date.$numberLong, 10)));
+		.filter(f => Date.now() >= Number(f.Activation.$date.$numberLong) && Date.now() < Number(f.Expiry.$date.$numberLong))
+		.map(f => Number(f.Expiry.$date.$numberLong)));
 	for (const expiry of activeFissureExpiries) {
 		if (fissuresScheduledExpiries.has(expiry)) {
 			continue;
@@ -173,9 +173,9 @@ export async function updateFissures(forceRender = false) {
 	const {fissureTiers} = (globalThis as any);
 
 	for (const fissure of fissures) {
-		if (Date.now() < Number.parseInt(fissure.Activation.$date.$numberLong, 10)) {
+		if (Date.now() < Number(fissure.Activation.$date.$numberLong)) {
 			// Not yet active; expiry-based re-render will handle it when worldState refreshes
-		} else if (Date.now() < Number.parseInt(fissure.Expiry.$date.$numberLong, 10)) {
+		} else if (Date.now() < Number(fissure.Expiry.$date.$numberLong)) {
 			const row = buildFissureRow(dict, {regions: ExportRegions, factions: ExportFactions, tiers: fissureTiers}, renderedTierHeadings, fissure);
 			if (row) {
 				tbody[fissure.Category as keyof typeof tbody].append(row);

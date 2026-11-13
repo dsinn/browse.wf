@@ -361,7 +361,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 				if (text !== 'N/A') {
 					const timestamp = await dateCell.getAttribute('data-timestamp');
 					expect(timestamp).toBeTruthy();
-					expect(Number.parseInt(timestamp!, 10)).toBeGreaterThan(0);
+					expect(Number(timestamp!)).toBeGreaterThan(0);
 					foundTimestamp = true;
 					break;
 				}
@@ -409,7 +409,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			for (const entry of entries) {
 				const ts = await entry.getAttribute('data-timestamp');
 				if (ts) {
-					timestamps.push(Number.parseInt(ts, 10));
+					timestamps.push(Number(ts));
 				}
 			}
 
@@ -562,7 +562,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 				const timestamp = await badge.getAttribute('data-short-timer-expiry');
 				expect(timestamp).toBeTruthy();
 
-				const ts = Number.parseInt(timestamp!, 10);
+				const ts = Number(timestamp!);
 				expect(ts).toBeGreaterThan(1_000_000_000); // Valid unix timestamp
 				expect(ts).toBeLessThan(3_000_000_000);
 			}

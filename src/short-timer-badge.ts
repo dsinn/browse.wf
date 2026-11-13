@@ -51,7 +51,7 @@ function deltaToTwoUnits(deltaSeconds: number): string[] {
  Returns false once the expired label is showing.
  */
 function updateShortTimer(elm: HTMLElement): boolean {
-	const timestamp = Number.parseInt(elm.dataset.shortTimerExpiry ?? '', 10);
+	const timestamp = Number(elm.dataset.shortTimerExpiry);
 	const deltaSeconds = timestamp - Math.floor(Date.now() / 1000);
 
 	if (deltaSeconds <= 0) {
@@ -68,7 +68,7 @@ function updateShortTimer(elm: HTMLElement): boolean {
  days + hours and hours + minutes, handing over to the shared ticker once seconds are showing
  */
 function scheduleShortTimerUpdate(elm: HTMLElement): void {
-	const timestamp = Number.parseInt(elm.dataset.shortTimerExpiry ?? '', 10);
+	const timestamp = Number(elm.dataset.shortTimerExpiry);
 	if (Number.isNaN(timestamp)) {
 		return;
 	}

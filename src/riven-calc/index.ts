@@ -433,7 +433,7 @@ export function initRivenCalc(data: CalcData, root: ParentNode = document): Rive
 
 	rankInput.addEventListener('change', () => {
 		// An emptied box keeps the previous rank
-		const rank = Number.parseInt(rankInput.value, 10);
+		const rank = rankInput.valueAsNumber;
 		if (!Number.isNaN(rank)) {
 			state.rank = clampRank(rank);
 		}
@@ -459,8 +459,8 @@ export function initRivenCalc(data: CalcData, root: ParentNode = document): Rive
 
 	const onLayoutChange = (): void => {
 		// An emptied box keeps the previous count
-		const buffs = Number.parseInt(buffsInput.value, 10);
-		const curses = Number.parseInt(cursesInput.value, 10);
+		const buffs = buffsInput.valueAsNumber;
+		const curses = cursesInput.valueAsNumber;
 		state.layout = normalizeLayout(Number.isNaN(buffs) ? state.layout.buffs : buffs, Number.isNaN(curses) ? state.layout.curses : curses);
 		syncControls();
 		update();

@@ -155,7 +155,7 @@ describe('sp-incursions.txt parsing', () => {
 		for (const line of lines.slice(0, 5)) {
 			const parts = line.split(';');
 			expect(parts.length).toBe(2);
-			const timestamp = Number.parseInt(parts[0], 10);
+			const timestamp = Number(parts[0]);
 			expect(Number.isNaN(timestamp)).toBe(false);
 			expect(timestamp % SECONDS_PER_DAY).toBe(0); // Always a UTC day boundary
 			const nodes = parts[1].split(',');
@@ -166,7 +166,7 @@ describe('sp-incursions.txt parsing', () => {
 	test('timestamps are strictly increasing by one day', () => {
 		const text = readFileSync(join(process.cwd(), 'sp-incursions.txt'), 'utf8');
 		const lines = text.split('\n').filter(Boolean);
-		const timestamps = lines.map(l => Number.parseInt(l.split(';', 1)[0], 10));
+		const timestamps = lines.map(l => Number(l.split(';', 1)[0]));
 
 		for (let i = 1; i < Math.min(timestamps.length, 10); i++) {
 			expect(timestamps[i] - timestamps[i - 1]).toBe(SECONDS_PER_DAY);

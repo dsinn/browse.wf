@@ -24,7 +24,7 @@ declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
 
 export function mongoMs(d: IMongoDate): number {
-	return Number.parseInt(d.$date.$numberLong, 10);
+	return Number(d.$date.$numberLong);
 }
 
 export function formatTabDate(ms: number): string {

@@ -15,7 +15,7 @@ const MAX_TIMEOUT = (2 ** 31) - 1;
  Sets the badge's text from its data-activation, then schedules the next update for when the unit changes
  */
 function updateActivationBadge(badge: HTMLElement): void {
-	const activation = Number.parseInt(badge.dataset.activation ?? '', 10);
+	const activation = Number(badge.dataset.activation);
 	if (Number.isNaN(activation)) {
 		return;
 	}

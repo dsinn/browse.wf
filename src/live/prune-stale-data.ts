@@ -60,7 +60,7 @@ export function pruneStaleOids(): void {
 
 		// Timestamp OIDs are kept until they expire. MongoDB ObjectIDs (sortie, archon hunt, invasions, alerts) are
 		// kept only while their card is rendered. Unknown formats are always kept.
-		return m ? Number.parseInt(m.groups!.expiry, 10) >= now : !/^[0-9a-f]{24}$/u.test(oid) || !mongoCardsLoaded || validMongoOids.has(oid);
+		return m ? Number(m.groups!.expiry) >= now : !/^[0-9a-f]{24}$/u.test(oid) || !mongoCardsLoaded || validMongoOids.has(oid);
 	});
 
 	if (cleaned.length > 0) {

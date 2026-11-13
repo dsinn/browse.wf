@@ -125,7 +125,7 @@ describe('updateDescendia — active descent', () => {
 	});
 
 	test('passes expiry timestamp to createExpiryBadge', () => {
-		const expiryMs = Number.parseInt(activeDescent.Expiry.$date.$numberLong, 10);
+		const expiryMs = Number(activeDescent.Expiry.$date.$numberLong);
 		updateDescendia();
 
 		expect((globalThis as any).createExpiryBadge).toHaveBeenCalledWith(expiryMs);

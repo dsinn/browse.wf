@@ -147,7 +147,7 @@ describe('updateCalendarSeason — active season', () => {
 	});
 
 	test('calls createExpiryBadge with the season expiry timestamp', async () => {
-		const expiryMs = Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10);
+		const expiryMs = Number(activeSeason.Expiry.$date.$numberLong);
 
 		await updateCalendarSeason();
 
@@ -162,7 +162,7 @@ describe('updateCalendarSeason — active season', () => {
 	});
 
 	test('completion toggle oid contains expiry timestamp', async () => {
-		const expiryMs = Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10);
+		const expiryMs = Number(activeSeason.Expiry.$date.$numberLong);
 
 		await updateCalendarSeason();
 

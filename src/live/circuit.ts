@@ -35,14 +35,14 @@ export function updateCircuitChoices(): void {
 
 	const now = Date.now();
 	const active = schedule.find((entry: IEndlessXpEntry) =>
-		Number.parseInt(entry.Activation.$date.$numberLong, 10) <= now && Number.parseInt(entry.Expiry.$date.$numberLong, 10) > now);
+		Number(entry.Activation.$date.$numberLong) <= now && Number(entry.Expiry.$date.$numberLong) > now);
 
 	if (!active) {
 		setTimeout(updateCircuitChoices, STALE_DATA_RETRY_MS);
 		return;
 	}
 
-	const expiry = Number.parseInt(active.Expiry.$date.$numberLong, 10);
+	const expiry = Number(active.Expiry.$date.$numberLong);
 
 	window.setDatum!('circuit-header', 'Weekly Missions', expiry);
 

@@ -25,7 +25,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.join(__dirname, '..');
 const OUTPUT_DIR = path.join(rootDir, 'public');
-const PHP_PORT = Number.parseInt(process.env.PHP_RENDER_PORT || '62969', 10);
+const PHP_PORT = Number(process.env.PHP_RENDER_PORT || '62969');
 
 async function renderOnce(serverAlreadyRunning = false) {
 	if (!serverAlreadyRunning) {

@@ -55,7 +55,7 @@ describe('Void Fissures Card', () => {
 		// Sort by tier first, then by expiry within each tier (same logic as live.ts)
 		fissures.sort((a, b) => {
 			const tierDiff = (a.Modifier.codePointAt(5) ?? 0) - (b.Modifier.codePointAt(5) ?? 0);
-			return tierDiff === 0 ? Number.parseInt(a.Expiry.$date.$numberLong, 10) - Number.parseInt(b.Expiry.$date.$numberLong, 10) : tierDiff;
+			return tierDiff === 0 ? Number(a.Expiry.$date.$numberLong) - Number(b.Expiry.$date.$numberLong) : tierDiff;
 		});
 
 		// Group by tier and Hard mode to verify chronological ordering
@@ -67,7 +67,7 @@ describe('Void Fissures Card', () => {
 				continue; // Single-item groups are trivially sorted
 			}
 
-			const expiries = group.map(f => Number.parseInt(f.Expiry.$date.$numberLong, 10));
+			const expiries = group.map(f => Number(f.Expiry.$date.$numberLong));
 
 			// Check that each expiry is <= the next one (chronological order)
 			for (let i = 0; i < expiries.length - 1; i++) {
@@ -105,7 +105,7 @@ describe('Void Fissures Card', () => {
 				continue;
 			}
 
-			const sorted = [...expiries].sort((a: string, b: string) => Number.parseInt(a, 10) - Number.parseInt(b, 10));
+			const sorted = [...expiries].sort((a: string, b: string) => Number(a) - Number(b));
 			const alreadySorted = JSON.stringify(expiries) === JSON.stringify(sorted);
 
 			if (alreadySorted) {

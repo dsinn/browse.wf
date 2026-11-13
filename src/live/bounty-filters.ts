@@ -34,7 +34,7 @@ export function getMinimumTier(syndicateTag: string): number {
 	const savedValue = localStorage.getItem(storageKey);
 
 	if (savedValue !== null) {
-		const tier = Number.parseInt(savedValue, 10);
+		const tier = Number(savedValue);
 		if (!Number.isNaN(tier) && tier >= -1) {
 			return tier;
 		}

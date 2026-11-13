@@ -24,11 +24,11 @@ export async function updateCalendarSeason(): Promise<void> {
 
 	const now = Date.now();
 	const activeSeason = seasons.find(s =>
-		Number.parseInt(s.Activation.$date.$numberLong, 10) <= now && now < Number.parseInt(s.Expiry.$date.$numberLong, 10));
+		Number(s.Activation.$date.$numberLong) <= now && now < Number(s.Expiry.$date.$numberLong));
 
 	if (activeSeason) {
 		// Schedule re-render when the active season expires
-		const expiry = Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10);
+		const expiry = Number(activeSeason.Expiry.$date.$numberLong);
 		setTimeout(() => {
 			void updateCalendarSeason();
 		}, expiry - Date.now());
@@ -46,7 +46,7 @@ export async function updateCalendarSeason(): Promise<void> {
 	// Inject expiry badge into header
 	const expirySpan = document.querySelector('#calendar-season-expiry');
 	if (expirySpan) {
-		expirySpan.replaceChildren(createExpiryBadge(Number.parseInt(activeSeason.Expiry.$date.$numberLong, 10)));
+		expirySpan.replaceChildren(createExpiryBadge(Number(activeSeason.Expiry.$date.$numberLong)));
 	}
 
 	// Inject completion toggle into header span

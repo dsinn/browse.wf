@@ -46,7 +46,7 @@ function autocheckLinkedBoxes(element: HTMLElement, nowChecked: boolean): void {
 		return;
 	}
 
-	const count = Number.parseInt(source.dataset.autocheckCount ?? '1', 10);
+	const count = Number(source.dataset.autocheckCount ?? '1');
 	const target = document.querySelector<HTMLElement>(targetSelector);
 	if (!target) {
 		return;

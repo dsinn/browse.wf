@@ -473,11 +473,11 @@ export async function init(): Promise<void> {
 
 	// Month/Year dropdown handlers
 	document.querySelector<HTMLSelectElement>('#select-month')!.addEventListener('change', function () {
-		viewAnchorDate.setMonth(Number.parseInt(this.value, 10));
+		viewAnchorDate.setMonth(Number(this.value));
 		renderSchedule();
 	});
 	document.querySelector<HTMLSelectElement>('#select-year')!.addEventListener('change', function () {
-		viewAnchorDate.setFullYear(Number.parseInt(this.value, 10));
+		viewAnchorDate.setFullYear(Number(this.value));
 		renderSchedule();
 	});
 
@@ -508,7 +508,7 @@ export async function loadData(): Promise<void> {
 	incursions = incursionText.split('\n')
 		.map(line => line.split(';'))
 		.filter(array => array.length === 2)
-		.map(array => [Number.parseInt(array[0], 10), array[1]] as [number, string]);
+		.map(array => [Number(array[0]), array[1]] as [number, string]);
 
 	epochDay = incursions[0][0];
 

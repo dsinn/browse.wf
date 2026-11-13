@@ -50,7 +50,7 @@ function getDuplicateInvasionOids(invasions: InvasionData[]): Set<string> {
 	const nodeFirstOid = new Map<string, {oid: string; t: number}>();
 	const duplicates = new Set<string>();
 	for (const inv of invasions) {
-		const t = Number.parseInt(inv.Activation.$date.$numberLong, 10);
+		const t = Number(inv.Activation.$date.$numberLong);
 		const cur = nodeFirstOid.get(inv.Node);
 		if (cur === undefined || t < cur.t) {
 			if (cur !== undefined) {
@@ -67,7 +67,7 @@ function getDuplicateInvasionOids(invasions: InvasionData[]): Set<string> {
 }
 
 function isPendingStart(invasion: InvasionData): boolean {
-	return Number.parseInt(invasion.Activation.$date.$numberLong, 10) > Date.now();
+	return Number(invasion.Activation.$date.$numberLong) > Date.now();
 }
 
 // Sort order: active (by percentage ascending), then pending start (by Activation
@@ -95,7 +95,7 @@ function sortInvasions(invasions: InvasionData[], duplicates: Set<string>, perce
 		}
 
 		return aBucket === INVASION_BUCKET_PENDING_START
-			? Number.parseInt(a.Activation.$date.$numberLong, 10) - Number.parseInt(b.Activation.$date.$numberLong, 10)
+			? Number(a.Activation.$date.$numberLong) - Number(b.Activation.$date.$numberLong)
 			: (percentages.get(a._id.$oid) ?? 0) - (percentages.get(b._id.$oid) ?? 0);
 	});
 }
@@ -176,7 +176,7 @@ function buildPercentageCell(percentage: number, isDuplicate: boolean, nodeLabel
 	const td = document.createElement('td');
 	td.className = 'text-end';
 
-	const activationMs = Number.parseInt(invasion.Activation.$date.$numberLong, 10);
+	const activationMs = Number(invasion.Activation.$date.$numberLong);
 
 	if (isDuplicate) {
 		const span = document.createElement('span');

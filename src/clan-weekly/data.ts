@@ -109,8 +109,8 @@ export async function resolveClanWeeklyRewards(
 
 		// Credits: fold itemCount × the credit denomination into a single formatted total.
 		if (normalized.includes('/PickUps/Credits/')) {
-			const denomination = Number.parseInt(lastSegment(reward.Reward as string).replaceAll(/\D+/gu, ''), 10);
-			const total = (reward.ItemCount as number) * (Number.isNaN(denomination) ? 1 : denomination);
+			const denominationDigits = lastSegment(reward.Reward as string).replaceAll(/\D+/gu, '');
+			const total = (reward.ItemCount as number) * (denominationDigits === '' ? 1 : Number(denominationDigits));
 			return {pct, display: `${total.toLocaleString('en')} Credits`, iconPath};
 		}
 

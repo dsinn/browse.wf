@@ -110,7 +110,7 @@ function updateProfileAge(): void {
 		return;
 	}
 
-	const fetchDate = new Date(Number.parseInt(fetchedAt, 10));
+	const fetchDate = new Date(Number(fetchedAt));
 	const diffMs = Date.now() - fetchDate.getTime();
 	const diffMins = Math.floor(diffMs / 60_000);
 	const diffHours = Math.floor(diffMs / MILLIS_PER_HOUR);
@@ -381,7 +381,7 @@ function profileWorkflowReady(syncResult: string, showAutoFetchFlow: boolean): v
 	stepsElement?.classList.remove('d-none');
 	stepsElement?.classList.toggle('manual-flow', !showAutoFetchFlow);
 
-	const storedNextFetch = Number.parseInt(localStorage.getItem(NEXT_FETCH_AVAILABLE_AT_STORAGE_KEY) ?? '0', 10);
+	const storedNextFetch = Number(localStorage.getItem(NEXT_FETCH_AVAILABLE_AT_STORAGE_KEY) ?? '0');
 	if (syncResult === 'complete' && storedNextFetch > Date.now()) {
 		showRateLimitNotice(storedNextFetch);
 	}

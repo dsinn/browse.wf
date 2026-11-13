@@ -48,7 +48,7 @@ async function fetchWorldState() {
 }
 
 function mongoMs(d: AnyRecord) {
-	return Number.parseInt(d.$date.$numberLong, 10);
+	return Number(d.$date.$numberLong);
 }
 
 // Returns the entry whose Activation is in the future and within one week, or null.

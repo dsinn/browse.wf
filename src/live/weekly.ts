@@ -18,9 +18,9 @@ export function updateWeekly(): void {
 
 		let newWeeklyExpiry: number;
 		if (labConquest) {
-			newWeeklyExpiry = Number.parseInt(labConquest.Expiry.$date.$numberLong, 10);
+			newWeeklyExpiry = Number(labConquest.Expiry.$date.$numberLong);
 		} else if (hexConquest) {
-			newWeeklyExpiry = Number.parseInt(hexConquest.Expiry.$date.$numberLong, 10);
+			newWeeklyExpiry = Number(hexConquest.Expiry.$date.$numberLong);
 		} else {
 			newWeeklyExpiry = getNextWeeklyResetMs();
 		}

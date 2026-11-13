@@ -37,7 +37,6 @@ const config = [
 			'unicorn/better-dom-traversing': 'off',
 			'unicorn/consistent-boolean-name': 'off',
 			'unicorn/isolated-functions': 'off',
-			'unicorn/no-exports-in-scripts': 'off',
 			'unicorn/no-global-object-property-assignment': 'off',
 			'unicorn/no-optional-chaining-on-undeclared-variable': 'off',
 			'unicorn/no-top-level-side-effects': 'off',

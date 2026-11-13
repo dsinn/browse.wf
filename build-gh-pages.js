@@ -19,7 +19,7 @@ import {
 	stopPhpServer,
 	fetchHtml,
 	transformPhpLinks,
-} from './scripts/render-pages.js';
+} from './scripts/render-pages-lib.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

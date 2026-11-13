@@ -16,6 +16,7 @@ import {
 	vi,
 } from 'vitest';
 import {loadFixture} from '../helpers/fixture-loader';
+import {createTooltip} from '../../src/tooltip';
 import {mockBootstrapTooltip} from '../helpers/dom-helpers';
 import {
 	initializeFilterToggles,
@@ -45,7 +46,7 @@ export function testCardFilters(cardName: string) {
 				element.dataset.bsToggle = 'tooltip';
 				element.dataset.bsTitle = title;
 				if ((globalThis as any).bootstrap?.Tooltip) {
-					void new (globalThis as any).bootstrap.Tooltip(element);
+					createTooltip(element);
 				}
 			};
 

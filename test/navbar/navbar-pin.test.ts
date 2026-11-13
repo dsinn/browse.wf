@@ -12,6 +12,7 @@ import {
 } from 'vitest';
 import {loadFixture} from '../helpers/fixture-loader';
 import {mockBootstrapTooltip, getById} from '../helpers/dom-helpers';
+import {createTooltip} from '../../src/tooltip';
 
 // Import the functions we're testing by loading the common.js file
 // Note: In a real scenario, we'd extract these into a module, but for now we'll test via DOM
@@ -340,7 +341,7 @@ function loadNavbarFunctions() {
 		}
 
 		pinMobile.dataset.bsTitle = tooltipText;
-		void new (globalThis as any).bootstrap.Tooltip(pinMobile);
+		createTooltip(pinMobile);
 
 		const tooltipDesktop = (globalThis as any).bootstrap.Tooltip.getInstance(pinDesktop);
 		if (tooltipDesktop) {
@@ -348,7 +349,7 @@ function loadNavbarFunctions() {
 		}
 
 		pinDesktop.dataset.bsTitle = tooltipText;
-		void new (globalThis as any).bootstrap.Tooltip(pinDesktop);
+		createTooltip(pinDesktop);
 	};
 
 	(globalThis as any).toggleNavbarFixed = function () {

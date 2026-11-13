@@ -6,6 +6,7 @@
  specs, and auras.
  */
 
+import {createTooltip} from '../tooltip.js';
 import {resolveDescentChallenges} from './data.js';
 
 /**
@@ -108,7 +109,7 @@ export function renderDescentChallenges(descent: IDescent, dict: Record<string, 
 			span.textContent = row.arenaEmoji;
 			span.dataset.bsToggle = 'tooltip';
 			span.dataset.bsTitle = row.arenaKey;
-			void new window.bootstrap.Tooltip(span);
+			createTooltip(span);
 			td.append(span);
 
 			tr.append(td);

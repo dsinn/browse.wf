@@ -58,7 +58,7 @@ export function initializeFilterToggles(): void {
 				// Open panel
 				panel.style.display = 'grid';
 				// Trigger reflow to ensure display change is processed before adding class
-				void panel.offsetHeight;
+				panel.getBoundingClientRect();
 				panel.classList.add('show');
 
 				// If card is collapsed, expand it

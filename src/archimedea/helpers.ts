@@ -5,6 +5,7 @@
  archimedea/data.ts. This module is responsible only for turning resolved data into DOM.
  */
 
+import {createTooltip} from '../tooltip.js';
 import {resolveArchimedea, type IResolvedArchimedeaMission, type IResolvedFrameVariable} from './data.js';
 
 declare function getDictPromise(): Promise<Record<string, string>>;
@@ -16,7 +17,7 @@ function tooltipElement(name: string, desc: string | undefined): HTMLElement | T
 		abbr.textContent = name;
 		abbr.dataset.bsToggle = 'tooltip';
 		abbr.dataset.bsTitle = desc;
-		void new window.bootstrap.Tooltip(abbr);
+		createTooltip(abbr);
 		return abbr;
 	}
 

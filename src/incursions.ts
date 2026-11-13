@@ -3,6 +3,7 @@ import {makeArchwingIcon} from './archwing-icon.js';
 import {escapeHtml} from './helpers/string-helpers.js';
 import {getDaysInMonth, localDateToUtcDayTimestamp, SECONDS_PER_DAY} from './helpers/time-helpers.js';
 import {FACTION_ICON_PATHS} from './faction-icons.js';
+import {createTooltip} from './tooltip.js';
 
 // `common.js`
 declare function getDictPromise(): Promise<Record<string, string>>;
@@ -483,7 +484,7 @@ export async function init(): Promise<void> {
 	// Initialize Bootstrap tooltips for static elements once Bootstrap JS loads
 	window.addEventListener('load', () => {
 		for (const element of document.querySelectorAll('[data-bs-toggle="tooltip"]')) {
-			void new window.bootstrap.Tooltip(element);
+			createTooltip(element);
 		}
 	});
 

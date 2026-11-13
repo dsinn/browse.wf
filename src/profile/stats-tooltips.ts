@@ -6,6 +6,7 @@
  */
 
 import {SECONDS_PER_DAY, SECONDS_PER_HOUR} from '../helpers/time-helpers.js';
+import {createTooltip} from '../tooltip.js';
 
 const MISSION_STATS = ['MissionsCompleted', 'MissionsFailed', 'MissionsQuit', 'MissionsInterrupted', 'MissionsDumped'];
 const CIPHER_STATS = ['CiphersSolved', 'CiphersFailed'];
@@ -34,7 +35,7 @@ export function addTimeStatTooltip(elm: HTMLElement, stat: string, value: number
 		elm.dataset.bsTitle = `${Math.round(value).toLocaleString()} seconds`;
 	}
 
-	void new window.bootstrap.Tooltip(elm);
+	createTooltip(elm);
 }
 
 /**
@@ -70,7 +71,7 @@ export function addCipherAvgTooltip(elm: HTMLElement, profile: any): void {
 	elm.textContent = `${avgCipherTime.toFixed(3)}s`;
 	addTooltipDecoration(elm);
 	elm.dataset.bsTitle = `${avgCipherTime} seconds`;
-	void new window.bootstrap.Tooltip(elm);
+	createTooltip(elm);
 }
 
 window.addTimeStatTooltip = addTimeStatTooltip;

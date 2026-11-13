@@ -30,7 +30,6 @@ const config = [
 	// TODO: Ratchet new rules introduced after xo 2.
 	{
 		rules: {
-			'@typescript-eslint/no-meaningless-void-operator': 'off',
 			'@typescript-eslint/strict-boolean-expressions': 'off',
 			'n/file-extension-in-import': 'off',
 			'regexp/no-super-linear-move': 'off',

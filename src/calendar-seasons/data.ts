@@ -106,6 +106,35 @@ async function fetchItemMaps(): Promise<{itemIconMap: Record<string, string>; it
 	return itemMapsPromise;
 }
 
+function resolveEventText(
+	event: any,
+	dict: Record<string, string>,
+	exportChallenges: Record<string, any>,
+	itemIconMap: Record<string, string>,
+	itemNameMap: Record<string, string>,
+): {text: string; iconPath?: string} {
+	switch (event.type) {
+		case 'CET_CHALLENGE': {
+			return resolveChallengeText(event, dict, exportChallenges);
+		}
+
+		case 'CET_REWARD': {
+			const normalized = event.reward.replace('/Lotus/StoreItems/', '/Lotus/');
+			const nameKey = itemNameMap[normalized];
+			const rawName = (nameKey && dict[nameKey]) ?? camelToWords(lastSegment(event.reward));
+			return {text: rawName.replaceAll(/<[^>]+>\s*/gu, '').trim(), iconPath: itemIconMap[normalized]};
+		}
+
+		case 'CET_UPGRADE': {
+			return {text: camelToWords(lastSegment(event.upgrade))};
+		}
+
+		default: {
+			return {text: ''};
+		}
+	}
+}
+
 /**
  Resolves a calendar season's days into display-ready rows.
  Returns one IResolvedCalendarDay per day that has events, in order.
@@ -127,33 +156,7 @@ export async function resolveCalendarSeasonDays(
 
 		for (const event of dayEntry.events as any[]) {
 			const emoji = EVENT_EMOJI[event.type] ?? event.type;
-			let text = '';
-
-			let iconPath: string | undefined;
-
-			switch (event.type) {
-				case 'CET_CHALLENGE': {
-					({text, iconPath} = resolveChallengeText(event, dict, exportChallenges));
-					break;
-				}
-
-				case 'CET_REWARD': {
-					const normalized = event.reward.replace('/Lotus/StoreItems/', '/Lotus/');
-					iconPath = itemIconMap[normalized];
-					const nameKey = itemNameMap[normalized];
-					const rawName = (nameKey && dict[nameKey]) ?? camelToWords(lastSegment(event.reward));
-					text = rawName.replaceAll(/<[^>]+>\s*/gu, '').trim();
-
-					break;
-				}
-
-				case 'CET_UPGRADE': {
-					text = camelToWords(lastSegment(event.upgrade));
-
-					break;
-				}
-			// No default
-			}
+			const {text, iconPath} = resolveEventText(event, dict, exportChallenges, itemIconMap, itemNameMap);
 
 			if (text) {
 				resolvedEvents.push({

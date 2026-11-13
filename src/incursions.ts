@@ -341,6 +341,29 @@ function renderTable(container: Element, totalDays: number, viewStart: Date, tod
 	container.append(table);
 }
 
+function appendMissionPills(container: Element, nodes: string[], isPast: boolean): void {
+	for (const nodeId of nodes) {
+		const node = ExportRegions[nodeId];
+		if (!node) {
+			continue;
+		}
+
+		const pill = document.createElement('div');
+		pill.className = 'incursion-mission';
+		if (isPast) {
+			pill.classList.add('is-past');
+		}
+
+		pill.append(makeFactionIcon(node));
+		const missionName = document.createElement('span');
+		missionName.className = 'incursion-mission-name';
+		missionName.textContent = toTitleCase(dict[node.missionName] ?? node.missionName);
+		const archwingIcon = makeArchwingIconIfApplicable(node);
+		pill.append(missionName, ' @ ', makePlanetAbbrFull(node, nodeId), ...(archwingIcon ? [archwingIcon] : []));
+		container.append(pill);
+	}
+}
+
 function renderList(container: Element, totalDays: number, viewStart: Date, todayUtc: number): void {
 	container.className = 'incursions-list';
 
@@ -369,26 +392,7 @@ function renderList(container: Element, totalDays: number, viewStart: Date, toda
 
 		// Missions
 		if (nodes) {
-			for (const nodeId of nodes) {
-				const node = ExportRegions[nodeId];
-				if (!node) {
-					continue;
-				}
-
-				const pill = document.createElement('div');
-				pill.className = 'incursion-mission';
-				if (isPast) {
-					pill.classList.add('is-past');
-				}
-
-				pill.append(makeFactionIcon(node));
-				const missionName = document.createElement('span');
-				missionName.className = 'incursion-mission-name';
-				missionName.textContent = toTitleCase(dict[node.missionName] ?? node.missionName);
-				const archwingIcon = makeArchwingIconIfApplicable(node);
-				pill.append(missionName, ' @ ', makePlanetAbbrFull(node, nodeId), ...(archwingIcon ? [archwingIcon] : []));
-				container.append(pill);
-			}
+			appendMissionPills(container, nodes, isPast);
 		} else {
 			const noData = document.createElement('div');
 			noData.className = 'incursion-no-data';

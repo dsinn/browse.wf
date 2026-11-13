@@ -825,12 +825,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 			for (const entry of entries.slice(0, 10)) {
 				const text = await entry.textContent();
-				for (const pattern of tilesetPatterns) {
-					if (text?.includes(pattern)) {
-						foundTileset = true;
-						break;
-					}
-				}
+				foundTileset = tilesetPatterns.some(pattern => text?.includes(pattern));
 
 				if (foundTileset) {
 					break;

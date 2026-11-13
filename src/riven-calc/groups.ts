@@ -135,6 +135,24 @@ export const GROUP_DEFINITIONS: readonly GroupDefinition[] = [
 ];
 
 /**
+Removes the stats with the given tags from the pool and returns them, in tag order. Tags with no remaining stat are skipped.
+*/
+function takeStats(remaining: Map<string, StatDef>, tags: readonly string[]): StatDef[] {
+	const taken: StatDef[] = [];
+	for (const tag of tags) {
+		const stat = remaining.get(tag);
+		if (!stat) {
+			continue;
+		}
+
+		taken.push(stat);
+		remaining.delete(tag);
+	}
+
+	return taken;
+}
+
+/**
 Sorts the stats into ordered groups, leaving out groups that have none of them.
 */
 export function groupStats(stats: readonly StatDef[]): TraitGroup[] {
@@ -142,16 +160,7 @@ export function groupStats(stats: readonly StatDef[]): TraitGroup[] {
 	const groups: TraitGroup[] = [];
 
 	for (const definition of GROUP_DEFINITIONS) {
-		const members: StatDef[] = [];
-		for (const tag of definition.tags) {
-			const stat = remaining.get(tag);
-			if (!stat) {
-				continue;
-			}
-
-			members.push(stat);
-			remaining.delete(tag);
-		}
+		const members = takeStats(remaining, definition.tags);
 
 		if (members.length > 0) {
 			groups.push({id: definition.id, label: definition.label, stats: members});

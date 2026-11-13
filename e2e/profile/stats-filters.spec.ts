@@ -57,68 +57,43 @@ test.describe('Profile Stats Filters', () => {
 			await page.click('a[data-subtab="equipment"]');
 		});
 
-		test('renders an "All" button and at least one category button', async ({page}) => {
+		test('starts on "All" with every row visible, next to a button per category', async ({page}) => {
 			const bar = page.locator('#equipment-filter-bar');
 			await expect(bar.locator('button[data-filter=""]')).toBeVisible();
-			await expect(bar.locator('button:not([data-filter=""])')).toHaveCount(await bar.locator('button').count() - 1);
-			expect(await bar.locator('button').count()).toBeGreaterThan(1);
-		});
+			await expect(bar.locator('button[data-filter=""]')).toHaveClass(/active/u);
+			await expect(bar.locator('button:not([data-filter=""])')).not.toHaveCount(0);
 
-		test('"All" button starts active', async ({page}) => {
-			const allBtn = page.locator('#equipment-filter-bar button[data-filter=""]');
-			await expect(allBtn).toHaveClass(/active/u);
-		});
-
-		test('all rows visible initially', async ({page}) => {
 			const visibleRows = page.locator('#equipment-stats tr:visible');
 			await expect(visibleRows.first()).toBeVisible();
-			expect(await visibleRows.count()).toBeGreaterThan(0);
 		});
 
-		test('clicking a category button filters the table', async ({page}) => {
+		test('filters the table by category, and switches between categories', async ({page}) => {
 			const bar = page.locator('#equipment-filter-bar');
 			// The bar is built once the rows have been categorized, so the rows are final by now
 			await expect(bar.locator('button[data-filter=""]')).toBeVisible();
 			const totalRows = await page.locator('#equipment-stats tr').count();
 
-			// Click the first non-All button
-			const firstCatBtn = bar.locator('button:not([data-filter=""])').first();
-			const filterValue = await firstCatBtn.getAttribute('data-filter');
-			await firstCatBtn.click();
+			const buttons = bar.locator('button:not([data-filter=""])');
+			const firstButton = buttons.first();
+			const firstFilter = await firstButton.getAttribute('data-filter');
+			const firstCount = await page.locator(`#equipment-stats tr[data-category="${firstFilter}"]`).count();
+			expect(firstCount).toBeLessThanOrEqual(totalRows);
 
-			// Button is now active
-			await expect(firstCatBtn).toHaveClass(/active/u);
+			await firstButton.click();
+			await expect(firstButton).toHaveClass(/active/u);
+			await expect(page.locator('#equipment-stats tr:visible')).toHaveCount(firstCount);
 
-			// Fewer rows visible (or equal if all belong to that category)
-			const matchingRows = page.locator(`#equipment-stats tr[data-category="${filterValue}"]`);
-			const matchCount = await matchingRows.count();
-			expect(matchCount).toBeLessThanOrEqual(totalRows);
+			// Switch to another category, if there is one
+			test.skip(await buttons.count() < 2, 'only one category');
+			const secondButton = buttons.nth(1);
+			const secondFilter = await secondButton.getAttribute('data-filter');
+			const secondCount = await page.locator(`#equipment-stats tr[data-category="${secondFilter}"]`).count();
 
-			// All visible rows match the filter
-			const visibleRows = page.locator('#equipment-stats tr:visible');
-			const visibleCount = await visibleRows.count();
-			expect(visibleCount).toBe(matchCount);
-		});
+			await secondButton.click();
+			await expect(secondButton).toHaveClass(/active/u);
+			await expect(firstButton).not.toHaveClass(/active/u);
+			await expect(page.locator('#equipment-stats tr:visible')).toHaveCount(secondCount);
 
-		test('switching between category buttons updates the filter', async ({page}) => {
-			const bar = page.locator('#equipment-filter-bar');
-			const catButtons = bar.locator('button:not([data-filter=""])');
-
-			if (await catButtons.count() < 2) {
-				test.skip();
-			}
-
-			const firstBtn = catButtons.nth(0);
-			const secondBtn = catButtons.nth(1);
-			const secondFilter = await secondBtn.getAttribute('data-filter');
-
-			await firstBtn.click();
-			await secondBtn.click();
-
-			await expect(secondBtn).toHaveClass(/active/u);
-			await expect(firstBtn).not.toHaveClass(/active/u);
-
-			// All visible rows match the second filter
 			const {visibleCount, mismatches} = await page.evaluate(getVisibleRowStats, secondFilter ?? undefined);
 			expect(visibleCount).toBeGreaterThan(0);
 			expect(mismatches).toEqual([]);
@@ -130,14 +105,11 @@ test.describe('Profile Stats Filters', () => {
 			await page.click('a[data-subtab="enemies"]');
 		});
 
-		test('renders an "All" button and at least one faction button', async ({page}) => {
+		test('starts on "All", next to a button per faction', async ({page}) => {
 			const bar = page.locator('#enemy-filter-bar');
 			await expect(bar.locator('button[data-filter=""]')).toBeVisible();
-			expect(await bar.locator('button').count()).toBeGreaterThan(1);
-		});
-
-		test('"All" button starts active', async ({page}) => {
-			await expect(page.locator('#enemy-filter-bar button[data-filter=""]')).toHaveClass(/active/u);
+			await expect(bar.locator('button[data-filter=""]')).toHaveClass(/active/u);
+			await expect(bar.locator('button:not([data-filter=""])')).not.toHaveCount(0);
 		});
 
 		test('clicking a faction button filters the enemy table', async ({page}) => {
@@ -204,35 +176,29 @@ test.describe('Profile Stats Filters', () => {
 			await page.click('a[data-subtab="equipment"]');
 		});
 
-		test('shows sequential ranks starting at 1', async ({page}) => {
-			const {count, errors} = await checkSequentialRanks(page, 'equipment-stats');
-			expect(count).toBeGreaterThan(0);
-			expect(errors).toEqual([]);
-		});
+		test('stays sequential through sorting, filtering and clearing the filter', async ({page}) => {
+			const expectSequentialRanks = async () => {
+				const {count, errors} = await checkSequentialRanks(page, 'equipment-stats');
+				expect(count).toBeGreaterThan(0);
+				expect(errors).toEqual([]);
+			};
 
-		test('renumbers sequentially after sorting a column', async ({page}) => {
-			await page.locator('table:has(#equipment-stats) th').nth(1).click();
-			const {count, errors} = await checkSequentialRanks(page, 'equipment-stats');
-			expect(count).toBeGreaterThan(0);
-			expect(errors).toEqual([]);
-		});
+			await expectSequentialRanks();
 
-		test('visible ranks are gapless after filtering', async ({page}) => {
+			// The table-sort-js script loads asynchronously and marks a table once it can sort it
+			await expect(page.locator('table:has(#equipment-stats)')).toHaveClass(/table-processed/u);
+			await page.locator('table:has(#equipment-stats) th', {hasText: 'Item'}).click();
+			await expectSequentialRanks();
+
 			const firstCatBtn = page.locator('#equipment-filter-bar button:not([data-filter=""])').first();
 			await firstCatBtn.click();
 			const visibleRows = page.locator('#equipment-stats tr:visible');
 			const count = await visibleRows.count();
 			expect(count).toBeGreaterThan(0);
 			await expect(visibleRows.locator('td:first-child')).toHaveText(Array.from({length: count}, (_, i) => String(i + 1)));
-		});
 
-		test('ranks restore after clearing filter', async ({page}) => {
-			const firstCatBtn = page.locator('#equipment-filter-bar button:not([data-filter=""])').first();
-			await firstCatBtn.click();
 			await page.locator('#equipment-filter-bar button[data-filter=""]').click(); // Reset to All
-			const {count, errors} = await checkSequentialRanks(page, 'equipment-stats');
-			expect(count).toBeGreaterThan(0);
-			expect(errors).toEqual([]);
+			await expectSequentialRanks();
 		});
 	});
 
@@ -241,20 +207,18 @@ test.describe('Profile Stats Filters', () => {
 			await page.click('a[data-subtab="enemies"]');
 		});
 
-		test('shows sequential ranks starting at 1', async ({page}) => {
+		test('is sequential, also after filtering', async ({page}) => {
 			const rows = page.locator('#enemy-stats tr:visible');
 			const count = await rows.count();
 			expect(count).toBeGreaterThan(0);
 			await expect(rows.locator('td:first-child')).toHaveText(Array.from({length: count}, (_, i) => String(i + 1)));
-		});
 
-		test('visible ranks are gapless after filtering', async ({page}) => {
-			const firstFactionBtn = page.locator('#enemy-filter-bar button:not([data-filter=""])').first();
-			await firstFactionBtn.click();
-			const visibleRows = page.locator('#enemy-stats tr:visible');
-			const count = await visibleRows.count();
-			expect(count).toBeGreaterThan(0);
-			await expect(visibleRows.locator('td:first-child')).toHaveText(Array.from({length: count}, (_, i) => String(i + 1)));
+			await page.locator('#enemy-filter-bar button:not([data-filter=""])').first().click();
+			const filteredRows = page.locator('#enemy-stats tr:visible');
+			await expect(filteredRows).not.toHaveCount(count);
+			const filteredCount = await filteredRows.count();
+			expect(filteredCount).toBeGreaterThan(0);
+			await expect(filteredRows.locator('td:first-child')).toHaveText(Array.from({length: filteredCount}, (_, i) => String(i + 1)));
 		});
 	});
 
@@ -266,34 +230,35 @@ test.describe('Profile Stats Filters', () => {
 		const ZERO_USAGE_CATEGORIES = new Set(['MechSuits', 'SpecialItems', 'Unnamed']);
 		const SHARED_DENOMINATOR_CATEGORIES = new Set(['Sentinels', 'KubrowPets', 'MoaPets']);
 
-		test('all "Used" cells of named items show a percentage value', async ({page}) => {
-			const {count, invalids} = await page.evaluate(() => {
-				const rows = [...document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr:not([data-category="Unnamed"])')];
+		test('"Used" cells of named items show a percentage, which sums to ~100% per category', async ({page}) => {
+			const {count, invalids, categoryTotals} = await page.evaluate(() => {
+				const rows = [...document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')];
 				const invalids: string[] = [];
+				let count = 0;
 				for (const tr of rows) {
+					if (tr.dataset.category === 'Unnamed') {
+						continue;
+					}
+
+					count++;
 					const text = tr.cells[2]?.textContent ?? '';
 					if (!/^\d+\.\d{2}%$/u.test(text)) {
 						invalids.push(`"${text}"`);
 					}
 				}
 
-				return {count: rows.length, invalids};
+				const categoryTotals: Record<string, number> = {};
+				for (const tr of rows) {
+					const category = tr.dataset.category ?? '';
+					const value = Number((tr.cells[2]?.textContent ?? '0').replaceAll(/[%—]/gu, '') || '0');
+					categoryTotals[category] = (categoryTotals[category] ?? 0) + value;
+				}
+
+				return {count, invalids, categoryTotals};
 			});
 			expect(count).toBeGreaterThan(0);
 			expect(invalids).toEqual([]);
-		});
 
-		test('"Used" percentages sum to ~100% per category', async ({page}) => {
-			const categoryTotals = await page.evaluate(() => {
-				const totals: Record<string, number> = {};
-				for (const tr of document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')) {
-					const category = tr.dataset.category ?? '';
-					const value = Number((tr.cells[2]?.textContent ?? '0').replaceAll(/[%—]/gu, '') || '0');
-					totals[category] = (totals[category] ?? 0) + value;
-				}
-
-				return totals;
-			});
 			for (const [category, total] of Object.entries(categoryTotals)) {
 				if (ZERO_USAGE_CATEGORIES.has(category)) {
 					expect(total, `category ${category} has no Used percentage, sums to 0%`).toBeCloseTo(0, 0);
@@ -307,79 +272,58 @@ test.describe('Profile Stats Filters', () => {
 	});
 
 	test.describe('Unnamed items', () => {
-		for (const [subtab, tbody, bar, toggle, totals] of [
-			['equipment', '#equipment-stats', '#equipment-filter-bar', '#equipment-unnamed-toggle', '#equipment-aggregate-rows'],
-			['enemies', '#enemy-stats', '#enemy-filter-bar', '#enemy-unnamed-toggle', '#enemy-aggregate-rows'],
+		for (const [subtab, tbody, bar, toggle, totals, heading] of [
+			['equipment', '#equipment-stats', '#equipment-filter-bar', '#equipment-unnamed-toggle', '#equipment-aggregate-rows', 'Item'],
+			['enemies', '#enemy-stats', '#enemy-filter-bar', '#enemy-unnamed-toggle', '#enemy-aggregate-rows', 'Enemy'],
 		] as const) {
-			test.describe(subtab, () => {
-				test.beforeEach(async ({page}) => {
-					await page.click(`a[data-subtab="${subtab}"]`);
-				});
+			test(`in the ${subtab} are shown or hidden by the checkbox, and are named by their internal names`, async ({page}) => {
+				await page.click(`a[data-subtab="${subtab}"]`);
+				const checkbox = page.locator(`${toggle} input[type="checkbox"]`);
+				const unnamedRows = page.locator(`${tbody} tr[data-category="Unnamed"]`);
+				const unnamedGroups = page.locator(`${totals} tr td:nth-child(2)`).filter({hasText: 'Unnamed'});
+				const totalRow = page.locator(totals.replace('-rows', '-total'));
 
-				test('are hidden in the All view by default', async ({page}) => {
-					const unnamed = page.locator(`${tbody} tr[data-category="Unnamed"]`);
-					expect(await unnamed.count()).toBeGreaterThan(0);
-					await expect(unnamed.first()).toBeHidden();
-					await expect(page.locator(`${toggle} input[type="checkbox"]`)).not.toBeChecked();
-				});
+				// Are hidden in the All view, and left out of the totals, by default
+				expect(await unnamedRows.count()).toBeGreaterThan(0);
+				await expect(unnamedRows.first()).toBeHidden();
+				await expect(checkbox).not.toBeChecked();
+				await expect(unnamedGroups).toHaveCount(0);
 
-				test('show in the All view, ranked in sequence, once the checkbox is checked', async ({page}) => {
-					await page.locator(`${toggle} input[type="checkbox"]`).check();
+				const totalWithout = await totalRow.textContent();
 
-					const total = await page.locator(`${tbody} tr`).count();
-					await expect(page.locator(`${tbody} tr:visible`)).toHaveCount(total);
-					await expect(page.locator(`${tbody} tr:visible td:first-child`).last()).toHaveText(String(total));
-				});
+				// Show in the All view, ranked in sequence, and are totalled, once the checkbox is checked
+				await checkbox.check();
 
-				test('hide again when the checkbox is unchecked', async ({page}) => {
-					const checkbox = page.locator(`${toggle} input[type="checkbox"]`);
-					await checkbox.check();
-					await checkbox.uncheck();
+				const total = await page.locator(`${tbody} tr`).count();
+				await expect(page.locator(`${tbody} tr:visible`)).toHaveCount(total);
+				await expect(page.locator(`${tbody} tr:visible td:first-child`).last()).toHaveText(String(total));
+				await expect(unnamedGroups).toHaveCount(1);
+				await expect(totalRow).not.toHaveText(totalWithout!);
 
-					await expect(page.locator(`${tbody} tr[data-category="Unnamed"]`).first()).toBeHidden();
-				});
+				// Are hidden and left out of the totals again when the checkbox is unchecked
+				await checkbox.uncheck();
 
-				test('are in the totals only once the checkbox is checked', async ({page}) => {
-					const groups = page.locator(`${totals} tr td:nth-child(2)`);
-					await expect(groups.filter({hasText: 'Unnamed'})).toHaveCount(0);
+				await expect(unnamedRows.first()).toBeHidden();
+				await expect(unnamedGroups).toHaveCount(0);
+				await expect(totalRow).toHaveText(totalWithout!);
 
-					const checkbox = page.locator(`${toggle} input[type="checkbox"]`);
-					await checkbox.check();
-					await expect(groups.filter({hasText: 'Unnamed'})).toHaveCount(1);
+				// Show under the Unnamed filter button even with the checkbox unchecked
+				await page.locator(`${bar} button[data-filter="Unnamed"]`).click();
 
-					await checkbox.uncheck();
-					await expect(groups.filter({hasText: 'Unnamed'})).toHaveCount(0);
-				});
+				const unnamedCount = await unnamedRows.count();
+				await expect(page.locator(`${tbody} tr:visible`)).toHaveCount(unnamedCount);
 
-				test('are in the Total row only while the checkbox is checked', async ({page}) => {
-					const totalRow = page.locator(totals.replace('-rows', '-total'));
-					const without = await totalRow.textContent();
+				// Show their full internal name in a Bootstrap tooltip, also after sorting
+				// The table-sort-js script loads asynchronously and marks a table once it can sort it
+				const table = page.locator(`table:has(${tbody})`);
+				await expect(table).toHaveClass(/table-processed/u);
+				await table.locator('th', {hasText: heading}).click();
 
-					const checkbox = page.locator(`${toggle} input[type="checkbox"]`);
-					await checkbox.check();
-					await expect(totalRow).not.toHaveText(without!);
-
-					await checkbox.uncheck();
-					await expect(totalRow).toHaveText(without!);
-				});
-
-				test('show under the Unnamed filter button even with the checkbox unchecked', async ({page}) => {
-					await page.locator(`${bar} button[data-filter="Unnamed"]`).click();
-
-					const unnamedCount = await page.locator(`${tbody} tr[data-category="Unnamed"]`).count();
-					await expect(page.locator(`${tbody} tr:visible`)).toHaveCount(unnamedCount);
-				});
-
-				test('show their full internal name in a Bootstrap tooltip, also after sorting', async ({page}) => {
-					await page.locator(`${toggle} input[type="checkbox"]`).check();
-					await page.locator(tbody).locator('..').locator('..').locator('th').nth(1).click();
-
-					const name = page.locator(`${tbody} tr:visible code.internal-name`).first();
-					const fullName = await name.getAttribute('data-bs-title');
-					expect(fullName).toMatch(/^\/Lotus\//u);
-					await name.hover();
-					await expect(page.locator('.tooltip')).toContainText(fullName!);
-				});
+				const name = page.locator(`${tbody} tr:visible code.internal-name`).first();
+				const fullName = await name.getAttribute('data-bs-title');
+				expect(fullName).toMatch(/^\/Lotus\//u);
+				await name.hover();
+				await expect(page.locator('.tooltip.show')).toContainText(fullName!);
 			});
 		}
 	});
@@ -402,27 +346,23 @@ test.describe('Profile Stats Filters', () => {
 			}, header) as Promise<string[]>;
 
 		for (const header of ['Used', 'Fired', 'Hit %']) {
-			test(`"${header}" puts blank cells last when sorted descending, and keeps real values in order`, async ({page}) => {
-				await page.locator('table:has(#equipment-stats) th', {hasText: header}).click();
-
-				const cells = await readColumn(page, header);
-				const firstBlank = cells.indexOf('');
-				expect(firstBlank, 'some blank cells to check').toBeGreaterThan(0);
-				expect(cells.slice(firstBlank).every(cell => cell === ''), 'only blanks after the first blank').toBe(true);
-
-				const values = cells.slice(0, firstBlank).map(Number);
-				expect(values).toEqual([...values].sort((a, b) => b - a));
-			});
-
-			test(`"${header}" keeps real values in order when sorted ascending`, async ({page}) => {
+			test(`"${header}" puts blank cells last when sorted descending, and keeps real values in order both ways`, async ({page}) => {
 				const heading = page.locator('table:has(#equipment-stats) th', {hasText: header});
-				await heading.click();
-				await heading.click();
 
-				const cells = await readColumn(page, header);
-				const values = cells.filter(cell => cell !== '').map(Number);
-				expect(values.length).toBeGreaterThan(0);
-				expect(values).toEqual([...values].sort((a, b) => a - b));
+				await heading.click();
+				const descending = await readColumn(page, header);
+				const firstBlank = descending.indexOf('');
+				expect(firstBlank, 'some blank cells to check').toBeGreaterThan(0);
+				expect(descending.slice(firstBlank).every(cell => cell === ''), 'only blanks after the first blank').toBe(true);
+
+				const descendingValues = descending.slice(0, firstBlank).map(Number);
+				expect(descendingValues).toEqual([...descendingValues].sort((a, b) => b - a));
+
+				await heading.click();
+				const ascending = await readColumn(page, header);
+				const ascendingValues = ascending.filter(cell => cell !== '').map(Number);
+				expect(ascendingValues.length).toBeGreaterThan(0);
+				expect(ascendingValues).toEqual([...ascendingValues].sort((a, b) => a - b));
 			});
 		}
 	});

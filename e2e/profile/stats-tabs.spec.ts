@@ -50,61 +50,41 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 		await openProfile(page, profileData);
 	});
 
-	test.describe('Marks', () => {
-		test('shows who has a death mark on the player, under the clan line', async ({page}) => {
-			const marks = page.locator('#marks');
-			await expect(marks).toBeVisible();
-			// The fixture has death marks, and the Zanuka Hunter and Grustrag Three after the player
-			await expect(marks).toContainText('Marked by: Stalker, Zanuka Hunter, The Grustrag Three');
-		});
-	});
-
 	test.describe('Stats sub-tabs', () => {
 		test.beforeEach(async ({page}) => {
 			await page.click('a[data-tab="stats"]');
 			await expect(page.locator('#stats')).toBeVisible();
 		});
 
-		test('opens on the overview, with the other panels hidden', async ({page}) => {
+		test('open on the overview, and show only the panel of the link that is clicked', async ({page}) => {
 			await expect(page.locator('#stats-overview')).toBeVisible();
 			for (const panel of ['equipment', 'enemies', 'abilities', 'races']) {
 				await expect(page.locator(`#stats-${panel}`)).toBeHidden();
 			}
-		});
 
-		for (const subtab of ['equipment', 'enemies', 'abilities', 'races', 'overview']) {
-			test(`shows only the ${subtab} panel when its link is clicked`, async ({page}) => {
+			for (const subtab of ['equipment', 'enemies', 'abilities', 'races', 'overview']) {
 				await page.click(`a[data-subtab="${subtab}"]`);
 
 				await expect(page.locator(`#stats-${subtab}`)).toBeVisible();
 				await expect(page.locator(`a[data-subtab="${subtab}"]`)).toHaveClass(/active/u);
 				await expect(page.locator('.stats-panel:visible')).toHaveCount(1);
-			});
-		}
+			}
+		});
 
-		test('records the sub-tab in the URL hash', async ({page}) => {
+		test('record the sub-tab in the URL hash', async ({page}) => {
 			await page.click('a[data-subtab="abilities"]');
 
 			await expect.poll(() => hashParameters(page.url()).get('sub')).toBe('abilities');
 			expect(hashParameters(page.url()).get('tab')).toBe('stats');
 		});
-	});
 
-	test.describe('Overview', () => {
-		test.beforeEach(async ({page}) => {
-			await page.click('a[data-tab="stats"]');
-		});
-
-		test('shows the extra sections', async ({page}) => {
+		test('have an overview with the extra sections and the focus left today', async ({page}) => {
 			const extra = page.locator('#stats-overview-extra');
 			await expect(extra).toContainText('Combat & Collection');
 			await expect(extra).toContainText('Overall Accuracy');
 			await expect(extra).toContainText('Eidolons');
 			await expect(extra).toContainText('Trials');
 			await expect(extra).toContainText('Event Scores & Minigames');
-		});
-
-		test('shows the focus left today', async ({page}) => {
 			await expect(page.locator('#stat-DailyFocus')).toContainText('Focus Left Today');
 		});
 	});
@@ -115,7 +95,7 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 			await page.click('a[data-subtab="abilities"]');
 		});
 
-		test('re-orders by a column when its heading is clicked, renumbering the ranks', async ({page}) => {
+		test('re-orders by a column when its heading is clicked, renumbering the ranks and keeping each Warframe\'s abilities in slot order', async ({page}) => {
 			await waitForSortableTable(page, '#ability-stats');
 			const casts = page.locator('table:has(#ability-stats) th', {hasText: 'Casts'});
 			const readRows = async () => page.evaluate(() =>
@@ -140,14 +120,8 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 			const second = await readRows();
 			expect(second.map(row => row.rank)).toEqual(second.map((_, i) => String(i + 1)));
 			expect(direction(second.map(row => row.casts))).toBe(firstDirection === 'ascending' ? 'descending' : 'ascending');
-		});
 
-		test('keeps each Warframe\'s abilities in slot order when sorting by the Warframe column', async ({page}) => {
-			await waitForSortableTable(page, '#ability-stats');
-			// Sort by casts (ascending) first, so a sort that fell back on the previous order would reverse the slots
-			const casts = page.locator('table:has(#ability-stats) th', {hasText: 'Casts'});
-			await casts.click();
-			await casts.click();
+			// Sorting by the Warframe column keeps each Warframe's abilities in slot order, even after sorting by casts
 			await page.locator('table:has(#ability-stats) th', {hasText: 'Warframe'}).click();
 
 			const rows = await page.evaluate(() =>
@@ -186,40 +160,30 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 		});
 	});
 
-	test.describe('Races', () => {
-		test('shows a row per race with its high score', async ({page}) => {
-			await page.click('a[data-tab="stats"]');
-			await page.click('a[data-subtab="races"]');
+	test('shows the marks, the race scores, the mission high scores and the daily standing', async ({page}) => {
+		// The fixture has death marks, and the Zanuka Hunter and Grustrag Three after the player
+		await expect(page.locator('#marks')).toBeVisible();
+		await expect(page.locator('#marks')).toContainText('Marked by: Stalker, Zanuka Hunter, The Grustrag Three');
 
-			await expect(page.locator('#stats-races')).toBeVisible();
-			await expect(page.locator('#race-stats tr')).toHaveCount(Object.keys(profileData.Stats.Races).length);
-			await expect(page.locator('#race-stats tr').first()).toContainText('Orb Vallis');
-		});
+		await page.click('a[data-tab="stats"]');
+		await page.click('a[data-subtab="races"]');
+		await expect(page.locator('#stats-races')).toBeVisible();
+		await expect(page.locator('#race-stats tr')).toHaveCount(Object.keys(profileData.Stats.Races).length);
+		await expect(page.locator('#race-stats tr').first()).toContainText('Orb Vallis');
+
+		await page.click('a[data-tab="missions"]');
+		await expect(page.locator('#missions thead th', {hasText: 'High Score'})).toBeVisible();
+		const scores = await page.evaluate(() =>
+			[...document.querySelectorAll<HTMLTableRowElement>('#missions tbody tr')].map(tr => tr.cells[3].textContent));
+		expect(scores.some(score => (score ?? '') !== '')).toBe(true);
+
+		await page.click('a[data-tab="syndicates"]');
+		const cap = (16_000 + (500 * profileData.Results[0].PlayerLevel)).toLocaleString();
+		await expect(page.locator('#syndicates .card', {hasText: 'The Holdfasts'})).toContainText(`Daily standing left: 0 / ${cap}`);
+		await expect(page.locator('#syndicates .card', {hasText: 'Cavia'}))
+			.toContainText(`Daily standing left: ${(13_500).toLocaleString()} / ${cap}`);
 	});
 
-	test.describe('Missions', () => {
-		test('shows a high score column', async ({page}) => {
-			await page.click('a[data-tab="missions"]');
-
-			await expect(page.locator('#missions thead th', {hasText: 'High Score'})).toBeVisible();
-			const scores = await page.evaluate(() =>
-				[...document.querySelectorAll<HTMLTableRowElement>('#missions tbody tr')].map(tr => tr.cells[3].textContent));
-			expect(scores.some(score => (score ?? '') !== '')).toBe(true);
-		});
-	});
-
-	test.describe('Syndicates', () => {
-		test('shows the daily standing left for a profile fetched today', async ({page}) => {
-			await page.click('a[data-tab="syndicates"]');
-
-			const cap = (16_000 + (500 * profileData.Results[0].PlayerLevel)).toLocaleString();
-			const holdfasts = page.locator('#syndicates .card', {hasText: 'The Holdfasts'});
-			await expect(holdfasts).toContainText(`Daily standing left: 0 / ${cap}`);
-
-			const cavia = page.locator('#syndicates .card', {hasText: 'Cavia'});
-			await expect(cavia).toContainText(`Daily standing left: ${(13_500).toLocaleString()} / ${cap}`);
-		});
-	});
 	test.describe('Aggregate tables', () => {
 		const tables = [
 			{
@@ -251,48 +215,18 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 					await page.click(`a[data-subtab="${table.name}"]`);
 				});
 
-				test('has the entry table\'s headings, apart from Used', async ({page}) => {
+				test('has the entry table\'s headings apart from Used, ranks the groups, and totals the shown entries\' kills', async ({page}) => {
 					await expect(page.locator(`${table.container} thead th`)).toHaveText(table.headings);
 					await expect(page.locator(table.entries).locator('xpath=ancestor::table//thead//th')).toHaveText(table.entryHeadings);
-				});
 
-				test('ranks the groups from 1, with the total unranked and last', async ({page}) => {
+					// Ranks the groups from 1, with the total unranked and last
 					const ranks = await page.locator(`${table.rows} tr td:first-child`).allTextContents();
 					expect(ranks.length).toBeGreaterThan(2);
 					expect(ranks).toEqual(Array.from({length: ranks.length}, (_, i) => String(i + 1)));
 					await expect(page.locator(`${table.total} tr`)).toContainText('Total');
 					await expect(page.locator(`${table.total} tr td`).first()).toHaveText('');
-				});
 
-				test('sorts by a column when its heading is clicked, renumbering the ranks and keeping the total at the bottom', async ({page}) => {
-					await waitForSortableTable(page, table.rows);
-					const heading = page.locator(`${table.container} thead th`, {hasText: 'Kills'});
-					await heading.click();
-					await heading.click();
-
-					const killsIndex = table.headings.indexOf('Kills');
-					const killCells = await page.locator(`${table.rows} tr td:nth-child(${killsIndex + 1})`).allTextContents();
-					const kills = killCells.map(cell => Number(cell.replaceAll(',', '')));
-					expect(kills).toEqual([...kills].sort((a, b) => a - b));
-					const ranks = await page.locator(`${table.rows} tr td:first-child`).allTextContents();
-					expect(ranks).toEqual(Array.from({length: ranks.length}, (_, i) => String(i + 1)));
-					await expect(page.locator(`${table.total} tr`)).toContainText('Total');
-				});
-
-				test('sorts blank figures last when descending', async ({page}) => {
-					test.skip(table.blankColumn === undefined, 'no column with blank figures');
-					await waitForSortableTable(page, table.rows);
-					const heading = page.locator(`${table.container} thead th`, {hasText: table.blankColumn});
-					await heading.click();
-
-					const index = table.headings.indexOf(table.blankColumn!);
-					const cells = await page.locator(`${table.rows} tr td:nth-child(${index + 1})`).allTextContents();
-					const firstBlank = cells.indexOf('—');
-					expect(firstBlank, 'some blank cells to check').toBeGreaterThan(0);
-					expect(cells.slice(firstBlank).every(cell => cell === '—')).toBe(true);
-				});
-
-				test('totals the kills of the entries shown in the table below, which leaves out the unnamed ones by default', async ({page}) => {
+					// Totals the kills of the entries shown in the table below, which leaves out the unnamed ones by default
 					const [aggregateTotal, entriesTotal] = await page.evaluate(([container, entries]) => {
 						const toNumber = (text: string | undefined) => Number((text ?? '').replaceAll(',', ''));
 						const entryTable = document.querySelector(entries)!.closest('table')!;
@@ -306,6 +240,34 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 					}, [table.container, table.entries]);
 					expect(aggregateTotal).toBeGreaterThan(0);
 					expect(aggregateTotal).toBe(entriesTotal);
+				});
+
+				test('sorts by a column when its heading is clicked, renumbering the ranks, keeping the total at the bottom and sorting blank figures last', async ({page}) => {
+					await waitForSortableTable(page, table.rows);
+					const heading = page.locator(`${table.container} thead th`, {hasText: 'Kills'});
+					await heading.click();
+					await heading.click();
+
+					const killsIndex = table.headings.indexOf('Kills');
+					const killCells = await page.locator(`${table.rows} tr td:nth-child(${killsIndex + 1})`).allTextContents();
+					const kills = killCells.map(cell => Number(cell.replaceAll(',', '')));
+					expect(kills).toEqual([...kills].sort((a, b) => a - b));
+					const ranks = await page.locator(`${table.rows} tr td:first-child`).allTextContents();
+					expect(ranks).toEqual(Array.from({length: ranks.length}, (_, i) => String(i + 1)));
+					await expect(page.locator(`${table.total} tr`)).toContainText('Total');
+
+					// Blank figures sort last when descending
+					if (table.blankColumn === undefined) {
+						return;
+					}
+
+					await page.locator(`${table.container} thead th`, {hasText: table.blankColumn}).click();
+
+					const index = table.headings.indexOf(table.blankColumn);
+					const cells = await page.locator(`${table.rows} tr td:nth-child(${index + 1})`).allTextContents();
+					const firstBlank = cells.indexOf('—');
+					expect(firstBlank, 'some blank cells to check').toBeGreaterThan(0);
+					expect(cells.slice(firstBlank).every(cell => cell === '—')).toBe(true);
 				});
 			});
 		}

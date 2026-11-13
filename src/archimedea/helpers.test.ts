@@ -62,7 +62,7 @@ describe('renderArchimedeaMissions', () => {
 
 	test('variant with desc renders as <abbr> with tooltip', () => {
 		const tbody = renderArchimedeaMissions(missions);
-		const variantTd = tbody.querySelector('tr td');
+		const variantTd = tbody.querySelector(':scope tr td');
 		const abbr = variantTd?.querySelector<HTMLElement>('abbr');
 		expect(abbr?.textContent).toBe('Unity Of Purpose');
 		expect(abbr?.dataset.bsTitle).toBe('Enemies can target and destroy Conduits.');
@@ -79,7 +79,7 @@ describe('renderArchimedeaMissions', () => {
 	test('condition without desc renders as plain text node', () => {
 		const tbody = renderArchimedeaMissions(missions);
 		// Second condition of first row has no desc
-		const cond2Td = tbody.querySelector('tr td:nth-child(4)');
+		const cond2Td = tbody.querySelector(':scope tr td:nth-child(4)');
 		expect(cond2Td?.querySelector('abbr')).toBeNull();
 		expect(cond2Td?.textContent).toBe('Draining Residuals');
 	});
@@ -99,7 +99,7 @@ describe('renderArchimedeaFrameVariables', () => {
 
 	test('frame variable with desc renders as <abbr> with tooltip', () => {
 		const tr = renderArchimedeaFrameVariables(frameVariables);
-		const abbr = tr.querySelector<HTMLElement>('td abbr');
+		const abbr = tr.querySelector<HTMLElement>(':scope td abbr');
 		expect(abbr?.textContent).toBe('Shield Delay');
 		expect(abbr?.dataset.bsTitle).toBe('Shields take 500ms to recharge.');
 	});
@@ -166,7 +166,7 @@ describe('renderArchimedeaTable', () => {
 		const worldState = loadMock('worldState-conquest-ct-lab-defense.json');
 		const container = await deepRender(worldState);
 
-		const types = [...container.querySelectorAll('tbody tr th')].map(th => th.textContent);
+		const types = [...container.querySelectorAll(':scope tbody tr th')].map(th => th.textContent);
 		expect(types.some(t => t?.includes('Defense'))).toBe(true);
 		expect(types).not.toContain('Defense');
 	});
@@ -175,7 +175,7 @@ describe('renderArchimedeaTable', () => {
 		const worldState = loadMock('worldState-conquest-ct-lab-defense.json');
 		const container = await temporalRender(worldState);
 
-		const types = [...container.querySelectorAll('tbody tr th')].map(th => th.textContent);
+		const types = [...container.querySelectorAll(':scope tbody tr th')].map(th => th.textContent);
 		expect(types).not.toContain('Dual Defense');
 	});
 
@@ -183,7 +183,7 @@ describe('renderArchimedeaTable', () => {
 		const worldState = loadMock('worldState-conquest-shield-delay.json');
 		const container = await deepRender(worldState);
 
-		const firstFvAbbr = container.querySelector<HTMLElement>('table:last-child abbr');
+		const firstFvAbbr = container.querySelector<HTMLElement>(':scope table:last-child abbr');
 		expect(firstFvAbbr?.dataset.bsTitle).toContain('500');
 		expect(firstFvAbbr?.dataset.bsTitle).not.toContain('|val|');
 	});
@@ -192,7 +192,7 @@ describe('renderArchimedeaTable', () => {
 		const worldState = loadMock('worldState-conquest-time-dilation.json');
 		const container = await temporalRender(worldState);
 
-		const firstFvAbbr = container.querySelector<HTMLElement>('table:last-child abbr');
+		const firstFvAbbr = container.querySelector<HTMLElement>(':scope table:last-child abbr');
 		expect(firstFvAbbr?.dataset.bsTitle).toContain('50');
 		expect(firstFvAbbr?.dataset.bsTitle).not.toContain('|val|');
 	});
@@ -201,7 +201,7 @@ describe('renderArchimedeaTable', () => {
 		const worldState = loadMock('worldState-conquest-unknown-frame-variable.json');
 		const container = await deepRender(worldState);
 
-		const firstFvTd = container.querySelector('table:last-child td');
+		const firstFvTd = container.querySelector(':scope table:last-child td');
 		expect(firstFvTd?.querySelector('abbr')).toBeNull();
 		expect(firstFvTd?.textContent).toBe('UnknownFrameVariable');
 	});
@@ -211,7 +211,7 @@ describe('renderArchimedeaTable', () => {
 		const container = await deepRender(worldState);
 
 		// Row structure: th (type), td (variant), td (condition 1), td (condition 2)
-		const firstConditionTd = container.querySelector('tbody tr td:nth-child(3)');
+		const firstConditionTd = container.querySelector(':scope tbody tr td:nth-child(3)');
 		expect(firstConditionTd?.querySelector('abbr')).toBeNull();
 		expect(firstConditionTd?.textContent).toBe('UnknownRiskFromFuture');
 	});
@@ -221,7 +221,7 @@ describe('renderArchimedeaTable', () => {
 		const container = await deepRender(worldState);
 
 		// Row structure: th (type), td (variant), td (condition 1), td (condition 2)
-		const variantTd = container.querySelector('tbody tr td:nth-child(2)');
+		const variantTd = container.querySelector(':scope tbody tr td:nth-child(2)');
 		expect(variantTd?.querySelector('abbr')).toBeNull();
 		expect(variantTd?.textContent).toBe('UnknownDeviationFromFuture');
 	});
@@ -241,7 +241,7 @@ describe('renderArchimedeaTable', () => {
 		await renderArchimedeaTable(container, archimedea, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_');
 
 		// The variant from the difficulty with more risks should be shown
-		const variantTd = container.querySelector('tbody tr td');
+		const variantTd = container.querySelector(':scope tbody tr td');
 		// FragileNodes has a known osdict entry
 		expect(variantTd?.textContent).not.toBe('VariantA');
 	});

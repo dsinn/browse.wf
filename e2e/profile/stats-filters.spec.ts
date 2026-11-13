@@ -173,7 +173,7 @@ test.describe('Profile Stats Filters', () => {
 		test(`${tbodySelector} "${columnHeader}" column is in non-increasing order by default`, async ({page}) => {
 			const rows = await page.evaluate(([selector, header]) => {
 				const tbody = document.querySelector(selector)!;
-				const headings = [...tbody.closest('table')!.querySelectorAll<HTMLTableCellElement>('thead th')];
+				const headings = [...tbody.closest('table')!.querySelectorAll<HTMLTableCellElement>(':scope thead th')];
 				const sortedColIndex = headings.findIndex(th => th.textContent === header);
 				return [...tbody.querySelectorAll<HTMLTableRowElement>('tr')].map(tr => ({
 					name: tr.cells[1].textContent ?? '',

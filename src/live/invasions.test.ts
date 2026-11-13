@@ -311,7 +311,7 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 		await callUpdateInvasions();
 		const allRows = [...document.querySelectorAll('#invasions-table tbody tr:not(.d-none):not(.invasion-defender-reward)')];
 		const lastRow = allRows.at(-1)!;
-		const hourglassSpan = lastRow.querySelector<HTMLElement>('td:nth-child(2) span');
+		const hourglassSpan = lastRow.querySelector<HTMLElement>(':scope td:nth-child(2) span');
 		expect(hourglassSpan?.dataset.bsTitle).toContain('Will unlock');
 		expect(hourglassSpan?.dataset.bsTitle).not.toContain('Up since');
 	});

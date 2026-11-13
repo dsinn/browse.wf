@@ -533,7 +533,7 @@ describe('initRivenCalc', () => {
 
 		test('shows the lowest and highest numbers the trait can roll above the ends of the slider', () => {
 			initRivenCalc(data);
-			const bounds = (section: 'buffs' | 'curses', tag: string) => [...row(section, tag)!.querySelectorAll('.riven-grade-bounds span')]
+			const bounds = (section: 'buffs' | 'curses', tag: string) => [...row(section, tag)!.querySelectorAll(':scope .riven-grade-bounds span')]
 				.map(bound => bound.textContent);
 			expect(bounds('buffs', 'WeaponDamageAmountMod')).toEqual(['167.1', '204.2']);
 			expect(bounds('curses', 'WeaponCritChanceMod')).toEqual(['-148.5', '-121.5']);
@@ -596,7 +596,7 @@ describe('initRivenCalc', () => {
 		test('shows the grade letter in its own element, tagged with the grade for colouring', () => {
 			initRivenCalc(data);
 			typeGrade('buffs', 'WeaponDamageAmountMod', '204.2');
-			const letter = row('buffs', 'WeaponDamageAmountMod')!.querySelector<HTMLElement>('.riven-grade-result .riven-grade-letter')!;
+			const letter = row('buffs', 'WeaponDamageAmountMod')!.querySelector<HTMLElement>(':scope .riven-grade-result .riven-grade-letter')!;
 			expect(letter.textContent).toBe('S');
 			expect(letter.dataset.grade).toBe('S');
 

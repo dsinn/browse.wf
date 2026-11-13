@@ -214,7 +214,7 @@ describe('renderDescentTabs', () => {
 
 	test('table has column headers: #, Type, Challenge, Arena, Specs & Auras', () => {
 		const firstPane = document.querySelector('#descendia-content .tab-pane')!;
-		const ths = firstPane.querySelectorAll('thead th');
+		const ths = firstPane.querySelectorAll(':scope thead th');
 		const headers = [...ths].map(th => th.textContent);
 		expect(headers).toEqual(['#', 'Type', 'Challenge', 'Arena', 'Specs & Auras']);
 	});

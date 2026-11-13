@@ -101,7 +101,7 @@ describe('Descendia Card', () => {
       </tbody>
     `;
 
-		const rows = descendiaTable.querySelectorAll('tbody tr');
+		const rows = descendiaTable.querySelectorAll(':scope tbody tr');
 		expect(rows.length).toBe(3);
 
 		// Check first row

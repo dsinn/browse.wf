@@ -36,8 +36,8 @@ describe('renderCalendarSeasonPane', () => {
 	const renderPane = async (s: any) => renderCalendarSeasonPane(s);
 
 	// Helpers to navigate the DOM structure semantically (without relying on CSS classes)
-	const getFirstDayRow = (pane: HTMLDivElement) => pane.children[0] as HTMLElement;
-	const getEventsColumn = (row: HTMLElement) => row.children[1] as HTMLElement;
+	const getFirstDayRow = (pane: HTMLDivElement) => pane.firstElementChild as HTMLElement;
+	const getEventsColumn = (row: HTMLElement) => row.querySelector<HTMLElement>(':scope > :nth-child(2)')!;
 
 	beforeEach(() => {
 		(globalThis as any).ExportChallenges = ExportChallenges;
@@ -82,21 +82,21 @@ describe('renderCalendarSeasonPane', () => {
 	describe('Day row structure', () => {
 		test('each day row has two columns (date and events)', async () => {
 			const pane = await renderPane(season);
-			const firstRow = pane.children[0];
+			const firstRow = pane.firstElementChild!;
 			expect(firstRow.children.length).toBe(2);
 		});
 
 		test('date column is first child and has calendar-season-date class', async () => {
 			const pane = await renderPane(season);
-			const firstRow = pane.children[0];
-			const dateCol = firstRow.children[0];
+			const firstRow = pane.firstElementChild!;
+			const dateCol = firstRow.firstElementChild!;
 			expect(dateCol.classList.contains('calendar-season-date')).toBe(true);
 		});
 
 		test('events column is second child', async () => {
 			const pane = await renderPane(season);
-			const firstRow = pane.children[0];
-			const eventsCol = firstRow.children[1];
+			const firstRow = pane.firstElementChild!;
+			const eventsCol = firstRow.querySelector(':scope > :nth-child(2)')!;
 			expect(eventsCol).toBeTruthy();
 			expect(eventsCol.children.length).toBeGreaterThan(0); // Has event rows
 		});

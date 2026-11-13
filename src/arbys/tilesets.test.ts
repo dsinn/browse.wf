@@ -83,7 +83,7 @@ describe('updateTilesetNextOccurrence', () => {
 		document.body.innerHTML = `
 			<table><tbody>
 				<tr id="next-GrineerAsteroidTileset" data-starved="true">
-					<td></td>
+					<th></th>
 					<td>${innerHTML}</td>
 					<td></td>
 				</tr>
@@ -107,17 +107,18 @@ describe('updateTilesetNextOccurrence', () => {
 	test('does nothing when row is already filled', () => {
 		makeTable('Mon, April 1');
 		updateTilesetNextOccurrence(makeNode(), 12_345, 'new date', 'new detail');
-		expect(document.querySelector('#next-GrineerAsteroidTileset')!.children[1].textContent).toBe('Mon, April 1');
+		expect(document.querySelector('#next-GrineerAsteroidTileset > td:nth-child(2)')!.textContent).toBe('Mon, April 1');
 	});
 
 	test('populates row when unfilled', () => {
 		makeTable();
 		updateTilesetNextOccurrence(makeNode(), 12_345, 'Mon, April 1', 'Survival @ Node');
-		const tr = document.querySelector('#next-GrineerAsteroidTileset')!;
-		expect((tr as HTMLElement).dataset.starved).toBeUndefined();
-		expect((tr.children[1] as HTMLElement).dataset.timestamp).toBe('12345');
-		expect(tr.children[1].textContent).toBe('Mon, April 1');
-		expect(tr.children[2].textContent).toBe('Survival @ Node');
+		const tr = document.querySelector<HTMLElement>('#next-GrineerAsteroidTileset')!;
+		const [dateCell, detailCell] = tr.querySelectorAll('td');
+		expect(tr.dataset.starved).toBeUndefined();
+		expect(dateCell.dataset.timestamp).toBe('12345');
+		expect(dateCell.textContent).toBe('Mon, April 1');
+		expect(detailCell.textContent).toBe('Survival @ Node');
 	});
 
 	test('appends dark sector bonus when present', () => {
@@ -128,7 +129,7 @@ describe('updateTilesetNextOccurrence', () => {
 			},
 		} as any);
 		updateTilesetNextOccurrence(node, 12_345, 'Mon, April 1', 'Survival @ Node');
-		expect(document.querySelector('#next-GrineerAsteroidTileset')!.children[2].textContent)
+		expect(document.querySelector('#next-GrineerAsteroidTileset > td:nth-child(3)')!.textContent)
 			.toBe('Survival @ Node (25% resource bonus)');
 	});
 });

@@ -42,17 +42,18 @@ export function updateTilesetNextOccurrence(
 		return;
 	}
 
-	const tr = document.querySelector(`#next-${tileset}`);
-	if (!tr?.children[1] || tr?.children[1].getHTML() !== 'N/A') {
+	const tr = document.querySelector<HTMLElement>(`#next-${tileset}`);
+	const [dateCell, detailCell] = tr?.querySelectorAll('td') ?? [];
+	if (!tr || dateCell?.getHTML() !== 'N/A') {
 		return;
 	}
 
-	delete (tr as HTMLElement).dataset.starved;
-	(tr.children[1] as HTMLElement).dataset.timestamp = timestamp.toString();
-	tr.children[1].textContent = dateText;
-	tr.children[2].textContent = detailText;
+	delete tr.dataset.starved;
+	dateCell.dataset.timestamp = timestamp.toString();
+	dateCell.textContent = dateText;
+	detailCell.textContent = detailText;
 	if ('darkSectorData' in node) {
-		tr.children[2].textContent += ` (${((node as any).darkSectorData.resourceBonus * 100).toFixed(0)}% resource bonus)`;
+		detailCell.textContent += ` (${((node as any).darkSectorData.resourceBonus * 100).toFixed(0)}% resource bonus)`;
 	}
 }
 

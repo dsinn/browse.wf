@@ -13,6 +13,13 @@ beforeAll(() => {
 		// Suppress jsdom "Not implemented" warnings; only Playwright would ever care about scrolling
 	};
 
+	// The jsdom library doesn't implement Element#getHTML(). The tests have no shadow roots, so it's equivalent to the
+	// innerHTML getter (read through its descriptor, since the polyfill is what the lint rule steers code towards).
+	const getInnerHtml = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML')!.get!;
+	Element.prototype.getHTML ??= function (this: Element) {
+		return getInnerHtml.call(this) as string;
+	};
+
 	(globalThis as any).dict = {};
 	(globalThis as any).osdict = {};
 	(globalThis as any).ExportRegions = loadExportJson('ExportRegions.json');

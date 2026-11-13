@@ -103,13 +103,13 @@ describe('updateNewsTicker', () => {
 		test('shows "no news items available" when worldState is absent', () => {
 			(globalThis as any).worldState = undefined;
 			updateNewsTicker();
-			expect(document.querySelector('#news-body')!.innerHTML).toBe('No news items available.');
+			expect(document.querySelector('#news-body')!.getHTML()).toBe('No news items available.');
 		});
 
 		test('shows "no news items available" when Events is empty', () => {
 			(globalThis as any).worldState = worldStateEmptyEvents;
 			updateNewsTicker();
-			expect(document.querySelector('#news-body')!.innerHTML).toBe('No news items available.');
+			expect(document.querySelector('#news-body')!.getHTML()).toBe('No news items available.');
 		});
 	});
 
@@ -260,7 +260,7 @@ describe('updateNewsTicker', () => {
 			updateNewsTicker();
 			document.querySelector('#news-body')!.innerHTML = 'modified';
 			updateNewsTicker();
-			expect(document.querySelector('#news-body')!.innerHTML).toBe('modified');
+			expect(document.querySelector('#news-body')!.getHTML()).toBe('modified');
 		});
 	});
 

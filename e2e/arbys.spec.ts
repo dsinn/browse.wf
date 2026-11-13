@@ -523,7 +523,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 		test('appear before time and mission info', async ({page}) => {
 			const firstEntry = page.locator('#log [data-timestamp]').first();
-			const html = await firstEntry.innerHTML();
+			const html = await firstEntry.evaluate(element => element.getHTML());
 
 			// Timer badge should come before the time (e.g., "1200 •")
 			const badgeIndex = html.indexOf('data-short-timer-expiry');

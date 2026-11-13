@@ -1,7 +1,7 @@
 export function escapeHtml(string_: string): string {
 	const span = document.createElement('span');
 	span.textContent = string_;
-	return span.innerHTML;
+	return span.getHTML();
 }
 
 /**

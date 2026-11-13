@@ -36,7 +36,6 @@ const config = [
 			'unicorn/consistent-boolean-name': 'off',
 			'unicorn/no-global-object-property-assignment': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
-			'unicorn/prefer-dom-node-html-methods': 'off',
 			'unicorn/prefer-number-coercion': 'off',
 			'unicorn/prefer-scoped-selector': 'off',
 			'unicorn/prefer-toggle-attribute': 'off',

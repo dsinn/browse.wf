@@ -111,7 +111,7 @@ describe('updateClanWeekly — empty worldState', () => {
 
 		void updateClanWeekly();
 
-		expect(body.innerHTML).toBe('Loading...');
+		expect(body.getHTML()).toBe('Loading...');
 	});
 });
 

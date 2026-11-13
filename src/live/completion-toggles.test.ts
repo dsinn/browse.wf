@@ -47,7 +47,7 @@ describe('completion-toggles', () => {
 		test('marks element as completed', () => {
 			const elm = makeToggle('test-oid-1');
 			setCompletionToggle(elm, true);
-			expect(elm.innerHTML).toContain('bi-check-square');
+			expect(elm.getHTML()).toContain('bi-check-square');
 			expect((globalThis as any).isOidMarkedAsCompleted('test-oid-1')).toBe(true);
 		});
 
@@ -55,8 +55,8 @@ describe('completion-toggles', () => {
 			const elm = makeToggle('test-oid-2');
 			setCompletionToggle(elm, true);
 			setCompletionToggle(elm, false);
-			expect(elm.innerHTML).toContain('bi-square');
-			expect(elm.innerHTML).not.toContain('bi-check-square');
+			expect(elm.getHTML()).toContain('bi-square');
+			expect(elm.getHTML()).not.toContain('bi-check-square');
 			expect((globalThis as any).isOidMarkedAsCompleted('test-oid-2')).toBe(false);
 		});
 
@@ -84,9 +84,9 @@ describe('completion-toggles', () => {
 			localStorage.setItem('oids_completed', JSON.stringify(['refresh-oid-1']));
 			refreshAllCompletionToggles();
 
-			expect(elm1.innerHTML).toContain('bi-check-square');
-			expect(elm2.innerHTML).toContain('bi-square');
-			expect(elm2.innerHTML).not.toContain('bi-check-square');
+			expect(elm1.getHTML()).toContain('bi-check-square');
+			expect(elm2.getHTML()).toContain('bi-square');
+			expect(elm2.getHTML()).not.toContain('bi-check-square');
 		});
 
 		test('handles elements without data-oid gracefully', () => {

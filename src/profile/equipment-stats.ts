@@ -47,7 +47,7 @@ function computeCategoryTotals(weapons: any[], exportWarframes: Record<string, a
 }
 
 function augmentArchwingName(nameCell: HTMLTableCellElement): void {
-	const name = nameCell.innerHTML;
+	const name = nameCell.getHTML();
 	if (!name.startsWith(ARCHWING_PREFIX)) {
 		return;
 	}

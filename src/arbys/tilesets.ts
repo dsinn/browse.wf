@@ -43,7 +43,7 @@ export function updateTilesetNextOccurrence(
 	}
 
 	const tr = document.querySelector(`#next-${tileset}`);
-	if (!tr?.children[1] || tr?.children[1].innerHTML !== 'N/A') {
+	if (!tr?.children[1] || tr?.children[1].getHTML() !== 'N/A') {
 		return;
 	}
 

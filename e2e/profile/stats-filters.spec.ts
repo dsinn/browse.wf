@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {test, expect} from '@playwright/test';
 import {setupMockRoutes} from '../helpers/api-mocks';
+import {simulateLoggedIn} from '../helpers/cloud-sync-mocks';
 import {TEST_FRONT_PROXY_BASE_URL} from '../../test/helpers/test-constants';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -18,15 +19,6 @@ function getVisibleRowStats(filter: string | undefined) {
 		visibleCount: visible.length,
 		mismatches: visible.filter(tr => tr.dataset.category !== filter).map(tr => tr.dataset.category),
 	};
-}
-
-async function simulateLoggedIn(page: any) {
-	await page.addInitScript(() => {
-		const original = window.dispatchEvent.bind(globalThis);
-		window.dispatchEvent = function (event: Event) {
-			return original(event.type.startsWith('cloud-sync-') && event.type !== 'cloud-sync-complete' ? new CustomEvent('cloud-sync-complete') : event);
-		};
-	});
 }
 
 test.describe('Profile Stats Filters', () => {
@@ -46,6 +38,8 @@ test.describe('Profile Stats Filters', () => {
 		await page.goto('/profile');
 		// Wait for profileWorkflowReady() to fire before interacting with the form
 		await page.waitForSelector('#steps:not(.d-none)');
+		// Fail fast and clearly if cloud sync was not simulated in time (the page would fall back to the manual flow)
+		await expect(page.locator('#steps')).not.toHaveClass(/manual-flow/u);
 		await page.selectOption('#platform-select', 'pc');
 		await page.fill('#account-id', '55540360384632532d7b23c6');
 		await page.dispatchEvent('#account-id', 'input');

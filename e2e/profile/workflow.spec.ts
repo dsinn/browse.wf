@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {test, expect} from '@playwright/test';
 import {setupMockRoutes} from '../helpers/api-mocks';
+import {simulateLoggedIn} from '../helpers/cloud-sync-mocks';
 import {TEST_FRONT_PROXY_BASE_URL} from '../../test/helpers/test-constants';
 
 // ES module __dirname polyfill
@@ -27,22 +28,6 @@ function wrappedProfileResponse(data = profileData) {
 	return JSON.stringify({
 		nextFetchAvailableAt: new Date(Date.now() + (23 * 60 * 60 * 1000)).toUTCString(),
 		profile: data,
-	});
-}
-
-/**
- Simulates a completed cloud sync (logged-in state) so that showAutoFetchFlow is true.
-
- Intercepts any cloud-sync-* event dispatched by auth-init.ts and replaces it with
- cloud-sync-complete. This wins the { once: true } race regardless of which event
- auth-init.ts fires (unauthenticated, unavailable, etc.).
- */
-async function simulateLoggedIn(page: any) {
-	await page.addInitScript(() => {
-		const original = window.dispatchEvent.bind(globalThis);
-		window.dispatchEvent = function (event: Event) {
-			return original(event.type.startsWith('cloud-sync-') && event.type !== 'cloud-sync-complete' ? new CustomEvent('cloud-sync-complete') : event);
-		};
 	});
 }
 

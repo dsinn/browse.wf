@@ -177,7 +177,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 
 			// Fast forward to next minute boundary
 			vi.advanceTimersByTime((1 * 1000) + 1);
-			expect(badge.textContent).toMatch(/\d+h \d+m/u); // Updated
+			expect(badge.textContent).toMatch(/\dh \d+m/u); // Updated
 		});
 
 		test('schedules next update at top of second for minutes+seconds display', () => {
@@ -189,7 +189,7 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			const badge = createShortTimerBadge(timestamp, 'Started');
 			document.body.append(badge);
 
-			expect(badge.textContent).toMatch(/\d+m \d+s/u);
+			expect(badge.textContent).toMatch(/\dm \d+s/u);
 
 			// Fast forward just under 1 second (shouldn't update yet)
 			vi.advanceTimersByTime(500);
@@ -304,8 +304,8 @@ describe('Short Timer Badge (/arbys timer badges)', () => {
 			initializeShortTimerBadges();
 
 			// Both badges should have been updated with countdown text
-			expect(badge1.textContent).toMatch(/\d+m/u);
-			expect(badge2.textContent).toMatch(/\d+h/u);
+			expect(badge1.textContent).toMatch(/\dm/u);
+			expect(badge2.textContent).toMatch(/\dh/u);
 		});
 
 		test('handles badges with no timestamp attribute gracefully', () => {

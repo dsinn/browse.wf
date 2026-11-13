@@ -32,7 +32,7 @@ export type IResolvedArchimedea = {
 };
 
 function stripHtml(s: string): string {
-	return s.replaceAll(/<[^>]+>/gu, '').trim();
+	return s.replaceAll(/<[^<>]+>/gu, '').trim();
 }
 
 function camelToWords(s: string): string {

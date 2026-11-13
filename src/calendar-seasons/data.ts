@@ -122,7 +122,7 @@ function resolveEventText(
 			const normalized = event.reward.replace('/Lotus/StoreItems/', '/Lotus/');
 			const nameKey = itemNameMap[normalized];
 			const rawName = (nameKey && dict[nameKey]) ?? camelToWords(lastSegment(event.reward));
-			return {text: rawName.replaceAll(/<[^>]+>\s*/gu, '').trim(), iconPath: itemIconMap[normalized]};
+			return {text: rawName.replaceAll(/<[^<>]+>\s*/gu, '').trim(), iconPath: itemIconMap[normalized]};
 		}
 
 		case 'CET_UPGRADE': {

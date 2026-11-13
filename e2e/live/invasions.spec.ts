@@ -46,12 +46,12 @@ test.describe('Live Page - Invasions Card', () => {
 		});
 
 		test('percentage cell has activation tooltip with elapsed time and run count', async ({page}) => {
-			const tooltip = await page.locator('#invasions-table .invasion-percentage').filter({hasText: /\d+\.\d+%/u}).nth(1).getAttribute('data-bs-title');
+			const tooltip = await page.locator('#invasions-table .invasion-percentage').filter({hasText: /\d\.\d+%/u}).nth(1).getAttribute('data-bs-title');
 			expect(tooltip).toMatch(/Up since .+ \(15h.50m.ago\); 26,000.runs.left/u);
 		});
 
 		test('percentage cell shows days for invasions up over 24 hours', async ({page}) => {
-			const tooltip = await page.locator('#invasions-table .invasion-percentage').filter({hasText: /\d+\.\d+%/u}).nth(0).getAttribute('data-bs-title');
+			const tooltip = await page.locator('#invasions-table .invasion-percentage').filter({hasText: /\d\.\d+%/u}).nth(0).getAttribute('data-bs-title');
 			expect(tooltip).toMatch(/Up since .+ \(2d.4h.19m.ago\); 18,000.runs.left/u);
 		});
 

@@ -586,7 +586,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			// Check that badges still have valid format (including "Started" for current event)
 			const firstBadge = page.locator('#log [data-short-timer-expiry]').first();
 			const text = await firstBadge.textContent();
-			expect(text === 'Started' || /\d+[dhms]/u.test(text!)).toBe(true);
+			expect(text === 'Started' || /\d[dhms]/u.test(text!)).toBe(true);
 		});
 
 		test('dropdown changes preserve timer badges', async ({page}) => {

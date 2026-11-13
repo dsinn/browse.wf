@@ -32,7 +32,6 @@ const config = [
 		rules: {
 			'@typescript-eslint/strict-boolean-expressions': 'off',
 			'n/file-extension-in-import': 'off',
-			'regexp/no-super-linear-move': 'off',
 			'unicorn/better-dom-traversing': 'off',
 			'unicorn/consistent-boolean-name': 'off',
 			'unicorn/no-global-object-property-assignment': 'off',

@@ -63,7 +63,7 @@ export function resolveDescentChallenges(
 	};
 
 	return descent.Challenges.map(ch => {
-		const arenaKey = ch.Level.replace(/.*\//u, '').replace(/\.level$/iu, '');
+		const arenaKey = ch.Level.slice(ch.Level.lastIndexOf('/') + 1).replace(/\.level$/iu, '');
 		const rawTypeLabel = toTitleCase(ch.Type.replace(/^DT_/u, '').replaceAll('_', ' '));
 		const typeLabel = TYPE_LABEL_CORRECTIONS[rawTypeLabel] ?? rawTypeLabel;
 		return {

@@ -35,7 +35,6 @@ const config = [
 			'unicorn/better-dom-traversing': 'off',
 			'unicorn/consistent-boolean-name': 'off',
 			'unicorn/no-global-object-property-assignment': 'off',
-			'unicorn/no-optional-chaining-on-undeclared-variable': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
 			'unicorn/prefer-dom-node-html-methods': 'off',
 			'unicorn/prefer-number-coercion': 'off',
@@ -51,6 +50,8 @@ const config = [
 	{
 		files: ['**/*.ts'],
 		languageOptions: {
+			// Browser-only code: tells rules like no-optional-chaining-on-undeclared-variable that `window` exists
+			globals: {window: 'readonly'},
 			parserOptions: {
 				// Test/ and e2e/ are excluded from tsconfig.json; tsconfig.lint.json covers all fork dirs
 				projectService: false,

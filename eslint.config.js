@@ -43,7 +43,6 @@ const config = [
 			'unicorn/no-optional-chaining-on-undeclared-variable': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
 			'unicorn/prefer-dom-node-html-methods': 'off',
-			'unicorn/prefer-group-by': 'off',
 			'unicorn/prefer-iterator-to-array': 'off',
 			'unicorn/prefer-number-coercion': 'off',
 			'unicorn/prefer-scoped-selector': 'off',

@@ -59,17 +59,11 @@ describe('Void Fissures Card', () => {
 		});
 
 		// Group by tier and Hard mode to verify chronological ordering
-		const tierGroups: Record<string, any[]> = {};
-		for (const fissure of fissures) {
-			const key = `${fissure.Hard ? 'SP-' : ''}${String(fissure.Modifier)}`;
-			tierGroups[key] ||= [];
-
-			tierGroups[key].push(fissure);
-		}
+		const tierGroups = Object.groupBy(fissures, fissure => `${fissure.Hard ? 'SP-' : ''}${String(fissure.Modifier)}`);
 
 		// Verify each tier group is sorted chronologically by expiry
 		for (const group of Object.values(tierGroups)) {
-			if (group.length <= 1) {
+			if (group === undefined || group.length <= 1) {
 				continue; // Single-item groups are trivially sorted
 			}
 

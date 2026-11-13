@@ -36,7 +36,6 @@ const config = [
 			'regexp/no-super-linear-move': 'off',
 			'unicorn/better-dom-traversing': 'off',
 			'unicorn/consistent-boolean-name': 'off',
-			'unicorn/isolated-functions': 'off',
 			'unicorn/no-global-object-property-assignment': 'off',
 			'unicorn/no-optional-chaining-on-undeclared-variable': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
@@ -116,6 +115,13 @@ const config = [
 	{
 		files: ['src/teshin/index.ts'],
 		rules: {'unicorn/no-abusive-eslint-disable': 'off'},
+	},
+	// Playwright's page.evaluate() callbacks run in the browser, so these browser globals are in scope there
+	{
+		files: ['e2e/**/*.ts'],
+		rules: {
+			'unicorn/isolated-functions': ['error', {overrideGlobals: {window: 'readonly', document: 'readonly', getComputedStyle: 'readonly'}}],
+		},
 	},
 	// @types/bootstrap and @types/showdown are upstream devDependencies for libraries that are loaded
 	// from a CDN at runtime, so there is no matching package to depend on. Kept to minimize upstream diffs.

@@ -159,7 +159,7 @@ export function groupStats(stats: readonly StatDef[]): TraitGroup[] {
 	}
 
 	if (remaining.size > 0) {
-		groups.push({id: OTHER_GROUP_ID, label: 'Other', stats: [...remaining.values()]});
+		groups.push({id: OTHER_GROUP_ID, label: 'Other', stats: remaining.values().toArray()});
 	}
 
 	return groups;

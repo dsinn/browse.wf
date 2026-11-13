@@ -194,7 +194,7 @@ describe('bounty-cycle-schedule', () => {
 			// ever changes, that positional pairing would silently misrender.
 			const startDayBucket = Date.UTC(2026, 7, 7);
 			const grouped = groupWindowsByDay([], startDayBucket, 5, 'utc');
-			const buckets = [...grouped.keys()];
+			const buckets = grouped.keys().toArray();
 			const sorted = [...buckets].sort((a, b) => a - b);
 			expect(buckets).toEqual(sorted);
 			expect(buckets).toEqual([

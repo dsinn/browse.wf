@@ -24,8 +24,8 @@ import {
 	type TraitContext,
 } from './formula.js';
 
-function stat(baseValue: number, displayKind: DisplayKind = 'percent', reverseDisplay = false): StatMaths {
-	return {baseValue, displayKind, reverseDisplay};
+function stat(baseValue: number, displayKind: DisplayKind = 'percent', isReversed = false): StatMaths {
+	return {baseValue, displayKind, reverseDisplay: isReversed};
 }
 
 function layoutOf(buffs: number, curses: number): Layout {
@@ -154,8 +154,8 @@ describe('getDisplayRange: ordinary traits at rank 8 (wiki "Riven Mods" overview
 });
 
 describe('getDisplayRange: spliced traits at rank 8', () => {
-	function splicedRange(baseValue: number, buffs: number, curses: number, reverseDisplay = false) {
-		return getDisplayRange(stat(baseValue, 'percent', reverseDisplay), {
+	function splicedRange(baseValue: number, buffs: number, curses: number, isReversed = false) {
+		return getDisplayRange(stat(baseValue, 'percent', isReversed), {
 			rank: 8,
 			layout: layoutOf(buffs, curses),
 			kind: 'buff',

@@ -1,13 +1,13 @@
 const DEFAULT_BASE_URL = 'https://warframe-api-front-proxy.dsinn69.workers.dev';
 
-async function rawRequest(path: string, includeAuth = false): Promise<Response> {
+async function rawRequest(path: string, shouldIncludeAuth = false): Promise<Response> {
 	const baseUrl = window.__ENV__?.WARFRAME_API_FRONT_PROXY_BASE_URL || DEFAULT_BASE_URL;
 	const token = window.__ENV__?.WARFRAME_API_FRONT_PROXY_TOKEN;
 
 	const headers: Record<string, string> = {
 		'X-Warframe-API-Front-Proxy-Token': token ?? '',
 	};
-	if (includeAuth) {
+	if (shouldIncludeAuth) {
 		const getToken = window.__getSupabaseAccessToken;
 		const accessToken = getToken ? await getToken() : undefined;
 		if (accessToken) {

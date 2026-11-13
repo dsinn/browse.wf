@@ -32,11 +32,11 @@ export function pruneStaleOids(): void {
 	const litesortieOids = document.querySelectorAll('#litesortie-header [data-oid]');
 	const invasionOids = document.querySelectorAll('#invasions-table [data-oid]');
 	const alertsBody = document.querySelector('#alerts-body');
-	const alertsLoaded = alertsBody !== null && !alertsBody.textContent?.startsWith('Loading');
-	const mongoCardsLoaded = sortieOids.length > 0 && litesortieOids.length > 0 && invasionOids.length > 0 && alertsLoaded;
+	const areAlertsLoaded = alertsBody !== null && !alertsBody.textContent?.startsWith('Loading');
+	const areMongoCardsLoaded = sortieOids.length > 0 && litesortieOids.length > 0 && invasionOids.length > 0 && areAlertsLoaded;
 
 	const validMongoOids = new Set<string>();
-	if (mongoCardsLoaded) {
+	if (areMongoCardsLoaded) {
 		for (const element of [...sortieOids, ...litesortieOids, ...invasionOids]) {
 			const {oid} = (element as HTMLElement).dataset;
 			if (oid) {
@@ -60,7 +60,7 @@ export function pruneStaleOids(): void {
 
 		// Timestamp OIDs are kept until they expire. MongoDB ObjectIDs (sortie, archon hunt, invasions, alerts) are
 		// kept only while their card is rendered. Unknown formats are always kept.
-		return m ? Number(m.groups!.expiry) >= now : !/^[0-9a-f]{24}$/u.test(oid) || !mongoCardsLoaded || validMongoOids.has(oid);
+		return m ? Number(m.groups!.expiry) >= now : !/^[0-9a-f]{24}$/u.test(oid) || !areMongoCardsLoaded || validMongoOids.has(oid);
 	});
 
 	if (cleaned.length > 0) {

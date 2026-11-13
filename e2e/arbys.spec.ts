@@ -102,16 +102,16 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		test('unchecking tier filters it from log', async ({page}) => {
 			// First, verify C tier entries ARE present
 			const entriesBefore = await page.locator('#log [data-timestamp]').all();
-			let foundCTier = false;
+			let hasCTier = false;
 			for (const entry of entriesBefore) {
 				const text = await entry.textContent();
 				if (text?.includes('(C tier')) {
-					foundCTier = true;
+					hasCTier = true;
 					break;
 				}
 			}
 
-			expect(foundCTier).toBe(true);
+			expect(hasCTier).toBe(true);
 
 			const initialCount = await page.locator('#log [data-timestamp]').count();
 
@@ -353,7 +353,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			// Find any data row (skip category heading rows)
 			const rows = await page.locator('table tbody tr:not(.category-heading)').all();
 
-			let foundTimestamp = false;
+			let hasTimestamp = false;
 			for (const row of rows) {
 				const dateCell = row.locator('td').nth(0);
 				const text = await dateCell.textContent();
@@ -362,12 +362,12 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 					const timestamp = await dateCell.getAttribute('data-timestamp');
 					expect(timestamp).toBeTruthy();
 					expect(Number(timestamp!)).toBeGreaterThan(0);
-					foundTimestamp = true;
+					hasTimestamp = true;
 					break;
 				}
 			}
 
-			expect(foundTimestamp).toBe(true);
+			expect(hasTimestamp).toBe(true);
 		});
 	});
 
@@ -537,16 +537,16 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		test('show "Started" for current arbitration', async ({page}) => {
 			// The current arbitration (if any) is shown in bold
 			const currentEntry = page.locator('#log b[data-timestamp]').first();
-			const exists = await currentEntry.count() > 0;
+			const hasCurrentEntry = await currentEntry.count() > 0;
 
-			if (!exists) {
+			if (!hasCurrentEntry) {
 				return;
 			}
 
 			const badge = currentEntry.locator('[data-short-timer-expiry]');
-			const badgeExists = await badge.count() > 0;
+			const hasBadge = await badge.count() > 0;
 
-			if (!badgeExists) {
+			if (!hasBadge) {
 				return;
 			}
 
@@ -610,16 +610,16 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 		test('unchecking tileset filter removes those arbitrations from log', async ({page}) => {
 			// First, verify Grineer Asteroid entries ARE present (we need to look in details)
 			const initialEntries = await page.locator('#log [data-timestamp]').all();
-			let foundGrineerAsteroid = false;
+			let hasGrineerAsteroid = false;
 			for (const entry of initialEntries) {
 				const text = await entry.textContent();
 				if (text?.includes('Grineer Asteroid')) {
-					foundGrineerAsteroid = true;
+					hasGrineerAsteroid = true;
 					break;
 				}
 			}
 
-			if (!foundGrineerAsteroid) {
+			if (!hasGrineerAsteroid) {
 				return;
 			}
 
@@ -812,7 +812,7 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 			// Get first few log entries and check if they contain tileset names
 			const entries = await page.locator('#log [data-timestamp]').all();
 
-			let foundTileset = false;
+			let hasTileset = false;
 			const tilesetPatterns = [
 				'Grineer Asteroid',
 				'Grineer Galleon',
@@ -825,14 +825,14 @@ test.describe('Arbitration Schedule (/arbys)', () => {
 
 			for (const entry of entries.slice(0, 10)) {
 				const text = await entry.textContent();
-				foundTileset = tilesetPatterns.some(pattern => text?.includes(pattern));
+				hasTileset = tilesetPatterns.some(pattern => text?.includes(pattern));
 
-				if (foundTileset) {
+				if (hasTileset) {
 					break;
 				}
 			}
 
-			expect(foundTileset, 'Should find at least one tileset name in log entries').toBe(true);
+			expect(hasTileset, 'Should find at least one tileset name in log entries').toBe(true);
 		});
 	});
 });

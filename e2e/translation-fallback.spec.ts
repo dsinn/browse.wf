@@ -5,14 +5,14 @@ import {setupMockRoutes} from './helpers/api-mocks';
 const MOONFLESH_FROZEN_TIMESTAMP = 1_793_503_000_000;
 
 test.describe('Item name fallback - Live alerts card', () => {
-	let itemDataRequested: boolean;
+	let wasItemDataRequested: boolean;
 
 	test.beforeEach(async ({page}) => {
-		itemDataRequested = false;
+		wasItemDataRequested = false;
 		await setupMockRoutes(page, {worldStateFile: 'worldState-alerts-moonflesh.json', frozenTime: MOONFLESH_FROZEN_TIMESTAMP});
 		// Mirror production (browse.wf 404s for this resource), but the fallback should make the request unnecessary
 		await page.route('**/browse.wf/Lotus/Types/Gameplay/Events/RoadToTauEvent/RoadToTauEventResource', route => {
-			itemDataRequested = true;
+			wasItemDataRequested = true;
 			void route.fulfill({status: 404, contentType: 'text/html', body: 'Not Found'});
 		});
 
@@ -26,7 +26,7 @@ test.describe('Item name fallback - Live alerts card', () => {
 		await expect(rewardLines.filter({hasText: '17,000 Credits'})).toHaveText(Array.from({length: 3}, () => '50X Moonflesh, 17,000 Credits'));
 
 		await expect(page.locator('#alerts-body')).not.toContainText('RoadToTauEventResource');
-		expect(itemDataRequested).toBe(false);
+		expect(wasItemDataRequested).toBe(false);
 	});
 });
 

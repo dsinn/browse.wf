@@ -99,28 +99,28 @@ describe('Void Fissures Card', () => {
 		}
 
 		// Find at least one tier with unsorted missions
-		let foundUnsorted = false;
+		let hasUnsorted = false;
 		for (const [tier, expiries] of Object.entries(byTierAndMode)) {
 			if (expiries.length <= 1) {
 				continue;
 			}
 
 			const sorted = [...expiries].sort((a: string, b: string) => Number(a) - Number(b));
-			const alreadySorted = JSON.stringify(expiries) === JSON.stringify(sorted);
+			const isAlreadySorted = JSON.stringify(expiries) === JSON.stringify(sorted);
 
-			if (alreadySorted) {
+			if (isAlreadySorted) {
 				continue;
 			}
 
-			foundUnsorted = true;
+			hasUnsorted = true;
 			// Verify specific tiers we know are unsorted from our analysis
 			if (['SP-VoidT2', 'SP-VoidT3', 'VoidT4', 'VoidT5'].includes(tier)) {
-				expect(alreadySorted).toBe(false);
+				expect(isAlreadySorted).toBe(false);
 			}
 		}
 
 		// Ensure the mock data actually has unsorted missions to test the sorting logic
-		expect(foundUnsorted).toBe(true);
+		expect(hasUnsorted).toBe(true);
 	});
 
 	test('has correct tier labels', () => {

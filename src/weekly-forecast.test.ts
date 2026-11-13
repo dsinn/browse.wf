@@ -233,10 +233,10 @@ describe('restoreActiveTab', () => {
 		contentElement.remove();
 	});
 
-	function addTab(activation: string, id: string, active: boolean) {
+	function addTab(activation: string, id: string, isActive: boolean) {
 		const li = document.createElement('li');
 		const btn = document.createElement('button');
-		btn.className = 'nav-link' + (active ? ' active' : '');
+		btn.className = 'nav-link' + (isActive ? ' active' : '');
 		btn.dataset.activation = activation;
 		btn.dataset.bsTarget = `#${id}`;
 		li.append(btn);
@@ -244,7 +244,7 @@ describe('restoreActiveTab', () => {
 
 		const pane = document.createElement('div');
 		pane.id = id;
-		pane.className = 'tab-pane fade' + (active ? ' show active' : '');
+		pane.className = 'tab-pane fade' + (isActive ? ' show active' : '');
 		contentElement.append(pane);
 	}
 

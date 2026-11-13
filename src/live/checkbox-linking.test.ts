@@ -37,8 +37,8 @@ function isChecked(oid: string): boolean {
 	return (globalThis as any).isOidMarkedAsCompleted(oid);
 }
 
-function setChecked(oid: string, checked: boolean): void {
-	(globalThis as any).setCompletionToggle(elementFor(oid), checked);
+function setChecked(oid: string, shouldBeChecked: boolean): void {
+	(globalThis as any).setCompletionToggle(elementFor(oid), shouldBeChecked);
 }
 
 beforeEach(() => {
@@ -63,12 +63,12 @@ beforeEach(() => {
 	// Minimal mocks
 	const oidsCompleted: string[] = [];
 	(globalThis as any).isOidMarkedAsCompleted = (oid: string) => oidsCompleted.includes(oid);
-	(globalThis as any).setCompletionToggle = (element: HTMLAnchorElement, completed: boolean) => {
+	(globalThis as any).setCompletionToggle = (element: HTMLAnchorElement, isCompleted: boolean) => {
 		const {oid} = element.dataset;
 		const idx = oidsCompleted.indexOf(oid!);
-		if (completed && idx === -1) {
+		if (isCompleted && idx === -1) {
 			oidsCompleted.push(oid!);
-		} else if (!completed && idx !== -1) {
+		} else if (!isCompleted && idx !== -1) {
 			oidsCompleted.splice(idx, 1);
 		}
 	};

@@ -39,10 +39,10 @@ const initialProfilePromise = cloudSyncEvent.then(async () => {
 window.cloudSyncEvent = cloudSyncEvent;
 window.initialProfilePromise = initialProfilePromise;
 
-let profileLoadedManually = false;
+let wasProfileLoadedManually = false;
 
-function updateStepStatus(selector: string, completed: boolean): void {
-	document.querySelector(selector)?.classList.toggle('complete', completed);
+function updateStepStatus(selector: string, isCompleted: boolean): void {
+	document.querySelector(selector)?.classList.toggle('complete', isCompleted);
 }
 
 function refreshAllStepIndicators(): void {
@@ -51,11 +51,11 @@ function refreshAllStepIndicators(): void {
 }
 
 function onPlatformChange(): void {
-	profileLoadedManually = false;
+	wasProfileLoadedManually = false;
 	updateStepStatus('#step1-container', Boolean(platformSelect.value));
 }
 
-function validateAccountId(accountId: string): boolean {
+function isValidAccountId(accountId: string): boolean {
 	return VALID_PLAYER_ID_REGEX.test(accountId);
 }
 
@@ -88,7 +88,7 @@ function showStatusError(message: string): void {
 function updateDownloadLink(): void {
 	const accountId = document.querySelector<HTMLInputElement>('#account-id')?.value ?? '';
 	const downloadLink = document.querySelector<HTMLAnchorElement>('#download-link');
-	if (!downloadLink || !platformSelect.value || !validateAccountId(accountId)) {
+	if (!downloadLink || !platformSelect.value || !isValidAccountId(accountId)) {
 		return;
 	}
 
@@ -211,7 +211,7 @@ function fetchAndRenderProfile(platform: string, accountId: string): void {
 		window.renderProfile!();
 		document.querySelector('#profile-name')?.scrollIntoView({behavior: 'smooth'});
 
-		profileLoadedManually = true;
+		wasProfileLoadedManually = true;
 		updateStepStatus('#step2-container', true);
 		updateStepStatus('#step3-auto-container', true);
 		const step3Btn = document.querySelector<HTMLButtonElement>('#step3-auto-container button');
@@ -257,7 +257,7 @@ async function loadProfile(file?: File): Promise<void> {
 		window.renderProfile!();
 		document.querySelector('#profile-name')?.scrollIntoView({behavior: 'smooth'});
 
-		profileLoadedManually = true;
+		wasProfileLoadedManually = true;
 		updateStepStatus('#step4-container', true);
 		localStorage.setItem(PLATFORM_STORAGE_KEY, platformSelect.value);
 		localStorage.setItem(PROFILE_DATA_STORAGE_KEY, JSON.stringify(data));
@@ -271,7 +271,7 @@ async function loadProfile(file?: File): Promise<void> {
 	}
 }
 
-let invalidCharsMinTimeElapsed = false;
+let hasInvalidCharsMinTimeElapsed = false;
 let invalidCharsHideTimer: ReturnType<typeof setTimeout> | undefined;
 
 function onAccountIdManualInput(): void {
@@ -282,7 +282,7 @@ function onAccountIdManualInput(): void {
 
 	const raw = input.value;
 	const cleaned = raw.toLowerCase().replaceAll(/[^\da-f]/gu, '');
-	const hadInvalidChars = cleaned.length !== raw.length;
+	const hasInvalidChars = cleaned.length !== raw.length;
 	if (cleaned !== raw) {
 		const selectionStart = input.selectionStart ?? cleaned.length;
 		const removed = raw.length - cleaned.length;
@@ -291,17 +291,17 @@ function onAccountIdManualInput(): void {
 	}
 
 	const notice = document.querySelector('#account-id-invalid-chars');
-	if (hadInvalidChars) {
-		invalidCharsMinTimeElapsed = false;
+	if (hasInvalidChars) {
+		hasInvalidCharsMinTimeElapsed = false;
 		notice?.classList.remove('d-none');
 		clearTimeout(invalidCharsHideTimer);
 		invalidCharsHideTimer = setTimeout(() => {
-			invalidCharsMinTimeElapsed = true;
+			hasInvalidCharsMinTimeElapsed = true;
 			invalidCharsHideTimer = undefined;
 		}, 3000);
-	} else if (invalidCharsMinTimeElapsed && notice) {
+	} else if (hasInvalidCharsMinTimeElapsed && notice) {
 		notice.classList.add('d-none');
-		invalidCharsMinTimeElapsed = false;
+		hasInvalidCharsMinTimeElapsed = false;
 	}
 
 	const accountId = cleaned.trim();
@@ -311,7 +311,7 @@ function onAccountIdManualInput(): void {
 	}
 
 	const feedback = document.querySelector('#account-id-feedback');
-	if (validateAccountId(accountId)) {
+	if (isValidAccountId(accountId)) {
 		input.classList.remove('is-invalid');
 		input.classList.add('is-valid');
 		if (feedback) {
@@ -357,7 +357,7 @@ function updateFormFromLocalStorage(): void {
 		platformSelect.value = savedPlatform;
 	}
 
-	if (!savedAccountId || !validateAccountId(savedAccountId)) {
+	if (!savedAccountId || !isValidAccountId(savedAccountId)) {
 		return;
 	}
 
@@ -376,19 +376,19 @@ function updateFormFromLocalStorage(): void {
  Called from profile.ts Promise.all callback after exports are loaded.
  Handles rate-limit check, step UI reveal, and form restoration.
  */
-function profileWorkflowReady(syncResult: string, showAutoFetchFlow: boolean): void {
+function profileWorkflowReady(syncResult: string, shouldShowAutoFetchFlow: boolean): void {
 	const stepsElement = document.querySelector('#steps');
 	stepsElement?.classList.remove('d-none');
-	stepsElement?.classList.toggle('manual-flow', !showAutoFetchFlow);
+	stepsElement?.classList.toggle('manual-flow', !shouldShowAutoFetchFlow);
 
 	const storedNextFetch = Number(localStorage.getItem(NEXT_FETCH_AVAILABLE_AT_STORAGE_KEY) ?? '0');
 	if (syncResult === 'complete' && storedNextFetch > Date.now()) {
 		showRateLimitNotice(storedNextFetch);
 	}
 
-	window.__showAutoFetchFlow = showAutoFetchFlow;
+	window.__showAutoFetchFlow = shouldShowAutoFetchFlow;
 
-	profileLoadedManually = false;
+	wasProfileLoadedManually = false;
 
 	updateFormFromLocalStorage();
 	refreshAllStepIndicators();

@@ -92,7 +92,7 @@ function buildLocationCell(dict: Record<string, string>, node: any): HTMLTableCe
 	return td;
 }
 
-export async function updateFissures(forceRender = false) {
+export async function updateFissures(shouldForceRender = false) {
 	const [dict, ExportRegions, ExportFactions] = await Promise.all([
 		window.getDictPromise(),
 		fetchExport('ExportRegions'),
@@ -110,7 +110,7 @@ export async function updateFissures(forceRender = false) {
 		}
 	}
 
-	if (!forceRender && maxActivation === latestRenderedFissureTime) {
+	if (!shouldForceRender && maxActivation === latestRenderedFissureTime) {
 		return;
 	}
 

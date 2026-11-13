@@ -9,15 +9,15 @@ const {result} = concurrently([
 	{command: 'vite --config vitest.config.ts', name: 'vite'},
 ]);
 
-let interrupted = false;
+let isInterrupted = false;
 process.on('SIGINT', () => {
-	interrupted = true;
+	isInterrupted = true;
 });
 
 try {
 	await result;
 } catch {
-	if (!interrupted) {
+	if (!isInterrupted) {
 		console.error('\u{7}\n*** A dev server process exited unexpectedly. ***\n');
 		process.exit(1);
 	}

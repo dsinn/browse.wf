@@ -93,7 +93,7 @@ export function escapeMarkdown(s: string) {
 
 // Deep / Temporal Archimedea
 
-export async function formatArchimedea(worldState: AnyRecord, archimedeaType: string, variantKeyPrefix: string, sectionTitle: string, find = findWeekly, showTimestamp = false) {
+export async function formatArchimedea(worldState: AnyRecord, archimedeaType: string, variantKeyPrefix: string, sectionTitle: string, find = findWeekly, shouldShowTimestamp = false) {
 	const archimedeas = (worldState.Conquests ?? []).filter((c: AnyRecord) => c.Type === archimedeaType);
 	const next = find(archimedeas);
 	if (!next) {
@@ -102,7 +102,7 @@ export async function formatArchimedea(worldState: AnyRecord, archimedeaType: st
 
 	const {missions, frameVariables} = await resolveArchimedea(next, archimedeaType, variantKeyPrefix, osdict, dictEn);
 
-	const heading = showTimestamp
+	const heading = shouldShowTimestamp
 		? `## ${sectionTitle} ${discordTimestamp(mongoMs(next.Activation))}`
 		: `## ${sectionTitle}`;
 	const lines = [heading];
@@ -129,13 +129,13 @@ export async function formatArchimedea(worldState: AnyRecord, archimedeaType: st
 	return lines.join('\n');
 }
 
-export async function formatDescendia(worldState: AnyRecord, find = findWeekly, showTimestamp = false) {
+export async function formatDescendia(worldState: AnyRecord, find = findWeekly, shouldShowTimestamp = false) {
 	const next = find(worldState.Descents ?? []);
 	if (!next) {
 		return null;
 	}
 
-	const heading = showTimestamp
+	const heading = shouldShowTimestamp
 		? `## Descendia ${discordTimestamp(mongoMs(next.Activation))}`
 		: '## Descendia';
 	const lines = [heading];
@@ -156,14 +156,14 @@ export async function formatDescendia(worldState: AnyRecord, find = findWeekly, 
 	return lines.join('\n');
 }
 
-export async function formatCalendarSeason(worldState: AnyRecord, find = findWeekly, showTimestamp = false) {
+export async function formatCalendarSeason(worldState: AnyRecord, find = findWeekly, shouldShowTimestamp = false) {
 	const next = find(worldState.KnownCalendarSeasons ?? []);
 	if (!next) {
 		return null;
 	}
 
 	const seasonLabel = getSeasonLabel(next.Season);
-	const heading = showTimestamp
+	const heading = shouldShowTimestamp
 		? `## 1999 Calendar: ${seasonLabel} ${discordTimestamp(mongoMs(next.Activation))}`
 		: `## 1999 Calendar: ${seasonLabel}`;
 	const lines = [heading];
@@ -181,8 +181,8 @@ export async function formatCalendarSeason(worldState: AnyRecord, find = findWee
 		};
 
 		for (const event of dayData.events) {
-			const groupable = event.type === 'CET_REWARD' || event.type === 'CET_UPGRADE';
-			if (groupable && event.type === groupType && event.dateStr === groupDate) {
+			const isGroupable = event.type === 'CET_REWARD' || event.type === 'CET_UPGRADE';
+			if (isGroupable && event.type === groupType && event.dateStr === groupDate) {
 				groupTexts.push(event.text);
 			} else {
 				flushGroup();
@@ -266,7 +266,7 @@ export function chunkMessage(first: string, rest: string[], limit = 2000) {
 	return chunks;
 }
 
-function resolveEntries(worldState: AnyRecord, force: boolean) {
+function resolveEntries(worldState: AnyRecord, shouldForce: boolean) {
 	const entries: Record<string, AnyRecord | undefined> = {
 		Descendia: findWeekly(worldState.Descents ?? []),
 		'1999 Calendar': findWeekly(worldState.KnownCalendarSeasons ?? []),
@@ -277,7 +277,7 @@ function resolveEntries(worldState: AnyRecord, force: boolean) {
 	const missing = Object.keys(entries).filter(k => entries[k] === undefined);
 	if (missing.length > 0) {
 		const message = `No upcoming entry (within one week) found for: ${missing.join(', ')}`;
-		if (!force) {
+		if (!shouldForce) {
 			console.error(`Error: ${message}`);
 			console.error('Use --force / -f to post anyway.');
 			// eslint-disable-next-line unicorn/no-process-exit
@@ -299,21 +299,21 @@ function resolveEntries(worldState: AnyRecord, force: boolean) {
 	return entries;
 }
 
-async function buildSections(worldState: AnyRecord, entries: Record<string, AnyRecord | undefined>, showTimestamp: boolean) {
+async function buildSections(worldState: AnyRecord, entries: Record<string, AnyRecord | undefined>, shouldShowTimestamp: boolean) {
 	const findResolved = (sectionKey: string) => (_items: AnyRecord[]) => entries[sectionKey];
 
 	const [descendia, calendar, deepArchimedea, temporalArchimedea, clanWeekly] = await Promise.all([
 		entries.Descendia
-			? formatDescendia(worldState, findResolved('Descendia'), showTimestamp)
+			? formatDescendia(worldState, findResolved('Descendia'), shouldShowTimestamp)
 			: null,
 		entries['1999 Calendar']
-			? formatCalendarSeason(worldState, findResolved('1999 Calendar'), showTimestamp)
+			? formatCalendarSeason(worldState, findResolved('1999 Calendar'), shouldShowTimestamp)
 			: null,
 		entries['Deep Archimedea']
-			? formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', findResolved('Deep Archimedea'), showTimestamp)
+			? formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', findResolved('Deep Archimedea'), shouldShowTimestamp)
 			: null,
 		entries['Temporal Archimedea']
-			? formatArchimedea(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea', findResolved('Temporal Archimedea'), showTimestamp)
+			? formatArchimedea(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea', findResolved('Temporal Archimedea'), shouldShowTimestamp)
 			: null,
 		formatClanWeekly(worldState),
 	]);
@@ -340,10 +340,10 @@ async function buildSections(worldState: AnyRecord, entries: Record<string, AnyR
 
 export async function main() {
 	const args = new Set(process.argv.slice(2));
-	const dryRun = args.has('--dry-run');
-	const force = args.has('--force') || args.has('-f');
+	const isDryRun = args.has('--dry-run');
+	const shouldForce = args.has('--force') || args.has('-f');
 
-	if (!dryRun && !process.env.WEEKLY_FORECAST_DISCORD_WEBHOOK_URL) {
+	if (!isDryRun && !process.env.WEEKLY_FORECAST_DISCORD_WEBHOOK_URL) {
 		console.error('Error: WEEKLY_FORECAST_DISCORD_WEBHOOK_URL environment variable is required.');
 		// eslint-disable-next-line unicorn/no-process-exit
 		process.exit(1);
@@ -355,16 +355,16 @@ export async function main() {
 
 	// Resolve which entry each section will use before formatting.
 	// Missing weekly entries fall back to closest when --force is active.
-	const entries = resolveEntries(worldState, force);
+	const entries = resolveEntries(worldState, shouldForce);
 
 	// If all found entries share the same activation, show the timestamp once at the top.
 	// Otherwise each section heading carries its own timestamp.
 	const foundActivations = Object.values(entries).filter(Boolean).map(x => mongoMs(x!.Activation));
-	const allSame = foundActivations.length > 0 && foundActivations.every(ms => ms === foundActivations[0]);
-	const showTimestamp = !allSame;
-	const headerTs = allSame ? foundActivations[0] : null;
+	const areAllSame = foundActivations.length > 0 && foundActivations.every(ms => ms === foundActivations[0]);
+	const shouldShowTimestamp = !areAllSame;
+	const headerTs = areAllSame ? foundActivations[0] : null;
 
-	const sections = await buildSections(worldState, entries, showTimestamp);
+	const sections = await buildSections(worldState, entries, shouldShowTimestamp);
 
 	if (sections.length === 0) {
 		console.log('No forecast data available. Nothing posted.');
@@ -376,7 +376,7 @@ export async function main() {
 		: '# Weekly Forecast\n\n';
 	const chunks = chunkMessage(header + sections[0]!, sections.slice(1) as string[]);
 
-	if (dryRun) {
+	if (isDryRun) {
 		for (const [i, chunk] of chunks.entries()) {
 			if (chunks.length > 1) {
 				console.log(`\n--- Message ${i + 1} ---`);

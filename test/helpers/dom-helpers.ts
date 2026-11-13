@@ -23,7 +23,7 @@ export function getById<T extends HTMLElement = HTMLElement>(id: string): T {
 /**
  Helper to check if element exists
  */
-export function elementExists(id: string): boolean {
+export function hasElement(id: string): boolean {
 	return document.querySelector(`#${id}`) !== null;
 }
 

@@ -334,7 +334,7 @@ export function initRivenCalc(data: CalcData, root: ParentNode = document): Rive
 		const stats = getRivenStats(state.rivenClassKey, data.exportUpgrades);
 
 		// One block of rows per group, so that related traits sit together and the groups are set apart
-		const buildGroups = (kind: TraitKind, spliced: boolean): HTMLElement[] => groupStats(stats.filter(stat => stat.spliced === spliced)).map(group => {
+		const buildGroups = (kind: TraitKind, isSpliced: boolean): HTMLElement[] => groupStats(stats.filter(stat => stat.spliced === isSpliced)).map(group => {
 			const element = document.createElement('div');
 			element.className = 'riven-group';
 			element.dataset.rivenGroup = group.id;

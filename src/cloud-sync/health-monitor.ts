@@ -14,7 +14,7 @@ type VisibilityFallbackOptions = {
 	getLastFreshTimestamp: () => number | undefined;
 	pullFn: (userId: string) => Promise<void>;
 	onPullComplete: (ts: number) => void;
-	setSyncing: (value: boolean) => void;
+	setSyncing: (isSyncing: boolean) => void;
 };
 
 export class CloudSyncHealthMonitor {

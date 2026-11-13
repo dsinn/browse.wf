@@ -20,7 +20,7 @@ let latestRenderedNewsTime = 0;
 let newsNotifyAfter = 0;
 
 // eslint-disable-next-line complexity
-export function updateNewsTicker(forceRender = false): void {
+export function updateNewsTicker(shouldForceRender = false): void {
 	let highestTime = 0;
 	const items: NewsItem[] = [];
 
@@ -61,7 +61,7 @@ export function updateNewsTicker(forceRender = false): void {
 	}
 
 	// Skip re-render if data hasn't changed
-	if (!forceRender && latestRenderedNewsTime === highestTime) {
+	if (!shouldForceRender && latestRenderedNewsTime === highestTime) {
 		return;
 	}
 

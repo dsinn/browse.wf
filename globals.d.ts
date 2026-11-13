@@ -139,7 +139,7 @@ interface Window {
 	toTitleCase?: (string_: string) => string;
 	updateBountyCycleLocalised?: () => void;
 	updateCircuitLocalised?: () => void;
-	updateFissures?: (force?: boolean) => Promise<void>;
+	updateFissures?: (shouldForce?: boolean) => Promise<void>;
 	updateIncursionsLocalised?: () => Promise<void>;
 	updateLog?: () => void;
 
@@ -220,10 +220,10 @@ interface Window {
 	// src/invigorations.ts
 	getWeekIndex?: (timestamp: number) => number;
 	initInvigorations?: (names: Record<string, string>) => void;
-	initInvigorationsFromCache?: (inventoryDataUsed: boolean) => void;
+	initInvigorationsFromCache?: (wasInventoryDataUsed: boolean) => void;
 	loadCache?: () => Record<number, any>;
 	populateInvigorationGrid?: (prefix: string, response: any, suits?: string[]) => void;
-	preFillForm?: (username: string, peek: boolean, suits: string[]) => void;
+	preFillForm?: (username: string, isPeek: boolean, suits: string[]) => void;
 	saveToCache?: (request: any, response: any) => void;
 	showHistory?: (currentWeek: number, cache: Record<number, any>) => void;
 	showResults?: (response: any, request: any) => void;
@@ -242,14 +242,14 @@ interface Window {
 	initializeBountyFiltersAll?: () => void;
 
 	// src/live/checkbox-linking.ts
-	applyCheckboxLinking?: (element: HTMLElement, nowChecked: boolean) => void;
+	applyCheckboxLinking?: (element: HTMLElement, isChecked: boolean) => void;
 
 	// src/live/circuit.ts
 	updateCircuitChoices?: () => void;
 
 	// src/live/completion-toggles.ts
 	refreshAllCompletionToggles?: () => void;
-	setCompletionToggle?: (elm: HTMLAnchorElement, completed: boolean) => void;
+	setCompletionToggle?: (elm: HTMLAnchorElement, isCompleted: boolean) => void;
 
 	// src/live/fissures.ts
 	fissureTiers?: any;
@@ -261,7 +261,7 @@ interface Window {
 	updateInvasions?: () => Promise<void>;
 
 	// src/live/news.ts
-	updateNewsTicker?: (force?: boolean) => void;
+	updateNewsTicker?: (shouldForce?: boolean) => void;
 
 	// src/live/news-mark-read.ts
 	initializeMarkAsRead?: () => void;
@@ -314,7 +314,7 @@ interface Window {
 	onDownloadLinkLeftClick?: (event: Event) => void;
 	onDownloadLinkRightClick?: (event: Event) => void;
 	onPlatformChange?: () => void;
-	profileWorkflowReady?: (syncResult: string, showAutoFetchFlow: boolean) => void;
+	profileWorkflowReady?: (syncResult: string, shouldShowAutoFetchFlow: boolean) => void;
 	updateProfileAge?: () => void;
 
 	// src/public-export-fetcher.ts

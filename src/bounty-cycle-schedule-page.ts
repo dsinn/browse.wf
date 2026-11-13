@@ -130,16 +130,16 @@ function render(): void {
 	}
 }
 
-function setCelestialBody(element: HTMLElement, active: boolean, animate: boolean): void {
+function setCelestialBody(element: HTMLElement, isActive: boolean, shouldAnimate: boolean): void {
 	element.classList.remove('is-entering', 'is-exiting');
-	if (!animate) {
-		element.classList.toggle('is-active', active);
-		element.classList.toggle('is-exited', !active);
+	if (!shouldAnimate) {
+		element.classList.toggle('is-active', isActive);
+		element.classList.toggle('is-exited', !isActive);
 		return;
 	}
 
 	element.classList.remove('is-active', 'is-exited');
-	if (active) {
+	if (isActive) {
 		element.classList.add('is-entering');
 	} else {
 		element.classList.add('is-exiting');
@@ -147,16 +147,16 @@ function setCelestialBody(element: HTMLElement, active: boolean, animate: boolea
 
 	element.addEventListener('animationend', () => {
 		element.classList.remove('is-entering', 'is-exiting');
-		element.classList.toggle('is-active', active);
-		element.classList.toggle('is-exited', !active);
+		element.classList.toggle('is-active', isActive);
+		element.classList.toggle('is-exited', !isActive);
 	}, {once: true});
 }
 
-function setCelestialState(phase: CyclePhase, animate: boolean): void {
+function setCelestialState(phase: CyclePhase, shouldAnimate: boolean): void {
 	const sun = document.querySelector<HTMLSpanElement>('#celestial-sun')!;
 	const moon = document.querySelector<HTMLSpanElement>('#celestial-moon')!;
-	setCelestialBody(sun, phase === 'day', animate);
-	setCelestialBody(moon, phase === 'night', animate);
+	setCelestialBody(sun, phase === 'day', shouldAnimate);
+	setCelestialBody(moon, phase === 'night', shouldAnimate);
 }
 
 function updatePhaseLabels(phase: CyclePhase): void {

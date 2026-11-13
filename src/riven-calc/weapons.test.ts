@@ -21,7 +21,7 @@ import {
 	buildWeaponOptions,
 	canWeaponRollStat,
 	getCompatibleRivenClass,
-	weaponCanRollDamageType,
+	canWeaponRollDamageType,
 	type WeaponOption,
 } from './weapons.js';
 
@@ -122,7 +122,7 @@ describe('getCompatibleRivenClass', () => {
 describe('which damage types a weapon can roll', () => {
 	// Test vectors from the original Riven calculator: physical damage types must be > 20% of the weapon's damage
 	function canRoll(label: string, damageType: string): boolean {
-		return weaponCanRollDamageType(exportWeapons[weaponNamed(label).uniqueName], damageType);
+		return canWeaponRollDamageType(exportWeapons[weaponNamed(label).uniqueName], damageType);
 	}
 
 	test.each([
@@ -141,20 +141,20 @@ describe('which damage types a weapon can roll', () => {
 	});
 
 	test('a weapon with no damage data can roll anything', () => {
-		expect(weaponCanRollDamageType({}, 'DT_SLASH')).toBe(true);
-		expect(weaponCanRollDamageType({behaviours: [{}]}, 'DT_SLASH')).toBe(true);
+		expect(canWeaponRollDamageType({}, 'DT_SLASH')).toBe(true);
+		expect(canWeaponRollDamageType({behaviours: [{}]}, 'DT_SLASH')).toBe(true);
 	});
 
 	test('the weapon uses its projectile damage rather than its impact damage when it has a projectile', () => {
 		const weapon = {behaviours: [{projectile: {attack: {DT_PUNCTURE: 100}}, impact: {DT_SLASH: 100}}]};
-		expect(weaponCanRollDamageType(weapon, 'DT_PUNCTURE')).toBe(true);
-		expect(weaponCanRollDamageType(weapon, 'DT_SLASH')).toBe(false);
+		expect(canWeaponRollDamageType(weapon, 'DT_PUNCTURE')).toBe(true);
+		expect(canWeaponRollDamageType(weapon, 'DT_SLASH')).toBe(false);
 	});
 
 	test('a damage type needs more than 20% of the total, ignoring non-damage fields such as procChance', () => {
 		const damage = (slash: number) => ({behaviours: [{impact: {DT_IMPACT: 80, DT_SLASH: slash, procChance: 1000}}]});
-		expect(weaponCanRollDamageType(damage(21), 'DT_SLASH')).toBe(true);
-		expect(weaponCanRollDamageType(damage(19), 'DT_SLASH')).toBe(false);
+		expect(canWeaponRollDamageType(damage(21), 'DT_SLASH')).toBe(true);
+		expect(canWeaponRollDamageType(damage(19), 'DT_SLASH')).toBe(false);
 	});
 });
 

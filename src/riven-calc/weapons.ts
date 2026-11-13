@@ -105,7 +105,7 @@ const PHYSICAL_DAMAGE_TYPES = new Set(['DT_IMPACT', 'DT_PUNCTURE', 'DT_SLASH']);
  only its Projectile Speed warning ever appeared, even though its own test vectors (kept in weapons.test.ts) expect
  the damage types to be limited. This follows those vectors.
  */
-export function weaponCanRollDamageType(weapon: Record<string, any>, damageType: string): boolean {
+export function canWeaponRollDamageType(weapon: Record<string, any>, damageType: string): boolean {
 	const behaviour = weapon.behaviours?.[0];
 	const damageTable: Record<string, number> | undefined = behaviour?.projectile?.attack ?? behaviour?.impact;
 	if (!damageTable) {
@@ -139,5 +139,5 @@ export function canWeaponRollStat(weapon: Record<string, any> | undefined, tag: 
 
 	// Elemental damage can be rolled as a buff on any weapon; everything else needs the damage type
 	const damageType = DAMAGE_TYPE_BY_STAT_TAG[tag];
-	return !damageType || weaponCanRollDamageType(weapon, damageType) || (isBuff && !PHYSICAL_DAMAGE_TYPES.has(damageType));
+	return !damageType || canWeaponRollDamageType(weapon, damageType) || (isBuff && !PHYSICAL_DAMAGE_TYPES.has(damageType));
 }

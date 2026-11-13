@@ -8,22 +8,22 @@ export function renderAllyIcon(allyName: string, allyCell: Element): void {
 
 export function applyBountyFilters(syndicateTag: string, rows: NodeListOf<Element>): void {
 	const minTier = window.getMinimumTier!(syndicateTag);
-	const sectionHidden = minTier < 1;
-	document.querySelector(`#${syndicateTag}-name`)?.classList.toggle('d-none', sectionHidden);
+	const isSectionHidden = minTier < 1;
+	document.querySelector(`#${syndicateTag}-name`)?.classList.toggle('d-none', isSectionHidden);
 
-	let anyVisible = false;
+	let isAnyVisible = false;
 	for (const [i, row] of [...rows].entries()) {
 		const tier = i + 1; // Tier 1 is index 0, Tier 2 is index 1, etc.
 		const missionType = (row as HTMLElement).dataset.missionType ?? '';
-		const missionVisible = !missionType || window.isBountyMissionTypeEnabled!(syndicateTag, missionType);
-		const hidden = sectionHidden || tier < minTier || !missionVisible;
-		row.classList.toggle('d-none', hidden);
-		if (!hidden) {
-			anyVisible = true;
+		const isMissionVisible = !missionType || window.isBountyMissionTypeEnabled!(syndicateTag, missionType);
+		const isHidden = isSectionHidden || tier < minTier || !isMissionVisible;
+		row.classList.toggle('d-none', isHidden);
+		if (!isHidden) {
+			isAnyVisible = true;
 		}
 	}
 
-	document.querySelector(`#${syndicateTag}-empty`)?.classList.toggle('d-none', sectionHidden || anyVisible);
+	document.querySelector(`#${syndicateTag}-empty`)?.classList.toggle('d-none', isSectionHidden || isAnyVisible);
 }
 
 window.renderAllyIcon = renderAllyIcon;

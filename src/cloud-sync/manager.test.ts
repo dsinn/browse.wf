@@ -599,8 +599,8 @@ describe('CloudSyncManager', () => {
 	});
 
 	describe('visibility pull fallback', () => {
-		async function triggerVisibilityChange(hidden: boolean) {
-			Object.defineProperty(document, 'hidden', {value: hidden, configurable: true});
+		async function triggerVisibilityChange(isHidden: boolean) {
+			Object.defineProperty(document, 'hidden', {value: isHidden, configurable: true});
 			document.dispatchEvent(new Event('visibilitychange'));
 			// Drain microtasks so the async IIFE inside the listener completes
 			// (5 hops: event handler, pullFn wrapper, pullFromDatabase, handler, db call)

@@ -32,7 +32,7 @@ export function loadFixture(name: string): string {
 /**
  Check if fixture exists
  */
-export function fixtureExists(name: string): boolean {
+export function hasFixture(name: string): boolean {
 	const fixturePath = path.join(FIXTURES_DIR, `${name}.html`);
 	return fs.existsSync(fixturePath);
 }

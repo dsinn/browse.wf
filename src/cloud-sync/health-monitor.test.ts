@@ -90,8 +90,8 @@ describe('CloudSyncHealthMonitor', () => {
 	});
 
 	describe('startVisibilityFallback', () => {
-		async function triggerVisibilityChange(hidden: boolean) {
-			Object.defineProperty(document, 'hidden', {value: hidden, configurable: true});
+		async function triggerVisibilityChange(isHidden: boolean) {
+			Object.defineProperty(document, 'hidden', {value: isHidden, configurable: true});
 			document.dispatchEvent(new Event('visibilitychange'));
 			await Promise.resolve();
 			await Promise.resolve();
@@ -110,22 +110,22 @@ describe('CloudSyncHealthMonitor', () => {
 			noLastFreshTimestamp?: true;
 			pullFn?: ReturnType<typeof vi.fn<(userId: string) => Promise<void>>>;
 			onPullComplete?: ReturnType<typeof vi.fn<(ts: number) => void>>;
-			setSyncing?: ReturnType<typeof vi.fn<(value: boolean) => void>>;
+			setSyncing?: ReturnType<typeof vi.fn<(isSyncing: boolean) => void>>;
 		} = {}) {
 			const userId = overrides.noUserId ? undefined : (overrides.userId ?? 'test-user');
 			const channelState = overrides.channelState ?? 'closed';
-			const syncing = overrides.syncing ?? false;
+			const isSyncing = overrides.syncing ?? false;
 			const lastFreshTimestamp = overrides.noLastFreshTimestamp
 				? undefined
 				: (overrides.lastFreshTimestamp ?? (Date.now() - 120_000));
 			const pullFn = overrides.pullFn ?? vi.fn<(userId: string) => Promise<void>>().mockResolvedValue(undefined);
 			const onPullComplete = overrides.onPullComplete ?? vi.fn<(ts: number) => void>();
-			const setSyncing = overrides.setSyncing ?? vi.fn<(value: boolean) => void>();
+			const setSyncing = overrides.setSyncing ?? vi.fn<(isSyncing: boolean) => void>();
 
 			monitor.startVisibilityFallback({
 				getCurrentUserId: () => userId,
 				getChannelState: () => channelState,
-				isSyncing: () => syncing,
+				isSyncing: () => isSyncing,
 				getLastFreshTimestamp: () => lastFreshTimestamp,
 				pullFn,
 				onPullComplete,
@@ -152,7 +152,7 @@ describe('CloudSyncHealthMonitor', () => {
 		});
 
 		test('calls setSyncing(true) before pull and setSyncing(false) after', async () => {
-			const setSyncing = vi.fn<(value: boolean) => void>();
+			const setSyncing = vi.fn<(isSyncing: boolean) => void>();
 
 			setupMonitor({setSyncing});
 
@@ -211,7 +211,7 @@ describe('CloudSyncHealthMonitor', () => {
 		});
 
 		test('handles pull error gracefully — does not throw, calls setSyncing(false)', async () => {
-			const setSyncing = vi.fn<(value: boolean) => void>();
+			const setSyncing = vi.fn<(isSyncing: boolean) => void>();
 			const rejectedPullFn = vi.fn<(userId: string) => Promise<void>>().mockRejectedValue(new Error('network timeout'));
 
 			setupMonitor({pullFn: rejectedPullFn, setSyncing});

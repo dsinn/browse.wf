@@ -86,10 +86,10 @@ function invasionBucket(invasion: InvasionData, isDuplicate: boolean): number {
 
 function sortInvasions(invasions: InvasionData[], duplicates: Set<string>, percentages: Map<string, number>): InvasionData[] {
 	return invasions.sort((a, b) => {
-		const aIsDuplicate = duplicates.has(a._id.$oid);
-		const bIsDuplicate = duplicates.has(b._id.$oid);
-		const aBucket = invasionBucket(a, aIsDuplicate);
-		const bBucket = invasionBucket(b, bIsDuplicate);
+		const isADuplicate = duplicates.has(a._id.$oid);
+		const isBDuplicate = duplicates.has(b._id.$oid);
+		const aBucket = invasionBucket(a, isADuplicate);
+		const bBucket = invasionBucket(b, isBDuplicate);
 		if (aBucket !== bBucket) {
 			return aBucket - bBucket;
 		}
@@ -246,16 +246,16 @@ type InvasionRowContext = {
 	nodeLabel: string;
 	attackerItem: {ItemType: string; ItemCount: number} | undefined;
 	defenderItem: {ItemType: string; ItemCount: number} | undefined;
-	attackerVisible: boolean;
-	defenderVisible: boolean;
+	isAttackerVisible: boolean;
+	isDefenderVisible: boolean;
 };
 
 async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowElement[]> {
-	const {invasion, percentage, isDuplicate, node, nodeLabel, attackerItem, defenderItem, attackerVisible, defenderVisible} = ctx;
+	const {invasion, percentage, isDuplicate, node, nodeLabel, attackerItem, defenderItem, isAttackerVisible, isDefenderVisible} = ctx;
 	const rows: HTMLTableRowElement[] = [];
 
 	// Both hidden → render a hidden placeholder row for pruneStaleOids
-	if (!attackerVisible && !defenderVisible) {
+	if (!isAttackerVisible && !isDefenderVisible) {
 		const tr = document.createElement('tr');
 		tr.classList.add('d-none');
 		const td = document.createElement('td');
@@ -269,11 +269,11 @@ async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowE
 	}
 
 	// Row 1: attacker row (or promoted defender row)
-	const isAttackerPromoted = !attackerVisible && defenderVisible;
+	const isAttackerPromoted = !isAttackerVisible && isDefenderVisible;
 	const row1Item = isAttackerPromoted ? defenderItem : attackerItem;
-	const row1Visible = isAttackerPromoted ? defenderVisible : attackerVisible;
+	const isRow1Visible = isAttackerPromoted ? isDefenderVisible : isAttackerVisible;
 
-	if (row1Visible && row1Item) {
+	if (isRow1Visible && row1Item) {
 		const tr = document.createElement('tr');
 		if (isDuplicate) {
 			tr.classList.add('opacity-50');
@@ -286,7 +286,7 @@ async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowE
 		tr.append(buildToggleCell(invasion, isDuplicate));
 
 		rows.push(tr);
-	} else if (!row1Visible && row1Item) {
+	} else if (!isRow1Visible && row1Item) {
 		// Hidden attacker row (still add for DOM completeness with completion toggle)
 		const tr = document.createElement('tr');
 		tr.classList.add('d-none');
@@ -296,7 +296,7 @@ async function buildInvasionRows(ctx: InvasionRowContext): Promise<HTMLTableRowE
 	}
 
 	// Row 2: defender row (only if attacker was also visible)
-	if (attackerVisible && defenderVisible && defenderItem) {
+	if (isAttackerVisible && isDefenderVisible && defenderItem) {
 		const tr = document.createElement('tr');
 		tr.classList.add('invasion-defender-reward');
 		if (isDuplicate) {
@@ -332,7 +332,7 @@ export async function updateInvasions(): Promise<void> {
 	const sorted = sortInvasions(activeInvasions, duplicates, percentages);
 
 	const tbody = document.createElement('tbody');
-	let anyVisible = false;
+	let isAnyVisible = false;
 
 	for (const invasion of sorted) {
 		const percentage = percentages.get(invasion._id.$oid);
@@ -347,11 +347,11 @@ export async function updateInvasions(): Promise<void> {
 
 		const attackerItem = attackerItems[0];
 		const defenderItem = defenderItems[0];
-		const attackerVisible = attackerItem ? isInvasionRewardShown(attackerItem.ItemType) : false;
-		const defenderVisible = defenderItem ? isInvasionRewardShown(defenderItem.ItemType) : false;
+		const isAttackerVisible = attackerItem ? isInvasionRewardShown(attackerItem.ItemType) : false;
+		const isDefenderVisible = defenderItem ? isInvasionRewardShown(defenderItem.ItemType) : false;
 
-		if (attackerVisible || defenderVisible) {
-			anyVisible = true;
+		if (isAttackerVisible || isDefenderVisible) {
+			isAnyVisible = true;
 		}
 
 		const node = ExportRegions[invasion.Node];
@@ -360,12 +360,12 @@ export async function updateInvasions(): Promise<void> {
 		// eslint-disable-next-line no-await-in-loop
 		const rows = await buildInvasionRows({
 			invasion, percentage: percentage ?? 0, isDuplicate, node, nodeLabel,
-			attackerItem, defenderItem, attackerVisible, defenderVisible,
+			attackerItem, defenderItem, isAttackerVisible, isDefenderVisible,
 		});
 		tbody.append(...rows);
 	}
 
-	if (!anyVisible) {
+	if (!isAnyVisible) {
 		const tr = document.createElement('tr');
 		const td = document.createElement('td');
 		td.textContent = 'No invasions match the current filters.';

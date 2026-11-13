@@ -69,7 +69,7 @@ export function populateInvigorationGrid(prefix: string, response: InvigorationR
 	}
 }
 
-export function preFillForm(username: string, peek: boolean, suits: string[]): void {
+export function preFillForm(username: string, isPeek: boolean, suits: string[]): void {
 	const usernameInput = document.querySelector<HTMLInputElement>('#username');
 	const peekCheckbox = document.querySelector<HTMLInputElement>('#peek');
 	const suitSelects = document.querySelectorAll<HTMLSelectElement>('.suit-select');
@@ -79,7 +79,7 @@ export function preFillForm(username: string, peek: boolean, suits: string[]): v
 	}
 
 	if (peekCheckbox) {
-		peekCheckbox.checked = peek;
+		peekCheckbox.checked = isPeek;
 		peekCheckbox.dispatchEvent(new Event('change'));
 	}
 
@@ -202,8 +202,8 @@ export function showCacheAlert(type: string, message: string): void {
 	alert.classList.remove('d-none');
 }
 
-export function initInvigorationsFromCache(inventoryDataUsed: boolean): void {
-	if (inventoryDataUsed) {
+export function initInvigorationsFromCache(wasInventoryDataUsed: boolean): void {
+	if (wasInventoryDataUsed) {
 		return;
 	}
 

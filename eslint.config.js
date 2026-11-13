@@ -32,7 +32,6 @@ const config = [
 		rules: {
 			'@typescript-eslint/strict-boolean-expressions': 'off',
 			'n/file-extension-in-import': 'off',
-			'unicorn/consistent-boolean-name': 'off',
 			'unicorn/no-global-object-property-assignment': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
 			'unicorn/prefer-toggle-attribute': 'off',
@@ -41,6 +40,8 @@ const config = [
 	},
 	// Require 'u' flag (not 'v') — v requires ES2024, incompatible with tsconfig.json target of ES2021
 	{rules: {'require-unicode-regexp': ['error', {requireFlag: 'u'}]}},
+	// Badge functions and callbacks named update* return whether the badge is still ticking, so they read as actions, not predicates
+	{files: ['**/*.js', '**/*.ts'], rules: {'unicorn/consistent-boolean-name': ['error', {ignore: ['^update(?:[A-Z]|$)']}]}},
 	// Enforce LF line endings in JS/TS files
 	{files: ['**/*.js', '**/*.ts'], rules: {'@stylistic/linebreak-style': 'error'}},
 	{

@@ -205,7 +205,7 @@ await page.route('**/oracle.browse.wf/new-endpoint', route => {
 ### `helpers/dom-helpers.ts`
 - `mockBootstrapTooltip()` - Mock Bootstrap tooltip for testing
 - `getById<T>(id)` - Type-safe element query
-- `elementExists(id)` - Check element presence
+- `hasElement(id)` - Check element presence
 - `loadCommonJsFunctions(names)` - Load upstream `common.js` functions into window scope
 
 ### `helpers/test-constants.ts`

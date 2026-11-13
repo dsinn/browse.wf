@@ -27,8 +27,8 @@ const rootDir = path.join(__dirname, '..');
 const OUTPUT_DIR = path.join(rootDir, 'public');
 const PHP_PORT = Number(process.env.PHP_RENDER_PORT || '62969');
 
-async function renderOnce(serverAlreadyRunning = false) {
-	if (!serverAlreadyRunning) {
+async function renderOnce(isServerAlreadyRunning = false) {
+	if (!isServerAlreadyRunning) {
 		await startPhpServer({port: PHP_PORT, cwd: rootDir});
 	}
 
@@ -53,7 +53,7 @@ async function renderOnce(serverAlreadyRunning = false) {
 
 		console.log('Done.\n');
 	} finally {
-		if (!serverAlreadyRunning) {
+		if (!isServerAlreadyRunning) {
 			stopPhpServer(PHP_PORT);
 		}
 	}
@@ -92,7 +92,7 @@ async function watchMode() {
 		ignoreInitial: true,
 	});
 
-	const isPhpServerAlive = () => new Promise(resolve => {
+	const probePhpServer = () => new Promise(resolve => {
 		http.get(`http://localhost:${PHP_PORT}/`, response => {
 			response.resume();
 			resolve(true);
@@ -104,7 +104,7 @@ async function watchMode() {
 		console.log(`Changed: ${filePath}`);
 		clearTimeout(renderTimer);
 		renderTimer = setTimeout(async () => {
-			if (!await isPhpServerAlive()) {
+			if (!await probePhpServer()) {
 				console.error('PHP server is not responding; restarting render process...');
 				process.exit(1);
 			}

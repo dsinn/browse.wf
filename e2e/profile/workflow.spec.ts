@@ -145,9 +145,9 @@ test.describe('Profile Workflow - Unauthenticated', () => {
 	});
 
 	test('does not trigger a proxy call when account ID is already stored', async ({page}) => {
-		let proxyCalled = false;
+		let wasProxyCalled = false;
 		await page.route(`**/${proxyHost}/profile*`, route => {
-			proxyCalled = true;
+			wasProxyCalled = true;
 			void route.fulfill({status: 200, contentType: 'application/json', body: wrappedProfileResponse()});
 		});
 
@@ -162,13 +162,13 @@ test.describe('Profile Workflow - Unauthenticated', () => {
 
 		await page.reload();
 
-		expect(proxyCalled).toBe(false);
+		expect(wasProxyCalled).toBe(false);
 	});
 
 	test('does not auto-fetch via proxy when unauthenticated', async ({page}) => {
-		let proxyCalled = false;
+		let wasProxyCalled = false;
 		await page.route(`**/${proxyHost}/profile*`, route => {
-			proxyCalled = true;
+			wasProxyCalled = true;
 			void route.fulfill({status: 200, contentType: 'application/json', body: wrappedProfileResponse()});
 		});
 
@@ -178,7 +178,7 @@ test.describe('Profile Workflow - Unauthenticated', () => {
 
 		// Manual download step should appear without the proxy being called
 		await expect(page.getByRole('link', {name: /Save Link As/u})).toBeVisible({timeout: 5000});
-		expect(proxyCalled).toBe(false);
+		expect(wasProxyCalled).toBe(false);
 	});
 });
 

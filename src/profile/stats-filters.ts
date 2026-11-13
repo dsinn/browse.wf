@@ -9,6 +9,12 @@ import {addTooltip} from '../tooltip.js';
 import {getFactionIconPath} from '../faction-icons.js';
 
 /**
+Category key for rows whose type has no entry in the public export data. These rows are shown by their internal name.
+*/
+export const UNNAMED_CATEGORY = 'Unnamed';
+export const UNNAMED_DISPLAY_TEXT = '❔';
+
+/**
 Maps productCategory values (from ExportWeapons/ExportWarframes/ExportSentinels) to display metadata.
 */
 export const EQUIPMENT_CATEGORIES: Record<string, {tooltip: string; icon: string; displayText?: string}> = {
@@ -26,7 +32,8 @@ export const EQUIPMENT_CATEGORIES: Record<string, {tooltip: string; icon: string
 	SentinelWeapons: {tooltip: 'Sentinel Weapon', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/SentinelWeapons/LaserRifle.png'},
 	DrifterMelee: {tooltip: 'Drifter Melee', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/MeleeWeapons/Weapons/DaxDuviriMaceShieldWeapon.png'},
 	OperatorAmps: {tooltip: 'Drifter Amp', icon: '/Lotus/Interface/Icons/StoreIcons/Weapons/SecondaryWeapons/Weapons/DrifterPistol.png'},
-	SpecialItems: {tooltip: 'Special', icon: '', displayText: '🤷‍♀️'},
+	SpecialItems: {tooltip: 'Special', icon: '', displayText: '✨'},
+	[UNNAMED_CATEGORY]: {tooltip: 'Unnamed', icon: '', displayText: UNNAMED_DISPLAY_TEXT},
 };
 
 const STALKER_ICON = '/Lotus/Interface/Icons/MarkedForDeathStalker.png';
@@ -49,6 +56,38 @@ export const ENEMY_FACTIONS: Array<{tooltip: string; icon?: string; factions: st
 	{tooltip: 'Duviri', icon: getFactionIconPath('Duviri'), factions: ['Duviri']},
 	{tooltip: 'Stalker', icon: STALKER_ICON, factions: ['Stalker']},
 ];
+
+/**
+ Puts a checkbox in a container that controls whether rows in the "Unnamed" category show in the "All" view (and in
+ the totals above the table, which is up to onChange). It is off by default, and the "Unnamed" filter button shows
+ those rows either way. The hiding of the rows is done by CSS, keyed on the tbody's data-show-unnamed attribute.
+
+ @param container - The element to put the checkbox in, replacing what it holds.
+ @param tbody - The <tbody> whose rows carry data-category attributes.
+ @param label - Text for the checkbox.
+ @param onChange - Called after the checkbox changes, e.g. to renumber the visible rows.
+ */
+export function appendUnnamedToggle(container: HTMLElement, tbody: HTMLElement, label: string, onChange: () => void): void {
+	delete tbody.dataset.showUnnamed;
+
+	const input = document.createElement('input');
+	input.type = 'checkbox';
+	input.className = 'form-check-input mt-0';
+	input.addEventListener('change', () => {
+		if (input.checked) {
+			tbody.dataset.showUnnamed = 'true';
+		} else {
+			delete tbody.dataset.showUnnamed;
+		}
+
+		onChange();
+	});
+
+	const wrapper = document.createElement('label');
+	wrapper.className = 'unnamed-toggle d-flex align-items-center gap-2 small';
+	wrapper.append(input, label);
+	container.replaceChildren(wrapper);
+}
 
 /**
  Sets up sequential rank numbers in the first cell of each visible row, and

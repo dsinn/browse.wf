@@ -2,8 +2,8 @@
 Creates a Bootstrap tooltip instance for an element.
 Returns the instance so callers can use a plain call instead of `new` for its side effects.
 */
-export function createTooltip(elm: Element): unknown {
-	return new window.bootstrap.Tooltip(elm);
+export function createTooltip(elm: Element, options?: Record<string, unknown>): unknown {
+	return new window.bootstrap.Tooltip(elm, options);
 }
 
 /**

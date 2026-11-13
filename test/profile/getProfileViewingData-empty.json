@@ -1,0 +1,25 @@
+{
+  "Results": [
+    {
+      "AccountId": {"$oid": "000000000000000000000000"},
+      "DisplayName": "EmptyProfile",
+      "PlayerLevel": 1,
+      "LoadOutInventory": {},
+      "Missions": [],
+      "Affiliations": [],
+      "Harvestable": false,
+      "DeathSquadable": false
+    }
+  ],
+  "TechProjects": [],
+  "XpComponents": [],
+  "Stats": {
+    "Weapons": [],
+    "Enemies": [],
+    "Abilities": [],
+    "Missions": [],
+    "PVP": [],
+    "Scans": [],
+    "Races": {}
+  }
+}

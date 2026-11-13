@@ -42,10 +42,17 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 
 - **Single-click fetch**: Logged-in users can fetch their profile with a single click via the front proxy
 - **Guided workflow**: Step-by-step instructions for retrieving profile data, including how to look up your user ID on warframe.com
-- **Sortable stats table**: Category filters, rank column, and usage percentages
-- **Stat calculations**: Mission completion/failure/quit rates, cipher rates, etc.
-- **Increased precision**: Cipher completion times shown with sub-second detail
-- **Playtime tooltip**: Expanded time duration string on hover
+- **Expanded stats**: The Stats tab is split into Overview, Equipment, Enemies, Abilities, and Races
+  - **Overview**: Added Eidolon captures and kills, event scores, minigame scores, Trial completions, and more.
+  - **Equipment and enemy tables**:
+    - Totals by category/faction above the entries
+    - Sortable columns
+    - Category/faction filter bar, a rank column that follows the sort.
+    - Untranslated items normally hidden can be displayed by checking the "Show unnamed" box.
+    - Used %, Fired, and Hit % columns for equipment.
+  - **Abilities**: Per-ability cast counts, sortable by column and filterable by category
+  - **Races**: K-Drive race high scores.
+  - **Quality of life improvements**: Sticky headers, increased precision for certain stats, tooltips with exact numbers, etc.
 - **Syndicate progress bars**: Visual standing progress bars on each syndicate card
 
 #### Other pages

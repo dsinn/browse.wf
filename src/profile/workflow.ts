@@ -11,6 +11,7 @@
 import {MILLIS_PER_DAY, MILLIS_PER_HOUR} from '../helpers/time-helpers.js';
 import {WarframeApiFrontProxyClient} from '../warframe-api-proxy-client.js';
 import {waitForCloudSync} from '../cloud-sync/trigger.js';
+import {PROFILE_TIMESTAMP_STORAGE_KEY} from './profile-freshness.js';
 
 // Keep in sync with VALID_PLAYER_ID_REGEX in warframe-api-front-proxy/profile.js
 const VALID_PLAYER_ID_REGEX = /^[\da-f]{24}$/u;
@@ -18,7 +19,6 @@ const VALID_PLAYER_ID_REGEX = /^[\da-f]{24}$/u;
 const PLATFORM_STORAGE_KEY = 'profile.platform';
 const ACCOUNT_ID_STORAGE_KEY = 'profile.accountId';
 const PROFILE_DATA_STORAGE_KEY = 'profile.data';
-const PROFILE_TIMESTAMP_STORAGE_KEY = 'profile.dataFetchedAt';
 const NEXT_FETCH_AVAILABLE_AT_STORAGE_KEY = 'profile.nextFetchAvailableAt';
 
 const platformSelect = document.querySelector<HTMLSelectElement>('#platform-select')!;
@@ -202,6 +202,8 @@ function fetchAndRenderProfile(platform: string, accountId: string): void {
 		}
 
 		window.profile = data;
+		// Saved before rendering, since the render uses it to decide whether daily values are still current
+		localStorage.setItem(PROFILE_TIMESTAMP_STORAGE_KEY, Date.now().toString());
 		document.querySelector('#profile-nav')?.classList.remove('d-none');
 		window.activateTab!(parameters.has('tab') ? parameters.get('tab')! : 'fashion');
 		if (!parameters.has('tab')) {
@@ -223,7 +225,6 @@ function fetchAndRenderProfile(platform: string, accountId: string): void {
 		localStorage.setItem(PLATFORM_STORAGE_KEY, platform);
 		localStorage.setItem(ACCOUNT_ID_STORAGE_KEY, accountId);
 		localStorage.setItem(PROFILE_DATA_STORAGE_KEY, JSON.stringify(data));
-		localStorage.setItem(PROFILE_TIMESTAMP_STORAGE_KEY, Date.now().toString());
 		updateProfileAge();
 
 		window.triggerCloudSync?.();
@@ -252,6 +253,9 @@ async function loadProfile(file?: File): Promise<void> {
 	try {
 		const data = JSON.parse(await file.text());
 		window.profile = data;
+		// The file's age is when it was downloaded, which can be well before it is loaded here. Saved before
+		// rendering, since the render uses it to decide whether daily values are still current.
+		localStorage.setItem(PROFILE_TIMESTAMP_STORAGE_KEY, (file.lastModified || Date.now()).toString());
 		document.querySelector('#profile-nav')?.classList.remove('d-none');
 		window.activateTab!(parameters.has('tab') ? parameters.get('tab')! : 'fashion');
 		window.renderProfile!();
@@ -261,7 +265,6 @@ async function loadProfile(file?: File): Promise<void> {
 		updateStepStatus('#step4-container', true);
 		localStorage.setItem(PLATFORM_STORAGE_KEY, platformSelect.value);
 		localStorage.setItem(PROFILE_DATA_STORAGE_KEY, JSON.stringify(data));
-		localStorage.setItem(PROFILE_TIMESTAMP_STORAGE_KEY, Date.now().toString());
 		updateProfileAge();
 
 		window.triggerCloudSync?.();

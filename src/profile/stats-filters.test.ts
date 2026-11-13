@@ -4,10 +4,14 @@ import {
 	expect,
 	beforeEach,
 	vi,
+	type Mock,
 } from 'vitest';
 import {loadCommonJsFunctions, mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {loadExportJson} from '@test/helpers/api-mocks';
 import {
+	appendUnnamedToggle,
+	UNNAMED_CATEGORY,
+	UNNAMED_DISPLAY_TEXT,
 	EQUIPMENT_CATEGORIES,
 	ENEMY_FACTIONS,
 	getEquipmentCategoryLabel,
@@ -22,6 +26,19 @@ describe('profile-stats-filters', () => {
 		mockBootstrapTooltip();
 		(globalThis as any).ExportImages = ExportImages;
 		loadCommonJsFunctions(['setImageSource']);
+	});
+
+	describe('Special category', () => {
+		it('is shown as ✨', () => {
+			expect(EQUIPMENT_CATEGORIES.SpecialItems.displayText).toBe('✨');
+		});
+	});
+
+	describe('Unnamed category', () => {
+		it('is shown as ❔ (⚙️ is already used for configuration)', () => {
+			expect(UNNAMED_DISPLAY_TEXT).toBe('❔');
+			expect(EQUIPMENT_CATEGORIES[UNNAMED_CATEGORY].displayText).toBe('❔');
+		});
 	});
 
 	describe('EQUIPMENT_CATEGORIES', () => {
@@ -272,5 +289,56 @@ describe('profile-stats-filters', () => {
 				filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]')!.click();
 			}).not.toThrow();
 		});
+	});
+});
+
+describe('appendUnnamedToggle', () => {
+	let filterBar: HTMLElement;
+	let tbody: HTMLElement;
+	let onChange: Mock<() => void>;
+
+	beforeEach(() => {
+		document.body.innerHTML = '<div id="bar"></div><table><tbody id="rows"></tbody></table>';
+		filterBar = document.querySelector<HTMLElement>('#bar')!;
+		tbody = document.querySelector<HTMLElement>('#rows')!;
+		onChange = vi.fn<() => void>();
+		appendUnnamedToggle(filterBar, tbody, 'Show unnamed', onChange);
+	});
+
+	function checkbox() {
+		return filterBar.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+	}
+
+	it('adds an unchecked checkbox with the given label', () => {
+		expect(checkbox().checked).toBe(false);
+		expect(checkbox().closest('label')?.textContent).toBe('Show unnamed');
+	});
+
+	it('starts with unnamed rows not shown, clearing any earlier setting', () => {
+		tbody.dataset.showUnnamed = 'true';
+		appendUnnamedToggle(filterBar, tbody, 'Show unnamed', onChange);
+
+		expect(tbody.dataset.showUnnamed).toBeUndefined();
+	});
+
+	it('replaces a checkbox that was already in the container, instead of adding another', () => {
+		appendUnnamedToggle(filterBar, tbody, 'Show unnamed', onChange);
+
+		expect(filterBar.querySelectorAll('input[type="checkbox"]')).toHaveLength(1);
+	});
+
+	it('flags the table body and calls onChange when checked', () => {
+		checkbox().click();
+
+		expect(tbody.dataset.showUnnamed).toBe('true');
+		expect(onChange).toHaveBeenCalledTimes(1);
+	});
+
+	it('clears the flag and calls onChange when unchecked', () => {
+		checkbox().click();
+		checkbox().click();
+
+		expect(tbody.dataset.showUnnamed).toBeUndefined();
+		expect(onChange).toHaveBeenCalledTimes(2);
 	});
 });

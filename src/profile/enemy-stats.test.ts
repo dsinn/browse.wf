@@ -34,6 +34,7 @@ const mockProfile = {
 function setupDOM(enemies: Array<{type: string; kills?: number}> = mockProfile.Stats.Enemies) {
 	const rows = enemies.map(enemy => `<tr><td>Name</td><td>${enemy.kills}</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>`).join('');
 	document.body.innerHTML = `
+		<div id="enemy-unnamed-toggle"></div>
 		<div id="enemy-filter-bar"></div>
 		<table><tbody id="enemy-stats">${rows}</tbody></table>
 	`;
@@ -82,6 +83,76 @@ describe('augmentEnemyStats', () => {
 		expect(document.querySelector<HTMLTableRowElement>('#enemy-stats tr')!.dataset.category).toBe('');
 	});
 
+	describe('enemies without an export entry', () => {
+		const unnamedType = '/Lotus/Types/Enemies/Retired/RetiredAvatar';
+		const enemiesWithUnnamed = [{type: unnamedType, kills: 2000}, ...mockProfile.Stats.Enemies];
+
+		it('keeps one augmented row per enemy, in order, with the category "Unnamed"', () => {
+			setupDOM(enemiesWithUnnamed);
+			augmentEnemyStats({Stats: {Enemies: enemiesWithUnnamed}});
+
+			const rows = [...document.querySelectorAll<HTMLTableRowElement>('#enemy-stats tr')];
+			expect(rows.map(row => row.dataset.category)).toEqual(['Unnamed', 'Grineer', 'Corpus', 'Infested']);
+		});
+
+		it('shows the last segment of the internal name in teletype, with the full path as a tooltip', () => {
+			setupDOM(enemiesWithUnnamed);
+			augmentEnemyStats({Stats: {Enemies: enemiesWithUnnamed}});
+
+			const code = document.querySelector<HTMLElement>('#enemy-stats tr code.internal-name');
+			expect(code?.textContent).toBe('RetiredAvatar');
+			expect(code?.dataset.bsTitle).toBe(unnamedType);
+		});
+
+		it('adds a checkbox, off by default, for showing unnamed enemies in the All view', () => {
+			setupDOM(enemiesWithUnnamed);
+			augmentEnemyStats({Stats: {Enemies: enemiesWithUnnamed}});
+
+			const checkbox = document.querySelector<HTMLInputElement>('#enemy-unnamed-toggle input[type="checkbox"]');
+			expect(checkbox?.checked).toBe(false);
+			expect(checkbox?.closest('label')?.textContent).toBe('Show unnamed enemies');
+		});
+
+		it('flags the table body when the checkbox is checked, and clears it when unchecked', () => {
+			setupDOM(enemiesWithUnnamed);
+			augmentEnemyStats({Stats: {Enemies: enemiesWithUnnamed}});
+
+			const checkbox = document.querySelector<HTMLInputElement>('#enemy-unnamed-toggle input[type="checkbox"]')!;
+			checkbox.click();
+			expect(document.querySelector<HTMLElement>('#enemy-stats')?.dataset.showUnnamed).toBe('true');
+			checkbox.click();
+			expect(document.querySelector<HTMLElement>('#enemy-stats')?.dataset.showUnnamed).toBeUndefined();
+		});
+
+		it('shows the unnamed enemies in the totals only while the checkbox is checked', () => {
+			setupDOM(enemiesWithUnnamed);
+			document.body.insertAdjacentHTML('beforeend', '<div id="enemy-aggregates"><table><tbody id="enemy-aggregate-rows"></tbody><tfoot id="enemy-aggregate-total"></tfoot></table></div>');
+			augmentEnemyStats({Stats: {Enemies: enemiesWithUnnamed}});
+			const groups = () => [...document.querySelectorAll<HTMLTableRowElement>('#enemy-aggregate-rows tr')].map(row => row.cells[1].textContent);
+
+			expect(groups()).not.toContain('Unnamed');
+			const checkbox = document.querySelector<HTMLInputElement>('#enemy-unnamed-toggle input[type="checkbox"]')!;
+			checkbox.click();
+			expect(groups()).toContain('Unnamed');
+			checkbox.click();
+			expect(groups()).not.toContain('Unnamed');
+		});
+
+		it('has no checkbox when there are no unnamed enemies', () => {
+			setupDOM();
+			augmentEnemyStats(mockProfile);
+
+			expect(document.querySelector('#enemy-unnamed-toggle input[type="checkbox"]')).toBeNull();
+		});
+
+		it('adds an "Unnamed" filter button', () => {
+			setupDOM(enemiesWithUnnamed);
+			augmentEnemyStats({Stats: {Enemies: enemiesWithUnnamed}});
+
+			expect(document.querySelector('#enemy-filter-bar button[data-filter="Unnamed"]')).not.toBeNull();
+		});
+	});
+
 	it('initialises a filter bar with an "All" button', () => {
 		setupDOM();
 		augmentEnemyStats(mockProfile);
@@ -115,8 +186,18 @@ describe('augmentEnemyStats', () => {
 		}
 	});
 
+	it('leaves the table alone when the rows do not match the enemies, rather than misaligning them', () => {
+		setupDOM(mockProfile.Stats.Enemies.slice(0, 2));
+		augmentEnemyStats(mockProfile);
+
+		const rows = document.querySelectorAll<HTMLTableRowElement>('#enemy-stats tr');
+		expect(rows[0].cells).toHaveLength(7);
+		expect(rows[0].dataset.category).toBeUndefined();
+	});
+
 	it('does nothing when tbody is empty', () => {
 		document.body.innerHTML = `
+			<div id="enemy-unnamed-toggle"></div>
 			<div id="enemy-filter-bar"></div>
 			<table><tbody id="enemy-stats"></tbody></table>
 		`;

@@ -333,6 +333,24 @@ describe('loadProfile', () => {
 		expect(localStorage.getItem('profile.dataFetchedAt')).toBeTruthy();
 	});
 
+	it('uses the file\'s modified time as the profile timestamp, since that is when it was downloaded', async () => {
+		const lastModified = Date.now() - (3 * MILLIS_PER_HOUR);
+		const file = new File([JSON.stringify(MOCK_PROFILE_DATA)], 'profile.json', {type: 'application/json', lastModified});
+		await (globalThis as any).loadProfile(file);
+		expect(localStorage.getItem('profile.dataFetchedAt')).toBe(lastModified.toString());
+	});
+
+	it('saves the timestamp before rendering, so the render can tell how old the profile is', async () => {
+		const lastModified = Date.now() - MILLIS_PER_HOUR;
+		let timestampWhileRendering: string | undefined;
+		(globalThis as any).renderProfile.mockImplementation(() => {
+			timestampWhileRendering = localStorage.getItem('profile.dataFetchedAt') ?? undefined;
+		});
+		const file = new File([JSON.stringify(MOCK_PROFILE_DATA)], 'profile.json', {type: 'application/json', lastModified});
+		await (globalThis as any).loadProfile(file);
+		expect(timestampWhileRendering).toBe(lastModified.toString());
+	});
+
 	it('saves platform to localStorage', async () => {
 		const file = new File([JSON.stringify(MOCK_PROFILE_DATA)], 'profile.json', {type: 'application/json'});
 		await (globalThis as any).loadProfile(file);
@@ -416,6 +434,17 @@ describe('fetchAndRenderProfile', () => {
 		expect(localStorage.getItem('profile.platform')).toBe('pc');
 		expect(localStorage.getItem('profile.accountId')).toBe(VALID_ACCOUNT_ID);
 		expect(localStorage.getItem('profile.dataFetchedAt')).toBeTruthy();
+	});
+
+	it('on success: saves the timestamp before rendering, so the render can tell the profile is current', async () => {
+		await spyFetch({status: 200, data: MOCK_PROFILE_DATA, nextFetchAvailableAt: undefined});
+		let timestampWhileRendering: string | undefined;
+		(globalThis as any).renderProfile.mockImplementation(() => {
+			timestampWhileRendering = localStorage.getItem('profile.dataFetchedAt') ?? undefined;
+		});
+		(globalThis as any).fetchProfile();
+		await vi.advanceTimersByTimeAsync(0);
+		expect(timestampWhileRendering).toBe(Date.now().toString());
 	});
 
 	it('on success: saves nextFetchAvailableAt to localStorage', async () => {

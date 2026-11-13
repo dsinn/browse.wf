@@ -24,19 +24,58 @@
     width: auto;
 }
 
-#missions tr :nth-child(2) {
+#missions tr > :nth-child(2) {
     text-align: right;
 }
 
-#missions tr :nth-child(3) {
+#missions tr > :nth-child(3) {
     text-align: center;
+}
+
+#missions tr > :nth-child(4) {
+    text-align: right;
 }
 
 #equipment-stats td:not(:nth-child(2)),
 #enemy-stats td:not(:nth-child(2)),
+#equipment-aggregate-rows td:not(:nth-child(2)),
+#equipment-aggregate-total td:not(:nth-child(2)),
+#enemy-aggregate-rows td:not(:nth-child(2)),
+#enemy-aggregate-total td:not(:nth-child(2)),
 table:has(> #equipment-stats) th:not(:nth-child(2)),
-table:has(> #enemy-stats) th:not(:nth-child(2)) {
+table:has(> #enemy-stats) th:not(:nth-child(2)),
+table:has(> #equipment-aggregate-rows) th:not(:nth-child(2)),
+table:has(> #enemy-aggregate-rows) th:not(:nth-child(2)) {
     text-align: right;
+}
+
+table:has(> #ability-stats),
+table:has(> #race-stats) {
+    width: auto;
+}
+
+#ability-stats td:nth-child(4),
+table:has(> #ability-stats) th:nth-child(4),
+#race-stats td:nth-child(3),
+table:has(> #race-stats) th:nth-child(3) {
+    text-align: right;
+}
+
+.internal-name {
+    color: inherit;
+}
+
+.ability-slot {
+    cursor: help;
+}
+
+.has-tooltip {
+    cursor: help;
+    text-decoration: underline dotted;
+}
+
+#stats-subnav {
+    margin-bottom: 1rem;
 }
 
 #step1-container,
@@ -81,6 +120,7 @@ table:has(> #enemy-stats) th:not(:nth-child(2)) {
 #equipment-stats[data-filter="DrifterMelee"]    tr:not([data-category="DrifterMelee"]),
 #equipment-stats[data-filter="OperatorAmps"]    tr:not([data-category="OperatorAmps"]),
 #equipment-stats[data-filter="SpecialItems"]    tr:not([data-category="SpecialItems"]),
+#equipment-stats[data-filter="Unnamed"]         tr:not([data-category="Unnamed"]),
 #enemy-stats[data-filter="Grineer"]  tr:not([data-category="Grineer"]),
 #enemy-stats[data-filter="Corpus"]   tr:not([data-category="Corpus"]),
 #enemy-stats[data-filter="Infested"] tr:not([data-category="Infested"]),
@@ -91,7 +131,18 @@ table:has(> #enemy-stats) th:not(:nth-child(2)) {
 #enemy-stats[data-filter="Scaldra"]  tr:not([data-category="Scaldra"]),
 #enemy-stats[data-filter="Techrot"]  tr:not([data-category="Techrot"]),
 #enemy-stats[data-filter="Duviri"]   tr:not([data-category="Duviri"]),
-#enemy-stats[data-filter="Stalker"]  tr:not([data-category="Stalker"]) {
+#enemy-stats[data-filter="Stalker"]  tr:not([data-category="Stalker"]),
+#enemy-stats[data-filter="Unnamed"]  tr:not([data-category="Unnamed"]),
+#equipment-stats:not([data-filter], [data-show-unnamed]) tr[data-category="Unnamed"],
+#enemy-stats:not([data-filter], [data-show-unnamed])     tr[data-category="Unnamed"],
+#ability-stats[data-filter="Warframe"]  tr:not([data-category="Warframe"]),
+#ability-stats[data-filter="Archwing"]  tr:not([data-category="Archwing"]),
+#ability-stats[data-filter="Necramech"] tr:not([data-category="Necramech"]),
+#ability-stats[data-filter="Operator"]  tr:not([data-category="Operator"]),
+#ability-stats[data-filter="Helminth"]  tr:not([data-category="Helminth"]),
+#ability-stats[data-filter="Drifter"]   tr:not([data-category="Drifter"]),
+#ability-stats[data-filter="Railjack"]  tr:not([data-category="Railjack"]),
+#ability-stats[data-filter="Other"]     tr:not([data-category="Other"]) {
 	display: none;
 }
 
@@ -152,4 +203,36 @@ table:has(> #enemy-stats) th:not(:nth-child(2)) {
 .stats-filter-btn:hover img,
 .stats-filter-btn:hover .filter-emoji {
 	filter: saturate(1.69);
+}
+
+/* Sticky headers for the big tables. They stick below the navbar, which is fixed to the top by default; sticky-offset.ts
+   sets --profile-sticky-top to the navbar's real height, and the values here are what it starts from.
+   The wrappers of these tables are only scroll containers (table-responsive-lg) below the lg breakpoint,
+   since a scroll container would stop the header from sticking to the page. */
+:root {
+    --profile-sticky-top: 0px;
+}
+
+:root:has(#main-navbar.fixed-top) {
+    --profile-sticky-top: 56px;
+}
+
+.sticky-header {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.sticky-header > thead > tr > th {
+    background-color: var(--bs-body-bg);
+    border-bottom: 2px solid var(--bs-border-color);
+    position: sticky;
+    top: var(--profile-sticky-top);
+    z-index: 2;
+}
+
+.mark-icon {
+    height: 1.25em;
+    margin-right: 0.25em;
+    vertical-align: text-bottom;
+    width: 1.25em;
 }

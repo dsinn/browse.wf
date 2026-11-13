@@ -1,19 +1,32 @@
 /**
  Augments the upstream enemy stats table with rank column and faction
- filter bar.
+ filter bar. Enemies without an entry in the export data are shown by
+ internal name under the "Unnamed" category.
 
  Called via (window as any).augmentEnemyStats() immediately after the
  upstream rendering block in profile.ts populates #enemy-stats.
  */
 
 import {logger} from '../logger.js';
-import {ENEMY_FACTIONS, initStatsFilterBar, makeRenumber} from './stats-filters.js';
+import {renderEnemyAggregates} from './aggregate-stats.js';
+import {enableInternalNameTooltips, renderInternalName} from './internal-name.js';
+import {
+	appendUnnamedToggle,
+	ENEMY_FACTIONS,
+	initStatsFilterBar,
+	makeRenumber,
+	UNNAMED_CATEGORY,
+	UNNAMED_DISPLAY_TEXT,
+} from './stats-filters.js';
 
 let enemyRankObserver: MutationObserver | undefined;
 
 export function augmentEnemyStats(profile: any): void {
 	const {ExportEnemies} = (globalThis as any);
+	renderEnemyAggregates([], [], undefined);
 
+	const unnamedToggle = document.querySelector<HTMLElement>('#enemy-unnamed-toggle')!;
+	unnamedToggle.replaceChildren();
 	const enemyFilterBar = document.querySelector<HTMLElement>('#enemy-filter-bar')!;
 	const enemyTbody = document.querySelector<HTMLElement>('#enemy-stats')!;
 
@@ -24,21 +37,29 @@ export function augmentEnemyStats(profile: any): void {
 	}
 
 	const enemies: any[] = (profile?.Stats?.Enemies ?? []) as any[];
+	if (rows.length !== enemies.length) {
+		// E.g. a cached profile.js that still skips enemies without an export entry; the rows can't be matched up
+		logger.warn(`augmentEnemyStats: ${rows.length} rows for ${enemies.length} enemies`);
+		return;
+	}
 
 	const presentFactions = new Set<string>();
+	const categories: string[] = [];
 
-	let rowIndex = 0;
-	for (const enemy of enemies) {
+	for (const [rowIndex, enemy] of enemies.entries()) {
 		const type = ExportEnemies.avatars[enemy.type];
-		if (!type) {
-			continue;
+		const tr = rows[rowIndex];
+
+		let factionLabel = UNNAMED_CATEGORY;
+		if (type) {
+			const bucket = ENEMY_FACTIONS.find(f => f.factions.includes(type.faction));
+			factionLabel = bucket ? bucket.tooltip : '';
+		} else {
+			renderInternalName(tr.cells[0], enemy.type);
 		}
 
-		const tr = rows[rowIndex++];
-
-		const bucket = ENEMY_FACTIONS.find(f => f.factions.includes(type.faction));
-		const factionLabel = bucket ? bucket.tooltip : '';
 		tr.dataset.category = factionLabel;
+		categories.push(factionLabel);
 		if (factionLabel) {
 			presentFactions.add(factionLabel);
 		}
@@ -48,10 +69,25 @@ export function augmentEnemyStats(profile: any): void {
 		tr.insertBefore(rankCell, tr.firstChild);
 	}
 
-	const enemyEntries = ENEMY_FACTIONS.map(({tooltip, icon}) => ({key: tooltip, tooltip, icon}));
+	const enemyEntries = [
+		...ENEMY_FACTIONS.map(({tooltip, icon}) => ({key: tooltip, tooltip, icon})),
+		{
+			key: UNNAMED_CATEGORY, tooltip: 'Unnamed', icon: '', displayText: UNNAMED_DISPLAY_TEXT,
+		},
+	];
 	const {renumber, observer} = makeRenumber(enemyTbody, enemyRankObserver);
 	enemyRankObserver = observer;
+	const scans = profile?.Stats?.Scans;
+	renderEnemyAggregates(enemies, categories, scans, false);
 	initStatsFilterBar(enemyFilterBar, enemyTbody, enemyEntries, presentFactions, renumber);
+	if (presentFactions.has(UNNAMED_CATEGORY)) {
+		appendUnnamedToggle(unnamedToggle, enemyTbody, 'Show unnamed enemies', () => {
+			renumber();
+			renderEnemyAggregates(enemies, categories, scans, enemyTbody.dataset.showUnnamed === 'true');
+		});
+		enableInternalNameTooltips(enemyTbody);
+	}
+
 	renumber();
 }
 

@@ -1,0 +1,12 @@
+/* An icon after a link that opens in a new tab. The shape is a mask over the link's text colour, so that it follows
+   the colour in both the light and dark themes. */
+.external-link-icon {
+    background-color: currentColor;
+    display: inline-block;
+    height: 1em;
+    margin-left: 0.25rem;
+    -webkit-mask: url("assets/external-link.svg") center / contain no-repeat;
+    mask: url("assets/external-link.svg") center / contain no-repeat;
+    vertical-align: text-bottom;
+    width: 1em;
+}

@@ -281,6 +281,15 @@ interface Window {
 	filterWeeklyMissions?: () => void;
 	updateWeekly?: () => void;
 
+	// src/profile/ability-stats.ts
+	renderAbilityStats?: (profile: any) => Promise<void>;
+
+	// src/profile/daily-standing.ts
+	appendDailyStanding?: (body: HTMLElement, tag: string) => void;
+
+	// src/profile/death-marks.ts
+	renderDeathMarks?: (profile: any) => void;
+
 	// src/profile/discriminator.ts
 	getDiscriminator?: (name: string, platformId: number) => number | undefined;
 
@@ -290,12 +299,24 @@ interface Window {
 	// src/profile/equipment-stats.ts
 	augmentEquipmentStats?: (profile: any) => Promise<void>;
 
+	// src/profile/mission-extras.ts
+	augmentMissionRow?: (tr: HTMLTableRowElement, mission: {Tag: string}) => void;
+
+	// src/profile/profile-extras.ts
+	renderProfileExtras?: (profile: any) => Promise<void>;
+
+	// src/profile/race-stats.ts
+	renderRaceStats?: (profile: any) => void;
+
 	// src/profile/stats-filters.ts
 	ENEMY_FACTIONS?: Array<{tooltip: string; icon?: string; factions: string[]}>;
 	EQUIPMENT_CATEGORIES?: Record<string, {tooltip: string; icon: string; displayText?: string}>;
 	getEnemyFactionLabel?: (faction: string) => string | undefined;
 	getEquipmentCategoryLabel?: (productCategory: string) => string | undefined;
 	initStatsFilterBar?: (...args: any[]) => void;
+
+	// src/profile/stats-overview.ts
+	renderStatsOverview?: (profile: any) => void;
 
 	// src/profile/stats-tooltips.ts
 	addCipherAvgTooltip?: (elm: HTMLElement, profile: any) => void;

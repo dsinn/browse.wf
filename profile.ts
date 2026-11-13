@@ -362,6 +362,7 @@ function renderProfile(): void
 							(window as any).appendSyndicateProgressBar(body, tag, standing, level, { minStanding: 0, maxStanding: 125_000 });
 						}
 					}
+					(window as any).appendDailyStanding?.(body, tag);
 					row.appendChild(body);
 				}
 				card.appendChild(row);
@@ -519,6 +520,7 @@ function renderProfile(): void
 			}
 			tr.appendChild(td);
 		}
+		(window as any).augmentMissionRow?.(tr, mission);
 		document.querySelector("#missions tbody").appendChild(tr);
 	});
 
@@ -616,14 +618,10 @@ function renderProfile(): void
 		.forEach(item =>
 		{
 			const type = ExportWarframes[item.type] ?? ExportWeapons[item.type] ?? ExportSentinels[item.type];
-			if (!type)
-			{
-				return;
-			}
 			const tr = document.createElement("tr");
 			{
 				const td = document.createElement("td");
-				td.innerHTML = dict[type.name];
+				td.innerHTML = dict[type?.name] ?? "";
 				tr.appendChild(td);
 			}
 			{
@@ -638,12 +636,12 @@ function renderProfile(): void
 			}
 			{
 				const td = document.createElement("td");
-				td.innerHTML = (item.headshots ?? 0).toLocaleString();
+				td.innerHTML = (item.assists ?? 0).toLocaleString();
 				tr.appendChild(td);
 			}
 			{
 				const td = document.createElement("td");
-				td.innerHTML = (item.assists ?? 0).toLocaleString();
+				td.innerHTML = (item.headshots ?? 0).toLocaleString();
 				tr.appendChild(td);
 			}
 			{
@@ -664,14 +662,10 @@ function renderProfile(): void
 		.forEach(enemy =>
 		{
 			const type = ExportEnemies.avatars[enemy.type];
-			if (!type)
-			{
-				return;
-			}
 			const tr = document.createElement("tr");
 			{
 				const td = document.createElement("td");
-				td.innerHTML = dict[type.name];
+				td.innerHTML = dict[type?.name] ?? "";
 				tr.appendChild(td);
 			}
 			{
@@ -681,12 +675,12 @@ function renderProfile(): void
 			}
 			{
 				const td = document.createElement("td");
-				td.innerHTML = (enemy.headshots ?? 0).toLocaleString();
+				td.innerHTML = (enemy.assists ?? 0).toLocaleString();
 				tr.appendChild(td);
 			}
 			{
 				const td = document.createElement("td");
-				td.innerHTML = (enemy.assists ?? 0).toLocaleString();
+				td.innerHTML = (enemy.headshots ?? 0).toLocaleString();
 				tr.appendChild(td);
 			}
 			{
@@ -709,6 +703,7 @@ function renderProfile(): void
 		});
 	}
 	(window as any).augmentEnemyStats?.(profile);
+	(window as any).renderProfileExtras?.(profile);
 
 	updateProfileAge();
 }
@@ -871,4 +866,5 @@ function activateTab(id: string): void
 
 // src/profile/workflow.ts callbacks
 (window as any).activateTab = activateTab;
+(window as any).vallisRaceNames = vallisRaceNames;
 (window as any).renderProfile = renderProfile;

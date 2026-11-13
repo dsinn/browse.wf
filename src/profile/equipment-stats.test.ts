@@ -41,11 +41,12 @@ const mockProfile = {
 };
 
 // Simulate the upstream-rendered tbody: one row per weapon in array order,
-// no rank cell, no data-category. Upstream renders: name | hours | kills | headshots | assists | xp
+// no rank cell, no data-category. Upstream renders: name | hours | kills | assists | headshots | xp
 function setupDOM(weapons: Array<{type: string; equipTime?: number; kills: number; headshots: number; assists: number; xp: number}> = mockProfile.Stats.Weapons) {
 	const rows = weapons.map(w =>
-		`<tr><td>Name</td><td>${((w.equipTime ?? 0) / 3600).toFixed(1)}</td><td>${w.kills ?? 0}</td><td>${w.headshots ?? 0}</td><td>${w.assists ?? 0}</td><td>${w.xp ?? 0}</td></tr>`).join('');
+		`<tr><td>Name</td><td>${((w.equipTime ?? 0) / 3600).toFixed(1)}</td><td>${w.kills ?? 0}</td><td>${w.assists ?? 0}</td><td>${w.headshots ?? 0}</td><td>${w.xp ?? 0}</td></tr>`).join('');
 	document.body.innerHTML = `
+		<div id="equipment-unnamed-toggle"></div>
 		<div id="equipment-filter-bar"></div>
 		<table><tbody id="equipment-stats">${rows}</tbody></table>
 	`;
@@ -65,7 +66,7 @@ describe('augmentEquipmentStats', () => {
 		setupDOM();
 		await augmentEquipmentStats(mockProfile);
 		const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
-		expect(rows[0].cells).toHaveLength(8); // 6 upstream + rank + Used%
+		expect(rows[0].cells).toHaveLength(10); // 6 upstream + rank + Used% + Fired + Hit%
 	});
 
 	it('assigns sequential ranks starting at 1', async () => {
@@ -90,7 +91,7 @@ describe('augmentEquipmentStats', () => {
 	it('inserts a Used% cell after the rank cell', async () => {
 		setupDOM();
 		await augmentEquipmentStats(mockProfile);
-		// Cells after augment: [rank, name, used%, hours, kills, headshots, assists, xp]
+		// Cells after augment: [rank, name, used%, hours, kills, assists, headshots, fired, hit%, xp]
 		const bratonRow = document.querySelector<HTMLTableRowElement>('#equipment-stats tr');
 		expect(bratonRow?.cells[2].textContent).toMatch(/^\d+\.\d{2}%$/u);
 	});
@@ -149,8 +150,171 @@ describe('augmentEquipmentStats', () => {
 		}
 	});
 
+	describe('Fired and Hit%', () => {
+		const shooter = {
+			type: '/Lotus/Weapons/Tenno/LongGuns/Braton/Braton', equipTime: 7200, kills: 0, headshots: 0, assists: 0, xp: 0,
+		};
+
+		it('shows shots fired and the hit rate, with the raw counts as a tooltip', async () => {
+			const weapons = [{...shooter, fired: 1000, hits: 250}];
+			setupDOM(weapons);
+			await augmentEquipmentStats({Stats: {Weapons: weapons}});
+
+			const row = document.querySelector<HTMLTableRowElement>('#equipment-stats tr');
+			expect(row?.cells[7].textContent).toBe((1000).toLocaleString());
+			expect(row?.cells[8].textContent).toBe('25.0%');
+			expect(row?.cells[8].title).toBe(`${(250).toLocaleString()} hits / ${(1000).toLocaleString()} fired`);
+		});
+
+		it('shows 0.0% when hits were recorded as 0', async () => {
+			const weapons = [{...shooter, fired: 40, hits: 0}];
+			setupDOM(weapons);
+			await augmentEquipmentStats({Stats: {Weapons: weapons}});
+
+			expect(document.querySelector<HTMLTableRowElement>('#equipment-stats tr')?.cells[8].textContent).toBe('0.0%');
+		});
+
+		it('leaves Hit% blank, but still shows shots fired, when no hits were recorded at all', async () => {
+			const weapons = [{...shooter, fired: 40}];
+			setupDOM(weapons);
+			await augmentEquipmentStats({Stats: {Weapons: weapons}});
+
+			const row = document.querySelector<HTMLTableRowElement>('#equipment-stats tr');
+			expect(row?.cells[7].textContent).toBe((40).toLocaleString());
+			expect(row?.cells[8].textContent).toBe('—');
+		});
+
+		it('gives each cell a numeric sort value, with blanks below every real value so they sort last when descending', async () => {
+			const weapons = [
+				{...shooter, fired: 40, hits: 10},
+				{...shooter, fired: 40},
+				{...shooter, hits: 12},
+			];
+			setupDOM(weapons);
+			await augmentEquipmentStats({Stats: {Weapons: weapons}});
+
+			const rows = [...document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')];
+			expect(rows.map(row => row.cells[7].dataset.sort)).toEqual(['40', '40', '-1']);
+			expect(rows.map(row => row.cells[8].dataset.sort)).toEqual(['25', '-1', '-1']);
+		});
+
+		it('leaves both cells blank when no shots were recorded, even if hits were', async () => {
+			const weapons = [{...shooter, hits: 12}];
+			setupDOM(weapons);
+			await augmentEquipmentStats({Stats: {Weapons: weapons}});
+
+			const row = document.querySelector<HTMLTableRowElement>('#equipment-stats tr');
+			expect(row?.cells[7].textContent).toBe('—');
+			expect(row?.cells[8].textContent).toBe('—');
+		});
+	});
+
+	describe('items without an export entry', () => {
+		const unnamedType = '/Lotus/Types/Friendly/Pets/BeastWeapons/VascaPetWeapon';
+		const weaponsWithUnnamed = [
+			{
+				type: unnamedType, equipTime: 9000, kills: 5, headshots: 0, assists: 0, xp: 0,
+			},
+			...mockProfile.Stats.Weapons,
+		];
+
+		it('keeps one augmented row per item, in order', async () => {
+			setupDOM(weaponsWithUnnamed);
+			await augmentEquipmentStats({Stats: {Weapons: weaponsWithUnnamed}});
+
+			const rows = [...document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')];
+			expect(rows.map(row => row.dataset.category)).toEqual(['Unnamed', 'LongGuns', 'Suits', 'Melee']);
+		});
+
+		it('shows the last segment of the internal name in teletype, with the full path as a tooltip', async () => {
+			setupDOM(weaponsWithUnnamed);
+			await augmentEquipmentStats({Stats: {Weapons: weaponsWithUnnamed}});
+
+			const code = document.querySelector<HTMLElement>('#equipment-stats tr code.internal-name');
+			expect(code?.textContent).toBe('VascaPetWeapon');
+			expect(code?.dataset.bsTitle).toBe(unnamedType);
+		});
+
+		it('leaves Used% blank and excludes the item from category totals', async () => {
+			setupDOM(weaponsWithUnnamed);
+			await augmentEquipmentStats({Stats: {Weapons: weaponsWithUnnamed}});
+
+			const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
+			expect(rows[0].cells[2].textContent).toBe('—');
+			expect(rows[1].cells[2].textContent).toBe('100.00%'); // Braton is still the only LongGuns item
+		});
+
+		it('adds a checkbox, off by default, for showing unnamed items in the All view', async () => {
+			setupDOM(weaponsWithUnnamed);
+			await augmentEquipmentStats({Stats: {Weapons: weaponsWithUnnamed}});
+
+			const checkbox = document.querySelector<HTMLInputElement>('#equipment-unnamed-toggle input[type="checkbox"]');
+			expect(checkbox?.checked).toBe(false);
+			expect(checkbox?.closest('label')?.textContent).toBe('Show unnamed items');
+			expect(document.querySelector<HTMLElement>('#equipment-stats')?.dataset.showUnnamed).toBeUndefined();
+		});
+
+		it('flags the table body when the checkbox is checked, and clears it when unchecked', async () => {
+			setupDOM(weaponsWithUnnamed);
+			await augmentEquipmentStats({Stats: {Weapons: weaponsWithUnnamed}});
+
+			const checkbox = document.querySelector<HTMLInputElement>('#equipment-unnamed-toggle input[type="checkbox"]')!;
+			checkbox.click();
+			expect(document.querySelector<HTMLElement>('#equipment-stats')?.dataset.showUnnamed).toBe('true');
+			checkbox.click();
+			expect(document.querySelector<HTMLElement>('#equipment-stats')?.dataset.showUnnamed).toBeUndefined();
+		});
+
+		it('shows the unnamed items in the totals only while the checkbox is checked', async () => {
+			setupDOM(weaponsWithUnnamed);
+			document.body.insertAdjacentHTML('beforeend', '<div id="equipment-aggregates"><table><tbody id="equipment-aggregate-rows"></tbody><tfoot id="equipment-aggregate-total"></tfoot></table></div>');
+			await augmentEquipmentStats({Stats: {Weapons: weaponsWithUnnamed}});
+			const groups = () => [...document.querySelectorAll<HTMLTableRowElement>('#equipment-aggregate-rows tr')].map(row => row.cells[1].textContent);
+
+			expect(groups()).not.toContain('Unnamed');
+			const checkbox = document.querySelector<HTMLInputElement>('#equipment-unnamed-toggle input[type="checkbox"]')!;
+			checkbox.click();
+			expect(groups()).toContain('Unnamed');
+			checkbox.click();
+			expect(groups()).not.toContain('Unnamed');
+		});
+
+		it('gives Used a numeric sort value, with a blank one for unnamed items', async () => {
+			setupDOM(weaponsWithUnnamed);
+			await augmentEquipmentStats({Stats: {Weapons: weaponsWithUnnamed}});
+
+			const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
+			expect(rows[0].cells[2].dataset.sort).toBe('-1');
+			expect(rows[1].cells[2].dataset.sort).toBe('100');
+		});
+
+		it('has no checkbox when there are no unnamed items', async () => {
+			setupDOM();
+			await augmentEquipmentStats(mockProfile);
+
+			expect(document.querySelector('#equipment-unnamed-toggle input[type="checkbox"]')).toBeNull();
+		});
+
+		it('adds an "Unnamed" filter button', async () => {
+			setupDOM(weaponsWithUnnamed);
+			await augmentEquipmentStats({Stats: {Weapons: weaponsWithUnnamed}});
+
+			expect(document.querySelector('#equipment-filter-bar button[data-filter="Unnamed"]')).not.toBeNull();
+		});
+	});
+
+	it('leaves the table alone when the rows do not match the items, rather than misaligning them', async () => {
+		setupDOM(mockProfile.Stats.Weapons.slice(0, 2));
+		await augmentEquipmentStats(mockProfile);
+
+		const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
+		expect(rows[0].cells).toHaveLength(6);
+		expect(rows[0].dataset.category).toBeUndefined();
+	});
+
 	it('does nothing when tbody is empty', async () => {
 		document.body.innerHTML = `
+			<div id="equipment-unnamed-toggle"></div>
 			<div id="equipment-filter-bar"></div>
 			<table><tbody id="equipment-stats"></tbody></table>
 		`;

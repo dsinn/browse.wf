@@ -53,6 +53,10 @@ test.describe('Profile Stats Filters', () => {
 	});
 
 	test.describe('Equipment filter bar', () => {
+		test.beforeEach(async ({page}) => {
+			await page.click('a[data-subtab="equipment"]');
+		});
+
 		test('renders an "All" button and at least one category button', async ({page}) => {
 			const bar = page.locator('#equipment-filter-bar');
 			await expect(bar.locator('button[data-filter=""]')).toBeVisible();
@@ -73,7 +77,8 @@ test.describe('Profile Stats Filters', () => {
 
 		test('clicking a category button filters the table', async ({page}) => {
 			const bar = page.locator('#equipment-filter-bar');
-			await expect(page.locator('#equipment-stats tr').first()).toBeVisible();
+			// The bar is built once the rows have been categorized, so the rows are final by now
+			await expect(bar.locator('button[data-filter=""]')).toBeVisible();
 			const totalRows = await page.locator('#equipment-stats tr').count();
 
 			// Click the first non-All button
@@ -121,6 +126,10 @@ test.describe('Profile Stats Filters', () => {
 	});
 
 	test.describe('Enemy filter bar', () => {
+		test.beforeEach(async ({page}) => {
+			await page.click('a[data-subtab="enemies"]');
+		});
+
 		test('renders an "All" button and at least one faction button', async ({page}) => {
 			const bar = page.locator('#enemy-filter-bar');
 			await expect(bar.locator('button[data-filter=""]')).toBeVisible();
@@ -150,7 +159,9 @@ test.describe('Profile Stats Filters', () => {
 
 	const checkSequentialRanks = (page: any, tbodyId: string) =>
 		page.evaluate((id: string) => {
-			const rows = document.querySelectorAll<HTMLTableRowElement>(`#${id} tr`);
+			// Rows hidden by a filter or by the unnamed toggle have blank ranks
+			const rows = [...document.querySelectorAll<HTMLTableRowElement>(`#${id} tr`)]
+				.filter(tr => getComputedStyle(tr).display !== 'none');
 			const errors: string[] = [];
 			let rank = 1;
 			for (const tr of rows) {
@@ -189,6 +200,10 @@ test.describe('Profile Stats Filters', () => {
 	}
 
 	test.describe('Equipment rank column', () => {
+		test.beforeEach(async ({page}) => {
+			await page.click('a[data-subtab="equipment"]');
+		});
+
 		test('shows sequential ranks starting at 1', async ({page}) => {
 			const {count, errors} = await checkSequentialRanks(page, 'equipment-stats');
 			expect(count).toBeGreaterThan(0);
@@ -222,8 +237,12 @@ test.describe('Profile Stats Filters', () => {
 	});
 
 	test.describe('Enemy rank column', () => {
+		test.beforeEach(async ({page}) => {
+			await page.click('a[data-subtab="enemies"]');
+		});
+
 		test('shows sequential ranks starting at 1', async ({page}) => {
-			const rows = page.locator('#enemy-stats tr');
+			const rows = page.locator('#enemy-stats tr:visible');
 			const count = await rows.count();
 			expect(count).toBeGreaterThan(0);
 			await expect(rows.locator('td:first-child')).toHaveText(Array.from({length: count}, (_, i) => String(i + 1)));
@@ -243,12 +262,13 @@ test.describe('Profile Stats Filters', () => {
 		// Categories that don't aggregate a total, so "Used" shows 0.00% for every row:
 		// - MechSuits: absent from profile data (no usage data recorded)
 		// - SpecialItems: intentionally excluded from aggregation (mixed items, no meaningful total)
-		const ZERO_USAGE_CATEGORIES = new Set(['MechSuits', 'SpecialItems']);
+		// - Unnamed: internal items that have no export entry, so their "Used" cell is blank
+		const ZERO_USAGE_CATEGORIES = new Set(['MechSuits', 'SpecialItems', 'Unnamed']);
 		const SHARED_DENOMINATOR_CATEGORIES = new Set(['Sentinels', 'KubrowPets', 'MoaPets']);
 
-		test('all "Used" cells show a percentage value', async ({page}) => {
+		test('all "Used" cells of named items show a percentage value', async ({page}) => {
 			const {count, invalids} = await page.evaluate(() => {
-				const rows = document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr');
+				const rows = [...document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr:not([data-category="Unnamed"])')];
 				const invalids: string[] = [];
 				for (const tr of rows) {
 					const text = tr.cells[2]?.textContent ?? '';
@@ -268,7 +288,7 @@ test.describe('Profile Stats Filters', () => {
 				const totals: Record<string, number> = {};
 				for (const tr of document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')) {
 					const category = tr.dataset.category ?? '';
-					const value = Number((tr.cells[2]?.textContent ?? '0').replaceAll('%', ''));
+					const value = Number((tr.cells[2]?.textContent ?? '0').replaceAll(/[%—]/gu, '') || '0');
 					totals[category] = (totals[category] ?? 0) + value;
 				}
 
@@ -286,53 +306,153 @@ test.describe('Profile Stats Filters', () => {
 		});
 	});
 
+	test.describe('Unnamed items', () => {
+		for (const [subtab, tbody, bar, toggle, totals] of [
+			['equipment', '#equipment-stats', '#equipment-filter-bar', '#equipment-unnamed-toggle', '#equipment-aggregate-rows'],
+			['enemies', '#enemy-stats', '#enemy-filter-bar', '#enemy-unnamed-toggle', '#enemy-aggregate-rows'],
+		] as const) {
+			test.describe(subtab, () => {
+				test.beforeEach(async ({page}) => {
+					await page.click(`a[data-subtab="${subtab}"]`);
+				});
+
+				test('are hidden in the All view by default', async ({page}) => {
+					const unnamed = page.locator(`${tbody} tr[data-category="Unnamed"]`);
+					expect(await unnamed.count()).toBeGreaterThan(0);
+					await expect(unnamed.first()).toBeHidden();
+					await expect(page.locator(`${toggle} input[type="checkbox"]`)).not.toBeChecked();
+				});
+
+				test('show in the All view, ranked in sequence, once the checkbox is checked', async ({page}) => {
+					await page.locator(`${toggle} input[type="checkbox"]`).check();
+
+					const total = await page.locator(`${tbody} tr`).count();
+					await expect(page.locator(`${tbody} tr:visible`)).toHaveCount(total);
+					await expect(page.locator(`${tbody} tr:visible td:first-child`).last()).toHaveText(String(total));
+				});
+
+				test('hide again when the checkbox is unchecked', async ({page}) => {
+					const checkbox = page.locator(`${toggle} input[type="checkbox"]`);
+					await checkbox.check();
+					await checkbox.uncheck();
+
+					await expect(page.locator(`${tbody} tr[data-category="Unnamed"]`).first()).toBeHidden();
+				});
+
+				test('are in the totals only once the checkbox is checked', async ({page}) => {
+					const groups = page.locator(`${totals} tr td:nth-child(2)`);
+					await expect(groups.filter({hasText: 'Unnamed'})).toHaveCount(0);
+
+					const checkbox = page.locator(`${toggle} input[type="checkbox"]`);
+					await checkbox.check();
+					await expect(groups.filter({hasText: 'Unnamed'})).toHaveCount(1);
+
+					await checkbox.uncheck();
+					await expect(groups.filter({hasText: 'Unnamed'})).toHaveCount(0);
+				});
+
+				test('are in the Total row only while the checkbox is checked', async ({page}) => {
+					const totalRow = page.locator(totals.replace('-rows', '-total'));
+					const without = await totalRow.textContent();
+
+					const checkbox = page.locator(`${toggle} input[type="checkbox"]`);
+					await checkbox.check();
+					await expect(totalRow).not.toHaveText(without!);
+
+					await checkbox.uncheck();
+					await expect(totalRow).toHaveText(without!);
+				});
+
+				test('show under the Unnamed filter button even with the checkbox unchecked', async ({page}) => {
+					await page.locator(`${bar} button[data-filter="Unnamed"]`).click();
+
+					const unnamedCount = await page.locator(`${tbody} tr[data-category="Unnamed"]`).count();
+					await expect(page.locator(`${tbody} tr:visible`)).toHaveCount(unnamedCount);
+				});
+
+				test('show their full internal name in a Bootstrap tooltip, also after sorting', async ({page}) => {
+					await page.locator(`${toggle} input[type="checkbox"]`).check();
+					await page.locator(tbody).locator('..').locator('..').locator('th').nth(1).click();
+
+					const name = page.locator(`${tbody} tr:visible code.internal-name`).first();
+					const fullName = await name.getAttribute('data-bs-title');
+					expect(fullName).toMatch(/^\/Lotus\//u);
+					await name.hover();
+					await expect(page.locator('.tooltip')).toContainText(fullName!);
+				});
+			});
+		}
+	});
+
+	test.describe('Sorting columns that can be blank', () => {
+		test.beforeEach(async ({page}) => {
+			await page.click('a[data-subtab="equipment"]');
+			// Unnamed rows are the ones with no Used value; make them visible
+			await page.locator('#equipment-unnamed-toggle input[type="checkbox"]').check();
+			// The table-sort-js script loads asynchronously and marks a table once it can sort it
+			await expect(page.locator('table:has(#equipment-stats)')).toHaveClass(/table-processed/u);
+		});
+
+		const readColumn = async (page: any, header: string) =>
+			page.evaluate((columnHeader: string) => {
+				const tbody = document.querySelector('#equipment-stats')!;
+				const headings = [...tbody.closest('table')!.querySelectorAll<HTMLTableCellElement>(':scope thead th')];
+				const index = headings.findIndex(th => th.textContent === columnHeader);
+				return [...tbody.querySelectorAll<HTMLTableRowElement>('tr')].map(tr => (tr.cells[index].textContent ?? '').replaceAll(/[%,—]/gu, ''));
+			}, header) as Promise<string[]>;
+
+		for (const header of ['Used', 'Fired', 'Hit %']) {
+			test(`"${header}" puts blank cells last when sorted descending, and keeps real values in order`, async ({page}) => {
+				await page.locator('table:has(#equipment-stats) th', {hasText: header}).click();
+
+				const cells = await readColumn(page, header);
+				const firstBlank = cells.indexOf('');
+				expect(firstBlank, 'some blank cells to check').toBeGreaterThan(0);
+				expect(cells.slice(firstBlank).every(cell => cell === ''), 'only blanks after the first blank').toBe(true);
+
+				const values = cells.slice(0, firstBlank).map(Number);
+				expect(values).toEqual([...values].sort((a, b) => b - a));
+			});
+
+			test(`"${header}" keeps real values in order when sorted ascending`, async ({page}) => {
+				const heading = page.locator('table:has(#equipment-stats) th', {hasText: header});
+				await heading.click();
+				await heading.click();
+
+				const cells = await readColumn(page, header);
+				const values = cells.filter(cell => cell !== '').map(Number);
+				expect(values.length).toBeGreaterThan(0);
+				expect(values).toEqual([...values].sort((a, b) => a - b));
+			});
+		}
+	});
+
 	test.describe('Filter persistence across table sort', () => {
-		test('equipment filter still applies after sorting a column', async ({page}) => {
-			const bar = page.locator('#equipment-filter-bar');
-			const firstCatBtn = bar.locator('button:not([data-filter=""])').first();
-			const filterValue = await firstCatBtn.getAttribute('data-filter');
-			await firstCatBtn.click();
+		for (const [name, subtab, tbody, bar, heading] of [
+			['equipment', 'equipment', '#equipment-stats', '#equipment-filter-bar', 'Kills'],
+			['enemy', 'enemies', '#enemy-stats', '#enemy-filter-bar', 'Kills'],
+		] as const) {
+			test(`${name} filter still applies after sorting a column`, async ({page}) => {
+				await page.click(`a[data-subtab="${subtab}"]`);
+				const button = page.locator(`${bar} button:not([data-filter=""])`).first();
+				const filterValue = (await button.getAttribute('data-filter'))!;
 
-			const filteredCount = await page.locator('#equipment-stats tr:visible').count();
+				// The categories are set on the rows before the filter bar exists, so this count doesn't depend on the filtering
+				const expectedCount = await page.locator(`${tbody} tr[data-category="${filterValue}"]`).count();
+				expect(expectedCount).toBeGreaterThan(0);
 
-			// Click a column header to sort
-			await page.locator('#equipment-stats').locator('..').locator('..').locator('th').nth(1).click();
+				const visibleRows = page.locator(`${tbody} tr:visible`);
+				await button.click();
+				await expect(visibleRows).toHaveCount(expectedCount);
 
-			// Filter should still be applied
-			await expect(page.locator('#equipment-stats tr:visible')).toHaveCount(filteredCount);
+				// The table-sort-js script loads asynchronously and marks a table once it can sort it
+				const table = page.locator(`table:has(${tbody})`);
+				await expect(table).toHaveClass(/table-processed/u);
+				await table.locator('th', {hasText: heading}).click();
 
-			// All visible rows still match the filter
-			const equipMismatches = await page.evaluate(
-				(filter: string | undefined) =>
-					[...document.querySelectorAll<HTMLTableRowElement>('#equipment-stats tr')]
-						.filter(tr => getComputedStyle(tr).display !== 'none' && tr.dataset.category !== filter)
-						.map(tr => tr.dataset.category),
-				filterValue ?? undefined,
-			);
-			expect(equipMismatches).toEqual([]);
-		});
-
-		test('enemy filter still applies after sorting a column', async ({page}) => {
-			const bar = page.locator('#enemy-filter-bar');
-			const firstFactionBtn = bar.locator('button:not([data-filter=""])').first();
-			const filterValue = await firstFactionBtn.getAttribute('data-filter');
-			await firstFactionBtn.click();
-
-			const filteredCount = await page.locator('#enemy-stats tr:visible').count();
-
-			// Click a column header to sort
-			await page.locator('#enemy-stats').locator('..').locator('..').locator('th').nth(1).click();
-
-			await expect(page.locator('#enemy-stats tr:visible')).toHaveCount(filteredCount);
-
-			const enemyMismatches = await page.evaluate(
-				(filter: string | undefined) =>
-					[...document.querySelectorAll<HTMLTableRowElement>('#enemy-stats tr')]
-						.filter(tr => getComputedStyle(tr).display !== 'none' && tr.dataset.category !== filter)
-						.map(tr => tr.dataset.category),
-				filterValue ?? undefined,
-			);
-			expect(enemyMismatches).toEqual([]);
-		});
+				await expect(visibleRows).toHaveCount(expectedCount);
+				await expect(page.locator(`${tbody} tr[data-category="${filterValue}"]:visible`)).toHaveCount(expectedCount);
+			});
+		}
 	});
 });

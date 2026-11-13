@@ -31,7 +31,6 @@ const config = [
 	{
 		rules: {
 			'@typescript-eslint/strict-boolean-expressions': 'off',
-			'n/file-extension-in-import': 'off',
 			'unicorn/no-global-object-property-assignment': 'off',
 			'unicorn/no-top-level-side-effects': 'off',
 			'unicorn/prefer-toggle-attribute': 'off',
@@ -68,8 +67,10 @@ const config = [
 			'@typescript-eslint/no-unsafe-return': 'off',
 			// Intentional as any casts exist for upstream globals and API data
 			'@typescript-eslint/no-unsafe-type-assertion': 'off',
-			// Build tooling (esbuild/Vitest) resolves extensionless imports; explicit .js not needed
+			// Build tooling (esbuild/Vitest) resolves extensionless imports; explicit .js not needed.
+			// (Adding them would also make node-test/no-import-test-files mistake the test/ helpers for test files.)
 			'import-x/extensions': 'off',
+			'n/file-extension-in-import': 'off',
 			// Src/ modules are browser-only by design (they touch document, localStorage, HTMLElement,
 			// etc.) and will never run in Node, workers, or Deno. The rule's motivation —
 			// environment-agnostic code — doesn't apply here. Disabling it allows `window.foo` for

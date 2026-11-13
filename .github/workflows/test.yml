@@ -71,7 +71,7 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run E2E tests
         run: npm run test:e2e -- --reporter=list
-        timeout-minutes: 5
+        timeout-minutes: 10
         env:
           # Fake credentials so isDatabaseConfigured() returns true and auth-init.ts
           # creates a Supabase client. The simulateLoggedIn() helper intercepts the

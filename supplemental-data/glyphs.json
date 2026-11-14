@@ -2279,5 +2279,8 @@
     },
     "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageBLUTE": {
         "promo_code": "BRUTEBROWN"
+    },
+    "/Lotus/Types/StoreItems/AvatarImages/FanChannel/AvatarImageIronmouse": {
+        "promo_code": "IRONMOUSE"
     }
 }

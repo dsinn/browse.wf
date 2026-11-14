@@ -9,6 +9,7 @@ import {
 import {loadMock, setupMockFetch} from '@test/helpers/api-mocks';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {testCardFilters} from '@test/live/card-filters-factory';
+import {resetTimerRegistry} from '../timer-registry';
 import {updateFissures} from './fissures';
 
 // Test generic card filter integration for Fissures card
@@ -179,6 +180,7 @@ describe('Void Fissures - updateFissures', () => {
 	});
 
 	afterEach(() => {
+		resetTimerRegistry();
 		vi.useRealTimers();
 		localStorage.clear();
 		delete (globalThis as any).worldState;

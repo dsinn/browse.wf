@@ -16,6 +16,7 @@ import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {freezeTime} from '@test/helpers/time-helpers';
 import {MOCK_TIMESTAMP} from '@test/helpers/test-constants';
 import {MILLIS_PER_DAY} from '../helpers/time-helpers';
+import {resetTimerRegistry} from '../timer-registry';
 import {updateBountyCheckboxes} from './bounty-checkboxes';
 
 describe('Bounty Checkboxes', () => {
@@ -27,6 +28,7 @@ describe('Bounty Checkboxes', () => {
 	});
 
 	afterEach(() => {
+		resetTimerRegistry();
 		vi.useRealTimers();
 		delete (globalThis as any).createCompletionToggle;
 	});

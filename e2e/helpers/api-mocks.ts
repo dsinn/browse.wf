@@ -53,8 +53,9 @@ export async function reloadWithFrozenClock(page: Page, timestamp: number = MOCK
  @param options.worldStateFile - Custom worldState mock file name (default: 'worldState.json')
  @param options.freezeTime - Whether to freeze time (default: true)
  @param options.frozenTime - Custom timestamp to freeze at (default: MOCK_TIMESTAMP)
+ @param options.modifyWorldState - Edits the loaded worldState in place before it is served
  */
-export async function setupMockRoutes(page: Page, options?: {worldStateFile?: string; freezeTime?: boolean; frozenTime?: number}): Promise<void> {
+export async function setupMockRoutes(page: Page, options?: {worldStateFile?: string; freezeTime?: boolean; frozenTime?: number; modifyWorldState?: (worldState: any) => void}): Promise<void> {
 	// Freeze time for deterministic tests (unless explicitly disabled)
 	// Use install() to mock setTimeout/setInterval as well (needed for incursions expiry logic)
 	if (options?.freezeTime !== false) {
@@ -68,6 +69,7 @@ export async function setupMockRoutes(page: Page, options?: {worldStateFile?: st
 	const bountyCycleData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'bounty-cycle.json'), 'utf8'));
 	const worldStateFile = options?.worldStateFile || 'worldState.json';
 	const worldStateData = JSON.parse(fs.readFileSync(path.join(mocksDir, worldStateFile), 'utf8'));
+	options?.modifyWorldState?.(worldStateData);
 	const dictEnData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'dicts', 'en.json'), 'utf8'));
 
 	// SAFEGUARD: Register catch-all FIRST (will be checked LAST due to reverse order)

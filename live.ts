@@ -237,7 +237,7 @@ function updateVallis(): void
 	const cycleColdStart = cycleStart + 400000;
 	const stateEnd = (time > cycleColdStart ? cycleEnd : cycleColdStart);
 	setDatum("vallis", time > cycleColdStart ? "❄️ Cold" : "☀️ Warm", stateEnd);
-	setTimeout(updateVallis, stateEnd - time);
+	window.scheduleAt!(stateEnd, updateVallis);
 }
 updateVallis();
 
@@ -262,7 +262,7 @@ function updateDuviriMood()
 	window.duviri_expiry = moodEnd;
 	updateDuviriMoodLocalised();
 
-	setTimeout(updateDuviriMood, moodEnd - Date.now());
+	window.scheduleAt!(moodEnd, updateDuviriMood);
 }
 osdict_promise.then(() => updateDuviriMood());
 
@@ -281,16 +281,16 @@ function updateDayNightCycle()
 	else if (!sundown_update_queued)
 	{
 		sundown_update_queued = true;
-		setTimeout(updateDayNightCycle, cycleNightStart - Date.now());
+		window.scheduleAt!(cycleNightStart, updateDayNightCycle);
 
 		const notifyAt = cycleNightStart - 30 * 1000;
-		setTimeout(function()
+		window.scheduleAt!(notifyAt, function()
 		{
 			if (localStorage.getItem("live.notif.nightfall"))
 			{
 				sendNotification("The sun sets in 30 seconds.");
 			}
-		}, notifyAt - Date.now());
+		});
 	}
 }
 
@@ -374,7 +374,7 @@ function updateBountyCycle(retryMs = STALE_DATA_RETRY_MS)
 		updateBountyCycleLocalised();
 		document.getElementById("bounties-loading").classList.add("d-none");
 		document.getElementById("bounties-body").classList.remove("d-none");
-		setTimeout(() => updateBountyCycle(STALE_DATA_RETRY_MS), bountyCycle.expiry - Date.now());
+		window.scheduleAt!(bountyCycle.expiry, () => updateBountyCycle(STALE_DATA_RETRY_MS));
 	}).catch(e =>
 	{
 		console.error(e);
@@ -420,7 +420,7 @@ function updateArby()
 	window.arby_expiry = (currentHour + 3600) * 1000;
 	updateArbyLocalised();
 	document.getElementById("arby-tier").textContent = arbyTiers[arr[1]] ?? "F";
-	setTimeout(updateArby, window.arby_expiry - Date.now());
+	window.scheduleAt!(window.arby_expiry, updateArby);
 }
 
 function updateIncursions()
@@ -430,7 +430,7 @@ function updateIncursions()
 	window.incursions_today = window.incursions[(today - epochDay) / 86400][1].split(",");
 	window.incursions_expiry = (today + 86400) * 1000;
 	void (window as any).updateIncursionsLocalised();
-	setTimeout(updateIncursions, window.incursions_expiry - Date.now());
+	window.scheduleAt!(window.incursions_expiry, updateIncursions);
 }
 
 function addTooltip(elm: HTMLElement, title: string): any
@@ -538,7 +538,7 @@ async function updateSorties()
 		sendNotification("A new sortie is available.");
 	}
 	window.last_sortie = sortie._id.$oid;
-	setTimeout(updateSorties, parseInt(sortie.Expiry.$date.$numberLong) - Date.now());
+	window.scheduleAt!(parseInt(sortie.Expiry.$date.$numberLong), updateSorties);
 }
 
 async function updateArchonHunt()
@@ -568,7 +568,7 @@ async function updateArchonHunt()
 		document.getElementById("litesortie-body").innerHTML = "";
 		document.getElementById("litesortie-body").appendChild(span);
 		document.getElementById("litesortie-body").innerHTML += " • " + mission_names.join(", ");
-		setTimeout(updateArchonHunt, parseInt(litesortie.Expiry.$date.$numberLong) - Date.now());
+		window.scheduleAt!(parseInt(litesortie.Expiry.$date.$numberLong), updateArchonHunt);
 	}
 	catch (e)
 	{
@@ -581,7 +581,7 @@ async function updateDarvosDeal()
 {
 	window.dailyDeal = window.worldState.DailyDeals.find(x => Date.now() >= parseInt(x.Activation.$date.$numberLong) && Date.now() < parseInt(x.Expiry.$date.$numberLong));
 	if (!window.dailyDeal) { setTimeout(updateDarvosDeal, STALE_DATA_RETRY_MS); return; }
-	setTimeout(updateDarvosDeal, parseInt(window.dailyDeal.Expiry.$date.$numberLong) - Date.now());
+	window.scheduleAt!(parseInt(window.dailyDeal.Expiry.$date.$numberLong), updateDarvosDeal);
 	setDatum("darvo-header", "Darvo's Deal", parseInt(window.dailyDeal.Expiry.$date.$numberLong));
 	const item_data = await getItemDataPromise(window.dailyDeal.StoreItem);
 	await dicts_promise;
@@ -609,7 +609,7 @@ async function updateBaro()
 	const baroNext = window.worldState.VoidTraders[0].Manifest
 		? parseInt(window.worldState.VoidTraders[0].Expiry.$date.$numberLong)
 		: parseInt(window.worldState.VoidTraders[0].Activation.$date.$numberLong);
-	setTimeout(updateBaro, baroNext > Date.now() ? baroNext - Date.now() : STALE_DATA_RETRY_MS);
+	window.scheduleAt!(baroNext > Date.now() ? baroNext : Date.now() + STALE_DATA_RETRY_MS, updateBaro);
 	document.querySelectorAll(".baro-where").forEach(x => x.textContent = dict[ExportRegions[window.worldState.VoidTraders[0].Node].name] + ", " + dict[ExportRegions[window.worldState.VoidTraders[0].Node].systemName]);
 	if (window.worldState.VoidTraders[0].Manifest)
 	{
@@ -721,11 +721,11 @@ async function updateAlerts(forceRender = false)
 			if (alertsScheduledExpiries.has(expiry)) continue;
 
 			alertsScheduledExpiries.add(expiry);
-			setTimeout(() =>
+			window.scheduleAt!(expiry + 60_000, () =>
 			{
 				alertsScheduledExpiries.delete(expiry);
 				void updateAlerts(true);
-			}, Math.max(0, expiry + 60_000 - Date.now()));
+			});
 		}
 
 		const promises = [dict_promise, ExportMissionTypes_promise, ExportFactions_promise, ExportRegions_promise];
@@ -890,7 +890,7 @@ function updateTeshin()
 	document.getElementById("ironwake-check").innerHTML = "";
 	document.getElementById("ironwake-check").appendChild(createCompletionToggle(`ironwake-${weekEnd}`));
 
-	setTimeout(updateTeshin, weekEnd - Date.now());
+	window.scheduleAt!(weekEnd, updateTeshin);
 }
 updateTeshin();
 
@@ -932,7 +932,7 @@ function updateCircuit()
 	document.getElementById("descent-checks").appendChild(createCompletionToggle(`descent1-${weekEnd}`));
 	document.getElementById("descent-checks").appendChild(createCompletionToggle(`descent2-${weekEnd}`));
 
-	setTimeout(updateCircuit, weekEnd - Date.now());
+	window.scheduleAt!(weekEnd, updateCircuit);
 }
 dict_promise.then(updateCircuit);
 

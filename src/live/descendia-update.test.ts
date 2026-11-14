@@ -24,6 +24,7 @@ import {
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {loadMock} from '@test/helpers/api-mocks';
 import {freezeTime, MOCK_TIMESTAMP} from '@test/helpers/time-helpers';
+import {resetTimerRegistry} from '../timer-registry';
 import {updateDescendia} from '../descendia/index';
 
 // Captured before any fake timers are installed
@@ -53,6 +54,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+	resetTimerRegistry();
 	vi.useRealTimers();
 	(globalThis as any).worldState = mockWorldState;
 	delete (globalThis as any).getDictPromise;

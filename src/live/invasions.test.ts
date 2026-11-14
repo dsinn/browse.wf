@@ -432,21 +432,24 @@ describe('Invasions - updateInvasions DOM rendering', () => {
 			expect(lastRow.querySelector('.badge[data-expiry]')).toBeNull();
 		});
 
-		test('re-rendering while pending clears the previous timer instead of scheduling a second one for the same invasion', async () => {
+		test('re-rendering while pending cancels the previous render\'s activation callback for the same invasion', async () => {
 			vi.useFakeTimers();
 			try {
 				const delay = 60_000;
 				(globalThis as any).worldState.Invasions = [pendingInvasion(1_768_087_200_000 + delay)];
 				await callUpdateInvasions();
-				const timersAfterFirstRender = vi.getTimerCount();
-				expect(timersAfterFirstRender).toBeGreaterThan(0);
+				const firstCell = document.querySelector<HTMLElement>('#invasions-table tbody tr:not(.d-none) td:nth-child(2)');
 
-				// Simulate a second poll while still pending (same oid, table fully rebuilt).
-				// Each render's td is a fresh element, so a leaked stale timer wouldn't show up
-				// as duplicated DOM output — it would mutate a detached td instead. Asserting on
-				// the fake-timer queue directly is what actually catches a missing clearTimeout.
+				// Simulate a second poll while still pending (same oid, table fully rebuilt), which detaches the first cell
 				await callUpdateInvasions();
-				expect(vi.getTimerCount()).toBe(timersAfterFirstRender);
+				advanceTime(delay + 1000);
+				vi.advanceTimersByTime(delay + 1000);
+
+				// A leaked callback from the first render would have swapped its detached cell to the percentage
+				expect(firstCell?.querySelector('.badge[data-expiry]')).toBeTruthy();
+				expect(firstCell?.querySelector('.invasion-percentage')).toBeNull();
+				expect(document.querySelector('#invasions-table tbody tr:not(.d-none) .invasion-percentage')?.textContent)
+					.toBe('100.0%');
 			} finally {
 				vi.useRealTimers();
 			}

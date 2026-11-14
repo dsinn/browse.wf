@@ -13,6 +13,7 @@ import {
 import {testCardFilters} from '@test/live/card-filters-factory';
 import {loadMock} from '@test/helpers/api-mocks';
 import {freezeTime, MOCK_TIMESTAMP} from '@test/helpers/time-helpers';
+import {resetTimerRegistry} from '../timer-registry';
 import {updateCalendarSeason} from './calendar-seasons';
 
 testCardFilters('calendar-season');
@@ -67,6 +68,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+	resetTimerRegistry();
 	vi.useRealTimers();
 	(globalThis as any).worldState = mockWorldState;
 	delete (globalThis as any).createExpiryBadge;

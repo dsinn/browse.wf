@@ -15,6 +15,7 @@ import {
 } from 'vitest';
 import {loadMock} from '@test/helpers/api-mocks';
 import {freezeTime, MOCK_TIMESTAMP} from '@test/helpers/time-helpers';
+import {resetTimerRegistry} from '../timer-registry';
 import {updateCircuitChoices as updateCircuit} from './circuit';
 import * as weekly from './weekly';
 
@@ -42,6 +43,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+	resetTimerRegistry();
 	vi.useRealTimers();
 	(globalThis as any).worldState = mockWorldState;
 	delete (globalThis as any).setDatum;

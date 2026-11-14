@@ -9,6 +9,7 @@ import {
 import {
 	registerTimerBadge,
 	resetTimerRegistry,
+	scheduleAt,
 	setTimerText,
 	getPendingLabel,
 	TICK_MS,
@@ -136,5 +137,128 @@ describe('timer-registry', () => {
 		badge.dataset.label = 'Custom';
 		vi.advanceTimersByTime(TICK_MS);
 		expect(badge.textContent).toBe('Custom');
+	});
+});
+
+describe('timer-registry scheduleAt', () => {
+	const T0 = 1_800_000_000_000;
+
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(T0);
+	});
+
+	afterEach(() => {
+		resetTimerRegistry();
+		vi.restoreAllMocks();
+		vi.useRealTimers();
+	});
+
+	test('runs the callback once, on the first tick at or after the time', () => {
+		const callback = vi.fn();
+		scheduleAt(T0 + 1000, callback);
+
+		vi.advanceTimersByTime(750);
+		expect(callback).not.toHaveBeenCalled();
+
+		vi.advanceTimersByTime(TICK_MS);
+		expect(callback).toHaveBeenCalledTimes(1);
+
+		vi.advanceTimersByTime(10_000);
+		expect(callback).toHaveBeenCalledTimes(1);
+	});
+
+	test('runs after a jump in the clock that no timer accounts for, like a device waking from sleep', () => {
+		const callback = vi.fn();
+		scheduleAt(T0 + (30 * 60 * 1000), callback);
+
+		// A setTimeout would still be waiting out its delay: the wall clock moved but the ticker's own time did not
+		vi.setSystemTime(T0 + (45 * 60 * 1000));
+		vi.advanceTimersByTime(TICK_MS);
+
+		expect(callback).toHaveBeenCalledTimes(1);
+	});
+
+	test('runs in a hidden tab', () => {
+		vi.spyOn(document, 'hidden', 'get').mockReturnValue(true);
+		const callback = vi.fn();
+		scheduleAt(T0 + 1000, callback);
+
+		vi.advanceTimersByTime(1000);
+
+		expect(callback).toHaveBeenCalledTimes(1);
+	});
+
+	test('does not call a slow callback again while it is still running', async () => {
+		const callback = vi.fn(async () => new Promise<void>(() => {
+			// Never settles, like a fetch that hangs
+		}));
+		scheduleAt(T0 + 1000, callback);
+
+		await vi.advanceTimersByTimeAsync(60_000);
+
+		expect(callback).toHaveBeenCalledTimes(1);
+	});
+
+	test('runs a callback scheduled for a time already reached on the next tick, not in the same pass', () => {
+		const rescheduled = vi.fn();
+		scheduleAt(T0 + 1000, () => {
+			scheduleAt(Date.now(), rescheduled);
+		});
+
+		vi.advanceTimersByTime(1000);
+		expect(rescheduled).not.toHaveBeenCalled();
+
+		vi.advanceTimersByTime(TICK_MS);
+		expect(rescheduled).toHaveBeenCalledTimes(1);
+	});
+
+	test('can schedule the next run from inside a callback', () => {
+		const callback = vi.fn();
+		scheduleAt(T0 + 1000, () => {
+			callback();
+			scheduleAt(T0 + 3000, callback);
+		});
+
+		vi.advanceTimersByTime(5000);
+
+		expect(callback).toHaveBeenCalledTimes(2);
+	});
+
+	test('logs a callback that throws or rejects and still runs the others', async () => {
+		const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+		const healthy = vi.fn();
+		scheduleAt(T0 + 1000, () => {
+			throw new Error('sync failure');
+		});
+		scheduleAt(T0 + 1000, async () => {
+			throw new Error('async failure');
+		});
+		scheduleAt(T0 + 1000, healthy);
+
+		await vi.advanceTimersByTimeAsync(1000);
+
+		expect(healthy).toHaveBeenCalledTimes(1);
+		expect(error).toHaveBeenCalledTimes(2);
+	});
+
+	test('does not run a callback that was cancelled', () => {
+		const callback = vi.fn();
+		const cancel = scheduleAt(T0 + 1000, callback);
+
+		cancel();
+		vi.advanceTimersByTime(5000);
+
+		expect(callback).not.toHaveBeenCalled();
+	});
+
+	test('drops everything on resetTimerRegistry', () => {
+		const callback = vi.fn();
+		scheduleAt(T0 + 1000, callback);
+
+		resetTimerRegistry();
+		vi.advanceTimersByTime(5000);
+
+		expect(callback).not.toHaveBeenCalled();
 	});
 });

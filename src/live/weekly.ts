@@ -1,5 +1,6 @@
 import {getNextWeeklyResetMs} from '../helpers/time-helpers.js';
 import {isFilterEnabled} from '../card-filters.js';
+import {scheduleAt} from '../timer-registry.js';
 
 const STALE_DATA_RETRY_MS = 5000;
 
@@ -70,7 +71,7 @@ export function updateWeekly(): void {
 			);
 		}
 
-		setTimeout(updateWeekly, newWeeklyExpiry - Date.now());
+		scheduleAt(newWeeklyExpiry, updateWeekly);
 	}).catch((error: unknown) => {
 		console.error(error);
 		setTimeout(updateWeekly, STALE_DATA_RETRY_MS);

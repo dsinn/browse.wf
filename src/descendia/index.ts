@@ -6,6 +6,7 @@
  specs, and auras.
  */
 
+import {scheduleAt} from '../timer-registry.js';
 import {createTooltip} from '../tooltip.js';
 import {resolveDescentChallenges} from './data.js';
 
@@ -52,7 +53,7 @@ export function updateDescendia(): void {
 	}
 
 	// Refresh when this Descent expires
-	setTimeout(updateDescendia, expiry - Date.now());
+	scheduleAt(expiry, updateDescendia);
 
 	void getDictPromise().then(dict => {
 		const table = document.querySelector('#descendia-table');

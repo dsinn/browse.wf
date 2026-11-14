@@ -85,12 +85,12 @@
 			<div class="col-lg-6">
 				<div class="card h-100" data-riven-card="spliced">
 					<div class="card-header d-flex align-items-center justify-content-between gap-2">
-						<h5 class="mb-0">Spliced traits</h5>
+						<h5 class="mb-0" aria-describedby="spliced-traits-note">Spliced traits<span aria-hidden="true">*</span></h5>
 						<button type="button" class="btn btn-sm btn-outline-secondary riven-reset-all" data-riven-reset-all disabled aria-label="Reset all" title="Reset all"><i class="bi bi-arrow-counterclockwise me-1"></i>All</button>
 					</div>
 					<div class="card-body">
-						<p class="form-text mt-0">A Riven can hold one spliced trait, which is always positive. Per the Warframe Wiki, a spliced trait keeps the higher roll of the two traits it was made from, so a high grade is likely.</p>
 						<div data-riven-section="spliced"></div>
+						<p id="spliced-traits-note" class="form-text mt-3 mb-0"><span aria-hidden="true">*</span> A Riven can hold one spliced trait, which is always positive. Per the Warframe Wiki, a spliced trait keeps the higher roll of the two traits it was made from, so higher grades are more likely. <em>Think of it as making an ability check with advantage.</em></p>
 					</div>
 				</div>
 			</div>

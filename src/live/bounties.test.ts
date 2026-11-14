@@ -9,6 +9,16 @@ import {
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {renderAllyIcon, applyBountyFilters} from './bounties';
 
+const {mockGetMinimumTier, mockIsBountyMissionTypeEnabled} = vi.hoisted(() => ({
+	mockGetMinimumTier: vi.fn<(syndicateTag: string) => number>(),
+	mockIsBountyMissionTypeEnabled: vi.fn<(syndicateTag: string, missionType: string) => boolean>(),
+}));
+
+vi.mock('./bounty-filters.js', () => ({
+	getMinimumTier: mockGetMinimumTier,
+	isBountyMissionTypeEnabled: mockIsBountyMissionTypeEnabled,
+}));
+
 describe('bounties', () => {
 	beforeEach(() => {
 		mockBootstrapTooltip();
@@ -18,15 +28,13 @@ describe('bounties', () => {
 		(globalThis as any).addTooltip = vi.fn((elm: HTMLElement, title: string) => {
 			elm.dataset.bsTitle = title;
 		});
-		(globalThis as any).getMinimumTier = vi.fn(() => 1);
-		(globalThis as any).isBountyMissionTypeEnabled = vi.fn(() => true);
+		mockGetMinimumTier.mockReset().mockReturnValue(1);
+		mockIsBountyMissionTypeEnabled.mockReset().mockReturnValue(true);
 	});
 
 	afterEach(() => {
 		delete (globalThis as any).setImageSource;
 		delete (globalThis as any).addTooltip;
-		delete (globalThis as any).getMinimumTier;
-		delete (globalThis as any).isBountyMissionTypeEnabled;
 	});
 
 	describe('renderAllyIcon', () => {
@@ -68,7 +76,7 @@ describe('bounties', () => {
 		}
 
 		test('hides rows below minTier', () => {
-			(globalThis as any).getMinimumTier = vi.fn(() => 3);
+			mockGetMinimumTier.mockReturnValue(3);
 			const rows = makeRows(['MT_CORRUPTION', 'MT_EXTERMINATION', 'MT_VOID_CASCADE', 'MT_ARMAGEDDON', 'MT_MOBILE_DEFENSE']);
 			applyBountyFilters('EntratiLabSyndicate', rows);
 			expect(rows[0].classList.contains('d-none')).toBe(true); // Tier 1
@@ -79,7 +87,7 @@ describe('bounties', () => {
 		});
 
 		test('hides heading and all rows when minTier < 1 (Hide)', () => {
-			(globalThis as any).getMinimumTier = vi.fn(() => -1);
+			mockGetMinimumTier.mockReturnValue(-1);
 			const heading = document.querySelector<HTMLElement>('#ZarimanSyndicate-name')!;
 			heading.classList.remove('d-none');
 			const rows = document.querySelector('#ZarimanSyndicate-table')!.querySelectorAll('tr');
@@ -91,7 +99,7 @@ describe('bounties', () => {
 		});
 
 		test('shows all rows and heading when minTier is 1', () => {
-			(globalThis as any).getMinimumTier = vi.fn(() => 1);
+			mockGetMinimumTier.mockReturnValue(1);
 			const heading = document.querySelector<HTMLElement>('#ZarimanSyndicate-name')!;
 			heading.classList.add('d-none');
 			const rows = document.querySelector('#ZarimanSyndicate-table')!.querySelectorAll('tr');
@@ -103,7 +111,7 @@ describe('bounties', () => {
 		});
 
 		test('hides row whose mission type is disabled', () => {
-			(globalThis as any).isBountyMissionTypeEnabled = vi.fn((_, mt: string) => mt !== 'MT_SURVIVAL');
+			mockIsBountyMissionTypeEnabled.mockImplementation((_, mt) => mt !== 'MT_SURVIVAL');
 			const rows = makeRows(['MT_ASSASSINATION', 'MT_SURVIVAL', 'MT_ALCHEMY']);
 			applyBountyFilters('EntratiLabSyndicate', rows);
 			expect(rows[0].classList.contains('d-none')).toBe(false); // Assassination — visible
@@ -114,7 +122,7 @@ describe('bounties', () => {
 		test('passes syndicate tag to isBountyMissionTypeEnabled', () => {
 			const rows = makeRows(['MT_DEFENSE']);
 			applyBountyFilters('HexSyndicate', rows);
-			expect((globalThis as any).isBountyMissionTypeEnabled).toHaveBeenCalledWith('HexSyndicate', 'MT_DEFENSE');
+			expect(mockIsBountyMissionTypeEnabled).toHaveBeenCalledWith('HexSyndicate', 'MT_DEFENSE');
 		});
 
 		test('row with no data-mission-type is always shown', () => {
@@ -124,7 +132,7 @@ describe('bounties', () => {
 		});
 
 		test('shows empty state when all rows are filtered by mission type', () => {
-			(globalThis as any).isBountyMissionTypeEnabled = vi.fn(() => false);
+			mockIsBountyMissionTypeEnabled.mockReturnValue(false);
 			const rows = document.querySelector('#EntratiLabSyndicate-table')!.querySelectorAll('tr');
 			for (const row of rows) {
 				(row as HTMLElement).dataset.missionType = 'MT_SURVIVAL';
@@ -135,8 +143,8 @@ describe('bounties', () => {
 		});
 
 		test('does not show empty state when minTier < 1 (hide all)', () => {
-			(globalThis as any).getMinimumTier = vi.fn(() => -1);
-			(globalThis as any).isBountyMissionTypeEnabled = vi.fn(() => false);
+			mockGetMinimumTier.mockReturnValue(-1);
+			mockIsBountyMissionTypeEnabled.mockReturnValue(false);
 			const rows = document.querySelector('#EntratiLabSyndicate-table')!.querySelectorAll('tr');
 			for (const row of rows) {
 				(row as HTMLElement).dataset.missionType = 'MT_SURVIVAL';
@@ -147,7 +155,7 @@ describe('bounties', () => {
 		});
 
 		test('hides empty state when rows become visible again', () => {
-			(globalThis as any).isBountyMissionTypeEnabled = vi.fn(() => false);
+			mockIsBountyMissionTypeEnabled.mockReturnValue(false);
 			const rows = document.querySelector('#EntratiLabSyndicate-table')!.querySelectorAll('tr');
 			for (const row of rows) {
 				(row as HTMLElement).dataset.missionType = 'MT_SURVIVAL';
@@ -156,7 +164,7 @@ describe('bounties', () => {
 			applyBountyFilters('EntratiLabSyndicate', rows);
 			expect(document.querySelector('#EntratiLabSyndicate-empty')!.classList.contains('d-none')).toBe(false);
 
-			(globalThis as any).isBountyMissionTypeEnabled = vi.fn(() => true);
+			mockIsBountyMissionTypeEnabled.mockReturnValue(true);
 			applyBountyFilters('EntratiLabSyndicate', rows);
 			expect(document.querySelector('#EntratiLabSyndicate-empty')!.classList.contains('d-none')).toBe(true);
 		});

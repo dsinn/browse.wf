@@ -72,7 +72,6 @@ describe('CloudSyncManager', () => {
 		vi.clearAllMocks();
 
 		// Setup window globals used by refreshUI
-		(globalThis as any).refreshAllCompletionToggles = vi.fn();
 		(globalThis as any).refreshCollapseStatus = vi.fn();
 		(globalThis as any).refreshNotifStatus = vi.fn();
 
@@ -104,7 +103,6 @@ describe('CloudSyncManager', () => {
 
 	afterEach(() => {
 		localStorage.clear();
-		delete (globalThis as any).refreshAllCompletionToggles;
 		delete (globalThis as any).refreshCollapseStatus;
 		delete (globalThis as any).refreshNotifStatus;
 	});

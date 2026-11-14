@@ -1,3 +1,5 @@
+import {getMinimumTier, isBountyMissionTypeEnabled} from './bounty-filters.js';
+
 export function renderAllyIcon(allyName: string, allyCell: Element): void {
 	const allyImg = document.createElement('img');
 	allyImg.className = 'ally-icon';
@@ -7,7 +9,7 @@ export function renderAllyIcon(allyName: string, allyCell: Element): void {
 }
 
 export function applyBountyFilters(syndicateTag: string, rows: NodeListOf<Element>): void {
-	const minTier = window.getMinimumTier!(syndicateTag);
+	const minTier = getMinimumTier(syndicateTag);
 	const isSectionHidden = minTier < 1;
 	document.querySelector(`#${syndicateTag}-name`)?.classList.toggle('d-none', isSectionHidden);
 
@@ -15,7 +17,7 @@ export function applyBountyFilters(syndicateTag: string, rows: NodeListOf<Elemen
 	for (const [i, row] of [...rows].entries()) {
 		const tier = i + 1; // Tier 1 is index 0, Tier 2 is index 1, etc.
 		const missionType = (row as HTMLElement).dataset.missionType ?? '';
-		const isMissionVisible = !missionType || window.isBountyMissionTypeEnabled!(syndicateTag, missionType);
+		const isMissionVisible = !missionType || isBountyMissionTypeEnabled(syndicateTag, missionType);
 		const isHidden = isSectionHidden || tier < minTier || !isMissionVisible;
 		row.classList.toggle('d-none', isHidden);
 		if (!isHidden) {

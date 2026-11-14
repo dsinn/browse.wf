@@ -109,6 +109,4 @@ export function initializeBountyFilters(): void {
 	}
 }
 
-window.getMinimumTier = getMinimumTier;
-window.isBountyMissionTypeEnabled = isBountyMissionTypeEnabled;
 window.initializeBountyFilters = initializeBountyFilters;

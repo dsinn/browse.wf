@@ -237,8 +237,6 @@ interface Window {
 	updateBountyCheckboxes?: () => void;
 
 	// src/live/bounty-filters.ts
-	isBountyMissionTypeEnabled?: (syndicateTag: string, missionType: string) => boolean;
-	getMinimumTier?: (syndicateTag: string) => number;
 	initializeBountyFilters?: () => void;
 	initializeBountyFiltersAll?: () => void;
 
@@ -249,16 +247,12 @@ interface Window {
 	updateCircuitChoices?: () => void;
 
 	// src/live/completion-toggles.ts
-	refreshAllCompletionToggles?: () => void;
 	setCompletionToggle?: (elm: HTMLAnchorElement, isCompleted: boolean) => void;
 
 	// src/live/fissures.ts
 	fissureTiers?: any;
 
 	// src/live/invasions.ts
-	calculatePercentage?: (invasion: IWorldStateInvasion) => number;
-	createInvasionProgressBar?: (invasion: IWorldStateInvasion, percentage: number) => HTMLDivElement;
-	isInvasionRewardShown?: (itemType: string) => boolean;
 	updateInvasions?: () => Promise<void>;
 
 	// src/live/news.ts
@@ -267,9 +261,7 @@ interface Window {
 	// src/live/news-mark-read.ts
 	initializeMarkAsRead?: () => void;
 	isNewsItemRead?: (item: any) => boolean;
-	markAllNewsAsRead?: () => void;
 	markNewsItemAsRead?: (item: any, element: HTMLElement) => void;
-	pruneStaleNewsRead?: () => void;
 	setNewsItemData?: (item: any, element: HTMLElement) => void;
 
 	// src/live/sortie.ts

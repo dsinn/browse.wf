@@ -207,7 +207,5 @@ export function initializeMarkAsRead(): void {
 
 window.initializeMarkAsRead = initializeMarkAsRead;
 window.isNewsItemRead = isNewsItemRead;
-window.markAllNewsAsRead = markAllNewsAsRead;
 window.markNewsItemAsRead = markNewsItemAsRead;
-window.pruneStaleNewsRead = pruneStaleNewsRead;
 window.setNewsItemData = setNewsItemData;

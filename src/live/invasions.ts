@@ -386,7 +386,4 @@ export async function updateInvasions(): Promise<void> {
 	invasionsTable.replaceChildren(tbody);
 }
 
-window.calculatePercentage = calculatePercentage;
-window.createInvasionProgressBar = createInvasionProgressBar;
-window.isInvasionRewardShown = isInvasionRewardShown;
 window.updateInvasions = updateInvasions;

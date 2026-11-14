@@ -12,6 +12,7 @@ import {
 	afterEach,
 } from 'vitest';
 import {applyCheckboxLinking} from './checkbox-linking';
+import {setCompletionToggle} from './completion-toggles';
 
 const WEEK_SUFFIX = '99999';
 const EXPIRY_SUFFIX = '88888';
@@ -38,7 +39,7 @@ function isChecked(oid: string): boolean {
 }
 
 function setChecked(oid: string, shouldBeChecked: boolean): void {
-	(globalThis as any).setCompletionToggle(elementFor(oid), shouldBeChecked);
+	setCompletionToggle(elementFor(oid) as HTMLAnchorElement, shouldBeChecked);
 }
 
 beforeEach(() => {
@@ -63,12 +64,11 @@ beforeEach(() => {
 	// Minimal mocks
 	const oidsCompleted: string[] = [];
 	(globalThis as any).isOidMarkedAsCompleted = (oid: string) => oidsCompleted.includes(oid);
-	(globalThis as any).setCompletionToggle = (element: HTMLAnchorElement, isCompleted: boolean) => {
-		const {oid} = element.dataset;
-		const idx = oidsCompleted.indexOf(oid!);
-		if (isCompleted && idx === -1) {
-			oidsCompleted.push(oid!);
-		} else if (!isCompleted && idx !== -1) {
+	(globalThis as any).toggleOidCompletion = (oid: string) => {
+		const idx = oidsCompleted.indexOf(oid);
+		if (idx === -1) {
+			oidsCompleted.push(oid);
+		} else {
 			oidsCompleted.splice(idx, 1);
 		}
 	};
@@ -77,7 +77,7 @@ beforeEach(() => {
 afterEach(() => {
 	localStorage.clear();
 	delete (globalThis as any).isOidMarkedAsCompleted;
-	delete (globalThis as any).setCompletionToggle;
+	delete (globalThis as any).toggleOidCompletion;
 });
 
 describe('Sequential group: Netracells', () => {

@@ -25,4 +25,3 @@ export function refreshAllCompletionToggles(): void {
 }
 
 window.setCompletionToggle = setCompletionToggle;
-window.refreshAllCompletionToggles = refreshAllCompletionToggles;

@@ -12,6 +12,8 @@
  toggled, the checked count of the target group adjusts by ±count.
  */
 
+import {setCompletionToggle} from './completion-toggles.js';
+
 function applySequentialGroup(element: HTMLElement, isChecked: boolean): void {
 	const container = element.closest<HTMLElement>('[data-checkbox-group]');
 	if (!container) {
@@ -26,11 +28,11 @@ function applySequentialGroup(element: HTMLElement, isChecked: boolean): void {
 
 	if (isChecked) {
 		for (let i = 0; i < idx; i++) {
-			window.setCompletionToggle!(siblings[i], true);
+			setCompletionToggle(siblings[i], true);
 		}
 	} else {
 		for (let i = idx + 1; i < siblings.length; i++) {
-			window.setCompletionToggle!(siblings[i], false);
+			setCompletionToggle(siblings[i], false);
 		}
 	}
 }
@@ -57,7 +59,7 @@ function autocheckLinkedBoxes(element: HTMLElement, isChecked: boolean): void {
 	const targetCount = Math.min(Math.max(currentCount + (isChecked ? count : -count), 0), checkboxes.length);
 
 	for (const [i, checkbox] of checkboxes.entries()) {
-		window.setCompletionToggle!(checkbox, i < targetCount);
+		setCompletionToggle(checkbox, i < targetCount);
 	}
 }
 

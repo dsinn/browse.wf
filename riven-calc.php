@@ -70,7 +70,7 @@
 						<h5 class="mb-0">Base buffs</h5>
 						<button type="button" class="btn btn-sm btn-outline-secondary riven-reset-all" data-riven-reset-all disabled aria-label="Reset all" title="Reset all"><i class="bi bi-arrow-counterclockwise me-1"></i>All</button>
 					</div>
-					<div class="card-body" data-riven-section="buffs">Loading...</div>
+					<div class="card-body" data-riven-section="buffs" aria-busy="true">Loading...</div>
 				</div>
 			</div>
 			<div class="col-lg-6">
@@ -79,7 +79,7 @@
 						<h5 class="mb-0">Curses</h5>
 						<button type="button" class="btn btn-sm btn-outline-secondary riven-reset-all" data-riven-reset-all disabled aria-label="Reset all" title="Reset all"><i class="bi bi-arrow-counterclockwise me-1"></i>All</button>
 					</div>
-					<div class="card-body" data-riven-section="curses">Loading...</div>
+					<div class="card-body" data-riven-section="curses" aria-busy="true">Loading...</div>
 				</div>
 			</div>
 			<div class="col-lg-6">

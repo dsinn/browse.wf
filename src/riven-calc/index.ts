@@ -351,6 +351,10 @@ export function initRivenCalc(data: CalcData, root: ParentNode = document): Rive
 		buffsBody.replaceChildren(...buildGroups('buff', false));
 		splicedBody.replaceChildren(...splicedGroups);
 		cursesBody.replaceChildren(...(state.layout.curses > 0 ? buildGroups('curse', false) : []));
+
+		buffsBody.removeAttribute('aria-busy');
+		cursesBody.removeAttribute('aria-busy');
+
 		splicedCard.classList.toggle('d-none', splicedGroups.length === 0);
 		cursesCard.classList.toggle('d-none', state.layout.curses === 0);
 		syncResetAll();

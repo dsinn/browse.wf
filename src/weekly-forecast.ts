@@ -258,6 +258,16 @@ export function initWeeklyMissionsNotice(): void {
 }
 
 /**
+ Marks sections as done loading (no more aria-busy).
+ Prevents sections from having a lot of whitespace (from weekly-forecast.css min-height) when loading fails.
+ */
+function endLoading(...selectors: string[]): void {
+	for (const element of document.querySelectorAll(selectors.join(','))) {
+		element.removeAttribute('aria-busy');
+	}
+}
+
+/**
  Renders the forecasts that are pure client-side rotation math, with no worldState dependency:
  The Circuit and Steel Path Honors (Teshin).
  */
@@ -277,6 +287,8 @@ async function renderClientSideForecasts(): Promise<void> {
 	if (teshinForecastBodyElement) {
 		renderTeshinForecastTable(teshinForecastBodyElement);
 	}
+
+	endLoading('#circuit table', '#steel-path-honors table');
 }
 
 export async function initWeeklyForecast(): Promise<void> {
@@ -299,6 +311,8 @@ export async function initWeeklyForecast(): Promise<void> {
 		);
 	}
 
+	endLoading('#deep-archimedea-content');
+
 	// Temporal Archimedea (CT_HEX)
 	const temporalArchimedeas = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_HEX');
 	if (temporalTabsElement && temporalArchimedeas.length > 0) {
@@ -310,6 +324,8 @@ export async function initWeeklyForecast(): Promise<void> {
 		);
 	}
 
+	endLoading('#temporal-archimedea-content');
+
 	// Descendia
 	const descents = worldState.Descents ?? [];
 	if (descentTabsElement && descents.length > 0) {
@@ -319,6 +335,8 @@ export async function initWeeklyForecast(): Promise<void> {
 			descents,
 		);
 	}
+
+	endLoading('#descendia-content');
 
 	// Calendar Seasons
 	const calendarSeasons = worldState.KnownCalendarSeasons ?? [];
@@ -330,6 +348,8 @@ export async function initWeeklyForecast(): Promise<void> {
 		);
 	}
 
+	endLoading('#calendar-season-content', '#calendar-season-columns');
+
 	// Clan Weekly Initiatives
 	const clanWeeklyEntries = worldState.WeeklyVaultBonusRewards ?? [];
 	if (clanWeeklyColumnsElement && clanWeeklyEntries.length > 0) {
@@ -337,11 +357,19 @@ export async function initWeeklyForecast(): Promise<void> {
 		await renderClanWeeklyColumns(clanWeeklyColumnsElement, clanWeeklyEntries);
 	}
 
+	endLoading('#clan-weekly-columns');
+
 	await renderClientSideForecasts();
 }
 
 initWeeklyForecastToc();
 initWeeklyMissionsNotice();
-await initWeeklyForecast();
+try {
+	await initWeeklyForecast();
+} finally {
+	// If the worldState failed to load, the sections still waiting for it are done loading too
+	endLoading('.weekly-forecast-section [aria-busy="true"]');
+}
+
 scrollToHashedSection();
 startSyncingUrlHash();

@@ -27,6 +27,11 @@
 	margin: 0;
 }
 
+/* Reduce layout shift */
+[data-riven-section="buffs"][aria-busy="true"] {
+	min-height: 730px; /* Chosen by measuring the Archguns container (smallest list) */
+}
+
 [data-riven-card] .form-text {
 	margin-top: 0;
 	margin-bottom: 0.25rem;

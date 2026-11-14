@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="src/calendar-seasons/calendar-seasons.css">
 	<link rel="stylesheet" href="src/teshin/teshin.css">
 	<link rel="stylesheet" href="src/weekly-forecast-toc.css">
+	<link rel="stylesheet" href="src/weekly-forecast.css">
 </head>
 <body data-bs-theme="dark">
 	<?php require "components/navbar.php"; ?>
@@ -21,7 +22,7 @@
 			<div class="card-body">
 				<?php require "components/untranslated-notice.php"; ?>
 				<ul class="nav nav-tabs mb-3" id="descendia-tabs" role="tablist"></ul>
-				<div class="tab-content" id="descendia-content">Loading...</div>
+				<div class="tab-content descendia-tab-content" id="descendia-content" aria-busy="true">Loading...</div>
 			</div>
 		</div>
 
@@ -33,7 +34,7 @@
 			<div class="card-header"><h5 class="mb-0">Deep Archimedea</h5></div>
 			<div class="card-body">
 				<ul class="nav nav-tabs mb-3" id="deep-archimedea-tabs" role="tablist"></ul>
-				<div class="tab-content" id="deep-archimedea-content">Loading...</div>
+				<div class="tab-content archimedea-tab-content" id="deep-archimedea-content" aria-busy="true">Loading...</div>
 			</div>
 		</div>
 
@@ -41,17 +42,17 @@
 			<div class="card-header"><h5 class="mb-0">Temporal Archimedea</h5></div>
 			<div class="card-body">
 				<ul class="nav nav-tabs mb-3" id="temporal-archimedea-tabs" role="tablist"></ul>
-				<div class="tab-content" id="temporal-archimedea-content">Loading...</div>
+				<div class="tab-content archimedea-tab-content" id="temporal-archimedea-content" aria-busy="true">Loading...</div>
 			</div>
 		</div>
 
 		<div class="card mb-4 weekly-forecast-section" id="calendar-1999">
 			<div class="card-header"><h5 class="mb-0">1999 Calendar</h5></div>
 			<div class="card-body">
-				<div class="d-none d-xl-block" id="calendar-season-columns">Loading...</div>
+				<div class="d-none d-xl-block calendar-season-columns" id="calendar-season-columns" aria-busy="true">Loading...</div>
 				<div class="d-xl-none">
 					<ul class="nav nav-tabs mb-3" id="calendar-season-tabs" role="tablist"></ul>
-					<div class="tab-content" id="calendar-season-content"></div>
+					<div class="tab-content calendar-season-tab-content" id="calendar-season-content" aria-busy="true">Loading...</div>
 				</div>
 			</div>
 		</div>
@@ -59,14 +60,14 @@
 		<div class="card mb-4 weekly-forecast-section" id="clan-weekly">
 			<div class="card-header"><h5 class="mb-0">Clan Weekly Initiatives</h5></div>
 			<div class="card-body">
-				<div id="clan-weekly-columns">Loading...</div>
+				<div class="clan-weekly-columns" id="clan-weekly-columns" aria-busy="true">Loading...</div>
 			</div>
 		</div>
 
 		<div class="card mb-4 weekly-forecast-section" id="circuit">
 			<div class="card-header"><h5 class="mb-0">The Circuit</h5></div>
 			<div class="card-body">
-				<table class="table table-sm table-borderless table-hover mb-0">
+				<table class="table table-sm table-borderless table-hover mb-0" aria-busy="true">
 					<thead><tr><th>Date</th><th>Normal Rewards</th><th>Steel Path Rewards</th></tr></thead>
 					<tbody id="circuit-forecast-body">
 						<tr><td colspan="3">Loading...</td></tr>
@@ -78,7 +79,7 @@
 		<div class="card mb-4 weekly-forecast-section" id="steel-path-honors">
 			<div class="card-header"><h5 class="mb-0">Steel Path Honors</h5></div>
 			<div class="card-body">
-				<table class="table table-sm table-borderless table-hover w-auto text-nowrap mb-0">
+				<table class="table table-sm table-borderless table-hover w-auto text-nowrap mb-0" aria-busy="true">
 					<thead><tr id="teshin-forecast-header"><th>Offer</th></tr></thead>
 					<tbody id="teshin-forecast-body">
 						<tr><td>Loading...</td></tr>

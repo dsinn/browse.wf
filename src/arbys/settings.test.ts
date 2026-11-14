@@ -33,7 +33,7 @@ describe('checkLoadButtonState', () => {
 
 	beforeEach(() => {
 		document = makeDocument();
-		(globalThis as any).document = document;
+		vi.stubGlobal('document', document);
 		localStorage.clear();
 	});
 
@@ -63,7 +63,7 @@ describe('checkLoadButtonState', () => {
 
 	test('returns early without throwing if button is absent', () => {
 		const emptyDoc = new JSDOM('<html><body></body></html>', {url: 'https://browse.wf/arbys'}).window.document;
-		(globalThis as any).document = emptyDoc;
+		vi.stubGlobal('document', emptyDoc);
 		expect(() => {
 			checkLoadButtonState();
 		}).not.toThrow();
@@ -75,7 +75,7 @@ describe('saveToLocalStorage / loadFromLocalStorage (via button handlers)', () =
 
 	beforeEach(() => {
 		document = makeDocument();
-		(globalThis as any).document = document;
+		vi.stubGlobal('document', document);
 		localStorage.clear();
 		initializeSettingsButtons();
 	});
@@ -155,7 +155,7 @@ describe('cloud-sync event listeners', () => {
 
 	beforeEach(() => {
 		document = makeDocument();
-		(globalThis as any).document = document;
+		vi.stubGlobal('document', document);
 		localStorage.clear();
 	});
 

@@ -13,6 +13,7 @@ export function makeArchwingIcon(className?: string): HTMLImageElement {
 		img.className = className;
 	}
 
+	img.alt = ARCHWING_TOOLTIP;
 	img.style.cursor = 'help';
 	setImageSource(img, ARCHWING_ICON_PATH);
 	addTooltip(img, ARCHWING_TOOLTIP);

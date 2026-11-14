@@ -17,11 +17,11 @@
 		<div id="incursions-controls" class="d-flex align-items-center gap-5 mb-3 bg-body-secondary rounded p-2">
 			<button id="btn-today" class="btn btn-sm btn-primary">Today</button>
 			<div class="btn-group btn-group-sm" role="group" aria-label="Navigate">
-				<button id="btn-prev" class="btn btn-sm btn-secondary"><i class="bi bi-chevron-left"></i></button>
-				<button id="btn-next" class="btn btn-sm btn-secondary"><i class="bi bi-chevron-right"></i></button>
+				<button id="btn-prev" class="btn btn-sm btn-secondary" aria-label="Previous"><i class="bi bi-chevron-left"></i></button>
+				<button id="btn-next" class="btn btn-sm btn-secondary" aria-label="Next"><i class="bi bi-chevron-right"></i></button>
 			</div>
 			<div class="d-flex gap-2">
-				<select id="select-month" class="form-select form-select-sm w-auto">
+				<select id="select-month" class="form-select form-select-sm w-auto" aria-label="Month">
 					<option value="0">January</option>
 					<option value="1">February</option>
 					<option value="2">March</option>
@@ -35,7 +35,7 @@
 					<option value="10">November</option>
 					<option value="11">December</option>
 				</select>
-				<select id="select-year" class="form-select form-select-sm w-auto">
+				<select id="select-year" class="form-select form-select-sm w-auto" aria-label="Year">
 					<!-- Populated dynamically from data range -->
 				</select>
 			</div>

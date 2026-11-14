@@ -130,6 +130,7 @@ function makeFactionIcon(node: IRegion): HTMLElement {
 	if (iconPath) {
 		const img = document.createElement('img');
 		img.className = 'incursion-faction-icon';
+		img.alt = toTitleCase(factionName);
 		setImageSource(img, iconPath);
 		addTooltip(img, `${toTitleCase(factionName)} (${levelRange})`);
 		return img;

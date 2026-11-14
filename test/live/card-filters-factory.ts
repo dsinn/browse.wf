@@ -134,6 +134,18 @@ export function testCardFilters(cardName: string) {
 				expect(collapseToggle!.classList.contains('engaged')).toBe(false);
 			});
 
+			test('gear icon controls the filter panel and reports whether it is open', () => {
+				const gearIcon = document.querySelector<HTMLElement>(`[data-filter-toggle="${cardName}"]`);
+				expect(gearIcon!.getAttribute('aria-controls')).toBe(`${cardName}-filters`);
+				expect(gearIcon!.getAttribute('aria-expanded')).toBe('false');
+
+				gearIcon!.click();
+				expect(gearIcon!.getAttribute('aria-expanded')).toBe('true');
+
+				gearIcon!.click();
+				expect(gearIcon!.getAttribute('aria-expanded')).toBe('false');
+			});
+
 			test('gear icon changes to enabled (blue) state when panel opens', () => {
 				const gearIcon = document.querySelector<HTMLElement>(`[data-filter-toggle="${cardName}"]`);
 

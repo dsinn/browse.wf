@@ -73,7 +73,7 @@
  */
 .riven-stat-unavailable {
 	flex-wrap: nowrap;
-	opacity: 0.45;
+	opacity: 0.55; /* The lowest that keeps 4.5:1 text contrast on the card background */
 }
 
 /* Takes the place of the controls (the same size and growth as they have together), and is centred between their ends */

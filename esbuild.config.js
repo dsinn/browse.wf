@@ -26,6 +26,8 @@ const buildOptions = {
 	format: 'iife',
 	outfile: 'typestripped/src-bundle.js',
 	sourcemap: true,
+	// Keep watch-mode output readable for local debugging
+	minify: !watch,
 	target: 'es2021',
 	// Exclude packages resolved at runtime (not bundled)
 	external: ['warframe-public-export-plus'],

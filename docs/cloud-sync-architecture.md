@@ -1,6 +1,6 @@
 # Cloud Sync Architecture
 
-**Last updated:** 2026-04-09
+**Last updated:** 2026-11-14
 
 ## Overview
 
@@ -52,14 +52,20 @@ at startup, not an import dependency. At runtime, `trigger.ts` invokes the regis
 
 ### `trigger.ts` — Debounce shim
 
-The only module that feature code (`card-filters.ts`, etc.) imports directly. Exposes three
+The only module that feature code (`card-filters.ts`, etc.) imports directly. Exposes two
 functions globally so non-module scripts can call them without ES6 imports:
 
 | Function | Behaviour |
 |---|---|
 | `triggerCloudSync()` | Immediate push, no debounce |
 | `triggerCloudSyncWithDebounce()` | Schedules a push 5 s in the future; resets timer on each call |
-| `flushDebounce()` | Cancels the timer and pushes immediately (used on `beforeunload`) |
+
+It also exports two functions for module code only:
+
+| Function | Behaviour |
+|---|---|
+| `flushDebounce()` | Cancels the timer and pushes immediately (used by `auth-init.ts` on `beforeunload` and sign-out) |
+| `waitForCloudSync()` | Resolves with the first cloud sync status event (`complete`, `unavailable`, `unauthenticated` or `error`), or `timeout` after 5 s |
 
 `auth-init.ts` calls `registerSyncHandler()` once during page load to wire the real push
 implementation. Before that point all calls are silent no-ops.
@@ -371,15 +377,19 @@ no data was missed.
 
 | Event | Dispatched by | Consumed by |
 |---|---|---|
-| `cloud-sync-complete` | `CloudSyncManager.handleLogin` | `profile/workflow.ts` — advances workflow step |
-| `cloud-sync-error` | `CloudSyncManager.handleLogin` | `profile/workflow.ts` — marks workflow step failed |
-| `cloud-sync-pulled` | `CloudSyncHandler.pullFromDatabase` | `live/sync.ts` — calls refresh functions for toggles, collapse state, notifications |
+| `cloud-sync-complete` | `CloudSyncManager.handleLogin` | `waitForCloudSync()` |
+| `cloud-sync-error` | `CloudSyncManager.handleLogin` | `waitForCloudSync()` |
+| `cloud-sync-pulled` | `CloudSyncHandler.pullFromDatabase` | `live/sync.ts` — calls refresh functions for toggles, collapse state, notifications; `arbys/settings.ts` — re-checks the load button state |
 | `cloud-sync-before-push` | `CloudSyncHandler.pushToDatabase` | `live/sync.ts` — prunes stale OIDs and news-read entries before data is serialised |
-| `cloud-sync-unavailable` | `auth-init.ts` | `profile/workflow.ts` — marks cloud sync unavailable |
-| `cloud-sync-unauthenticated` | `auth-init.ts` | `profile/workflow.ts` — marks user as not logged in |
+| `cloud-sync-unavailable` | `auth-init.ts` | `waitForCloudSync()` |
+| `cloud-sync-unauthenticated` | `auth-init.ts` | `waitForCloudSync()` |
 | `auth-signed-in` | `AuthService` (on `SIGNED_IN` or `INITIAL_SESSION`) | `auth-init.ts` → triggers `handleLogin` |
 | `auth-signed-out` | `AuthService` (on `SIGNED_OUT`) | `auth-init.ts` → flush debounce + unsubscribe |
 | `auth-state-changed` | `AuthService` (on `SIGNED_OUT` only) | `auth-init.ts` → update auth UI |
+
+`waitForCloudSync()` turns the four status events into a single result. `profile/workflow.ts` awaits it before
+loading the cached profile and exposes it as `window.cloudSyncEvent`, which `profile.ts` uses to choose between
+the auto-fetch and manual profile flows. `arbys/settings.ts` awaits it to set the initial load button state.
 
 ---
 

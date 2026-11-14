@@ -267,7 +267,14 @@ describe('augmentEquipmentStats', () => {
 
 		it('shows the unnamed items in the totals only while the checkbox is checked', async () => {
 			setupDOM(weaponsWithUnnamed);
-			document.body.insertAdjacentHTML('beforeend', '<div id="equipment-aggregates"><table><tbody id="equipment-aggregate-rows"></tbody><tfoot id="equipment-aggregate-total"></tfoot></table></div>');
+			document.body.insertAdjacentHTML('beforeend', `
+				<div id="equipment-aggregates">
+					<table>
+						<tbody id="equipment-aggregate-rows"></tbody>
+						<tfoot id="equipment-aggregate-total"></tfoot>
+					</table>
+				</div>
+			`);
 			await augmentEquipmentStats({Stats: {Weapons: weaponsWithUnnamed}});
 			const groups = () => [...document.querySelectorAll<HTMLTableRowElement>('#equipment-aggregate-rows tr')].map(row => row.cells[1].textContent);
 

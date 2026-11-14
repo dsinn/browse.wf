@@ -31,7 +31,7 @@
 }
 
 .incursions-list .incursion-list-heading.is-today {
-	background: var(--bs-primary);
+	background: #0a58ca; /* Bootstrap's darker primary shade, for 4.5:1 text contrast */
 	border-radius: 4px;
 	padding: 2px 6px;
 }

@@ -24,6 +24,7 @@ import {
 } from './invigorations';
 import {getWeekIndex, getNextWeeklyResetMs} from './helpers/time-helpers';
 import {registerSyncHandler} from './cloud-sync/trigger';
+import {resetTimerRegistry} from './timer-registry';
 
 type InvigorationCacheEntry = typeof ENTRY_MAG_VOLT_EXCALIBUR;
 type InvigorationCache = Record<number, InvigorationCacheEntry>;
@@ -370,6 +371,7 @@ describe('initInvigorationsFromCache()', () => {
 	});
 
 	afterEach(() => {
+		resetTimerRegistry();
 		vi.useRealTimers();
 		vi.unstubAllGlobals();
 	});

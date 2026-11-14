@@ -1,6 +1,7 @@
 import {getWeekIndex, getNextWeeklyResetSeconds} from './helpers/time-helpers.js';
 import {triggerCloudSync} from './cloud-sync/trigger.js';
 import {createShortTimerBadge} from './short-timer-badge.js';
+import {scheduleReload} from './timer-registry.js';
 
 type InvigorationRequest = {
 	n: string;
@@ -185,10 +186,7 @@ export function initInvigorationTimer(): void {
 }
 
 export function scheduleInvigorationReload(): void {
-	const weeklyResetSeconds = getNextWeeklyResetSeconds();
-	setTimeout(() => {
-		location.reload();
-	}, (weeklyResetSeconds * 1000) - Date.now());
+	scheduleReload(getNextWeeklyResetSeconds() * 1000);
 }
 
 export function showCacheAlert(type: string, message: string): void {

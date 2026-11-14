@@ -394,6 +394,9 @@ function renderProfile(): void
 						{
 							const img = document.createElement("img");
 							img.className = "img-fluid rounded-start";
+							img.loading = "lazy";
+							img.width = 256;
+							img.height = 256;
 							img.src = "https://browse.wf" + achievement.icon;
 							div.appendChild(img);
 						}

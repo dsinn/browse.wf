@@ -1,0 +1,2 @@
+abbr { text-decoration: underline dotted; text-decoration-skip-ink: none; }
+[data-bs-toggle=tooltip] { cursor: help; }

@@ -1,0 +1,106 @@
+import {getNextWeeklyResetMs} from '../helpers/time-helpers.js';
+import {isFilterEnabled} from '../card-filters.js';
+import {scheduleAt} from '../timer-registry.js';
+
+const STALE_DATA_RETRY_MS = 5000;
+
+let weeklyExpiry = 0;
+
+export function updateWeekly(): void {
+	if (!(window as any).worldState?.Conquests) {
+		console.error('worldState.Conquests not available for updateWeekly');
+		setTimeout(updateWeekly, STALE_DATA_RETRY_MS);
+		return;
+	}
+
+	Promise.all([window.dicts_promise, window.ExportMissionTypes_promise]).then(async () => {
+		const labConquest = (window as any).worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
+		const hexConquest = (window as any).worldState.Conquests.find((c: any) => c.Type === 'CT_HEX');
+
+		let newWeeklyExpiry: number;
+		if (labConquest) {
+			newWeeklyExpiry = Number(labConquest.Expiry.$date.$numberLong);
+		} else if (hexConquest) {
+			newWeeklyExpiry = Number(hexConquest.Expiry.$date.$numberLong);
+		} else {
+			newWeeklyExpiry = getNextWeeklyResetMs();
+		}
+
+		if (newWeeklyExpiry <= Date.now()) {
+			setTimeout(updateWeekly, STALE_DATA_RETRY_MS);
+			return;
+		}
+
+		if (weeklyExpiry) {
+			const subscribed = [
+				['litesortie', 'Archon Hunt'],
+				['teshin', 'Vendors'],
+				['circuit', 'Weekly Missions'],
+				['labconquest', 'Deep Archimedea'],
+				['hexconquest', 'Temporal Archimedea'],
+			].filter(([notification]) => localStorage.getItem(`live.notif.${notification}`)).map(([, label]) => label);
+
+			if (subscribed.length > 0) {
+				window.sendNotification!('It\'s a new week. ' + subscribed.join(', ') + ' refreshed.');
+			}
+		}
+
+		weeklyExpiry = newWeeklyExpiry;
+
+		const osdict = await window.getOSDictPromise!();
+
+		if (labConquest) {
+			window.setDatum!('labConquest-header', osdict['/Lotus/Language/Conquest/SolarMapLabConquestNode'], weeklyExpiry);
+			document.querySelector('#labConquest-header')!.append(' ');
+			document.querySelector('#labConquest-header')!.append(window.createCompletionToggle('labconquest-' + weeklyExpiry));
+			await window.renderArchimedeaTable!(
+				document.querySelector('#labConquest-body')!,
+				labConquest,
+				'CT_LAB',
+			);
+		}
+
+		if (hexConquest) {
+			window.setDatum!('hexConquest-header', osdict['/Lotus/Language/1999Echoes/1999HexConquestNode'], weeklyExpiry);
+			document.querySelector('#hexConquest-header')!.append(' ');
+			document.querySelector('#hexConquest-header')!.append(window.createCompletionToggle('hexconquest-' + weeklyExpiry));
+			await window.renderArchimedeaTable!(
+				document.querySelector('#hexConquest-body')!,
+				hexConquest,
+				'CT_HEX',
+			);
+		}
+
+		scheduleAt(newWeeklyExpiry, updateWeekly);
+	}).catch((error: unknown) => {
+		console.error(error);
+		setTimeout(updateWeekly, STALE_DATA_RETRY_MS);
+	});
+}
+
+export function filterWeeklyMissions() {
+	const weeklyMissionsCard = document.querySelector('[data-collapse-toggle="weekly-missions"]')?.closest('.card');
+	if (!weeklyMissionsCard) {
+		return;
+	}
+
+	const entries = weeklyMissionsCard.querySelectorAll('[data-mission]');
+	let visibleCount = 0;
+
+	for (const entry of entries) {
+		const {mission} = (entry as HTMLElement).dataset;
+		const isVisible = isFilterEnabled('weekly-missions', mission ?? '');
+		(entry as HTMLElement).style.display = isVisible ? '' : 'none';
+		if (isVisible) {
+			visibleCount++;
+		}
+	}
+
+	const emptyMessage = document.querySelector('#weekly-missions-empty-state');
+	if (emptyMessage) {
+		emptyMessage.classList.toggle('d-none', visibleCount > 0);
+	}
+}
+
+window.updateWeekly = updateWeekly;
+window.filterWeeklyMissions = filterWeeklyMissions;

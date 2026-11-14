@@ -1,0 +1,12 @@
+/* Hide Deimos rotation line when Deimos bounties checkbox is unchecked */
+#bounties-card:has(#bounty-filter-deimos:not(:checked)) #deimos-bounty-row {
+	display: none;
+}
+
+/* "No bounties to display" message: show when Deimos is unchecked and all three syndicates are hidden */
+#bounties-card .bounties-all-hidden {
+	display: none;
+}
+#bounties-card:has(#bounty-filter-deimos:not(:checked)):has(#ZarimanSyndicate-name.d-none):has(#EntratiLabSyndicate-name.d-none):has(#HexSyndicate-name.d-none) .bounties-all-hidden {
+	display: block;
+}

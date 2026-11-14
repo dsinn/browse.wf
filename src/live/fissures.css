@@ -1,0 +1,45 @@
+/*
+ Reserve space for the worldState-driven fissure tables while they still show "Loading...", so the cards below them
+ don't jump when the tables render. Heights are conservative lower bounds of unfiltered tables (plus card-body
+ padding) at each Bootstrap breakpoint; the reservation ends once the table has any <td>, which every render adds
+ (including the empty-state message).
+ */
+.card-body:has(> #fissures-table):not(:has(td)) {
+	min-height: 450px;
+}
+
+.card-body:has(> #sp-fissures-table):not(:has(td)) {
+	min-height: 510px;
+}
+
+.card-body:has(> #rj-fissures-table):not(:has(td)) {
+	min-height: 920px;
+}
+
+@media (min-width: 576px) {
+	.card-body:has(> #fissures-table):not(:has(td)) {
+		min-height: 340px;
+	}
+
+	.card-body:has(> #sp-fissures-table):not(:has(td)) {
+		min-height: 345px;
+	}
+
+	.card-body:has(> #rj-fissures-table):not(:has(td)) {
+		min-height: 500px;
+	}
+}
+
+@media (min-width: 768px) {
+	.card-body:has(> #fissures-table):not(:has(td)) {
+		min-height: 260px;
+	}
+
+	.card-body:has(> #sp-fissures-table):not(:has(td)) {
+		min-height: 280px;
+	}
+
+	.card-body:has(> #rj-fissures-table):not(:has(td)) {
+		min-height: 300px;
+	}
+}

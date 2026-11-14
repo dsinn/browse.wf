@@ -1,0 +1,23 @@
+{
+    "/Lotus/Language/G1Quests/TacAlertHalloweenTitle": "Hallowed Nightmares",
+    "/Lotus/Language/TauPrologue/RoadToTauEventName": "Epoch Operation: Taubound",
+    "/Lotus/Language/Upgrades/Spliced/AmmoEfficiencyDesc": "|val|% Ammo Efficiency",
+    "/Lotus/Language/Upgrades/Spliced/BlastDamageDesc": "|val|% <DT_EXPLOSION_COLOR>Blast",
+    "/Lotus/Language/Upgrades/Spliced/CorrosiveDamageDesc": "|val|% <DT_CORROSIVE_COLOR>Corrosive",
+    "/Lotus/Language/Upgrades/Spliced/GasDamageDesc": "|val|% <DT_GAS_COLOR>Gas",
+    "/Lotus/Language/Upgrades/Spliced/HeavyAttackDamageDesc": "|val|% Heavy Attack Damage",
+    "/Lotus/Language/Upgrades/Spliced/HeavyAttackWindupSpeedDesc": "|val|% Heavy Attack Windup Speed",
+    "/Lotus/Language/Upgrades/Spliced/MagneticDamageDesc": "|val|% <DT_MAGNETIC_COLOR>Magnetic",
+    "/Lotus/Language/Upgrades/Spliced/OrokinDamageDesc": "|val| Damage to Orokin",
+    "/Lotus/Language/Upgrades/Spliced/ParryAngleDesc": "|val|% Parry Angle",
+    "/Lotus/Language/Upgrades/Spliced/RadiationDamageDesc": "|val|% <DT_RADIATION_COLOR>Radiation",
+    "/Lotus/Language/Upgrades/Spliced/ReloadWhileHolsteredDesc": "|val|% Magazine Reload While Holstered",
+    "/Lotus/Language/Upgrades/Spliced/ScaldraDamageDesc": "|val| Damage to Scaldra",
+    "/Lotus/Language/Upgrades/Spliced/SlamDamageDesc": "|val|% Slam Damage",
+    "/Lotus/Language/Upgrades/Spliced/StatusDamageDesc": "|val|% Status Damage",
+    "/Lotus/Language/Upgrades/Spliced/TechrotDamageDesc": "|val| Damage to Techrot",
+    "/Lotus/Language/Upgrades/Spliced/ViralDamageDesc": "|val|% <DT_VIRAL_COLOR>Viral",
+    "/Lotus/Language/Upgrades/Spliced/WeakpointCriticalChanceDesc": "|val|% Weak Point Critical Chance",
+    "/Lotus/Language/Upgrades/Spliced/WeakpointDamageDesc": "|val|% Weak Point Damage",
+    "/Lotus/Types/Gameplay/Events/RoadToTauEvent/RoadToTauEventResource": "Moonflesh"
+}

@@ -1,0 +1,23 @@
+@media (min-width: 768px) {
+	.calendar-season-date {
+		min-width: 4.5rem;
+	}
+}
+
+/* CSS-based event type filtering via :checked state (live page only) */
+#calendar-season-card:has(#filter-calendar-season-type-CET_CHALLENGE:not(:checked)) .calendar-season-event[data-event-type="CET_CHALLENGE"],
+#calendar-season-card:has(#filter-calendar-season-type-CET_REWARD:not(:checked)) .calendar-season-event[data-event-type="CET_REWARD"],
+#calendar-season-card:has(#filter-calendar-season-type-CET_UPGRADE:not(:checked)) .calendar-season-event[data-event-type="CET_UPGRADE"] {
+	display: none !important;
+}
+
+/* "No event types checked" message: hidden when any type is checked */
+#calendar-season-card:has(
+	:is(
+		#filter-calendar-season-type-CET_CHALLENGE,
+		#filter-calendar-season-type-CET_REWARD,
+		#filter-calendar-season-type-CET_UPGRADE
+	):checked
+) .calendar-season-no-events {
+	display: none;
+}

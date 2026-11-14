@@ -1,0 +1,11 @@
+local { http, json } = require "*"
+
+local { nodes } = json.decode(http.request("https://arbi.guide/tierlist.json"))
+--local { nodes } = json.decode(io.contents("tierlist.json"))
+
+nodes:sort(|a, b| -> a.id < b.id)
+for nodes as node do
+	if node.tier ~= "F" and node.tier ~= "Special" then
+		print(node.id..": \""..node.tier.."\",")
+	end
+end

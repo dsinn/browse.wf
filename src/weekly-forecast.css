@@ -1,0 +1,71 @@
+/*
+ Reserve space for worldState-driven sections while they still show "Loading...", so the sections below them don't
+ jump when the forecast renders. Heights are lower bounds of the rendered content at each Bootstrap breakpoint; the
+ reservation ends as soon as the section renders any element.
+ */
+#descendia-content:not(:has(*)) {
+	min-height: 2000px;
+}
+
+#deep-archimedea-content:not(:has(*)),
+#temporal-archimedea-content:not(:has(*)) {
+	min-height: 200px;
+}
+
+#calendar-season-content:not(:has(*)) {
+	min-height: 1100px;
+}
+
+#clan-weekly-columns:not(:has(*)) {
+	min-height: 320px;
+}
+
+@media (min-width: 576px) {
+	#descendia-content:not(:has(*)) {
+		min-height: 1240px;
+	}
+
+	#deep-archimedea-content:not(:has(*)),
+	#temporal-archimedea-content:not(:has(*)) {
+		min-height: 160px;
+	}
+
+	#clan-weekly-columns:not(:has(*)) {
+		min-height: 220px;
+	}
+}
+
+@media (min-width: 768px) {
+	#descendia-content:not(:has(*)) {
+		min-height: 940px;
+	}
+
+	#deep-archimedea-content:not(:has(*)),
+	#temporal-archimedea-content:not(:has(*)) {
+		min-height: 117px;
+	}
+
+	#calendar-season-content:not(:has(*)) {
+		min-height: 880px;
+	}
+
+	#clan-weekly-columns:not(:has(*)) {
+		min-height: 177px;
+	}
+}
+
+@media (min-width: 992px) {
+	#descendia-content:not(:has(*)) {
+		min-height: 760px;
+	}
+}
+
+@media (min-width: 1200px) {
+	#descendia-content:not(:has(*)) {
+		min-height: 680px;
+	}
+
+	#calendar-season-columns:not(:has(*)) {
+		min-height: 930px;
+	}
+}

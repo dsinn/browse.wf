@@ -1,0 +1,201 @@
+/* Riven calculator (riven-calc.php), driven by src/riven-calc/index.ts */
+
+/* Compact cards: the lists are long */
+[data-riven-card] > .card-header {
+	padding: 0.375rem 0.75rem;
+	font-size: 1rem;
+}
+
+[data-riven-card] > .card-body {
+	padding: 0.5rem 0.75rem;
+}
+
+/* The - and + buttons are bigger targets than the browser's own spinner, which is hidden (the arrow keys still step) */
+.riven-stepper {
+	flex-wrap: nowrap;
+}
+
+.riven-stepper input {
+	min-width: 0;
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+.riven-stepper input::-webkit-inner-spin-button,
+.riven-stepper input::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+[data-riven-card] .form-text {
+	margin-top: 0;
+	margin-bottom: 0.25rem;
+}
+
+.riven-group + .riven-group {
+	margin-top: 0.25rem;
+	padding-top: 0.25rem;
+	border-top: 1px solid var(--bs-border-color-translucent);
+}
+
+/*
+ * A row is the name, then the controls: slider, number box, reset button and grade. The box, button and grade have a
+ * fixed width and the slider and name share what is left, so every row lines up whatever its name or grade says.
+ */
+.riven-stat {
+	--riven-slider-basis: 7rem;
+	--riven-box-width: 5rem;
+	--riven-reset-width: 2.25rem;
+	--riven-result-width: 5.5rem;
+	--riven-gap: 0.5rem;
+
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0 var(--riven-gap);
+	padding: 0.0625rem 0;
+	min-height: 1.875rem;
+	line-height: 1.25;
+}
+
+.riven-stat > * {
+	margin-block: 0;
+}
+
+/*
+ * Rows without controls (greyed out) are as tall as the ones with, so the two lists line up. They do not wrap: in a
+ * narrow card the note would otherwise drop to a line of its own, and the row would be twice as tall.
+ */
+.riven-stat-unavailable {
+	flex-wrap: nowrap;
+	opacity: 0.55; /* The lowest that keeps 4.5:1 text contrast on the card background */
+}
+
+/* Takes the place of the controls (the same size and growth as they have together), and is centred between their ends */
+.riven-stat-unavailable-note {
+	flex: 1 1 calc(var(--riven-slider-basis) + var(--riven-box-width) + var(--riven-reset-width) + var(--riven-result-width) + (3 * var(--riven-gap)));
+	text-align: center;
+	font-size: 0.8rem;
+}
+
+.riven-stat-label {
+	flex: 1 1 8rem;
+}
+
+.riven-grade-slider-group {
+	flex: 1 1 var(--riven-slider-basis);
+	min-width: 4.5rem;
+}
+
+/* The lowest and highest numbers the trait can roll, just above the ends of the slider */
+.riven-grade-bounds {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.7rem;
+	line-height: 0.9;
+	color: var(--bs-secondary-color);
+	font-variant-numeric: tabular-nums;
+}
+
+.riven-grade-slider {
+	display: block;
+	width: 100%;
+	height: 1rem;
+}
+
+.riven-grade-input {
+	flex: 0 0 var(--riven-box-width);
+	width: var(--riven-box-width);
+	height: 1.625rem;
+	min-height: 0;
+	padding: 0 0.375rem;
+	font-size: 0.875rem;
+}
+
+.riven-grade-reset {
+	flex: 0 0 var(--riven-reset-width);
+	height: 1.625rem;
+	padding: 0;
+	font-size: 0.875rem;
+	line-height: 1;
+}
+
+/* Greyed out while there is nothing to reset; once there is, it is filled in, and blue under the pointer. The - and + buttons are greyed out at the ends of their range. */
+.riven-grade-reset:disabled,
+.riven-reset-all:disabled,
+.riven-stepper .btn:disabled {
+	--bs-btn-disabled-opacity: 0.4;
+}
+
+.riven-grade-reset:not(:disabled),
+.riven-reset-all:not(:disabled),
+.riven-stepper .btn:not(:disabled) {
+	--bs-btn-color: #fff;
+	--bs-btn-bg: var(--bs-secondary);
+	--bs-btn-border-color: var(--bs-secondary);
+	--bs-btn-hover-color: #fff;
+	--bs-btn-hover-bg: var(--bs-primary);
+	--bs-btn-hover-border-color: var(--bs-primary);
+	--bs-btn-active-color: #fff;
+	--bs-btn-active-bg: var(--bs-primary);
+	--bs-btn-active-border-color: var(--bs-primary);
+}
+
+/* Reserves its space so that the row does not change shape when a grade appears */
+.riven-grade-result {
+	flex: 0 0 auto;
+	min-width: var(--riven-result-width);
+	font-variant-numeric: tabular-nums;
+}
+
+/*
+ * One colour per grade: ten equal steps of hue from F (red) to A+ (lime, #00ff00), and S is an animated rainbow.
+ * "X" (a value no Riven can have) is left uncoloured.
+ */
+.riven-grade-letter {
+	font-weight: 600;
+	color: hsl(var(--riven-grade-hue) 100% 50%);
+}
+
+.riven-grade-letter[data-grade="X"] {
+	color: var(--bs-secondary-color);
+}
+
+.riven-grade-letter[data-grade="F"] { --riven-grade-hue: 0; }
+.riven-grade-letter[data-grade="C-"] { --riven-grade-hue: 13.333; }
+.riven-grade-letter[data-grade="C"] { --riven-grade-hue: 26.667; }
+.riven-grade-letter[data-grade="C+"] { --riven-grade-hue: 40; }
+.riven-grade-letter[data-grade="B-"] { --riven-grade-hue: 53.333; }
+.riven-grade-letter[data-grade="B"] { --riven-grade-hue: 66.667; }
+.riven-grade-letter[data-grade="B+"] { --riven-grade-hue: 80; }
+.riven-grade-letter[data-grade="A-"] { --riven-grade-hue: 93.333; }
+.riven-grade-letter[data-grade="A"] { --riven-grade-hue: 106.667; }
+.riven-grade-letter[data-grade="A+"] { --riven-grade-hue: 120; }
+
+.riven-grade-letter[data-grade="S"] {
+	--riven-grade-hue: 300;
+	animation: riven-rainbow 3s linear infinite;
+}
+
+@keyframes riven-rainbow {
+	0%, 100% { color: hsl(0 100% 60%); }
+	16.667% { color: hsl(60 100% 55%); }
+	33.333% { color: hsl(120 100% 50%); }
+	50% { color: hsl(180 100% 50%); }
+	66.667% { color: hsl(240 100% 70%); }
+	83.333% { color: hsl(300 100% 65%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.riven-grade-letter[data-grade="S"] {
+		animation: none;
+	}
+}
+
+.riven-text-icon {
+	height: 1em;
+	width: auto;
+	margin-inline-end: 0.25rem;
+	position: relative;
+	bottom: 2px;
+}

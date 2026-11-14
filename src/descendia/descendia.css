@@ -1,0 +1,15 @@
+/* Checkpoint row styling for Descendia tables (live page and weekly forecast) */
+.descendia-challenges tbody tr:nth-child(7),
+.descendia-challenges tbody tr:nth-child(14) {
+	border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.descendia-challenges tbody tr:nth-child(7) td,
+.descendia-challenges tbody tr:nth-child(14) td {
+	padding-bottom: 1rem;
+}
+
+.descendia-challenges tbody tr:nth-child(8) td,
+.descendia-challenges tbody tr:nth-child(15) td {
+	padding-top: 1rem;
+}

@@ -45,6 +45,49 @@ async function waitForSortableTable(page: Page, bodySelector: string): Promise<v
 	await expect(page.locator(`table:has(${bodySelector})`)).toHaveClass(/table-processed/u);
 }
 
+// The ability table's rows, with each one's rank, casts, Warframe and slot
+async function readAbilityRows(page: Page) {
+	return page.evaluate(() =>
+		[...document.querySelectorAll<HTMLTableRowElement>('#ability-stats tr')].map(tr => ({
+			rank: tr.cells[0].textContent,
+			casts: Number((tr.cells[3].textContent ?? '').replaceAll(',', '')),
+			owner: tr.cells[1].textContent ?? '',
+			slot: tr.cells[2].querySelector<HTMLElement>('.ability-slot')?.getAttribute('aria-label') ?? '',
+		})));
+}
+
+// The categories of the ability rows the filter leaves shown
+async function readShownAbilityCategories(page: Page) {
+	return page.evaluate(() =>
+		[...document.querySelectorAll<HTMLTableRowElement>('#ability-stats tr')]
+			.filter(tr => getComputedStyle(tr).display !== 'none')
+			.map(tr => tr.dataset.category));
+}
+
+// The kills in the aggregate table's total row, and the kills summed over the entry table's shown rows
+async function readKillTotals(page: Page, container: string, entries: string): Promise<[number, number]> {
+	return page.evaluate(([containerSelector, entriesSelector]) => {
+		const toNumber = (text: string | undefined) => Number((text ?? '').replaceAll(',', ''));
+		const entryTable = document.querySelector(entriesSelector)!.closest('table')!;
+		const killsIndex = [...entryTable.querySelectorAll(':scope thead th')].findIndex(th => th.textContent === 'Kills');
+		const aggregateTable = document.querySelector(`${containerSelector} table`)!;
+		const aggregateKillsIndex = [...aggregateTable.querySelectorAll(':scope thead th')]
+			.findIndex(th => th.textContent === 'Kills');
+		const shownRows = [...document.querySelectorAll<HTMLTableRowElement>(`${entriesSelector} tr`)]
+			.filter(row => getComputedStyle(row).display !== 'none');
+		return [
+			toNumber(aggregateTable.querySelector(':scope tfoot tr')!.children[aggregateKillsIndex].textContent),
+			shownRows.reduce((sum, row) => sum + toNumber(row.children[killsIndex].textContent), 0),
+		];
+	}, [container, entries]);
+}
+
+// What the rank column of a table of the given length shows: 1, 2, 3 and so on
+const expectedRanks = (length: number) => Array.from({length}, (_, i) => String(i + 1));
+const toCounts = (cells: string[]) => cells.map(cell => Number(cell.replaceAll(',', '')));
+const sortedAscending = (values: number[]) => [...values].sort((a, b) => a - b);
+const areAllBlank = (cells: string[]) => cells.every(cell => cell === '—');
+
 test.describe('Profile Stats sub-tabs and extra tabs', () => {
 	test.beforeEach(async ({page}) => {
 		await openProfile(page, profileData);
@@ -98,11 +141,6 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 		test('re-orders by a column when its heading is clicked, renumbering the ranks and keeping each Warframe\'s abilities in slot order', async ({page}) => {
 			await waitForSortableTable(page, '#ability-stats');
 			const casts = page.locator('table:has(#ability-stats) th', {hasText: 'Casts'});
-			const readRows = async () => page.evaluate(() =>
-				[...document.querySelectorAll<HTMLTableRowElement>('#ability-stats tr')].map(tr => ({
-					rank: tr.cells[0].textContent,
-					casts: Number((tr.cells[3].textContent ?? '').replaceAll(',', '')),
-				})));
 			const direction = (values: number[]) => {
 				const isAscending = values.every((value, i) => i === 0 || value >= values[i - 1]);
 				const isDescending = values.every((value, i) => i === 0 || value <= values[i - 1]);
@@ -110,25 +148,21 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 			};
 
 			await casts.click();
-			const first = await readRows();
+			const first = await readAbilityRows(page);
 			expect(first.length).toBeGreaterThan(1);
 			expect(first.map(row => row.rank)).toEqual(first.map((_, i) => String(i + 1)));
 			const firstDirection = direction(first.map(row => row.casts));
 			expect(firstDirection).not.toBe('unsorted');
 
 			await casts.click();
-			const second = await readRows();
+			const second = await readAbilityRows(page);
 			expect(second.map(row => row.rank)).toEqual(second.map((_, i) => String(i + 1)));
 			expect(direction(second.map(row => row.casts))).toBe(firstDirection === 'ascending' ? 'descending' : 'ascending');
 
 			// Sorting by the Warframe column keeps each Warframe's abilities in slot order, even after sorting by casts
 			await page.locator('table:has(#ability-stats) th', {hasText: 'Warframe'}).click();
 
-			const rows = await page.evaluate(() =>
-				[...document.querySelectorAll<HTMLTableRowElement>('#ability-stats tr')].map(tr => ({
-					owner: tr.cells[1].textContent ?? '',
-					slot: tr.cells[2].querySelector<HTMLElement>('.ability-slot')?.getAttribute('aria-label') ?? '',
-				})));
+			const rows = await readAbilityRows(page);
 
 			const owners = rows.map(row => row.owner);
 			expect(owners).toEqual([...owners].sort((a, b) => a.localeCompare(b, undefined, {numeric: true})));
@@ -151,10 +185,7 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 			const button = page.locator('#ability-filter-bar button[data-filter="Operator"]');
 			await button.click();
 
-			const categories = await page.evaluate(() =>
-				[...document.querySelectorAll<HTMLTableRowElement>('#ability-stats tr')]
-					.filter(tr => getComputedStyle(tr).display !== 'none')
-					.map(tr => tr.dataset.category));
+			const categories = await readShownAbilityCategories(page);
 			expect(categories.length).toBeGreaterThan(0);
 			expect(new Set(categories)).toEqual(new Set(['Operator']));
 		});
@@ -222,22 +253,12 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 					// Ranks the groups from 1, with the total unranked and last
 					const ranks = await page.locator(`${table.rows} tr td:first-child`).allTextContents();
 					expect(ranks.length).toBeGreaterThan(2);
-					expect(ranks).toEqual(Array.from({length: ranks.length}, (_, i) => String(i + 1)));
+					expect(ranks).toEqual(expectedRanks(ranks.length));
 					await expect(page.locator(`${table.total} tr`)).toContainText('Total');
 					await expect(page.locator(`${table.total} tr td`).first()).toHaveText('');
 
 					// Totals the kills of the entries shown in the table below, which leaves out the unnamed ones by default
-					const [aggregateTotal, entriesTotal] = await page.evaluate(([container, entries]) => {
-						const toNumber = (text: string | undefined) => Number((text ?? '').replaceAll(',', ''));
-						const entryTable = document.querySelector(entries)!.closest('table')!;
-						const killsIndex = [...entryTable.querySelectorAll(':scope thead th')].findIndex(th => th.textContent === 'Kills');
-						const aggregateTable = document.querySelector(`${container} table`)!;
-						const aggregateKillsIndex = [...aggregateTable.querySelectorAll(':scope thead th')].findIndex(th => th.textContent === 'Kills');
-						return [
-							toNumber(aggregateTable.querySelector(':scope tfoot tr')!.children[aggregateKillsIndex].textContent),
-							[...document.querySelectorAll<HTMLTableRowElement>(`${entries} tr`)].filter(row => getComputedStyle(row).display !== 'none').reduce((sum, row) => sum + toNumber(row.children[killsIndex].textContent), 0),
-						];
-					}, [table.container, table.entries]);
+					const [aggregateTotal, entriesTotal] = await readKillTotals(page, table.container, table.entries);
 					expect(aggregateTotal).toBeGreaterThan(0);
 					expect(aggregateTotal).toBe(entriesTotal);
 				});
@@ -250,10 +271,10 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 
 					const killsIndex = table.headings.indexOf('Kills');
 					const killCells = await page.locator(`${table.rows} tr td:nth-child(${killsIndex + 1})`).allTextContents();
-					const kills = killCells.map(cell => Number(cell.replaceAll(',', '')));
-					expect(kills).toEqual([...kills].sort((a, b) => a - b));
+					const kills = toCounts(killCells);
+					expect(kills).toEqual(sortedAscending(kills));
 					const ranks = await page.locator(`${table.rows} tr td:first-child`).allTextContents();
-					expect(ranks).toEqual(Array.from({length: ranks.length}, (_, i) => String(i + 1)));
+					expect(ranks).toEqual(expectedRanks(ranks.length));
 					await expect(page.locator(`${table.total} tr`)).toContainText('Total');
 
 					// Blank figures sort last when descending
@@ -267,7 +288,7 @@ test.describe('Profile Stats sub-tabs and extra tabs', () => {
 					const cells = await page.locator(`${table.rows} tr td:nth-child(${index + 1})`).allTextContents();
 					const firstBlank = cells.indexOf('—');
 					expect(firstBlank, 'some blank cells to check').toBeGreaterThan(0);
-					expect(cells.slice(firstBlank).every(cell => cell === '—')).toBe(true);
+					expect(areAllBlank(cells.slice(firstBlank))).toBe(true);
 				});
 			});
 		}

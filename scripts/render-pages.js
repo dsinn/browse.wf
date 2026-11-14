@@ -82,11 +82,10 @@ async function watchMode() {
 	const IGNORED_DIRS = /\.git|dist|node_modules|public|test|typestripped|vendor/u;
 	const phpWatcher = chokidar.default.watch(rootDir, {
 		ignored(filePath, stats) {
-			if (!stats) {
-				return false;
-			}
-
-			return stats.isDirectory() ? IGNORED_DIRS.test(filePath) : !filePath.endsWith('.php') && !filePath.endsWith('.html');
+			// Chokidar calls this without stats first, so ignored dirs (e.g. public/, which render writes to)
+			// must be matched here or their .html files retrigger the render in an endless loop.
+			return IGNORED_DIRS.test(filePath)
+				|| (Boolean(stats?.isFile()) && !filePath.endsWith('.php') && !filePath.endsWith('.html'));
 		},
 		persistent: true,
 		ignoreInitial: true,

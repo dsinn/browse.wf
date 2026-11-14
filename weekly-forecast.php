@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="src/calendar-seasons/calendar-seasons.css">
 	<link rel="stylesheet" href="src/teshin/teshin.css">
 	<link rel="stylesheet" href="src/weekly-forecast-toc.css">
+	<link rel="stylesheet" href="src/weekly-forecast.css">
 </head>
 <body data-bs-theme="dark">
 	<?php require "components/navbar.php"; ?>

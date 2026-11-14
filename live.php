@@ -11,6 +11,7 @@
 	<link rel="stylesheet" href="src/card-filters.css">
 	<link rel="stylesheet" href="src/descendia/descendia.css">
 	<link rel="stylesheet" href="src/live/bounty-filters.css">
+	<link rel="stylesheet" href="src/live/fissures.css">
 	<link rel="stylesheet" href="src/live/invasions.css">
 	<link rel="stylesheet" href="src/live/news.css">
 	<link rel="stylesheet" href="src/tooltip.css">

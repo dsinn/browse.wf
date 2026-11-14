@@ -26,6 +26,7 @@ const buildOptions = {
 	format: 'iife',
 	outfile: 'typestripped/src-bundle.js',
 	sourcemap: true,
+	minify: !watch,
 	target: 'es2021',
 	// Exclude packages resolved at runtime (not bundled)
 	external: ['warframe-public-export-plus'],

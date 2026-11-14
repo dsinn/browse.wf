@@ -11,6 +11,7 @@ import {
 	vi,
 } from 'vitest';
 import {freezeTime, MOCK_TIMESTAMP} from '@test/helpers/time-helpers';
+import {resetTimerRegistry} from '../timer-registry';
 import {updateClanWeekly} from './index';
 
 const NEXT_WEEKLY_RESET_MS = 1_768_176_000_000; // 2026-01-12T00:00:00Z, the Monday after MOCK_TIMESTAMP
@@ -76,6 +77,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+	resetTimerRegistry();
 	vi.useRealTimers();
 	(globalThis as any).worldState = {WeeklyVaultBonusRewards: [mockEntry]};
 	delete (globalThis as any).createExpiryBadge;

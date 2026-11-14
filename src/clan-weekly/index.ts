@@ -1,6 +1,7 @@
 import {makeIcon} from '../helpers/icon-helpers.js';
 import {getNextWeeklyResetMs} from '../helpers/time-helpers.js';
 import {populateLiveCard} from '../live/card-helpers.js';
+import {scheduleAt} from '../timer-registry.js';
 import {findClanWeeklyEntry, resolveBonusRegion, resolveClanWeeklyRewards} from './data.js';
 
 declare function getDictPromise(): Promise<Record<string, string>>;
@@ -66,9 +67,9 @@ export async function updateClanWeekly(): Promise<void> {
 	}
 
 	const expiryMs = getNextWeeklyResetMs();
-	setTimeout(() => {
+	scheduleAt(expiryMs, () => {
 		void updateClanWeekly();
-	}, expiryMs - Date.now());
+	});
 
 	await populateLiveCard(
 		'clan-weekly',

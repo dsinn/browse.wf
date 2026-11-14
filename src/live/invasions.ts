@@ -4,6 +4,7 @@ import {isFilterEnabled} from '../card-filters.js';
 import {addTooltip} from '../tooltip.js';
 import {fetchExport} from '../public-export-fetcher.js';
 import {formatTileset, getTileset} from '../helpers/tileset-helpers.js';
+import {scheduleAt} from '../timer-registry.js';
 
 type InvasionData = {
 	_id: {$oid: string};
@@ -156,18 +157,18 @@ function buildPercentageSpan(percentage: number, invasion: InvasionData, activat
 	return span;
 }
 
-const pendingActivationTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
+const pendingActivationCancels = new Map<string, () => void>();
 
 function buildPendingActivationBadge(activationMs: number, oid: string, td: HTMLTableCellElement, invasion: InvasionData): HTMLSpanElement {
 	const badge = window.createExpiryBadge(activationMs);
 	const nbsp = String.fromCodePoint(160);
 	addTooltip(badge, `Up${nbsp}at ${formatActivationLabel(activationMs)}`);
 
-	clearTimeout(pendingActivationTimeouts.get(oid));
-	pendingActivationTimeouts.set(oid, setTimeout(() => {
-		pendingActivationTimeouts.delete(oid);
+	pendingActivationCancels.get(oid)?.();
+	pendingActivationCancels.set(oid, scheduleAt(activationMs, () => {
+		pendingActivationCancels.delete(oid);
 		td.replaceChildren(buildPercentageSpan(100, invasion, activationMs));
-	}, activationMs - Date.now()));
+	}));
 
 	return badge;
 }

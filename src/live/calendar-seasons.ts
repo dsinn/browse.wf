@@ -8,6 +8,7 @@
  */
 
 import {renderCalendarSeasonPane} from '../calendar-seasons/index.js';
+import {scheduleAt} from '../timer-registry.js';
 import {populateLiveCard} from './card-helpers.js';
 
 export async function updateCalendarSeason(): Promise<void> {
@@ -26,9 +27,9 @@ export async function updateCalendarSeason(): Promise<void> {
 	if (activeSeason) {
 		// Schedule re-render when the active season expires
 		const expiry = Number(activeSeason.Expiry.$date.$numberLong);
-		setTimeout(() => {
+		scheduleAt(expiry, () => {
 			void updateCalendarSeason();
-		}, expiry - Date.now());
+		});
 	} else {
 		// No active season yet — worldState may be stale; retry shortly
 		setTimeout(() => {

@@ -4,9 +4,10 @@
  */
 
 import {getNextDailyResetMs} from '../helpers/time-helpers.js';
+import {scheduleAt} from '../timer-registry.js';
 import {createDataWarning} from './data-warning.js';
 
-let dailyResetTimer: ReturnType<typeof setTimeout> | undefined;
+let dailyResetTimer: (() => void) | undefined;
 
 export function updateBountyCheckboxes(): void {
 	// Next daily reset in milliseconds — used as the OID suffix so pruning can compare directly to Date.now()
@@ -42,10 +43,10 @@ export function updateBountyCheckboxes(): void {
 	}
 
 	// Schedule reset at next daily reset (UTC) — memoized so multiple calls don't stack timers
-	dailyResetTimer ||= setTimeout(() => {
+	dailyResetTimer ||= scheduleAt(nextDailyReset, () => {
 		dailyResetTimer = undefined;
 		updateBountyCheckboxes();
-	}, nextDailyReset - Date.now());
+	});
 }
 
 window.updateBountyCheckboxes = updateBountyCheckboxes;

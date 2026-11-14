@@ -133,6 +133,7 @@ interface Window {
 	renderProfile?: () => void;
 	saveSettings?: () => void;
 	sendNotification?: (message: string) => void;
+	scheduleAt?: (at: number, callback: () => unknown) => () => void;
 	setDatum?: (name: string, value: string, expiry?: number) => void;
 	setImageSource?: (img: HTMLImageElement, icon: string) => void;
 	toggleOidCompletion?: (oid: string) => void;

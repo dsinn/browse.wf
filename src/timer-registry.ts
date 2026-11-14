@@ -16,6 +16,11 @@
  Registered badges are dropped automatically once they have been attached to the DOM and then removed,
  or once their update function returns false to say it has written its final text. A badge that has
  not been attached yet is kept, as it may be built well before the page attaches it.
+
+ The same tick also runs `scheduleAt` callbacks, which are how cards refresh themselves at their expiry. This is
+ deliberately not a setTimeout: browsers count its delay in time awake, so after the device sleeps it fires late
+ by the length of the sleep (while badges, which read Date.now(), already say "Pending update"). Comparing
+ Date.now() on every tick has no such gap.
  */
 
 type Entry = {
@@ -27,7 +32,13 @@ export const TICK_MS = 250;
 
 export const DEFAULT_PENDING_LABEL = 'Pending update';
 
+type ScheduledCallback = {
+	at: number;
+	callback: () => unknown;
+};
+
 const badges = new Map<HTMLElement, Entry>();
+const scheduled = new Set<ScheduledCallback>();
 let intervalId: ReturnType<typeof setInterval> | undefined;
 
 /**
@@ -46,7 +57,31 @@ export function setTimerText(elm: HTMLElement, text: string): void {
 	}
 }
 
+function runScheduled(): void {
+	const now = Date.now();
+	for (const item of scheduled) {
+		if (now < item.at) {
+			continue;
+		}
+
+		// Removed before it runs, so a slow callback can't be called again by a later tick
+		scheduled.delete(item);
+		try {
+			const result = item.callback();
+			if (result instanceof Promise) {
+				result.catch((error: unknown) => {
+					console.error(error);
+				});
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
+}
+
 function tick(): void {
+	runScheduled();
+
 	// Pruning always runs so detached badges aren't retained in a background tab; only rendering is skipped
 	const {hidden} = document;
 	for (const [elm, entry] of badges) {
@@ -82,7 +117,25 @@ export function registerTimerBadge(elm: HTMLElement, update: () => boolean): voi
 	}
 
 	badges.set(elm, {update, wasConnected: elm.isConnected});
+	ensureTicking();
+}
+
+function ensureTicking(): void {
 	intervalId ??= setInterval(tick, TICK_MS);
+}
+
+/**
+ Runs `callback` once, on the first tick at or after the timestamp `at` (ms since epoch), even in a hidden tab.
+ A throw or rejection is logged. Scheduling the same callback twice runs it twice; the caller deduplicates.
+ Returns a function that cancels it.
+ */
+export function scheduleAt(at: number, callback: () => unknown): () => void {
+	const item = {at, callback};
+	scheduled.add(item);
+	ensureTicking();
+	return () => {
+		scheduled.delete(item);
+	};
 }
 
 /**
@@ -90,6 +143,7 @@ export function registerTimerBadge(elm: HTMLElement, update: () => boolean): voi
  */
 export function resetTimerRegistry(): void {
 	badges.clear();
+	scheduled.clear();
 	clearInterval(intervalId);
 	intervalId = undefined;
 }
@@ -99,4 +153,6 @@ document.addEventListener('visibilitychange', () => {
 		tick();
 	}
 });
+
+window.scheduleAt = scheduleAt;
 

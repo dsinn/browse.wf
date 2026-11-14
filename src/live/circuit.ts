@@ -7,6 +7,7 @@
  */
 
 import {pascalToTitleCase} from '../helpers/string-helpers.js';
+import {scheduleAt} from '../timer-registry.js';
 import {filterWeeklyMissions} from './weekly.js';
 
 const STALE_DATA_RETRY_MS = 5000;
@@ -59,7 +60,7 @@ export function updateCircuitChoices(): void {
 	clearAndSet('circuit-frames-check', `circuit-normal-${expiry}`);
 	clearAndSet('circuit-weapons-check', `circuit-hard-${expiry}`);
 
-	setTimeout(updateCircuitChoices, expiry - now);
+	scheduleAt(expiry, updateCircuitChoices);
 
 	const normalChoices = active.CategoryChoices.find(c => c.Category === 'EXC_NORMAL')?.Choices ?? [];
 	const hardChoices = active.CategoryChoices.find(c => c.Category === 'EXC_HARD')?.Choices ?? [];

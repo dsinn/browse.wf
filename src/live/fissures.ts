@@ -3,6 +3,7 @@ import {fetchExport} from '../public-export-fetcher.js';
 import {canonicalizeMissionType} from '../helpers/mission-helpers.js';
 import {getTileset, formatTileset} from '../helpers/tileset-helpers.js';
 import {addTooltip} from '../tooltip.js';
+import {scheduleAt} from '../timer-registry.js';
 
 let latestRenderedFissureTime = 0;
 const fissuresScheduledExpiries = new Set<number>();
@@ -164,10 +165,10 @@ export async function updateFissures(shouldForceRender = false) {
 		}
 
 		fissuresScheduledExpiries.add(expiry);
-		setTimeout(() => {
+		scheduleAt(expiry + 60_000, () => {
 			fissuresScheduledExpiries.delete(expiry);
 			void updateFissures(true);
-		}, Math.max(0, expiry + 60_000 - Date.now()));
+		});
 	}
 
 	const {fissureTiers} = (globalThis as any);

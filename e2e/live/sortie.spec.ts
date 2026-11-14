@@ -72,3 +72,47 @@ test.describe('Live Page - Sortie Card', () => {
 		await expect(completionToggle).toBeVisible();
 	});
 });
+
+test.describe('Live Page - Sortie Card rollover', () => {
+	// The default worldState mock has one sortie, which expires at 1768150800000
+	const MS_UNTIL_SORTIE_EXPIRY = 63_600_000;
+	const NEXT_SORTIE_EXPIRY = 1_768_237_200_000;
+
+	test.beforeEach(async ({page}) => {
+		await setupMockRoutes(page, {
+			modifyWorldState(worldState) {
+				const [current] = worldState.Sorties;
+				worldState.Sorties.push({
+					...structuredClone(current),
+					_id: {$oid: '6963820f7d74fe58c6ce5f49'},
+					Activation: current.Expiry,
+					Expiry: {$date: {$numberLong: String(NEXT_SORTIE_EXPIRY)}},
+					Variants: [
+						{
+							missionType: 'MT_EXTERMINATION', modifierType: 'SORTIE_MODIFIER_SHIELDS', node: 'SolNode301', tileset: 'OrokinMoonTilesetGrineer',
+						},
+						{
+							missionType: 'MT_RESCUE', modifierType: 'SORTIE_MODIFIER_ARMOR', node: 'SolNode122', tileset: 'GrineerOceanTileset',
+						},
+						{
+							missionType: 'MT_ASSASSINATION', modifierType: 'SORTIE_MODIFIER_BOW_ONLY', node: 'SolNode32', tileset: 'GrineerGalleonTileset',
+						},
+					],
+				});
+			},
+		});
+		await page.goto('/live');
+		await page.waitForSelector('#sortie-table tbody tr', {timeout: 10_000});
+	});
+
+	test('shows the next sortie once the clock passes the expiry, without a reload or a worldState poll', async ({page}) => {
+		await expect(page.locator('#sortie-table tbody tr').nth(0).locator('td')).toContainText('Energy Reduction');
+
+		// FastForward jumps the clock and fires due timers once, like a device waking from sleep
+		await page.clock.fastForward(MS_UNTIL_SORTIE_EXPIRY + 1000);
+
+		await expect(page.locator('#sortie-table tbody tr').nth(0).locator('td')).toContainText('Enhanced Enemy Shields');
+		await expect(page.locator('#sortie-table tbody tr').nth(1).locator('td')).toContainText('Augmented Enemy Armor');
+		await expect(expiryBadge(page.locator('#sortie-header'))).toHaveAttribute('data-expiry', String(NEXT_SORTIE_EXPIRY));
+	});
+});

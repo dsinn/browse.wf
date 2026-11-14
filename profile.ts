@@ -394,6 +394,7 @@ function renderProfile(): void
 						{
 							const img = document.createElement("img");
 							img.className = "img-fluid rounded-start";
+							img.loading = "lazy"; // The tab is hidden by default
 							img.src = "https://browse.wf" + achievement.icon;
 							div.appendChild(img);
 						}

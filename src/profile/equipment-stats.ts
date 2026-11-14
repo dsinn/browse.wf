@@ -93,6 +93,61 @@ function augmentArchwingName(nameCell: HTMLTableCellElement): void {
 	nameCell.append(wrap);
 }
 
+/**
+ Augments one equipment row in place: adds the rank, Used%, Fired and Hit% cells and formats the name and hours.
+
+ @param tr - The row of the item in the equipment table.
+ @param item - The item's entry in the profile's weapon stats.
+ @param type - The item's export entry, or undefined for an unnamed item.
+ @param total - The equip time of the item's category, the denominator of Used%.
+ */
+function augmentEquipmentRow(tr: HTMLTableRowElement, item: any, type: unknown, total: number): void {
+	// Capture cell references before mutating the row
+	const nameCell = tr.cells[0];
+	const hoursCell = tr.cells[1];
+	const affinityCell = tr.cells[5];
+
+	// Prepend rank cell
+	const rankCell = document.createElement('td');
+	tr.insertBefore(rankCell, tr.firstChild);
+
+	if (type) {
+		augmentArchwingName(nameCell);
+	} else {
+		renderInternalName(nameCell, item.type);
+	}
+
+	// Insert Used% cell before hours cell, then reformat hours
+	const equipTime = item.equipTime ?? 0;
+	const usedCell = createNoValueCell();
+	if (type) {
+		const usedPercent = total ? equipTime / total * 100 : 0;
+		setCellValue(usedCell, `${usedPercent.toFixed(2)}%`, usedPercent);
+	}
+
+	hoursCell.before(usedCell);
+
+	// Insert Fired and Hit% cells before the affinity cell. Hit% is blank unless both counters were recorded,
+	// since a weapon with shots fired but no hits key usually just doesn't track hits.
+	const fired = Number(item.fired) || 0;
+	const firedCell = createNoValueCell();
+	const hitRateCell = createNoValueCell();
+	if (fired > 0) {
+		setCellValue(firedCell, fired.toLocaleString(), fired);
+	}
+
+	if (fired > 0 && typeof item.hits === 'number') {
+		const hitPercent = item.hits / fired * 100;
+		setCellValue(hitRateCell, `${hitPercent.toFixed(1)}%`, hitPercent);
+		hitRateCell.title = `${item.hits.toLocaleString()} hits / ${fired.toLocaleString()} fired`;
+	}
+
+	affinityCell.before(firedCell, hitRateCell);
+
+	// Reformat hours cell (now index 3) to locale string
+	hoursCell.textContent = (equipTime / 3600).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1});
+}
+
 export async function augmentEquipmentStats(profile: any): Promise<void> {
 	// Disconnect early so queued MutationObserver callbacks from the previous
 	// render can't fire after the await and clobber the new rows' name cells.
@@ -136,51 +191,7 @@ export async function augmentEquipmentStats(profile: any): Promise<void> {
 		presentCategories.add(category);
 		categories.push(category);
 
-		// Capture cell references before mutating the row
-		const nameCell = tr.cells[0];
-		const hoursCell = tr.cells[1];
-		const affinityCell = tr.cells[5];
-
-		// Prepend rank cell
-		const rankCell = document.createElement('td');
-		tr.insertBefore(rankCell, tr.firstChild);
-
-		if (type) {
-			augmentArchwingName(nameCell);
-		} else {
-			renderInternalName(nameCell, item.type);
-		}
-
-		// Insert Used% cell before hours cell, then reformat hours
-		const equipTime = item.equipTime ?? 0;
-		const total = categoryTotals[denominatorKeyFor(category)] ?? 0;
-		const usedCell = createNoValueCell();
-		if (type) {
-			const usedPercent = total ? equipTime / total * 100 : 0;
-			setCellValue(usedCell, `${usedPercent.toFixed(2)}%`, usedPercent);
-		}
-
-		hoursCell.before(usedCell);
-
-		// Insert Fired and Hit% cells before the affinity cell. Hit% is blank unless both counters were recorded,
-		// since a weapon with shots fired but no hits key usually just doesn't track hits.
-		const fired = Number(item.fired) || 0;
-		const firedCell = createNoValueCell();
-		const hitRateCell = createNoValueCell();
-		if (fired > 0) {
-			setCellValue(firedCell, fired.toLocaleString(), fired);
-		}
-
-		if (fired > 0 && typeof item.hits === 'number') {
-			const hitPercent = item.hits / fired * 100;
-			setCellValue(hitRateCell, `${hitPercent.toFixed(1)}%`, hitPercent);
-			hitRateCell.title = `${item.hits.toLocaleString()} hits / ${fired.toLocaleString()} fired`;
-		}
-
-		affinityCell.before(firedCell, hitRateCell);
-
-		// Reformat hours cell (now index 3) to locale string
-		hoursCell.textContent = (equipTime / 3600).toLocaleString(undefined, {minimumFractionDigits: 1, maximumFractionDigits: 1});
+		augmentEquipmentRow(tr, item, type, categoryTotals[denominatorKeyFor(category)] ?? 0);
 	}
 
 	const equipmentEntries = Object.entries(EQUIPMENT_CATEGORIES).map(([key, {tooltip, icon, displayText}]) => ({

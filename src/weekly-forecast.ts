@@ -305,21 +305,49 @@ export function initWeeklyMissionsNotice(): void {
 	}, expiryMs - Date.now());
 }
 
+/**
+ Returns the activation of the tab the user is on, for re-activating it after a refresh re-renders the tabs.
+ Only meaningful on refresh; returns undefined otherwise, or when the page has no such tabs.
+ */
+function getRefreshActivation(isRefresh: boolean, tabsSelector: string): string | undefined {
+	const tabsElement = isRefresh ? document.querySelector<HTMLElement>(tabsSelector) : undefined;
+	return tabsElement ? getActiveTabActivation(tabsElement) : undefined;
+}
+
+/**
+ Renders the forecasts that are pure client-side rotation math, with no worldState dependency:
+ The Circuit and Steel Path Honors (Teshin).
+ */
+async function renderClientSideForecasts(): Promise<void> {
+	const circuitForecastBodyElement = document.querySelector<HTMLElement>('#circuit-forecast-body');
+	if (circuitForecastBodyElement) {
+		const dict = await getDictPromise();
+		renderCircuitForecastTable(circuitForecastBodyElement, dict);
+	}
+
+	const teshinForecastHeaderElement = document.querySelector<HTMLElement>('#teshin-forecast-header');
+	if (teshinForecastHeaderElement) {
+		renderTeshinForecastHeader(teshinForecastHeaderElement);
+	}
+
+	const teshinForecastBodyElement = document.querySelector<HTMLElement>('#teshin-forecast-body');
+	if (teshinForecastBodyElement) {
+		renderTeshinForecastTable(teshinForecastBodyElement);
+	}
+}
+
 export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	const deepTabsElement = document.querySelector<HTMLElement>('#deep-archimedea-tabs');
 	const temporalTabsElement = document.querySelector<HTMLElement>('#temporal-archimedea-tabs');
 	const descentTabsElement = document.querySelector<HTMLElement>('#descendia-tabs');
 	const calendarSeasonTabsElement = document.querySelector<HTMLElement>('#calendar-season-tabs');
 	const clanWeeklyColumnsElement = document.querySelector<HTMLElement>('#clan-weekly-columns');
-	const circuitForecastBodyElement = document.querySelector<HTMLElement>('#circuit-forecast-body');
-	const teshinForecastHeaderElement = document.querySelector<HTMLElement>('#teshin-forecast-header');
-	const teshinForecastBodyElement = document.querySelector<HTMLElement>('#teshin-forecast-body');
 
 	// Capture which tab the user is on before re-rendering (only meaningful on refresh)
-	const deepActivation = (isRefresh && deepTabsElement) ? getActiveTabActivation(deepTabsElement) : undefined;
-	const temporalActivation = (isRefresh && temporalTabsElement) ? getActiveTabActivation(temporalTabsElement) : undefined;
-	const descentActivation = (isRefresh && descentTabsElement) ? getActiveTabActivation(descentTabsElement) : undefined;
-	const calendarSeasonActivation = (isRefresh && calendarSeasonTabsElement) ? getActiveTabActivation(calendarSeasonTabsElement) : undefined;
+	const deepActivation = getRefreshActivation(isRefresh, '#deep-archimedea-tabs');
+	const temporalActivation = getRefreshActivation(isRefresh, '#temporal-archimedea-tabs');
+	const descentActivation = getRefreshActivation(isRefresh, '#descendia-tabs');
+	const calendarSeasonActivation = getRefreshActivation(isRefresh, '#calendar-season-tabs');
 
 	const worldState = await WarframeApiFrontProxyClient.fetchWorldState();
 
@@ -378,20 +406,7 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 		await renderClanWeeklyColumns(clanWeeklyColumnsElement, clanWeeklyEntries);
 	}
 
-	// The Circuit — pure client-side rotation math, no worldState dependency
-	if (circuitForecastBodyElement) {
-		const dict = await getDictPromise();
-		renderCircuitForecastTable(circuitForecastBodyElement, dict);
-	}
-
-	// Steel Path Honors (Teshin) — pure client-side rotation math, no worldState dependency
-	if (teshinForecastHeaderElement) {
-		renderTeshinForecastHeader(teshinForecastHeaderElement);
-	}
-
-	if (teshinForecastBodyElement) {
-		renderTeshinForecastTable(teshinForecastBodyElement);
-	}
+	await renderClientSideForecasts();
 
 	// Schedule next refresh at Sunday 23:02 UTC (when the forecast is expected to be published)
 	setTimeout(() => {

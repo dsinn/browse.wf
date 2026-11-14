@@ -110,6 +110,12 @@ html, body, .card, .table, .btn, .navbar, .dropdown-menu, .border, th, td, #boun
 	animation: celestial-enter 0.6s linear 0.6s forwards;
 }
 
+/* Hidden until the script picks a state, so the active body appears in place instead of jumping (a layout shift)
+   from the resting position to the centre */
+.celestial-icon:not(.is-active, .is-exited, .is-entering, .is-exiting) {
+	display: none;
+}
+
 .celestial-icon.is-active {
 	left: 50vw;
 	top: 50vh;
@@ -164,6 +170,11 @@ html, body, .card, .table, .btn, .navbar, .dropdown-menu, .border, th, td, #boun
 
 #schedule-table th {
 	font-family: var(--bs-font-sans-serif);
+}
+
+/* Keep empty cells one line tall, so the pre-rendered grid doesn't grow (a layout shift) when the script fills it */
+#schedule-table :is(th, td):empty::after {
+	content: "\200b";
 }
 
 /* The first column is always today's date - see the comment above startDayBucket in

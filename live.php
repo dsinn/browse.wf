@@ -1,4 +1,3 @@
-<?php require_once "helpers.php"; ?>
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
 <head>
@@ -8,13 +7,13 @@
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" integrity="sha384-XGjxtQfXaH2tnPFa9x+ruJTuLE3Aa6LhHSWRr1XeTyhezb4abCG4ccI5AkVDxqC+" crossorigin="anonymous">
 	<link rel="icon" href="https://browse.wf/Lotus/Interface/Icons/Categories/GrimoireModIcon.png">
-	<?php asyncStylesheet("src/calendar-seasons/calendar-seasons.css"); ?>
-	<?php asyncStylesheet("src/card-filters.css"); ?>
-	<?php asyncStylesheet("src/descendia/descendia.css"); ?>
-	<?php asyncStylesheet("src/live/bounty-filters.css"); ?>
-	<?php asyncStylesheet("src/live/invasions.css"); ?>
-	<?php asyncStylesheet("src/live/news.css"); ?>
-	<?php asyncStylesheet("src/tooltip.css"); ?>
+	<link rel="stylesheet" href="src/calendar-seasons/calendar-seasons.css">
+	<link rel="stylesheet" href="src/card-filters.css">
+	<link rel="stylesheet" href="src/descendia/descendia.css">
+	<link rel="stylesheet" href="src/live/bounty-filters.css">
+	<link rel="stylesheet" href="src/live/invasions.css">
+	<link rel="stylesheet" href="src/live/news.css">
+	<link rel="stylesheet" href="src/tooltip.css">
 	<style>
 		[data-notif-toggle], [data-notif-toggle] > span, .completion-check { text-decoration:none;cursor:pointer;color:inherit }
 		.completion-check { display: inline-block; width: 15px; font-size: 0.75rem }

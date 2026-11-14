@@ -6,7 +6,12 @@
  */
 
 import {createTooltip} from '../tooltip.js';
-import {resolveArchimedea, type IResolvedArchimedeaMission, type IResolvedFrameVariable} from './data.js';
+import {
+	resolveArchimedea,
+	type ArchimedeaType,
+	type IResolvedArchimedeaMission,
+	type IResolvedFrameVariable,
+} from './data.js';
 
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
@@ -73,16 +78,14 @@ export function renderArchimedeaFrameVariables(frameVariables: IResolvedFrameVar
  @param container Element to render into
  @param archimedea The raw Archimedea object from worldState.Conquests[]
  @param archimedeaType "CT_LAB" or "CT_HEX"
- @param variantKeyPrefix e.g. "/Lotus/Language/Conquest/MissionVariant_LabConquest_"
  */
 export async function renderArchimedeaTable(
 	container: HTMLElement,
 	archimedea: any,
-	archimedeaType: string,
-	variantKeyPrefix: string,
+	archimedeaType: ArchimedeaType,
 ): Promise<void> {
 	const [dict, osdict] = await Promise.all([getDictPromise(), getOSDictPromise()]);
-	const {missions, frameVariables} = await resolveArchimedea(archimedea, archimedeaType, variantKeyPrefix, osdict, dict);
+	const {missions, frameVariables} = await resolveArchimedea(archimedea, archimedeaType, osdict, dict);
 
 	for (const x of container.querySelectorAll('[data-bs-toggle=tooltip]')) {
 		window.bootstrap.Tooltip.getInstance(x)?.dispose();

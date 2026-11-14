@@ -188,28 +188,29 @@ describe('profile-stats-filters', () => {
 		});
 
 		it('renders an "All" button as the first button', () => {
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
+			initStatsFilterBar(filterBar, tbody, entries);
 			const buttons = filterBar.querySelectorAll('button');
 			expect(buttons[0].dataset.bsTitle).toBe('All');
 			expect(buttons[0].dataset.filter).toBe('');
 		});
 
 		it('"All" button starts active', () => {
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
+			initStatsFilterBar(filterBar, tbody, entries);
 			const allBtn = filterBar.querySelector('button');
 			expect(allBtn!.classList.contains('active')).toBe(true);
 		});
 
 		it('every button has a Bootstrap tooltip', () => {
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
+			initStatsFilterBar(filterBar, tbody, entries);
 			for (const btn of filterBar.querySelectorAll('button')) {
 				expect(btn.dataset.bsToggle).toBe('tooltip');
 				expect(btn.dataset.bsTitle).toBeTruthy();
 			}
 		});
 
-		it('only renders buttons for categories present in presentKeys', () => {
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Gamma']));
+		it('only renders buttons for categories present in the rows', () => {
+			tbody.querySelector('[data-category="Beta"]')!.remove();
+			initStatsFilterBar(filterBar, tbody, entries);
 			const buttons = filterBar.querySelectorAll('button');
 			// All + Alpha + Gamma = 3, Beta is absent
 			expect(buttons).toHaveLength(3);
@@ -218,20 +219,20 @@ describe('profile-stats-filters', () => {
 		});
 
 		it('renders an img for entries with an icon', () => {
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
+			initStatsFilterBar(filterBar, tbody, entries);
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
 			expect(alphaBtn!.querySelector('img')).toBeTruthy();
 		});
 
 		it('renders a text span for entries with no icon', () => {
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
+			initStatsFilterBar(filterBar, tbody, entries);
 			const betaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Beta"]');
 			expect(betaBtn!.querySelector('span')).toBeTruthy();
 			expect(betaBtn!.querySelector('img')).toBeNull();
 		});
 
 		it('clicking a filter button sets data-filter on tbody and marks button active', () => {
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
+			initStatsFilterBar(filterBar, tbody, entries);
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
 			alphaBtn!.click();
 			expect(tbody.dataset.filter).toBe('Alpha');
@@ -239,7 +240,7 @@ describe('profile-stats-filters', () => {
 		});
 
 		it('clicking "All" clears the filter', () => {
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
+			initStatsFilterBar(filterBar, tbody, entries);
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
 			const allBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter=""]');
 			alphaBtn!.click();
@@ -250,7 +251,7 @@ describe('profile-stats-filters', () => {
 		});
 
 		it('only one button is active at a time', () => {
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']));
+			initStatsFilterBar(filterBar, tbody, entries);
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
 			const gammaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Gamma"]');
 			alphaBtn!.click();
@@ -262,7 +263,7 @@ describe('profile-stats-filters', () => {
 
 		it('calls onFilter callback when a category button is clicked', () => {
 			const onFilter = vi.fn();
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']), () => {
+			initStatsFilterBar(filterBar, tbody, entries, () => {
 				onFilter();
 			});
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
@@ -272,7 +273,7 @@ describe('profile-stats-filters', () => {
 
 		it('calls onFilter callback when "All" is clicked', () => {
 			const onFilter = vi.fn();
-			initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha', 'Beta', 'Gamma']), () => {
+			initStatsFilterBar(filterBar, tbody, entries, () => {
 				onFilter();
 			});
 			const alphaBtn = filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]');
@@ -285,7 +286,7 @@ describe('profile-stats-filters', () => {
 
 		it('does not throw when onFilter is omitted', () => {
 			expect(() => {
-				initStatsFilterBar(filterBar, tbody, entries, new Set(['Alpha']));
+				initStatsFilterBar(filterBar, tbody, entries);
 				filterBar.querySelector<HTMLButtonElement>('[data-filter="Alpha"]')!.click();
 			}).not.toThrow();
 		});

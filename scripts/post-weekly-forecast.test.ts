@@ -36,27 +36,27 @@ const worldState = {
 
 describe('formatArchimedea', () => {
 	test('returns null when no conquests of the given type exist', async () => {
-		const result = await formatArchimedea({Conquests: []}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea({Conquests: []}, 'CT_LAB');
 		expect(result).toBeNull();
 	});
 
 	test('returns null when Conquests is absent', async () => {
-		const result = await formatArchimedea({}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea({}, 'CT_LAB');
 		expect(result).toBeNull();
 	});
 
 	test('formats Deep Archimedea header with section title only', async () => {
-		const result = await formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea(worldState, 'CT_LAB');
 		expect(result).toMatch(/^## Deep Archimedea$/mu);
 	});
 
 	test('formats Temporal Archimedea header', async () => {
-		const result = await formatArchimedea(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea');
+		const result = await formatArchimedea(worldState, 'CT_HEX');
 		expect(result).toMatch(/^## Temporal Archimedea$/mu);
 	});
 
 	test('each mission renders with bold type name, then bullet lines for deviation and conditions', async () => {
-		const result = await formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea(worldState, 'CT_LAB');
 		const lines = result!.split('\n');
 		// Should have at least one bold mission type line
 		expect(lines.some((l: string) => /^\*\*.+\*\*$/u.test(l))).toBe(true);
@@ -65,13 +65,13 @@ describe('formatArchimedea', () => {
 	});
 
 	test('mission type name is Title Case', async () => {
-		const result = await formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea(worldState, 'CT_LAB');
 		// Dict_en returns ALLCAPS — should be converted to Title Case
 		expect(result).not.toMatch(/\*\*[A-Z]{3,}\*\*/u);
 	});
 
 	test('uses CD_HARD difficulty when present', async () => {
-		const result = await formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea(worldState, 'CT_LAB');
 		// CD_HARD for first mission has deviation FragileNodes → "Unified Purpose" in dicts/en.json
 		expect(result).toContain('Unified Purpose');
 	});
@@ -89,7 +89,7 @@ describe('formatArchimedea', () => {
 			}],
 			Variables: [],
 		};
-		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_LAB');
 		// EMPBlackHole remaps to MagneticHounds, which displays as "Alluring Arcocanids" in en.json
 		expect(result).toContain('Alluring Arcocanids');
 		expect(result).not.toContain('EMPBlackHole');
@@ -101,7 +101,7 @@ describe('formatArchimedea', () => {
 			difficulties: [{type: 'CD_HARD', deviation: 'FragileNodes', risks: ['PointBlank', 'ExplosiveCrawlers']}],
 		};
 		const conquest = {...worldState.Conquests[0], Missions: [defenseMission], Variables: []};
-		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_LAB');
 		// DualDefense maps to "Mirror Defense" in the real dict
 		expect(result).toContain('Mirror Defense');
 		expect(result).not.toContain('**Defense**');
@@ -113,31 +113,31 @@ describe('formatArchimedea', () => {
 			difficulties: [{type: 'CD_HARD', deviation: 'FragileNodes', risks: ['PointBlank', 'ExplosiveCrawlers']}],
 		};
 		const conquest = {...worldState.Conquests[1], Missions: [defenseMission], Variables: []};
-		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea');
+		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_HEX');
 		expect(result).toContain('Defense');
 		expect(result).not.toContain('Mirror Defense');
 	});
 
 	test('renders Frame Variables heading when Variables are present', async () => {
-		const result = await formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea(worldState, 'CT_LAB');
 		expect(result).toContain('> **Frame Variables**');
 	});
 
 	test('each frame variable renders as a bullet with bold name: description', async () => {
-		const result = await formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea(worldState, 'CT_LAB');
 		// ShieldDelay → "> - **Lethargic Shields**: Shield recharge delay increased 500%."
 		expect(result).toMatch(/^> - \*\*Lethargic Shields\*\*: .+500/mu);
 	});
 
 	test('frame variable falls back to raw tag when missing from osdict', async () => {
 		const conquest = {...worldState.Conquests[0], Variables: ['UnknownModTag']};
-		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_LAB');
 		expect(result).toContain('UnknownModTag');
 	});
 
 	test('omits frame variables line when Variables is empty', async () => {
 		const conquest = {...worldState.Conquests[0], Variables: []};
-		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_LAB');
 		expect(result).not.toContain('Frame Variables');
 	});
 
@@ -150,17 +150,17 @@ describe('formatArchimedea', () => {
 			}],
 			Variables: [],
 		};
-		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea({Conquests: [conquest]}, 'CT_LAB');
 		expect(result).toContain('UnknownVariant');
 	});
 
 	test('includes Discord timestamp in heading when showTimestamp is true', async () => {
-		const result = await formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', undefined, true);
+		const result = await formatArchimedea(worldState, 'CT_LAB', undefined, true);
 		expect(result).toMatch(/^## Deep Archimedea <t:\d+:D>$/mu);
 	});
 
 	test('omits timestamp from heading by default', async () => {
-		const result = await formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea');
+		const result = await formatArchimedea(worldState, 'CT_LAB');
 		expect(result).toMatch(/^## Deep Archimedea$/mu);
 	});
 
@@ -170,8 +170,6 @@ describe('formatArchimedea', () => {
 		const result = await formatArchimedea(
 			{Conquests: [staleConquest]},
 			'CT_LAB',
-			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
-			'Deep Archimedea',
 			findClosestStub,
 			true,
 		);

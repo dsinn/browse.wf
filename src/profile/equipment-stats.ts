@@ -200,7 +200,7 @@ export async function augmentEquipmentStats(profile: any): Promise<void> {
 	const {renumber, observer} = makeRenumber(equipmentTbody, equipmentRankObserver);
 	equipmentRankObserver = observer;
 	renderEquipmentAggregates(weapons, categories, false);
-	initStatsFilterBar(equipmentFilterBar, equipmentTbody, equipmentEntries, presentCategories, renumber);
+	initStatsFilterBar(equipmentFilterBar, equipmentTbody, equipmentEntries, renumber);
 	if (presentCategories.has(UNNAMED_CATEGORY)) {
 		appendUnnamedToggle(unnamedToggle, equipmentTbody, 'Show unnamed items', () => {
 			renumber();

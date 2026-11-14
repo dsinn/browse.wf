@@ -79,7 +79,7 @@ export function augmentEnemyStats(profile: any): void {
 	enemyRankObserver = observer;
 	const scans = profile?.Stats?.Scans;
 	renderEnemyAggregates(enemies, categories, scans, false);
-	initStatsFilterBar(enemyFilterBar, enemyTbody, enemyEntries, presentFactions, renumber);
+	initStatsFilterBar(enemyFilterBar, enemyTbody, enemyEntries, renumber);
 	if (presentFactions.has(UNNAMED_CATEGORY)) {
 		appendUnnamedToggle(unnamedToggle, enemyTbody, 'Show unnamed enemies', () => {
 			renumber();

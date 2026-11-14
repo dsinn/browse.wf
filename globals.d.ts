@@ -160,7 +160,7 @@ interface Window {
 	resolveArchimedea?: (...args: any[]) => Promise<any>;
 
 	// src/archimedea/helpers.ts
-	renderArchimedeaTable?: (container: HTMLElement, archimedea: any, archimedeaType: string, variantKeyPrefix: string) => Promise<void>;
+	renderArchimedeaTable?: (container: HTMLElement, archimedea: any, archimedeaType: 'CT_LAB' | 'CT_HEX') => Promise<void>;
 	renderArchimedeaMissions?: (missions: Array<{
 		type: string; variant: string; variantDesc: string | undefined;
 		conditions: Array<{name: string; desc: string | undefined}>;

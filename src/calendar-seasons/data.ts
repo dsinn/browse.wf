@@ -7,7 +7,7 @@
  - src/calendar-seasons-data.mts    (ES module re-export for Node/tests)
  */
 
-import {fetchItemMaps} from '../helpers/item-maps.js';
+import {fetchItemMaps, type IItemMaps} from '../helpers/item-maps.js';
 import {lastPathSegment, normalizeStoreItemPath} from '../helpers/path-helpers.js';
 import {camelToWords} from '../helpers/string-helpers.js';
 import {fetchExport} from '../public-export-fetcher.js';
@@ -72,8 +72,7 @@ function resolveEventText(
 	event: any,
 	dict: Record<string, string>,
 	exportChallenges: Record<string, any>,
-	itemIconMap: Record<string, string>,
-	itemNameMap: Record<string, string>,
+	itemMaps: IItemMaps,
 ): {text: string; iconPath?: string} {
 	switch (event.type) {
 		case 'CET_CHALLENGE': {
@@ -82,9 +81,9 @@ function resolveEventText(
 
 		case 'CET_REWARD': {
 			const normalized = normalizeStoreItemPath(event.reward);
-			const nameKey = itemNameMap[normalized];
+			const nameKey = itemMaps.itemNameMap[normalized];
 			const rawName = (nameKey && dict[nameKey]) ?? camelToWords(lastPathSegment(event.reward));
-			return {text: rawName.replaceAll(/<[^<>]+>\s*/gu, '').trim(), iconPath: itemIconMap[normalized]};
+			return {text: rawName.replaceAll(/<[^<>]+>\s*/gu, '').trim(), iconPath: itemMaps.itemIconMap[normalized]};
 		}
 
 		case 'CET_UPGRADE': {
@@ -105,7 +104,7 @@ export async function resolveCalendarSeasonDays(
 	season: any,
 	dict: Record<string, string>,
 ): Promise<IResolvedCalendarDay[]> {
-	const [exportChallenges, {itemIconMap, itemNameMap}] = await Promise.all([
+	const [exportChallenges, itemMaps] = await Promise.all([
 		fetchExport('ExportChallenges'),
 		fetchItemMaps(),
 	]);
@@ -118,7 +117,7 @@ export async function resolveCalendarSeasonDays(
 
 		for (const event of dayEntry.events as any[]) {
 			const emoji = EVENT_EMOJI[event.type] ?? event.type;
-			const {text, iconPath} = resolveEventText(event, dict, exportChallenges, itemIconMap, itemNameMap);
+			const {text, iconPath} = resolveEventText(event, dict, exportChallenges, itemMaps);
 
 			if (text) {
 				resolvedEvents.push({

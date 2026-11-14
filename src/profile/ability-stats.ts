@@ -227,12 +227,10 @@ export async function renderAbilityStats(profile: any): Promise<void> {
 	const {dict} = (globalThis as any);
 	const infoMap = buildAbilityInfoMap(exportWarframes, exportAbilities, key => (key ? dict?.[key] : undefined));
 
-	const presentCategories = new Set<string>();
 	abilities.sort((a, b) => (b.used ?? 0) - (a.used ?? 0));
 	const rows: HTMLTableRowElement[] = [];
 	for (const ability of abilities) {
 		const info = resolveInfo(infoMap, ability.type);
-		presentCategories.add(info.category);
 		rows.push(createAbilityRow(ability, info));
 	}
 
@@ -240,7 +238,7 @@ export async function renderAbilityStats(profile: any): Promise<void> {
 
 	const {renumber, observer} = makeRenumber(tbody, abilityRankObserver);
 	abilityRankObserver = observer;
-	initStatsFilterBar(filterBar, tbody, ABILITY_CATEGORY_ENTRIES.map(entry => ({...entry})), presentCategories, renumber);
+	initStatsFilterBar(filterBar, tbody, ABILITY_CATEGORY_ENTRIES.map(entry => ({...entry})), renumber);
 	renumber();
 }
 

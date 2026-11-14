@@ -23,6 +23,7 @@ export function calcSyndicateRankPct(standing: number, rankMin: number, rankMax:
  Appends a standing progress bar to a syndicate card body element.
  No-op for KahlSyndicate (Garrison), whose token-based titles are meaningless as standing progress.
  */
+// eslint-disable-next-line max-params -- Called from upstream file, hence we should minimize changes
 export function appendSyndicateProgressBar(body: HTMLElement, tag: string, standing: number, level: number, title: {minStanding: number; maxStanding: number}): void {
 	if (tag === 'KahlSyndicate') {
 		return;

@@ -6,6 +6,7 @@
  - getDictPromise, getOSDictPromise
  */
 
+import type {ArchimedeaType} from './archimedea/data.js';
 import {renderArchimedeaTable} from './archimedea/helpers.js';
 import {renderCircuitForecastTable} from './circuit/index.js';
 import {renderDescentChallenges} from './descendia/index.js';
@@ -81,12 +82,16 @@ export function getActiveTabActivation(tabsElement: HTMLElement): string | undef
 
 /**
  Re-activates the tab whose data-activation matches the given timestamp string.
- No-ops if not found (the tab no longer exists after a refresh).
+ No-ops if the activation is undefined (nothing to restore), or if no tab matches (the tab no longer exists after a refresh).
 
  Directly manipulates classes instead of using Bootstrap's Tab JS API to avoid
  stale cached instances from the previous render confusing Bootstrap's hide/show logic.
  */
-export function restoreActiveTab(tabsElement: HTMLElement, activation: string): void {
+export function restoreActiveTab(tabsElement: HTMLElement, activation: string | undefined): void {
+	if (activation === undefined) {
+		return;
+	}
+
 	const target = tabsElement.querySelector<HTMLElement>(`.nav-link[data-activation="${activation}"]`);
 	if (!target) {
 		return;
@@ -107,9 +112,7 @@ async function renderArchimedeaTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
 	archimedeas: any[],
-	archimedeaType: string,
-	variantKeyPrefix: string,
-	preserveActivation: string | undefined = undefined,
+	archimedeaType: ArchimedeaType,
 ): Promise<void> {
 	const now = Date.now();
 	tabsElement.replaceChildren();
@@ -131,11 +134,7 @@ async function renderArchimedeaTabs(
 		});
 	}
 
-	await Promise.all(archimedeas.map(async (archimedea, i) => renderArchimedeaTable(panes[i], archimedea, archimedeaType, variantKeyPrefix)));
-
-	if (preserveActivation !== undefined) {
-		restoreActiveTab(tabsElement, preserveActivation);
-	}
+	await Promise.all(archimedeas.map(async (archimedea, i) => renderArchimedeaTable(panes[i], archimedea, archimedeaType)));
 }
 
 async function renderDescentTabs(
@@ -359,9 +358,8 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 			document.querySelector<HTMLElement>('#deep-archimedea-content')!,
 			deepArchimedeas,
 			'CT_LAB',
-			'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
-			deepActivation,
 		);
+		restoreActiveTab(deepTabsElement, deepActivation);
 	}
 
 	// Temporal Archimedea (CT_HEX)
@@ -372,9 +370,8 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 			document.querySelector<HTMLElement>('#temporal-archimedea-content')!,
 			temporalArchimedeas,
 			'CT_HEX',
-			'/Lotus/Language/Conquest/MissionVariant_HexConquest_',
-			temporalActivation,
 		);
+		restoreActiveTab(temporalTabsElement, temporalActivation);
 	}
 
 	// Descendia

@@ -56,7 +56,6 @@ export function updateWeekly(): void {
 				document.querySelector('#labConquest-body')!,
 				labConquest,
 				'CT_LAB',
-				'/Lotus/Language/Conquest/MissionVariant_LabConquest_',
 			);
 		}
 
@@ -68,7 +67,6 @@ export function updateWeekly(): void {
 				document.querySelector('#hexConquest-body')!,
 				hexConquest,
 				'CT_HEX',
-				'/Lotus/Language/Conquest/MissionVariant_HexConquest_',
 			);
 		}
 

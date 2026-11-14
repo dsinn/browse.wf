@@ -18,7 +18,7 @@ import {
 	renderArchimedeaFrameVariables,
 	renderArchimedeaTable,
 } from './helpers';
-import type {IResolvedArchimedeaMission, IResolvedFrameVariable} from './data';
+import type {ArchimedeaType, IResolvedArchimedeaMission, IResolvedFrameVariable} from './data';
 
 beforeEach(() => {
 	mockBootstrapTooltip();
@@ -118,19 +118,19 @@ describe('renderArchimedeaFrameVariables', () => {
 });
 
 describe('renderArchimedeaTable', () => {
-	async function render(archimedea: any, type: string, prefix: string) {
+	async function render(archimedea: any, type: ArchimedeaType) {
 		const container = document.createElement('div');
-		return renderArchimedeaTable(container, archimedea, type, prefix).then(() => container);
+		return renderArchimedeaTable(container, archimedea, type).then(() => container);
 	}
 
 	async function deepRender(worldState: any) {
 		const archimedea = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-		return render(archimedea, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_');
+		return render(archimedea, 'CT_LAB');
 	}
 
 	async function temporalRender(worldState: any) {
 		const archimedea = worldState.Conquests.find((c: any) => c.Type === 'CT_HEX');
-		return render(archimedea, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_');
+		return render(archimedea, 'CT_HEX');
 	}
 
 	test('creates missions and fv tables inside the container', async () => {
@@ -147,14 +147,14 @@ describe('renderArchimedeaTable', () => {
 		const archimedea = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
 		const container = document.createElement('div');
 
-		await renderArchimedeaTable(container, archimedea, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_');
+		await renderArchimedeaTable(container, archimedea, 'CT_LAB');
 		const firstAbbrs = [...container.querySelectorAll('[data-bs-toggle=tooltip]')];
 		expect(firstAbbrs.length).toBeGreaterThan(0);
 		for (const abbr of firstAbbrs) {
 			expect((globalThis as any).bootstrap.Tooltip.getInstance(abbr)).not.toBeNull();
 		}
 
-		await renderArchimedeaTable(container, archimedea, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_');
+		await renderArchimedeaTable(container, archimedea, 'CT_LAB');
 		for (const abbr of firstAbbrs) {
 			expect((globalThis as any).bootstrap.Tooltip.getInstance(abbr)).toBeUndefined();
 		}
@@ -238,7 +238,7 @@ describe('renderArchimedeaTable', () => {
 			Variables: [],
 		};
 		const container = document.createElement('div');
-		await renderArchimedeaTable(container, archimedea, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_');
+		await renderArchimedeaTable(container, archimedea, 'CT_HEX');
 
 		// The variant from the difficulty with more risks should be shown
 		const variantTd = container.querySelector(':scope tbody tr td');

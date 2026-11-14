@@ -10,6 +10,22 @@
 import {fetchExport} from '../public-export-fetcher.js';
 import {camelToWords, toTitleCase} from '../helpers/string-helpers.js';
 
+/**
+ Per Archimedea type: the dictionary key prefix of its mission variants, and its section title.
+ */
+export const ARCHIMEDEA_TYPES = {
+	CT_LAB: {
+		variantKeyPrefix: '/Lotus/Language/Conquest/MissionVariant_LabConquest_',
+		title: 'Deep Archimedea',
+	},
+	CT_HEX: {
+		variantKeyPrefix: '/Lotus/Language/Conquest/MissionVariant_HexConquest_',
+		title: 'Temporal Archimedea',
+	},
+};
+
+export type ArchimedeaType = keyof typeof ARCHIMEDEA_TYPES;
+
 const CONQUEST_RISK_REMAP: Record<string, string> = {EMPBlackHole: 'MagneticHounds'};
 const CONQUEST_VARIABLE_REMAP: Record<string, string> = {DullBlades: 'ComboCountChance', Undersupplied: 'MaxAmmo'};
 const FRAME_VARIABLE_VALUE_MAP: Record<string, string> = {ShieldDelay: '500', TimeDilation: '50'};
@@ -61,12 +77,12 @@ function findHardDifficulty(mission: any): any {
  */
 export async function resolveArchimedea(
 	archimedea: any,
-	archimedeaType: string,
-	variantKeyPrefix: string,
+	archimedeaType: ArchimedeaType,
 	osdict: Record<string, string>,
 	dict: Record<string, string>,
 ): Promise<IResolvedArchimedea> {
 	const exportMissionTypes: Record<string, {name: string}> = await fetchExport('ExportMissionTypes');
+	const {variantKeyPrefix} = ARCHIMEDEA_TYPES[archimedeaType];
 	const missions: IResolvedArchimedeaMission[] = [];
 
 	for (const mission of archimedea.Missions) {

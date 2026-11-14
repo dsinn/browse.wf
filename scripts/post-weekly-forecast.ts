@@ -19,7 +19,7 @@ import {MILLIS_PER_WEEK, getWeekIndex} from '../src/helpers/time-helpers.js';
 import {resolveCalendarSeasonDays, getSeasonLabel} from '../src/calendar-seasons/data.js';
 import {resolveBonusRegion, resolveClanWeeklyRewards} from '../src/clan-weekly/data.js';
 import {resolveDescentChallenges} from '../src/descendia/data.js';
-import {resolveArchimedea} from '../src/archimedea/data.js';
+import {ARCHIMEDEA_TYPES, resolveArchimedea, type ArchimedeaType} from '../src/archimedea/data.js';
 import osdict from '../test/__mocks__/dicts/en.json' with {type: 'json'};
 
 type AnyRecord = Record<string, any>;
@@ -93,14 +93,15 @@ export function escapeMarkdown(s: string) {
 
 // Deep / Temporal Archimedea
 
-export async function formatArchimedea(worldState: AnyRecord, archimedeaType: string, variantKeyPrefix: string, sectionTitle: string, find = findWeekly, shouldShowTimestamp = false) {
+export async function formatArchimedea(worldState: AnyRecord, archimedeaType: ArchimedeaType, find = findWeekly, shouldShowTimestamp = false) {
+	const sectionTitle = ARCHIMEDEA_TYPES[archimedeaType].title;
 	const archimedeas = (worldState.Conquests ?? []).filter((c: AnyRecord) => c.Type === archimedeaType);
 	const next = find(archimedeas);
 	if (!next) {
 		return null;
 	}
 
-	const {missions, frameVariables} = await resolveArchimedea(next, archimedeaType, variantKeyPrefix, osdict, dictEn);
+	const {missions, frameVariables} = await resolveArchimedea(next, archimedeaType, osdict, dictEn);
 
 	const heading = shouldShowTimestamp
 		? `## ${sectionTitle} ${discordTimestamp(mongoMs(next.Activation))}`
@@ -310,10 +311,10 @@ async function buildSections(worldState: AnyRecord, entries: Record<string, AnyR
 			? formatCalendarSeason(worldState, findResolved('1999 Calendar'), shouldShowTimestamp)
 			: null,
 		entries['Deep Archimedea']
-			? formatArchimedea(worldState, 'CT_LAB', '/Lotus/Language/Conquest/MissionVariant_LabConquest_', 'Deep Archimedea', findResolved('Deep Archimedea'), shouldShowTimestamp)
+			? formatArchimedea(worldState, 'CT_LAB', findResolved('Deep Archimedea'), shouldShowTimestamp)
 			: null,
 		entries['Temporal Archimedea']
-			? formatArchimedea(worldState, 'CT_HEX', '/Lotus/Language/Conquest/MissionVariant_HexConquest_', 'Temporal Archimedea', findResolved('Temporal Archimedea'), shouldShowTimestamp)
+			? formatArchimedea(worldState, 'CT_HEX', findResolved('Temporal Archimedea'), shouldShowTimestamp)
 			: null,
 		formatClanWeekly(worldState),
 	]);

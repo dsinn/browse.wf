@@ -138,11 +138,9 @@ export function getEnemyFactionLabel(faction: string): string | undefined {
  @param filterBar - The <div> that will receive the filter buttons.
  @param tbody - The <tbody> whose rows carry data-category attributes.
  @param entries - Ordered list of { key, tooltip, icon } to show as buttons.
- key must match the data-category values on the rows.
+ key must match the data-category values on the rows; entries no row has are skipped.
  icon is a Warframe asset path resolved via setImageSource;
  pass an empty string to fall back to displayText.
- @param presentKeys - Set of category keys that actually appear in the tbody,
- used to skip buttons for absent categories.
  @param onFilter - Optional callback invoked after each filter change,
  including when "All" is selected.
  */
@@ -150,9 +148,13 @@ export function initStatsFilterBar(
 	filterBar: HTMLElement,
 	tbody: HTMLElement,
 	entries: Array<{key: string; tooltip: string; icon?: string; displayText?: string}>,
-	presentKeys: Set<string>,
 	onFilter?: () => void,
 ): void {
+	const presentKeys = new Set<string | undefined>();
+	for (const tr of tbody.querySelectorAll<HTMLElement>('tr')) {
+		presentKeys.add(tr.dataset.category);
+	}
+
 	filterBar.replaceChildren();
 	delete tbody.dataset.filter;
 

@@ -6,7 +6,7 @@
  */
 
 import {addTooltip} from '../tooltip.js';
-import {lastPathSegment} from './internal-name.js';
+import {lastPathSegment} from '../helpers/path-helpers.js';
 import {describeDailyReset, isProfileFromToday} from './profile-freshness.js';
 import {createTable} from './small-table.js';
 

@@ -12,7 +12,7 @@
  */
 
 import {addTooltip} from '../tooltip.js';
-import {lastPathSegment} from './internal-name.js';
+import {lastPathSegment} from '../helpers/path-helpers.js';
 
 type DeathMark = {name: string; icon: string; tooltip?: string};
 

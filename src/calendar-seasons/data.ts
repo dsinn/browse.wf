@@ -7,6 +7,9 @@
  - src/calendar-seasons-data.mts    (ES module re-export for Node/tests)
  */
 
+import {fetchItemMaps} from '../helpers/item-maps.js';
+import {lastPathSegment, normalizeStoreItemPath} from '../helpers/path-helpers.js';
+import {camelToWords} from '../helpers/string-helpers.js';
 import {fetchExport} from '../public-export-fetcher.js';
 
 type IResolvedCalendarEvent = {
@@ -47,63 +50,22 @@ export function formatSeasonDay(day: number): string {
 	return new Date(1999, 0, day).toLocaleDateString('en', {month: 'short', day: 'numeric'});
 }
 
-export function camelToWords(s: string): string {
-	return s.replaceAll(/(?<=.)(?=[A-Z])/gu, ' ');
-}
-
-function lastSegment(path: string): string {
-	return path.split('/').pop() ?? path;
-}
-
 function resolveChallengeText(event: any, dict: Record<string, string>, exportChallenges: Record<string, any>): {text: string; iconPath?: string} {
 	const challengeData = exportChallenges[event.challenge];
 	if (!challengeData) {
-		return {text: camelToWords(lastSegment(event.challenge))};
+		return {text: camelToWords(lastPathSegment(event.challenge))};
 	}
 
 	const iconPath: string | undefined = challengeData.icon || undefined;
 	const desc = challengeData.description ? dict[challengeData.description] : null;
 	const count = challengeData.requiredCount;
-	const challengeName = camelToWords(lastSegment(event.challenge));
+	const challengeName = camelToWords(lastPathSegment(event.challenge));
 	let text = count ? `${challengeName} \u{D7}${String(count)}` : challengeName;
 	if (desc && count) {
 		text = desc.replace('|COUNT|', () => String(count));
 	}
 
 	return {text, iconPath};
-}
-
-let itemMapsPromise: Promise<{itemIconMap: Record<string, string>; itemNameMap: Record<string, string>}> | undefined;
-
-async function fetchItemMaps(): Promise<{itemIconMap: Record<string, string>; itemNameMap: Record<string, string>}> {
-	if (itemMapsPromise === undefined) {
-		itemMapsPromise = (async () => {
-			const [exportResources, exportBundles, exportBoosterPacks, exportBoosters] = await Promise.all([
-				fetchExport('ExportResources'),
-				fetchExport('ExportBundles'),
-				fetchExport('ExportBoosterPacks'),
-				fetchExport('ExportBoosters'),
-			]);
-			const itemIconMap: Record<string, string> = {};
-			const itemNameMap: Record<string, string> = {};
-			for (const exportData of [exportResources, exportBundles, exportBoosterPacks, exportBoosters]) {
-				for (const [key, value] of Object.entries(exportData)) {
-					const normalized = key.replace('/Lotus/StoreItems/', '/Lotus/');
-					if ((value as any).icon) {
-						itemIconMap[normalized] = (value as any).icon;
-					}
-
-					if ((value as any).name) {
-						itemNameMap[normalized] = (value as any).name;
-					}
-				}
-			}
-
-			return {itemIconMap, itemNameMap};
-		})();
-	}
-
-	return itemMapsPromise;
 }
 
 function resolveEventText(
@@ -119,14 +81,14 @@ function resolveEventText(
 		}
 
 		case 'CET_REWARD': {
-			const normalized = event.reward.replace('/Lotus/StoreItems/', '/Lotus/');
+			const normalized = normalizeStoreItemPath(event.reward);
 			const nameKey = itemNameMap[normalized];
-			const rawName = (nameKey && dict[nameKey]) ?? camelToWords(lastSegment(event.reward));
+			const rawName = (nameKey && dict[nameKey]) ?? camelToWords(lastPathSegment(event.reward));
 			return {text: rawName.replaceAll(/<[^<>]+>\s*/gu, '').trim(), iconPath: itemIconMap[normalized]};
 		}
 
 		case 'CET_UPGRADE': {
-			return {text: camelToWords(lastSegment(event.upgrade))};
+			return {text: camelToWords(lastPathSegment(event.upgrade))};
 		}
 
 		default: {

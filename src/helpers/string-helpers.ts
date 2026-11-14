@@ -22,6 +22,10 @@ export function toTitleCase(string_: string): string {
 	return string_.replaceAll(/[^\s-]+/gu, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
 }
 
+export function camelToWords(string_: string): string {
+	return string_.replaceAll(/(?<=.)(?=[A-Z])/gu, ' ');
+}
+
 export function pascalToTitleCase(string_: string): string {
 	return string_.replaceAll(/(?<=[a-z])(?=[A-Z])/gu, ' ');
 }

@@ -8,23 +8,8 @@ import {
 import {
 	createInternalName,
 	enableInternalNameTooltips,
-	lastPathSegment,
 	renderInternalName,
 } from './internal-name';
-
-describe('lastPathSegment', () => {
-	it('returns the last segment of an internal path', () => {
-		expect(lastPathSegment('/Lotus/Types/Friendly/Pets/BeastWeapons/VascaPetWeapon')).toBe('VascaPetWeapon');
-	});
-
-	it('returns a name without slashes unchanged', () => {
-		expect(lastPathSegment('SolNode35')).toBe('SolNode35');
-	});
-
-	it('returns the whole path when it ends in a slash', () => {
-		expect(lastPathSegment('/Lotus/Odd/')).toBe('/Lotus/Odd/');
-	});
-});
 
 describe('createInternalName', () => {
 	it('is teletype showing the last segment, with the full path as the Bootstrap tooltip title', () => {

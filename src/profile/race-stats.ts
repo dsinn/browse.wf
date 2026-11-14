@@ -7,7 +7,8 @@
  Called via (window as any).renderRaceStats() from the profile extras hook in profile.ts.
  */
 
-import {createInternalName, enableInternalNameTooltips, lastPathSegment} from './internal-name.js';
+import {lastPathSegment} from '../helpers/path-helpers.js';
+import {createInternalName, enableInternalNameTooltips} from './internal-name.js';
 
 const RACE_PATTERN = /^(?<place>Venus|Deimos)Race(?<number>\d+)$/u;
 const LOCATIONS: Record<string, string> = {

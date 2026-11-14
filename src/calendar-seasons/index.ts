@@ -3,20 +3,10 @@
  Displays the 1999 in-game calendar days with challenges, rewards, and upgrades.
  */
 
+import {makeIcon} from '../helpers/icon-helpers.js';
 import {formatSeasonDay, resolveCalendarSeasonDays} from './data.js';
 
 declare function getDictPromise(): Promise<Record<string, string>>;
-declare function setImageSource(img: HTMLImageElement, path: string): void;
-
-function makeIcon(iconPath: string): HTMLImageElement {
-	const img = document.createElement('img');
-	img.style.height = '24px';
-	img.style.width = '24px';
-	img.style.objectFit = 'contain';
-	img.alt = '';
-	setImageSource(img, iconPath);
-	return img;
-}
 
 /**
  Renders the content pane for a single calendar season.

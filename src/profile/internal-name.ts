@@ -6,13 +6,10 @@
  because table-sort-js rebuilds rows from HTML when sorting, which would drop any per-element tooltip.
  */
 
+import {lastPathSegment} from '../helpers/path-helpers.js';
 import {createTooltip} from '../tooltip.js';
 
 const INTERNAL_NAME_SELECTOR = 'code.internal-name';
-
-export function lastPathSegment(path: string): string {
-	return path.split('/').pop() || path;
-}
 
 export function createInternalName(internalName: string): HTMLElement {
 	const code = document.createElement('code');

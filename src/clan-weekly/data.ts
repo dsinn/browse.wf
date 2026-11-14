@@ -1,6 +1,7 @@
-import {camelToWords} from '../calendar-seasons/data.js';
+import {fetchItemMaps} from '../helpers/item-maps.js';
+import {lastPathSegment, normalizeStoreItemPath} from '../helpers/path-helpers.js';
+import {camelToWords} from '../helpers/string-helpers.js';
 import {getWeekIndex, WEEK_EPOCH_MS, MILLIS_PER_WEEK} from '../helpers/time-helpers.js';
-import {fetchExport} from '../public-export-fetcher.js';
 
 export type IResolvedClanWeeklyReward = {
 	pct: number;
@@ -8,14 +9,10 @@ export type IResolvedClanWeeklyReward = {
 	iconPath?: string;
 };
 
-function lastSegment(path: string): string {
-	return path.split('/').pop() ?? path;
-}
-
 export function resolveBonusRegion(bonusRegion: string, dict: Record<string, string>): string {
 	return dict[bonusRegion]
 		?? dict[bonusRegion + '_SPACE']
-		?? camelToWords(lastSegment(bonusRegion));
+		?? camelToWords(lastPathSegment(bonusRegion));
 }
 
 /**
@@ -34,54 +31,6 @@ export function findClanWeeklyEntry(entries: any[]): any | undefined {
 		?? entries.find(entry => entry.WeekCount === currentWeekIdx + 1);
 }
 
-let itemMapsPromise: Promise<{itemNameMap: Record<string, string>; itemIconMap: Record<string, string>; fusionPointsMap: Record<string, number>}> | undefined;
-
-async function fetchItemMaps(): Promise<{itemNameMap: Record<string, string>; itemIconMap: Record<string, string>; fusionPointsMap: Record<string, number>}> {
-	if (itemMapsPromise === undefined) {
-		itemMapsPromise = (async () => {
-			const [exportResources, exportGear, exportBundles, exportBoosterPacks, exportBoosters, exportCreditBundles, exportFusionBundles] = await Promise.all([
-				fetchExport('ExportResources'),
-				fetchExport('ExportGear'),
-				fetchExport('ExportBundles'),
-				fetchExport('ExportBoosterPacks'),
-				fetchExport('ExportBoosters'),
-				fetchExport('ExportCreditBundles'),
-				fetchExport('ExportFusionBundles'),
-			]);
-			const itemNameMap: Record<string, string> = {};
-			const itemIconMap: Record<string, string> = {};
-			const fusionPointsMap: Record<string, number> = {};
-			for (const exportData of [exportResources, exportGear, exportBundles, exportBoosterPacks, exportBoosters, exportCreditBundles]) {
-				for (const [key, value] of Object.entries(exportData)) {
-					const normalized = key.replace('/Lotus/StoreItems/', '/Lotus/');
-					if ((value as any).icon) {
-						itemIconMap[normalized] = (value as any).icon;
-					}
-
-					if ((value as any).name) {
-						itemNameMap[normalized] = (value as any).name;
-					}
-				}
-			}
-
-			for (const [key, value] of Object.entries(exportFusionBundles)) {
-				const normalized = key.replace('/Lotus/StoreItems/', '/Lotus/');
-				if ((value as any).fusionPoints) {
-					fusionPointsMap[normalized] = (value as any).fusionPoints as number;
-				}
-
-				if ((value as any).icon) {
-					itemIconMap[normalized] = (value as any).icon;
-				}
-			}
-
-			return {itemNameMap, itemIconMap, fusionPointsMap};
-		})();
-	}
-
-	return itemMapsPromise;
-}
-
 /**
  Resolves rewards for a single WeeklyVaultBonusRewards entry.
  Sorts ascending by PointThreshold; renders each as a percentage of the max threshold.
@@ -96,7 +45,7 @@ export async function resolveClanWeeklyRewards(
 
 	return sorted.map(reward => {
 		const pct = Math.round(((reward.PointThreshold as number) / maxThreshold) * 100);
-		const normalized = (reward.Reward as string).replace('/Lotus/StoreItems/', '/Lotus/');
+		const normalized = normalizeStoreItemPath(reward.Reward as string);
 		let iconPath = itemIconMap[normalized];
 		// 50000Credits (and potentially other amounts) is absent from ExportCreditBundles even though
 		// every other /PickUps/Credits/ entry shares the same CreditsLarge icon — use any sibling's icon.
@@ -109,7 +58,7 @@ export async function resolveClanWeeklyRewards(
 
 		// Credits: fold itemCount × the credit denomination into a single formatted total.
 		if (normalized.includes('/PickUps/Credits/')) {
-			const denominationDigits = lastSegment(reward.Reward as string).replaceAll(/\D+/gu, '');
+			const denominationDigits = lastPathSegment(reward.Reward as string).replaceAll(/\D+/gu, '');
 			const total = (reward.ItemCount as number) * (denominationDigits === '' ? 1 : Number(denominationDigits));
 			return {pct, display: `${total.toLocaleString('en')} Credits`, iconPath};
 		}
@@ -122,7 +71,7 @@ export async function resolveClanWeeklyRewards(
 		}
 
 		const nameKey = itemNameMap[normalized];
-		const itemName = (nameKey && dict[nameKey]) ?? camelToWords(lastSegment(reward.Reward as string));
+		const itemName = (nameKey && dict[nameKey]) ?? camelToWords(lastPathSegment(reward.Reward as string));
 		return {pct, display: `${(reward.ItemCount as number).toLocaleString('en')}x ${itemName}`, iconPath};
 	});
 }

@@ -8,7 +8,7 @@
  */
 
 import {fetchExport} from '../public-export-fetcher.js';
-import {toTitleCase} from '../helpers/string-helpers.js';
+import {camelToWords, toTitleCase} from '../helpers/string-helpers.js';
 
 const CONQUEST_RISK_REMAP: Record<string, string> = {EMPBlackHole: 'MagneticHounds'};
 const CONQUEST_VARIABLE_REMAP: Record<string, string> = {DullBlades: 'ComboCountChance', Undersupplied: 'MaxAmmo'};
@@ -33,10 +33,6 @@ export type IResolvedArchimedea = {
 
 function stripHtml(s: string): string {
 	return s.replaceAll(/<[^<>]+>/gu, '').trim();
-}
-
-function camelToWords(s: string): string {
-	return s.replaceAll(/(?<=.)(?=[A-Z])/gu, ' ');
 }
 
 function findHardDifficulty(mission: any): any {

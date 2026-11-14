@@ -7,11 +7,8 @@
  Depends on globals from calendar-seasons.ts: renderCalendarSeasonPane
  */
 
-import {fetchExport} from '../public-export-fetcher.js';
 import {renderCalendarSeasonPane} from '../calendar-seasons/index.js';
-
-declare function createExpiryBadge(expiryMs: number): Node;
-declare function createCompletionToggle(oid: string): Node;
+import {populateLiveCard} from './card-helpers.js';
 
 export async function updateCalendarSeason(): Promise<void> {
 	const seasons: any[] = (window as any).worldState?.KnownCalendarSeasons ?? [];
@@ -40,28 +37,12 @@ export async function updateCalendarSeason(): Promise<void> {
 		return;
 	}
 
-	// Required for common.js' setImageSource, must be set before renderCalendarSeasonPane runs
-	window.ExportImages = await fetchExport('ExportImages');
-
-	// Inject expiry badge into header
-	const expirySpan = document.querySelector('#calendar-season-expiry');
-	if (expirySpan) {
-		expirySpan.replaceChildren(createExpiryBadge(Number(activeSeason.Expiry.$date.$numberLong)));
-	}
-
-	// Inject completion toggle into header span
-	const checksSpan = document.querySelector('#calendar-season-checks');
-	if (checksSpan) {
-		const oid = `calendarseason-${String(activeSeason.Expiry.$date.$numberLong)}`;
-		checksSpan.replaceChildren(createCompletionToggle(oid));
-	}
-
-	const body = document.querySelector('#calendar-season-body');
-	if (!body) {
-		return;
-	}
-
-	body.replaceChildren(await renderCalendarSeasonPane(activeSeason));
+	await populateLiveCard(
+		'calendar-season',
+		Number(activeSeason.Expiry.$date.$numberLong),
+		`calendarseason-${String(activeSeason.Expiry.$date.$numberLong)}`,
+		async () => renderCalendarSeasonPane(activeSeason),
+	);
 }
 
 window.updateCalendarSeason = updateCalendarSeason;

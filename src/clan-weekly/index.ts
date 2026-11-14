@@ -1,21 +1,9 @@
-import {fetchExport} from '../public-export-fetcher.js';
+import {makeIcon} from '../helpers/icon-helpers.js';
 import {getNextWeeklyResetMs} from '../helpers/time-helpers.js';
+import {populateLiveCard} from '../live/card-helpers.js';
 import {findClanWeeklyEntry, resolveBonusRegion, resolveClanWeeklyRewards} from './data.js';
 
-declare function createExpiryBadge(expiryMs: number): Node;
-declare function createCompletionToggle(oid: string): Node;
 declare function getDictPromise(): Promise<Record<string, string>>;
-declare function setImageSource(img: HTMLImageElement, path: string): void;
-
-function makeIcon(iconPath: string): HTMLImageElement {
-	const img = document.createElement('img');
-	img.style.height = '24px';
-	img.style.width = '24px';
-	img.style.objectFit = 'contain';
-	img.alt = '';
-	setImageSource(img, iconPath);
-	return img;
-}
 
 export async function renderClanWeeklyPane(entry: any): Promise<HTMLDivElement> {
 	const dict = await getDictPromise();
@@ -82,24 +70,12 @@ export async function updateClanWeekly(): Promise<void> {
 		void updateClanWeekly();
 	}, expiryMs - Date.now());
 
-	const expirySpan = document.querySelector('#clan-weekly-expiry');
-	if (expirySpan) {
-		expirySpan.replaceChildren(createExpiryBadge(expiryMs));
-	}
-
-	const checksSpan = document.querySelector('#clan-weekly-checks');
-	if (checksSpan) {
-		checksSpan.replaceChildren(createCompletionToggle(`clanweekly-${String(entry.WeekCount)}`));
-	}
-
-	window.ExportImages = await fetchExport('ExportImages');
-
-	const body = document.querySelector('#clan-weekly-body');
-	if (!body) {
-		return;
-	}
-
-	body.replaceChildren(await renderClanWeeklyPane(entry));
+	await populateLiveCard(
+		'clan-weekly',
+		expiryMs,
+		`clanweekly-${String(entry.WeekCount)}`,
+		async () => renderClanWeeklyPane(entry),
+	);
 }
 
 window.updateClanWeekly = updateClanWeekly;

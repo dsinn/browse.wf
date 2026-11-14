@@ -1,5 +1,10 @@
 import {describe, it, expect} from 'vitest';
-import {pluralize, escapeHtml, pascalToTitleCase} from './string-helpers';
+import {
+	pluralize,
+	escapeHtml,
+	camelToWords,
+	pascalToTitleCase,
+} from './string-helpers';
 
 describe('string-helpers', () => {
 	describe('pluralize', () => {
@@ -55,6 +60,17 @@ describe('string-helpers', () => {
 			expect(escapeHtml('<script>')).toBe('&lt;script&gt;');
 			expect(escapeHtml('a & b')).toBe('a &amp; b');
 			expect(escapeHtml('"quoted"')).toBe('"quoted"');
+		});
+	});
+
+	describe('camelToWords', () => {
+		it('inserts a space before each capital letter after the first character', () => {
+			expect(camelToWords('DeepSpace')).toBe('Deep Space');
+			expect(camelToWords('KuvaFortress')).toBe('Kuva Fortress');
+		});
+
+		it('leaves a single word unchanged', () => {
+			expect(camelToWords('Kuva')).toBe('Kuva');
 		});
 	});
 });

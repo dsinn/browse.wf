@@ -10,7 +10,8 @@
 
 import {logger} from '../logger.js';
 import {fetchExport} from '../public-export-fetcher.js';
-import {createInternalName, enableInternalNameTooltips, lastPathSegment} from './internal-name.js';
+import {lastPathSegment} from '../helpers/path-helpers.js';
+import {createInternalName, enableInternalNameTooltips} from './internal-name.js';
 import {EQUIPMENT_CATEGORIES, initStatsFilterBar, makeRenumber} from './stats-filters.js';
 
 export type AbilityCategory = 'Warframe' | 'Archwing' | 'Necramech' | 'Operator' | 'Helminth' | 'Drifter' | 'Railjack' | 'Other';

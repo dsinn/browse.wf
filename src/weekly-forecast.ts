@@ -186,6 +186,25 @@ async function renderDescentTabs(
 	}
 }
 
+/**
+ Replaces the contents of a below-xl columns container with a two-column row of headed panes.
+ */
+function renderPaneColumns(columnsElement: HTMLElement, columns: Array<{heading: string; pane: Node}>): void {
+	const row = document.createElement('div');
+	row.className = 'row';
+	for (const {heading, pane} of columns) {
+		const col = document.createElement('div');
+		col.className = 'col-6';
+		const headingElement = document.createElement('h5');
+		headingElement.className = 'mb-3';
+		headingElement.textContent = heading;
+		col.append(headingElement, pane);
+		row.append(col);
+	}
+
+	columnsElement.replaceChildren(row);
+}
+
 async function renderCalendarSeasonTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
@@ -230,21 +249,10 @@ async function renderCalendarSeasonTabs(
 		return;
 	}
 
-	columnsElement.replaceChildren();
-	const row = document.createElement('div');
-	row.className = 'row';
-	for (const [i, season] of seasons.entries()) {
-		const col = document.createElement('div');
-		col.className = 'col-6';
-		const heading = document.createElement('h5');
-		heading.className = 'mb-3';
-		heading.textContent = getSeasonLabel(season.Season);
-		col.append(heading);
-		col.append(seasonPanesForColumns[i]);
-		row.append(col);
-	}
-
-	columnsElement.append(row);
+	renderPaneColumns(
+		columnsElement,
+		seasons.map((season, i) => ({heading: getSeasonLabel(season.Season), pane: seasonPanesForColumns[i]})),
+	);
 }
 
 async function renderClanWeeklyColumns(
@@ -257,24 +265,14 @@ async function renderClanWeeklyColumns(
 		return;
 	}
 
-	const row = document.createElement('div');
-	row.className = 'row';
-
 	const panes = await Promise.all(entries.map(async entry => renderClanWeeklyPane(entry)));
-
-	for (const [i, entry] of entries.entries()) {
-		const col = document.createElement('div');
-		col.className = 'col-6';
-
-		const heading = document.createElement('h5');
-		heading.className = 'mb-3';
-		heading.textContent = formatTabDate(weekCountToActivationMs(entry.WeekCount as number));
-		col.append(heading);
-		col.append(panes[i]);
-		row.append(col);
-	}
-
-	columnsElement.append(row);
+	renderPaneColumns(
+		columnsElement,
+		entries.map((entry, i) => ({
+			heading: formatTabDate(weekCountToActivationMs(entry.WeekCount as number)),
+			pane: panes[i],
+		})),
+	);
 }
 
 /**

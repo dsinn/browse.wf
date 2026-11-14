@@ -25,19 +25,22 @@ const platformSelect = document.querySelector<HTMLSelectElement>('#platform-sele
 
 let currentAccountId = '';
 
-// Wait for cloud sync to emit one of its events (or timeout)
-const cloudSyncEvent = waitForCloudSync();
+// The bundle loads on every page, but only the profile page renders a profile
+if (document.querySelector('#steps')) {
+	// Wait for cloud sync to emit one of its events (or timeout)
+	const cloudSyncEvent = waitForCloudSync();
 
-// Get initial profile (from localStorage or fallback).
-// `.then()` is used instead of `await` because this is a non-module script — top-level await is unavailable.
-const initialProfilePromise = cloudSyncEvent.then(async () => {
-	const profileJson = localStorage.getItem(PROFILE_DATA_STORAGE_KEY);
-	return profileJson ? JSON.parse(profileJson) : fetch('supplemental-data/profile-[DE]Rebecca.json').then(async response => response.json());
-});
+	// Get initial profile (from localStorage, or the demo profile when nothing is cached).
+	// `.then()` is used instead of `await` because this is a non-module script — top-level await is unavailable.
+	const initialProfilePromise = cloudSyncEvent.then(async () => {
+		const profileJson = localStorage.getItem(PROFILE_DATA_STORAGE_KEY);
+		return profileJson ? JSON.parse(profileJson) : fetch('supplemental-data/profile-[DE]Rebecca.json').then(async response => response.json());
+	});
 
-// Expose promises so profile.ts can include them in its Promise.all
-window.cloudSyncEvent = cloudSyncEvent;
-window.initialProfilePromise = initialProfilePromise;
+	// Expose promises so profile.ts can include them in its Promise.all
+	window.cloudSyncEvent = cloudSyncEvent;
+	window.initialProfilePromise = initialProfilePromise;
+}
 
 let wasProfileLoadedManually = false;
 

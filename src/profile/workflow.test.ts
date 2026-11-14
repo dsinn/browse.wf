@@ -623,4 +623,15 @@ describe('module-level globals', () => {
 		await (globalThis as any).initialProfilePromise;
 		expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('[DE]Rebecca'));
 	});
+
+	it('does not fetch the demo profile on pages other than the profile page', async () => {
+		localStorage.removeItem('profile.data');
+		document.querySelector('#steps')!.remove();
+		const fetchSpy = vi.spyOn(globalThis, 'fetch');
+		await freshWorkflow();
+		globalThis.dispatchEvent(new CustomEvent('cloud-sync-complete'));
+		await vi.runAllTimersAsync();
+		expect(fetchSpy).not.toHaveBeenCalled();
+		expect((globalThis as any).initialProfilePromise).toBeUndefined();
+	});
 });

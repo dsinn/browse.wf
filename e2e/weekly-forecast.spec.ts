@@ -170,6 +170,35 @@ test.describe('Weekly Forecast Page', () => {
 			// Scrolled to the section itself, not merely somewhere it is partly visible
 			await expect.poll(async () => (await page.locator('#circuit').boundingBox())!.y).toBeLessThan(150);
 			await expect(page.locator('#weekly-forecast-toc .nav-link.active')).toHaveAttribute('href', '#circuit');
+			// Not overwritten by the sections the page passed through while the cards were loading
+			await expect(page).toHaveURL(/#circuit$/u);
+		});
+
+		test('keeps the URL fragment on the current section while scrolling, without adding history entries', async ({page}) => {
+			const historyLength = await page.evaluate(() => window.history.length);
+			// Retry the scroll: content above can still grow (e.g. as images load), which pushes the section back down
+			await expect(async () => {
+				await scrollToElement(page, '#clan-weekly');
+				await expect(page).toHaveURL(/#clan-weekly$/u, {timeout: 1000});
+			}).toPass();
+
+			await page.evaluate(() => {
+				window.scrollTo(0, 0);
+			});
+			await expect(page).not.toHaveURL(/#/u);
+			expect(await page.evaluate(() => window.history.length)).toBe(historyLength);
+		});
+
+		test('reloading comes back to the section being read', async ({page}) => {
+			await expect(async () => {
+				await scrollToElement(page, '#circuit');
+				await expect(page).toHaveURL(/#circuit$/u, {timeout: 1000});
+			}).toPass();
+
+			await page.reload();
+			await page.waitForSelector('#circuit-forecast-body tr', {timeout: 15_000});
+			await page.waitForSelector('#teshin-forecast-body tr', {timeout: 15_000});
+			await expect.poll(async () => (await page.locator('#circuit').boundingBox())!.y).toBeLessThan(150);
 		});
 
 		test('stays visible while scrolling and follows the current section', async ({page}) => {
@@ -191,6 +220,22 @@ test.describe('Weekly Forecast Page', () => {
 				const activeLink = page.locator('#weekly-forecast-toc .nav-link.active');
 				await expect(activeLink).toHaveAttribute('href', '#steel-path-honors', {timeout: 1000});
 			}).toPass();
+		});
+	});
+
+	test.describe('Table of contents (lg+, tall viewport)', () => {
+		// Tall enough that The Circuit can't be scrolled to the top: the page bottoms out first
+		test.use({viewport: {width: 1280, height: 2400}});
+
+		test('keeps a link to a section the page can\'t scroll to the top', async ({page}) => {
+			await page.locator('#weekly-forecast-toc .nav-link[href="#circuit"]').click();
+			// At the bottom, the last section is highlighted; this also means the scroll has been handled
+			await expect(page.locator('#weekly-forecast-toc .nav-link.active')).toHaveAttribute('href', '#steel-path-honors');
+			expect(await page.locator('#circuit').evaluate(element => element.getBoundingClientRect().top)).toBeGreaterThan(1);
+
+			// The URL is only updated once scrolling has settled, so let that delay pass before checking it
+			await page.clock.runFor(1000);
+			await expect(page).toHaveURL(/#circuit$/u);
 		});
 	});
 

@@ -2,7 +2,7 @@
  Unit tests for pure utility functions in src/weekly-forecast.ts.
 
  Covers: mongoMs, formatTabDate, nextForecastPublishedMs,
- buildTab, getActiveTabActivation, restoreActiveTab.
+ buildTab.
 
  warframe-api-proxy-client is mocked to prevent the module's top-level await from firing.
  */
@@ -18,8 +18,6 @@ import {
 	mongoMs,
 	formatTabDate,
 	buildTab,
-	getActiveTabActivation,
-	restoreActiveTab,
 	nextForecastPublishedMs,
 } from './weekly-forecast.js';
 
@@ -190,94 +188,5 @@ describe('buildTab', () => {
 		});
 		const pane = contentElement.querySelector('.tab-pane')!;
 		expect(pane.querySelector('span')?.textContent).toBe('hello');
-	});
-});
-
-describe('getActiveTabActivation', () => {
-	test('returns data-activation of the active nav-link', () => {
-		const tabs = document.createElement('ul');
-		tabs.innerHTML = `
-			<li><button class="nav-link" data-activation="111"></button></li>
-			<li><button class="nav-link active" data-activation="222"></button></li>
-		`;
-		expect(getActiveTabActivation(tabs)).toBe('222');
-	});
-
-	test('returns undefined when no tab is active', () => {
-		const tabs = document.createElement('ul');
-		tabs.innerHTML = '<li><button class="nav-link" data-activation="111"></button></li>';
-		expect(getActiveTabActivation(tabs)).toBeUndefined();
-	});
-
-	test('returns undefined for empty tabs element', () => {
-		const tabs = document.createElement('ul');
-		expect(getActiveTabActivation(tabs)).toBeUndefined();
-	});
-});
-
-describe('restoreActiveTab', () => {
-	let tabsElement: HTMLElement;
-	let contentElement: HTMLElement;
-
-	beforeEach(() => {
-		tabsElement = document.createElement('ul');
-		tabsElement.id = 'restore-tabs';
-		contentElement = document.createElement('div');
-		contentElement.id = 'restore-content';
-		document.body.append(tabsElement);
-		document.body.append(contentElement);
-	});
-
-	afterEach(() => {
-		tabsElement.remove();
-		contentElement.remove();
-	});
-
-	function addTab(activation: string, id: string, isActive: boolean) {
-		const li = document.createElement('li');
-		const btn = document.createElement('button');
-		btn.className = 'nav-link' + (isActive ? ' active' : '');
-		btn.dataset.activation = activation;
-		btn.dataset.bsTarget = `#${id}`;
-		li.append(btn);
-		tabsElement.append(li);
-
-		const pane = document.createElement('div');
-		pane.id = id;
-		pane.className = 'tab-pane fade' + (isActive ? ' show active' : '');
-		contentElement.append(pane);
-	}
-
-	test('switches active tab to the one matching activation', () => {
-		addTab('100', 'pane-0', true);
-		addTab('200', 'pane-1', false);
-
-		restoreActiveTab(tabsElement, '200');
-
-		const btns = tabsElement.querySelectorAll('.nav-link');
-		expect(btns[0].classList.contains('active')).toBe(false);
-		expect(btns[1].classList.contains('active')).toBe(true);
-	});
-
-	test('switches active pane to match the restored tab', () => {
-		addTab('100', 'pane-0', true);
-		addTab('200', 'pane-1', false);
-
-		restoreActiveTab(tabsElement, '200');
-
-		const panes = contentElement.querySelectorAll('.tab-pane');
-		expect(panes[0].classList.contains('active')).toBe(false);
-		expect(panes[1].classList.contains('active')).toBe(true);
-		expect(panes[1].classList.contains('show')).toBe(true);
-	});
-
-	test('no-ops when activation timestamp is not found', () => {
-		addTab('100', 'pane-0', true);
-
-		restoreActiveTab(tabsElement, '999');
-
-		// First tab should still be active
-		const btn = tabsElement.querySelector('.nav-link')!;
-		expect(btn.classList.contains('active')).toBe(true);
 	});
 });

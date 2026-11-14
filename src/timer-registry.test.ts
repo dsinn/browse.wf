@@ -10,6 +10,7 @@ import {
 	registerTimerBadge,
 	resetTimerRegistry,
 	scheduleAt,
+	scheduleReload,
 	setTimerText,
 	getPendingLabel,
 	TICK_MS,
@@ -260,5 +261,45 @@ describe('timer-registry scheduleAt', () => {
 		vi.advanceTimersByTime(5000);
 
 		expect(callback).not.toHaveBeenCalled();
+	});
+});
+
+describe('timer-registry scheduleReload', () => {
+	const T0 = 1_800_000_000_000;
+
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(T0);
+	});
+
+	afterEach(() => {
+		resetTimerRegistry();
+		vi.unstubAllGlobals();
+		vi.useRealTimers();
+	});
+
+	test('reloads once the clock reaches the time, even after a jump no timer accounts for', () => {
+		const reload = vi.fn();
+		vi.stubGlobal('location', {...location, reload});
+		scheduleReload(T0 + (60 * 60 * 1000));
+
+		vi.advanceTimersByTime(1000);
+		expect(reload).not.toHaveBeenCalled();
+
+		// Like a device waking from sleep: the wall clock moves past the time without timers elapsing
+		vi.setSystemTime(T0 + (2 * 60 * 60 * 1000));
+		vi.advanceTimersByTime(TICK_MS);
+		expect(reload).toHaveBeenCalledTimes(1);
+	});
+
+	test('does not reload once cancelled', () => {
+		const reload = vi.fn();
+		vi.stubGlobal('location', {...location, reload});
+		const cancel = scheduleReload(T0 + 1000);
+
+		cancel();
+		vi.advanceTimersByTime(5000);
+
+		expect(reload).not.toHaveBeenCalled();
 	});
 });

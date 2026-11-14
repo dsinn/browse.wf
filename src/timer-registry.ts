@@ -141,6 +141,16 @@ export function scheduleAt(timestampMs: number, callback: () => unknown): () => 
 }
 
 /**
+ Reloads the page once the clock reaches `timestampMs` (ms since epoch), even if the device slept through it.
+ Returns a function that cancels the reload.
+ */
+export function scheduleReload(timestampMs: number): () => void {
+	return scheduleAt(timestampMs, () => {
+		location.reload();
+	});
+}
+
+/**
  Drops all registered badges and stops the ticker. For tests, which swap fake timers in and out.
  */
 export function resetTimerRegistry(): void {

@@ -4,7 +4,7 @@
  - renderDescentTabs   (via initWeeklyForecast with Descents data)
  - renderCalendarSeasonTabs (via initWeeklyForecast with KnownCalendarSeasons data)
  - initWeeklyMissionsNotice
- - initWeeklyForecast  (main entry point — conditional rendering, tab preservation)
+ - initWeeklyForecast  (main entry point — conditional rendering)
  */
 import {
 	describe,
@@ -17,7 +17,12 @@ import {
 import {loadMock} from '@test/helpers/api-mocks';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {freezeTime, MOCK_TIMESTAMP} from '@test/helpers/time-helpers';
-import {initWeeklyForecast, initWeeklyMissionsNotice} from './weekly-forecast';
+import {resetTimerRegistry} from './timer-registry';
+import {
+	initWeeklyForecast,
+	initWeeklyMissionsNotice,
+	nextForecastPublishedMs,
+} from './weekly-forecast';
 
 const {mockFetchWorldState} = vi.hoisted(() => ({
 	mockFetchWorldState: vi.fn().mockResolvedValue({Conquests: [], Descents: [], KnownCalendarSeasons: []}),
@@ -45,6 +50,8 @@ vi.mock('./short-timer-badge', () => ({
 const worldState = loadMock('worldState.json');
 
 afterEach(() => {
+	resetTimerRegistry();
+	vi.unstubAllGlobals();
 	vi.useRealTimers();
 	clearDom();
 	delete (globalThis as any).ExportImages;
@@ -116,6 +123,21 @@ describe('initWeeklyMissionsNotice', () => {
 		initWeeklyMissionsNotice();
 		const timer = document.querySelector('#weekly-missions-timer')!;
 		expect(timer.querySelector('.arby-badge')).not.toBeNull();
+	});
+
+	test('reloads the page when the next forecast is published', () => {
+		const reload = vi.fn();
+		vi.stubGlobal('location', {...location, reload});
+		initWeeklyMissionsNotice();
+		const publishedMs = nextForecastPublishedMs();
+
+		freezeTime(publishedMs - 1000);
+		vi.advanceTimersByTime(250);
+		expect(reload).not.toHaveBeenCalled();
+
+		freezeTime(publishedMs);
+		vi.advanceTimersByTime(250);
+		expect(reload).toHaveBeenCalledTimes(1);
 	});
 
 	test('does nothing when #weekly-missions-timer is absent', () => {
@@ -292,15 +314,5 @@ describe('renderCalendarSeasonTabs', () => {
 	test('each season gets a column in the two-column layout', () => {
 		const cols = document.querySelectorAll('#calendar-season-columns .col-6');
 		expect(cols.length).toBe(worldState.KnownCalendarSeasons.length);
-	});
-});
-
-describe('initWeeklyForecast — refresh scheduling', () => {
-	beforeEach(async () => {
-		await setup({});
-	});
-
-	test('schedules a refresh via setTimeout after initial load', () => {
-		expect(vi.getTimerCount()).toBeGreaterThan(0);
 	});
 });

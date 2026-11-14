@@ -16,10 +16,11 @@ import {weekCountToActivationMs} from './clan-weekly/data.js';
 import {renderClanWeeklyPane} from './clan-weekly/index.js';
 import {getNextWeeklyResetMs, MILLIS_PER_WEEK} from './helpers/time-helpers.js';
 import {createShortTimerBadge} from './short-timer-badge.js';
+import {scheduleReload} from './timer-registry.js';
 import {WarframeApiFrontProxyClient} from './warframe-api-proxy-client.js';
 import {fetchExport} from './public-export-fetcher.js';
 import {renderTeshinForecastHeader, renderTeshinForecastTable} from './teshin/index.js';
-import {initWeeklyForecastToc, scrollToHashedSection} from './weekly-forecast-toc.js';
+import {initWeeklyForecastToc, scrollToHashedSection, startSyncingUrlHash} from './weekly-forecast-toc.js';
 
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
@@ -72,42 +73,6 @@ export function buildTab(
 	contentElement.append(pane);
 }
 
-/**
- Returns the activation timestamp of the active tab button, or null if none is active.
- */
-export function getActiveTabActivation(tabsElement: HTMLElement): string | undefined {
-	const active = tabsElement.querySelector<HTMLElement>('.nav-link.active');
-	return active ? active.dataset.activation : undefined;
-}
-
-/**
- Re-activates the tab whose data-activation matches the given timestamp string.
- No-ops if the activation is undefined (nothing to restore), or if no tab matches (the tab no longer exists after a refresh).
-
- Directly manipulates classes instead of using Bootstrap's Tab JS API to avoid
- stale cached instances from the previous render confusing Bootstrap's hide/show logic.
- */
-export function restoreActiveTab(tabsElement: HTMLElement, activation: string | undefined): void {
-	if (activation === undefined) {
-		return;
-	}
-
-	const target = tabsElement.querySelector<HTMLElement>(`.nav-link[data-activation="${activation}"]`);
-	if (!target) {
-		return;
-	}
-
-	// Deactivate whichever tab buildTab marked active (index 0 / current)
-	tabsElement.querySelector<HTMLElement>('.nav-link.active')?.classList.remove('active');
-	const contentElement = document.querySelector(`#${tabsElement.id.replace(/-tabs$/u, '-content')}`);
-	contentElement?.querySelector('.tab-pane.active')?.classList.remove('show', 'active');
-
-	// Activate the restored tab
-	target.classList.add('active');
-	const paneId = (target.dataset.bsTarget ?? '').slice(1);
-	document.querySelector(`#${paneId}`)?.classList.add('show', 'active');
-}
-
 async function renderArchimedeaTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
@@ -141,7 +106,6 @@ async function renderDescentTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
 	descents: any[],
-	preserveActivation: string | undefined = undefined,
 ): Promise<void> {
 	const now = Date.now();
 	tabsElement.replaceChildren();
@@ -179,10 +143,6 @@ async function renderDescentTabs(
 			pane.append(table);
 		});
 	}
-
-	if (preserveActivation !== undefined) {
-		restoreActiveTab(tabsElement, preserveActivation);
-	}
 }
 
 /**
@@ -208,7 +168,6 @@ async function renderCalendarSeasonTabs(
 	tabsElement: HTMLElement,
 	contentElement: HTMLElement,
 	seasons: any[],
-	preserveActivation: string | undefined = undefined,
 ): Promise<void> {
 	const now = Date.now();
 	tabsElement.replaceChildren();
@@ -236,10 +195,6 @@ async function renderCalendarSeasonTabs(
 		buildTab(tabsElement, contentElement, id, label, activationMs, isActive, pane => {
 			pane.append(seasonPanesForTabs[i]);
 		});
-	}
-
-	if (preserveActivation !== undefined) {
-		restoreActiveTab(tabsElement, preserveActivation);
 	}
 
 	// Build two-column layout for below-xl viewports
@@ -299,18 +254,7 @@ export function initWeeklyMissionsNotice(): void {
 	const expiryMs = nextForecastPublishedMs();
 	const badge = createShortTimerBadge(expiryMs / 1000, 'Pending Refresh');
 	timerElement.append(badge);
-	setTimeout(() => {
-		location.reload();
-	}, expiryMs - Date.now());
-}
-
-/**
- Returns the activation of the tab the user is on, for re-activating it after a refresh re-renders the tabs.
- Only meaningful on refresh; returns undefined otherwise, or when the page has no such tabs.
- */
-function getRefreshActivation(isRefresh: boolean, tabsSelector: string): string | undefined {
-	const tabsElement = isRefresh ? document.querySelector<HTMLElement>(tabsSelector) : undefined;
-	return tabsElement ? getActiveTabActivation(tabsElement) : undefined;
+	scheduleReload(expiryMs);
 }
 
 /**
@@ -335,18 +279,12 @@ async function renderClientSideForecasts(): Promise<void> {
 	}
 }
 
-export async function initWeeklyForecast(isRefresh = false): Promise<void> {
+export async function initWeeklyForecast(): Promise<void> {
 	const deepTabsElement = document.querySelector<HTMLElement>('#deep-archimedea-tabs');
 	const temporalTabsElement = document.querySelector<HTMLElement>('#temporal-archimedea-tabs');
 	const descentTabsElement = document.querySelector<HTMLElement>('#descendia-tabs');
 	const calendarSeasonTabsElement = document.querySelector<HTMLElement>('#calendar-season-tabs');
 	const clanWeeklyColumnsElement = document.querySelector<HTMLElement>('#clan-weekly-columns');
-
-	// Capture which tab the user is on before re-rendering (only meaningful on refresh)
-	const deepActivation = getRefreshActivation(isRefresh, '#deep-archimedea-tabs');
-	const temporalActivation = getRefreshActivation(isRefresh, '#temporal-archimedea-tabs');
-	const descentActivation = getRefreshActivation(isRefresh, '#descendia-tabs');
-	const calendarSeasonActivation = getRefreshActivation(isRefresh, '#calendar-season-tabs');
 
 	const worldState = await WarframeApiFrontProxyClient.fetchWorldState();
 
@@ -359,7 +297,6 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 			deepArchimedeas,
 			'CT_LAB',
 		);
-		restoreActiveTab(deepTabsElement, deepActivation);
 	}
 
 	// Temporal Archimedea (CT_HEX)
@@ -371,7 +308,6 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 			temporalArchimedeas,
 			'CT_HEX',
 		);
-		restoreActiveTab(temporalTabsElement, temporalActivation);
 	}
 
 	// Descendia
@@ -381,7 +317,6 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 			descentTabsElement,
 			document.querySelector<HTMLElement>('#descendia-content')!,
 			descents,
-			descentActivation,
 		);
 	}
 
@@ -392,7 +327,6 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 			calendarSeasonTabsElement,
 			document.querySelector<HTMLElement>('#calendar-season-content')!,
 			calendarSeasons,
-			calendarSeasonActivation,
 		);
 	}
 
@@ -404,14 +338,10 @@ export async function initWeeklyForecast(isRefresh = false): Promise<void> {
 	}
 
 	await renderClientSideForecasts();
-
-	// Schedule next refresh at Sunday 23:02 UTC (when the forecast is expected to be published)
-	setTimeout(() => {
-		void initWeeklyForecast(true).catch(console.error);
-	}, nextForecastPublishedMs() - Date.now());
 }
 
 initWeeklyForecastToc();
 initWeeklyMissionsNotice();
 await initWeeklyForecast();
 scrollToHashedSection();
+startSyncingUrlHash();

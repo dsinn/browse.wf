@@ -20,7 +20,7 @@
 			<div class="d-flex align-items-center gap-2" id="phase-toggle-group">
 				<span id="phase-label-day">Day/Fass</span>
 				<div class="form-check form-switch mb-0">
-					<input class="form-check-input" type="checkbox" role="switch" id="phase-toggle" checked>
+					<input class="form-check-input" type="checkbox" role="switch" id="phase-toggle" aria-labelledby="phase-label-night" checked>
 				</div>
 				<span id="phase-label-night">Night/Vome</span>
 			</div>

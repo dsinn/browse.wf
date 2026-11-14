@@ -73,7 +73,7 @@ Several cards need to re-render when their content expires, without waiting for 
 
 ### Render Skipping
 
-Each module tracks the data it's concerned about from the last render. If the world state hasn't meaningfully changed since the last render, the re-render is skipped. The `shouldForceRender` parameter (`forceRender` in `live.ts`) bypasses this; it exists primarily for card filters, so that when the user updates their display settings the card re-renders immediately rather than waiting for the next significant world state change.
+Each module tracks the data it's concerned about from the last render. If the world state hasn't meaningfully changed since the last render, the re-render is skipped. The `shouldForceRender` parameter bypasses this; it exists primarily for card filters, so that when the user updates their display settings the card re-renders immediately rather than waiting for the next significant world state change.
 
 ## Filter Integration Points
 

@@ -192,7 +192,7 @@ declare global {
 	}
 }
 
-const STALE_DATA_RETRY_MS = 5_000;
+const STALE_DATA_RETRY_MS = 5000;
 
 const dict_promise = getDictPromise();
 const osdict_promise = getOSDictPromise();
@@ -402,10 +402,10 @@ async function updateArbyLocalised()
 
 	setDatum("arby-header", osdict["/Lotus/Language/Menu/AlertHardMode"], window.arby_expiry);
 	document.getElementById("arby-what").textContent = toTitleCase(dict[window.arby_node.missionName]) + " - " + dict[ExportFactions[window.arby_node.faction].name];
-	const arbyWhereElem = document.createElement("abbr");
-	arbyWhereElem.textContent = `${dict[window.arby_node.name]}, ${dict[window.arby_node.systemName]}`;
-	addTooltip(arbyWhereElem, (window as any).formatTileset((window as any).getTileset(window.arby_node)));
-	document.getElementById("arby-where").replaceChildren(document.createTextNode("@ "), arbyWhereElem);
+	const arbyWhereElement = document.createElement("abbr");
+	arbyWhereElement.textContent = `${dict[window.arby_node.name]}, ${dict[window.arby_node.systemName]}`;
+	addTooltip(arbyWhereElement, (window as any).formatTileset((window as any).getTileset(window.arby_node)));
+	document.getElementById("arby-where").replaceChildren(document.createTextNode("@ "), arbyWhereElement);
 }
 
 function updateArby()
@@ -570,9 +570,9 @@ async function updateArchonHunt()
 		document.getElementById("litesortie-body").innerHTML += " • " + mission_names.join(", ");
 		window.scheduleAt!(parseInt(litesortie.Expiry.$date.$numberLong), updateArchonHunt);
 	}
-	catch (e)
+	catch (error)
 	{
-		console.error(e);
+		console.error(error);
 		setTimeout(updateArchonHunt, STALE_DATA_RETRY_MS);
 	}
 }
@@ -689,16 +689,16 @@ async function updateBaro()
 	}
 }
 
-async function updateAlerts(forceRender = false)
+async function updateAlerts(shouldForceRender = false)
 {
 	// Skip re-render if the OID set is unchanged
 	const currentOids = new Set<string>(window.worldState.Alerts.map((a: any) => a._id.$oid));
-	const prevOids = renderedAlertOids;
-	const sameOids = prevOids
-		&& currentOids.size === prevOids.size
-		&& [...currentOids].every(oid => prevOids.has(oid));
+	const previousOids = renderedAlertOids;
+	const hasSameOids = previousOids
+		&& currentOids.size === previousOids.size
+		&& [...currentOids].every(oid => previousOids.has(oid));
 	renderedAlertOids = currentOids;
-	if (!forceRender && sameOids) return;
+	if (!shouldForceRender && hasSameOids) return;
 
 	if (window.worldState.Alerts.length != 0)
 	{
@@ -714,7 +714,7 @@ async function updateAlerts(forceRender = false)
 		const activeAlertExpiries = new Set<number>(
 			sortedAlerts
 				.filter((a: any) => Date.now() >= a.Activation.$date.$numberLong && Date.now() < a.Expiry.$date.$numberLong)
-				.map((a: any) => Number.parseInt(a.Expiry.$date.$numberLong, 10))
+				.map((a: any) => Number(a.Expiry.$date.$numberLong))
 		);
 		for (const expiry of activeAlertExpiries)
 		{
@@ -769,26 +769,26 @@ async function updateAlerts(forceRender = false)
 						span.appendChild(b);
 					}
 					span.innerHTML += ` (${alert.MissionInfo.minEnemyLevel}-${alert.MissionInfo.maxEnemyLevel}) `;
-					const locationElem = document.createElement("span");
-					locationElem.className = "text-nowrap";
-					locationElem.appendChild(document.createTextNode("@ "));
+					const locationElement = document.createElement("span");
+					locationElement.className = "text-nowrap";
+					locationElement.appendChild(document.createTextNode("@ "));
 					{
 						const node = ExportRegions[alert.MissionInfo.location];
 						const locationText = `${dict[node.name]}, ${dict[node.systemName]}`;
 						const formattedTileset = (window as any).formatTileset((window as any).getTileset(node));
 						if (formattedTileset)
 						{
-							const whereElem = document.createElement("abbr");
-							whereElem.textContent = locationText;
-							addTooltip(whereElem, formattedTileset);
-							locationElem.appendChild(whereElem);
+							const whereElement = document.createElement("abbr");
+							whereElement.textContent = locationText;
+							addTooltip(whereElement, formattedTileset);
+							locationElement.appendChild(whereElement);
 						}
 						else
 						{
-							locationElem.appendChild(document.createTextNode(locationText));
+							locationElement.appendChild(document.createTextNode(locationText));
 						}
 					}
-					span.appendChild(locationElem);
+					span.appendChild(locationElement);
 					block.appendChild(span);
 				}
 				{
@@ -837,9 +837,9 @@ async function updateAlerts(forceRender = false)
 		document.getElementById("alerts-body").textContent = "None right now.";
 	}
 
-	if (!sameOids && prevOids)
+	if (!hasSameOids && previousOids)
 	{
-		const newAlerts = window.worldState.Alerts.filter((a: any) => !prevOids.has(a._id.$oid));
+		const newAlerts = window.worldState.Alerts.filter((a: any) => !previousOids.has(a._id.$oid));
 		if (newAlerts.length > 0 && localStorage.getItem("live.notif.alerts"))
 		{
 			sendNotification(newAlerts.length == 1 ? "A new alert is live." : newAlerts.length + " new alerts are live.");
@@ -847,7 +847,7 @@ async function updateAlerts(forceRender = false)
 	}
 }
 
-async function updateGoals(forceRender = false)
+async function updateGoals(shouldForceRender = false)
 {
 	await osdict_promise;
 	const goal_names = [];
@@ -858,7 +858,7 @@ async function updateGoals(forceRender = false)
 	const content = goal_names.join(", ") || "None right now.";
 
 	// Skip re-render if content is unchanged
-	if (!forceRender && content === renderedGoals) return;
+	if (!shouldForceRender && content === renderedGoals) return;
 	renderedGoals = content;
 
 	document.getElementById("goals-body").textContent = content;
@@ -1010,14 +1010,14 @@ function createCompletionToggle(oid: string): HTMLAnchorElement
 {
 	const a = document.createElement("a");
 	a.className = "completion-check";
-	a.setAttribute("data-oid", oid);
+	a.dataset.oid = oid;
 	a.innerHTML = isOidMarkedAsCompleted(oid) ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
 	addTooltip(a, (isOidMarkedAsCompleted(oid) ? "Unmark as " : "Mark as ") + "completed");
 	a.onclick = function()
 	{
-		const newCompletedState = !isOidMarkedAsCompleted(oid);
-		(window as any).setCompletionToggle(a, newCompletedState);
-		(window as any).applyCheckboxLinking(a, newCompletedState);
+		const isCompleted = !isOidMarkedAsCompleted(oid);
+		(window as any).setCompletionToggle(a, isCompleted);
+		(window as any).applyCheckboxLinking(a, isCompleted);
 	};
 	return a;
 }

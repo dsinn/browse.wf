@@ -298,6 +298,7 @@ export async function initWeeklyForecast(): Promise<void> {
 	const calendarSeasonTabsElement = document.querySelector<HTMLElement>('#calendar-season-tabs');
 	const clanWeeklyColumnsElement = document.querySelector<HTMLElement>('#clan-weekly-columns');
 
+	const clientSideForecasts = renderClientSideForecasts(); // Before worldState because it's local
 	const worldState = await WarframeApiFrontProxyClient.fetchWorldState();
 
 	// Deep Archimedea (CT_LAB)
@@ -359,7 +360,7 @@ export async function initWeeklyForecast(): Promise<void> {
 
 	endLoading('#clan-weekly-columns');
 
-	await renderClientSideForecasts();
+	await clientSideForecasts;
 }
 
 initWeeklyForecastToc();

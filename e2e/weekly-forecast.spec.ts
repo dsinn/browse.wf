@@ -268,3 +268,15 @@ test.describe('Weekly Forecast Page', () => {
 		});
 	});
 });
+
+test.describe('Weekly Forecast Page without worldState', () => {
+	test('still renders the forecasts that don\'t need the worldState', async ({page}) => {
+		await setupMockRoutes(page);
+		// Registered last, so it takes precedence over the worldState mock
+		await page.route('**/worldState', async route => route.abort());
+		await page.goto('/weekly-forecast');
+
+		await expect(page.locator('#circuit-forecast-body tr')).toHaveCount(11);
+		await expect(page.locator('#teshin-forecast-body tr')).toHaveCount(8);
+	});
+});

@@ -2,7 +2,7 @@
  Fork-specific profile workflow: step indicators, cloud-sync gating,
  rate-limit handling, and localStorage persistence.
 
- Exposes cloudSyncEvent and initialProfilePromise on globalThis so that
+ Exposes cloudSyncEvent and loadInitialProfile on globalThis so that
  the non-module profile.ts script can include them in its Promise.all.
  Also exposes all onclick handlers and profileWorkflowReady/updateProfileAge.
  */
@@ -28,16 +28,23 @@ let currentAccountId = '';
 // Wait for cloud sync to emit one of its events (or timeout)
 const cloudSyncEvent = waitForCloudSync();
 
-// Get initial profile (from localStorage or fallback).
-// `.then()` is used instead of `await` because this is a non-module script — top-level await is unavailable.
-const initialProfilePromise = cloudSyncEvent.then(async () => {
-	const profileJson = localStorage.getItem(PROFILE_DATA_STORAGE_KEY);
-	return profileJson ? JSON.parse(profileJson) : fetch('supplemental-data/profile-[DE]Rebecca.json').then(async response => response.json());
-});
-
-// Expose promises so profile.ts can include them in its Promise.all
+// Expose the promise so profile.ts can include it in its Promise.all
 window.cloudSyncEvent = cloudSyncEvent;
-window.initialProfilePromise = initialProfilePromise;
+
+/**
+ Called by profile.ts as the profile page initializes. Resolves to the cached profile (once cloud sync has had a
+ chance to restore it), or to the demo profile when nothing is cached.
+ */
+async function loadInitialProfile(): Promise<unknown> {
+	await cloudSyncEvent;
+	const profileJson = localStorage.getItem(PROFILE_DATA_STORAGE_KEY);
+	if (profileJson) {
+		return JSON.parse(profileJson);
+	}
+
+	const response = await fetch('supplemental-data/profile-[DE]Rebecca.json');
+	return response.json();
+}
 
 let wasProfileLoadedManually = false;
 
@@ -402,6 +409,7 @@ function profileWorkflowReady(syncResult: string, shouldShowAutoFetchFlow: boole
 }
 
 window.fetchProfile = fetchProfile;
+window.loadInitialProfile = loadInitialProfile;
 window.loadProfile = loadProfile;
 window.onAccountIdManualInput = onAccountIdManualInput;
 window.onDownloadLinkLeftClick = onDownloadLinkLeftClick;

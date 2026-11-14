@@ -330,7 +330,7 @@ interface Window {
 	// src/profile/workflow.ts
 	cloudSyncEvent?: Promise<string>;
 	fetchProfile?: () => void;
-	initialProfilePromise?: Promise<void>;
+	loadInitialProfile?: () => Promise<unknown>;
 	loadProfile?: (file?: File) => Promise<void>;
 	onAccountIdManualInput?: () => void;
 	onDownloadLinkLeftClick?: (event: Event) => void;

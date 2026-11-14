@@ -36,7 +36,7 @@ beforeEach(() => {
 	document.body.innerHTML = PROFILE_FIXTURE;
 	setupGlobals();
 	localStorage.clear();
-	// Pre-populate profile data so initialProfilePromise resolves from cache
+	// Pre-populate profile data so loadInitialProfile resolves from cache
 	// Rather than triggering a fallback fetch (which isn't mocked).
 	localStorage.setItem('profile.data', JSON.stringify(MOCK_PROFILE_DATA));
 	vi.useFakeTimers({now: 1_768_087_200_000}); // Frozen time
@@ -47,7 +47,6 @@ afterEach(() => {
 	vi.useRealTimers();
 	for (const key of [
 		'cloudSyncEvent',
-		'initialProfilePromise',
 		'__showAutoFetchFlow',
 		'__profileParams',
 		'renderProfile',
@@ -55,6 +54,7 @@ afterEach(() => {
 		'triggerCloudSync',
 		'createShortTimerBadge',
 		'fetchProfile',
+		'loadInitialProfile',
 		'loadProfile',
 		'onAccountIdManualInput',
 		'onDownloadLinkLeftClick',
@@ -577,7 +577,7 @@ describe('updateProfileAge', () => {
 	});
 });
 
-// ─── cloudSyncEvent / initialProfilePromise globals ──────────────────────────
+// ─── cloudSyncEvent / loadInitialProfile globals ─────────────────────────────
 
 describe('module-level globals', () => {
 	it('exposes cloudSyncEvent as a Promise on globalThis', async () => {
@@ -585,9 +585,16 @@ describe('module-level globals', () => {
 		expect((globalThis as any).cloudSyncEvent).toBeInstanceOf(Promise);
 	});
 
-	it('exposes initialProfilePromise as a Promise on globalThis', async () => {
+	it('does not fetch the demo profile until the profile page asks for it', async () => {
+		localStorage.removeItem('profile.data');
+		const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+			ok: true,
+			json: async () => MOCK_PROFILE_DATA,
+		} as Response);
 		await freshWorkflow();
-		expect((globalThis as any).initialProfilePromise).toBeInstanceOf(Promise);
+		globalThis.dispatchEvent(new CustomEvent('cloud-sync-complete'));
+		await vi.runAllTimersAsync();
+		expect(fetchSpy).not.toHaveBeenCalled();
 	});
 
 	it('cloudSyncEvent resolves to "complete" when cloud-sync-complete fires', async () => {
@@ -604,15 +611,20 @@ describe('module-level globals', () => {
 		expect(await promise).toBe('unauthenticated');
 	});
 
-	it('initialProfilePromise resolves from localStorage when profile.data is set', async () => {
+	it('loadInitialProfile resolves from localStorage when profile.data is set', async () => {
 		localStorage.setItem('profile.data', JSON.stringify(MOCK_PROFILE_DATA));
+		const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+			ok: true,
+			json: async () => MOCK_PROFILE_DATA,
+		} as Response);
 		await freshWorkflow();
 		globalThis.dispatchEvent(new CustomEvent('cloud-sync-complete'));
-		const data = await (globalThis as any).initialProfilePromise;
+		const data = await (globalThis as any).loadInitialProfile();
 		expect(data).toEqual(MOCK_PROFILE_DATA);
+		expect(fetchSpy).not.toHaveBeenCalled();
 	});
 
-	it('initialProfilePromise fetches the fallback demo profile when localStorage is empty', async () => {
+	it('loadInitialProfile fetches the demo profile when localStorage is empty', async () => {
 		localStorage.removeItem('profile.data'); // Clear the default populated in beforeEach
 		const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
 			ok: true,
@@ -620,7 +632,7 @@ describe('module-level globals', () => {
 		} as Response);
 		await freshWorkflow();
 		globalThis.dispatchEvent(new CustomEvent('cloud-sync-complete'));
-		await (globalThis as any).initialProfilePromise;
+		await (globalThis as any).loadInitialProfile();
 		expect(fetchSpy).toHaveBeenCalledWith(expect.stringContaining('[DE]Rebecca'));
 	});
 });

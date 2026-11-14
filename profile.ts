@@ -144,7 +144,7 @@ Promise.all([
 		"ExportWarframes",
 		"ExportWeapons",
 	].map(name => fetchExport(name)),
-	(window as any).initialProfilePromise,
+	(window as any).loadInitialProfile(),
 	fetchExport("ExportImages"),
 	(window as any).cloudSyncEvent
 	]).then(([

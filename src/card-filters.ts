@@ -28,13 +28,15 @@ export function refreshFilterStatus(elm: HTMLElement): void {
 	}
 
 	elm.replaceChildren(span);
+	elm.setAttribute('aria-label', 'Widget settings');
+	elm.setAttribute('aria-expanded', String(Boolean(isOpen)));
 }
 
 /**
  Initialize filter toggle functionality for all cards with [data-filter-toggle]
  */
 export function initializeFilterToggles(): void {
-	for (const elm of document.querySelectorAll<HTMLAnchorElement>('[data-filter-toggle]')) {
+	for (const elm of document.querySelectorAll<HTMLElement>('[data-filter-toggle]')) {
 		refreshFilterStatus(elm);
 		elm.addEventListener('click', () => {
 			const cardName = elm.dataset.filterToggle;

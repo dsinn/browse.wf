@@ -83,7 +83,7 @@
 								<button class="btn btn-sm btn-secondary ms-auto me-2" id="news-mark-all-read" title="Mark all as read">
 									Mark read
 								</button>
-								<a class="me-2" data-filter-toggle="news"></a>
+								<button type="button" class="me-2" data-filter-toggle="news"></button>
 								<a data-notif-toggle="news"></a>
 							</div>
 							<div class="card-filter-panel" id="news-filters" style="display:none">
@@ -161,7 +161,7 @@
 						<div class="card mb-3">
 							<div class="card-header d-flex">
 								<h5 class="mb-0"><span data-collapse-toggle="incursions"></span> <span id="incursions-header">Steel Path Incursions</h5>
-								<a class="ms-auto" data-filter-toggle="incursions"></a>
+								<button type="button" class="ms-auto" data-filter-toggle="incursions"></button>
 							</div>
 							<div class="card-filter-panel" id="incursions-filters" style="display:none">
 								<div class="card-body py-2">
@@ -227,7 +227,7 @@
 						<div class="card mb-3">
 							<div class="card-header d-flex">
 								<h5 class="mb-0"><span data-collapse-toggle="weekly-missions"></span> <span id="circuit-header">Weekly Missions</h5>
-								<a class="ms-auto me-2" data-filter-toggle="weekly-missions"></a>
+								<button type="button" class="ms-auto me-2" data-filter-toggle="weekly-missions"></button>
 								<a data-notif-toggle="circuit"></a>
 							</div>
 							<?php renderWeeklyMissionsFilters(); ?>
@@ -263,7 +263,7 @@
 				<div class="card mb-3" id="bounties-card">
 					<div class="card-header d-flex">
 						<h5 class="mb-0"><span data-collapse-toggle="bounties"></span> <span id="bounties-header">Bounties</h5>
-						<a class="ms-auto me-2" data-filter-toggle="bounties"></a>
+						<button type="button" class="ms-auto me-2" data-filter-toggle="bounties"></button>
 						<a data-notif-toggle="bounties"></a>
 					</div>
 					<?php require 'components/live/bounty-filters-partial.php'; ?>
@@ -396,7 +396,7 @@
 				<div class="card mb-3">
 					<div class="card-header d-flex">
 						<h5 class="mb-0"><span data-collapse-toggle="fissures"></span> Void Fissures (Normal)</h5>
-						<a class="ms-auto" data-filter-toggle="fissures"></a>
+						<button type="button" class="ms-auto" data-filter-toggle="fissures"></button>
 					</div>
 					<?php renderFissureFilters('fissures'); ?>
 					<div class="card-body overflow-auto">
@@ -406,7 +406,7 @@
 				<div class="card mb-3">
 					<div class="card-header d-flex">
 						<h5 class="mb-0"><span data-collapse-toggle="sp-fissures"></span> Void Fissures (Steel Path)</h5>
-						<a class="ms-auto" data-filter-toggle="sp-fissures"></a>
+						<button type="button" class="ms-auto" data-filter-toggle="sp-fissures"></button>
 					</div>
 					<?php renderFissureFilters('sp-fissures'); ?>
 					<div class="card-body overflow-auto">
@@ -416,7 +416,7 @@
 				<div class="card mb-3">
 					<div class="card-header d-flex">
 						<h5 class="mb-0"><span data-collapse-toggle="rj-fissures"></span> Void Storms (Railjack)</h5>
-						<a class="ms-auto" data-filter-toggle="rj-fissures"></a>
+						<button type="button" class="ms-auto" data-filter-toggle="rj-fissures"></button>
 					</div>
 					<?php renderVoidStormFilters('rj-fissures'); ?>
 					<div class="card-body overflow-auto">
@@ -426,7 +426,7 @@
 				<div class="card mb-3">
 					<div class="card-header d-flex">
 						<h5 class="mb-0"><span data-collapse-toggle="invasions"></span> <span id="invasions-header">Invasions</h5>
-						<a class="ms-auto" data-filter-toggle="invasions"></a>
+						<button type="button" class="ms-auto" data-filter-toggle="invasions"></button>
 					</div>
 					<?php require 'components/live/invasion-filters-partial.php'; ?>
 					<div class="card-body overflow-auto">

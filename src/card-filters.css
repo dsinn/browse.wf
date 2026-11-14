@@ -11,6 +11,13 @@
 	color: inherit;
 }
 
+/* The toggle is a <button> for keyboard access, styled as a bare icon */
+[data-filter-toggle] {
+	background: none;
+	border: 0;
+	padding: 0;
+}
+
 /* Active state - blue like navbar pin icon */
 .filter-gear-enabled {
 	filter: sepia(100%) saturate(500%) hue-rotate(190deg) brightness(0.9);

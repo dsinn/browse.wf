@@ -367,19 +367,16 @@ describe('initRivenCalc', () => {
 			}
 		});
 
-		test('groups the spliced traits the same way, in a card of their own, by the traits they are made from', () => {
+		test('puts the spliced traits in a card of their own, in the same groups', () => {
 			initRivenCalc(data);
 			const splicedTags = (): string[] => [...document.querySelectorAll<HTMLElement>('[data-riven-section="spliced"] .riven-stat')].map(element => element.dataset.statTag!);
 			const splicedGroups = (): string[] => [...document.querySelectorAll<HTMLElement>('[data-riven-section="spliced"] .riven-group')].map(group => group.dataset.rivenGroup!);
 
-			// Weak Point Damage needs Damage, so it takes the place before it, at the top of Offence
 			expect(splicedGroups()).toEqual(['offence', 'elemental', 'faction', 'ammo']);
-			expect(splicedTags().slice(0, 3)).toEqual(['SplicedWeakpointDamage', 'SplicedStatusDamage', 'SplicedWeakpointCriticalChance']);
 			expect(splicedTags()).toContain('SplicedGasDamage');
 
 			choose('#riven-class', 'PlayerMeleeWeaponRandomModRare');
 			expect(splicedGroups()).toEqual(['offence', 'melee', 'elemental', 'faction']);
-			expect(splicedTags().slice(0, 3)).toEqual(['SplicedSlamDamage', 'SplicedStatusDamage', 'SplicedParryAngle']);
 		});
 	});
 

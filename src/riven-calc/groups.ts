@@ -27,11 +27,9 @@ type GroupDefinition = {
 export const OTHER_GROUP_ID = 'other';
 
 /*
- * Spliced traits are placed by the base traits they are made from (the Warframe Wiki's splicing table). Each sits
- * immediately before its "anchor", the earliest of the base traits that every one of its recipes uses (when no base
- * trait is in every recipe, the earliest of any of them). Where several spliced traits share an anchor, the one whose
- * other ingredient comes earlier goes first. So Weak Point Damage, which always needs Damage, goes before Damage, and
- * Gas Damage (Heat + Toxin) goes before Heat. The spliced traits are shown in a card of their own, but in this order.
+ * Spliced traits are placed by the base traits they are made from (the Warframe Wiki's splicing table), usually just
+ * before the earliest of them, and are shown in a card of their own in this order. Status Damage (Damage + Status Chance)
+ * is the exception: it follows Weak Point Critical Chance so that it stays in Offence.
  */
 export const GROUP_DEFINITIONS: readonly GroupDefinition[] = [
 	{
@@ -40,10 +38,10 @@ export const GROUP_DEFINITIONS: readonly GroupDefinition[] = [
 		tags: [
 			'SplicedSlamDamage',
 			'SplicedWeakpointDamage',
-			'SplicedStatusDamage',
 			'WeaponDamageAmountMod',
 			'WeaponMeleeDamageMod',
 			'SplicedWeakpointCriticalChance',
+			'SplicedStatusDamage',
 			'WeaponCritChanceMod',
 			'WeaponCritDamageMod',
 			'SlideAttackCritChanceMod',

@@ -1,6 +1,8 @@
 /**
  Alerts card helpers (fork-specific)
  */
+import {makeArchwingIcon} from '../archwing-icon.js';
+import {fetchExport} from '../public-export-fetcher.js';
 import {addTooltip} from '../tooltip.js';
 
 /**
@@ -33,7 +35,17 @@ async function makeQuestLockIcon(questRequest: string): Promise<HTMLElement> {
  @param missionInfo - The alert's mission details from worldState
  */
 export async function makeAlertMissionIcons(missionInfo: any): Promise<Array<string | Node>> {
-	return missionInfo.questReq ? [' ', await makeQuestLockIcon(missionInfo.questReq)] : [];
+	const isArchwing = Boolean(missionInfo.archwingRequired || missionInfo.isSharkwingMission);
+	if (isArchwing) {
+		// The Archwing icon's image source is looked up in ExportImages
+		window.ExportImages = await fetchExport('ExportImages');
+	}
+
+	const icons = [
+		...(isArchwing ? [makeArchwingIcon('alert-archwing-icon')] : []),
+		...(missionInfo.questReq ? [await makeQuestLockIcon(missionInfo.questReq)] : []),
+	];
+	return icons.flatMap(icon => [' ', icon]);
 }
 
 (window as any).formatAlertRewards = formatAlertRewards;

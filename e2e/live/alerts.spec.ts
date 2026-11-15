@@ -103,6 +103,7 @@ test.describe('Live Page - Alerts Card mission requirements', () => {
 			frozenTime: ALERTS_FROZEN_TIMESTAMP,
 			modifyWorldState(worldState) {
 				worldState.Alerts[0].MissionInfo.questReq = '/Lotus/Types/Keys/JadeShadows/JadeShadowQuestKeyChain';
+				worldState.Alerts[1].MissionInfo.archwingRequired = true;
 			},
 		});
 		await page.route('**/browse.wf/Lotus/Types/Keys/JadeShadows/JadeShadowQuestKeyChain', route => {
@@ -117,5 +118,12 @@ test.describe('Live Page - Alerts Card mission requirements', () => {
 		await expect(lock).toHaveCount(1);
 		await lock.hover();
 		await expect(page.locator('.tooltip')).toHaveText('Requires quest: Jade Shadows');
+	});
+
+	test('alert requiring Archwing shows the Archwing icon', async ({page}) => {
+		const icon = page.locator('#alerts-body img.alert-archwing-icon');
+		await expect(icon).toHaveCount(1);
+		await icon.hover();
+		await expect(page.locator('.tooltip')).toHaveText('Archwing');
 	});
 });

@@ -3,9 +3,14 @@ import {
 	test,
 	expect,
 	beforeEach,
+	vi,
 } from 'vitest';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {formatAlertRewards, makeAlertMissionIcons} from './alerts';
+
+vi.mock('../public-export-fetcher.js', () => ({
+	fetchExport: async () => ({}),
+}));
 
 describe('formatAlertRewards', () => {
 	test('credits-only reward has no delimiter', () => {
@@ -39,6 +44,10 @@ describe('formatAlertRewards', () => {
 describe('makeAlertMissionIcons', () => {
 	beforeEach(() => {
 		mockBootstrapTooltip();
+		(globalThis as any).setImageSource = (img: HTMLImageElement, icon: string) => {
+			img.dataset.src = icon;
+		};
+
 		(globalThis as any).getItemNamePromise = async (uniqueName: string) =>
 			({'/Lotus/Types/Keys/JadeShadows/JadeShadowQuestKeyChain': 'Jade Shadows'})[uniqueName] ?? uniqueName;
 	});
@@ -53,6 +62,17 @@ describe('makeAlertMissionIcons', () => {
 		expect(lock).toBeInstanceOf(HTMLElement);
 		expect((lock as HTMLElement).textContent).toBe('🔒\u{FE0E}');
 		expect((lock as HTMLElement).dataset.bsTitle).toBe('Requires quest: Jade Shadows');
+	});
+
+	test.each(['archwingRequired', 'isSharkwingMission'])('adds the Archwing icon when %s is set', async flag => {
+		const [space, icon] = await makeAlertMissionIcons({[flag]: true});
+		expect(space).toBe(' ');
+		expect((icon as HTMLElement).dataset.bsTitle).toBe('Archwing');
+	});
+
+	test('adds one Archwing icon when both Archwing flags are set', async () => {
+		const icons = await makeAlertMissionIcons({archwingRequired: true, isSharkwingMission: true});
+		expect(icons.filter(icon => typeof icon !== 'string')).toHaveLength(1);
 	});
 
 	test('registers itself on window for live.ts', () => {

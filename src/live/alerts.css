@@ -1,3 +1,9 @@
 .alert-quest-lock {
 	filter: grayscale(1);
 }
+
+img.alert-archwing-icon {
+	height: 16px;
+	vertical-align: text-bottom;
+	width: 16px;
+}

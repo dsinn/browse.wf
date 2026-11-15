@@ -323,6 +323,22 @@ describe('showHistory()', () => {
 		showHistory(CURRENT_WEEK, cache);
 		expect(suitText('this-week', 0)).toBe(ENTRY_RHINO_FROST_LOKI.response.suits[0]);
 	});
+
+	test('this-week shows next-week request suits without buffs when current-week data is missing', () => {
+		const cache: InvigorationCache = {[CURRENT_WEEK + 1]: ENTRY_RHINO_FROST_LOKI_PEEK};
+		showHistory(CURRENT_WEEK, cache);
+		expect(document.querySelector('#history-this-week')!.classList.contains('d-none')).toBe(false);
+		expect(suitText('this-week', 0)).toBe(ENTRY_RHINO_FROST_LOKI_PEEK.request.s[0]);
+		expect(document.querySelector('#this-week-off-0')!.textContent).toBe('');
+	});
+
+	test('last-week shows current-week request suits without buffs when last-week data is missing', () => {
+		const cache: InvigorationCache = {[CURRENT_WEEK]: ENTRY_RHINO_FROST_LOKI_PEEK};
+		showHistory(CURRENT_WEEK, cache);
+		expect(document.querySelector('#history-last-week')!.classList.contains('d-none')).toBe(false);
+		expect(suitText('last-week', 0)).toBe(ENTRY_RHINO_FROST_LOKI_PEEK.request.s[0]);
+		expect(document.querySelector('#last-week-off-0')!.textContent).toBe('');
+	});
 });
 
 describe('showCacheAlert()', () => {

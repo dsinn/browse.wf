@@ -108,40 +108,45 @@ export function saveToCache(request: InvigorationRequest, response: Invigoration
 	triggerCloudSync();
 }
 
+function framesOnly(suits?: string[]): InvigorationResponse | undefined {
+	return suits?.length ? {suits, offensiveUpgrades: [], defensiveUpgrades: []} : undefined;
+}
+
+function renderHistorySection(
+	prefix: string,
+	entry: InvigorationCacheEntry | undefined,
+	confirmedSuits: string[] | undefined,
+): void {
+	const sectionDiv = document.querySelector(`#history-${prefix}`);
+	// When the buffs are unknown (e.g. wiped data), fall back to the frames the neighbouring week's request recorded
+	const response = entry?.response ?? framesOnly(confirmedSuits);
+	if (response) {
+		populateInvigorationGrid(prefix, response, confirmedSuits);
+		sectionDiv?.classList.remove('d-none');
+	} else {
+		sectionDiv?.classList.add('d-none');
+	}
+}
+
 export function showHistory(currentWeek: number, cache: InvigorationCache): void {
 	const currentData = cache[currentWeek];
 	const lastWeekData = cache[currentWeek - 1];
 	const nextWeekData = cache[currentWeek + 1];
 
+	// Next week's request suits are what the user confirmed as this week's offerings; likewise for last week
+	const thisWeekSuits = nextWeekData?.request.s;
+	const lastWeekSuits = currentData?.request.s;
+
 	const historyDiv = document.querySelector('#history');
 
-	if (!currentData && !lastWeekData) {
+	if (!currentData && !lastWeekData && !framesOnly(thisWeekSuits) && !framesOnly(lastWeekSuits)) {
 		historyDiv?.classList.add('d-none');
 		return;
 	}
 
-	const thisWeekDiv = document.querySelector('#history-this-week');
-	const lastWeekDiv = document.querySelector('#history-last-week');
-
 	historyDiv?.classList.remove('d-none');
-
-	if (currentData) {
-		// Prefer next week's request suits: they represent what the user confirmed as this week's offerings
-		const thisWeekSuits = nextWeekData ? nextWeekData.request.s : undefined;
-		populateInvigorationGrid('this-week', currentData.response, thisWeekSuits);
-		thisWeekDiv?.classList.remove('d-none');
-	} else {
-		thisWeekDiv?.classList.add('d-none');
-	}
-
-	if (lastWeekData) {
-		// Prefer current week's request suits: they represent what the user confirmed as last week's offerings
-		const lastWeekSuits = currentData ? currentData.request.s : undefined;
-		populateInvigorationGrid('last-week', lastWeekData.response, lastWeekSuits);
-		lastWeekDiv?.classList.remove('d-none');
-	} else {
-		lastWeekDiv?.classList.add('d-none');
-	}
+	renderHistorySection('this-week', currentData, thisWeekSuits);
+	renderHistorySection('last-week', lastWeekData, lastWeekSuits);
 }
 
 export function showResults(response: InvigorationResponse, request: InvigorationRequest): void {

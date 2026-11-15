@@ -14,7 +14,7 @@ import {getSeasonLabel} from './calendar-seasons/data.js';
 import {renderCalendarSeasonPane} from './calendar-seasons/index.js';
 import {weekCountToActivationMs} from './clan-weekly/data.js';
 import {renderClanWeeklyPane} from './clan-weekly/index.js';
-import {getNextWeeklyResetMs, MILLIS_PER_WEEK} from './helpers/time-helpers.js';
+import {getNextWeeklyResetMs, MILLIS_PER_WEEK, mongoMs} from './helpers/time-helpers.js';
 import {createShortTimerBadge} from './short-timer-badge.js';
 import {scheduleReload} from './timer-registry.js';
 import {WarframeApiFrontProxyClient} from './warframe-api-proxy-client.js';
@@ -25,9 +25,11 @@ import {initWeeklyForecastToc, scrollToHashedSection, startSyncingUrlHash} from 
 declare function getDictPromise(): Promise<Record<string, string>>;
 declare function getOSDictPromise(): Promise<Record<string, string>>;
 
-export function mongoMs(d: IMongoDate): number {
-	return Number(d.$date.$numberLong);
-}
+/**
+ Orders worldState entries by activation. Don't rely on worldState's order: shortly before the
+ weekly reset, it can list next week's entry before the current one.
+ */
+const byActivation = (a: any, b: any): number => mongoMs(a.Activation) - mongoMs(b.Activation);
 
 export function formatTabDate(ms: number): string {
 	return new Date(ms).toLocaleDateString('en', {month: 'short', day: 'numeric'});
@@ -83,7 +85,7 @@ async function renderArchimedeaTabs(
 	tabsElement.replaceChildren();
 	contentElement.replaceChildren();
 
-	// There's usually only one entry per Archimedea type, but handle multiple for robustness
+	// Callers sort by activation
 	const firstFutureIdx = archimedeas.findIndex(a => mongoMs(a.Activation) > now);
 	const defaultIdx = Math.max(firstFutureIdx, 0);
 
@@ -302,7 +304,9 @@ export async function initWeeklyForecast(): Promise<void> {
 	const worldState = await WarframeApiFrontProxyClient.fetchWorldState();
 
 	// Deep Archimedea (CT_LAB)
-	const deepArchimedeas = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_LAB');
+	const deepArchimedeas = (worldState.Conquests ?? [])
+		.filter((c: any) => c.Type === 'CT_LAB')
+		.sort(byActivation);
 	if (deepTabsElement && deepArchimedeas.length > 0) {
 		await renderArchimedeaTabs(
 			deepTabsElement,
@@ -315,7 +319,9 @@ export async function initWeeklyForecast(): Promise<void> {
 	endLoading('#deep-archimedea-content');
 
 	// Temporal Archimedea (CT_HEX)
-	const temporalArchimedeas = (worldState.Conquests ?? []).filter((c: any) => c.Type === 'CT_HEX');
+	const temporalArchimedeas = (worldState.Conquests ?? [])
+		.filter((c: any) => c.Type === 'CT_HEX')
+		.sort(byActivation);
 	if (temporalTabsElement && temporalArchimedeas.length > 0) {
 		await renderArchimedeaTabs(
 			temporalTabsElement,
@@ -328,7 +334,7 @@ export async function initWeeklyForecast(): Promise<void> {
 	endLoading('#temporal-archimedea-content');
 
 	// Descendia
-	const descents = worldState.Descents ?? [];
+	const descents = (worldState.Descents ?? []).toSorted(byActivation);
 	if (descentTabsElement && descents.length > 0) {
 		await renderDescentTabs(
 			descentTabsElement,
@@ -340,7 +346,7 @@ export async function initWeeklyForecast(): Promise<void> {
 	endLoading('#descendia-content');
 
 	// Calendar Seasons
-	const calendarSeasons = worldState.KnownCalendarSeasons ?? [];
+	const calendarSeasons = (worldState.KnownCalendarSeasons ?? []).toSorted(byActivation);
 	if (calendarSeasonTabsElement && calendarSeasons.length > 0) {
 		await renderCalendarSeasonTabs(
 			calendarSeasonTabsElement,
@@ -352,7 +358,7 @@ export async function initWeeklyForecast(): Promise<void> {
 	endLoading('#calendar-season-content', '#calendar-season-columns');
 
 	// Clan Weekly Initiatives
-	const clanWeeklyEntries = worldState.WeeklyVaultBonusRewards ?? [];
+	const clanWeeklyEntries = (worldState.WeeklyVaultBonusRewards ?? []).toSorted((a: any, b: any) => a.WeekCount - b.WeekCount);
 	if (clanWeeklyColumnsElement && clanWeeklyEntries.length > 0) {
 		window.ExportImages = await fetchExport('ExportImages');
 		await renderClanWeeklyColumns(clanWeeklyColumnsElement, clanWeeklyEntries);

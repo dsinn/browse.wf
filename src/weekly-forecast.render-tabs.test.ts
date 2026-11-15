@@ -17,6 +17,7 @@ import {
 import {loadMock} from '@test/helpers/api-mocks';
 import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
 import {freezeTime, MOCK_TIMESTAMP} from '@test/helpers/time-helpers';
+import {MILLIS_PER_WEEK, mongoMs} from './helpers/time-helpers';
 import {resetTimerRegistry} from './timer-registry';
 import {
 	initWeeklyForecast,
@@ -207,6 +208,35 @@ describe('renderArchimedeaTabs — CT_HEX (Temporal Archimedea)', () => {
 	});
 });
 
+/**
+ Activation and Expiry for the week after `entry`
+ */
+function nextWeekDates(entry: any) {
+	return {
+		Activation: entry.Expiry,
+		Expiry: {$date: {$numberLong: String(mongoMs(entry.Expiry) + MILLIS_PER_WEEK)}},
+	};
+}
+
+function expectActivationOrder(tabs: HTMLElement[]) {
+	const activations = tabs.map(tab => Number(tab.dataset.activation));
+	expect(activations).toEqual(activations.toSorted((a, b) => a - b));
+}
+
+describe('renderArchimedeaTabs — next week listed first', () => {
+	// Not yet observed in the wild, but just in case
+	beforeEach(async () => {
+		const current = worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
+		await setup({Conquests: [{...current, ...nextWeekDates(current)}, current]});
+	});
+
+	test('tabs are in activation order with next week active', () => {
+		const tabs = [...document.querySelectorAll<HTMLElement>('#deep-archimedea-tabs .nav-link')];
+		expectActivationOrder(tabs);
+		expect(tabs.map(tab => tab.classList.contains('active'))).toEqual([false, true]);
+	});
+});
+
 describe('renderDescentTabs', () => {
 	beforeEach(async () => {
 		await setup({Descents: worldState.Descents}, MOCK_TIMESTAMP, {dict: loadMock('dicts/en.json')});
@@ -269,6 +299,44 @@ describe('renderDescentTabs — all descents in the past', () => {
 	test('first tab is active when no future descent exists', () => {
 		const firstBtn = document.querySelector('#descendia-tabs .nav-link');
 		expect(firstBtn?.classList.contains('active')).toBe(true);
+	});
+});
+
+describe('renderDescentTabs — listed out of order', () => {
+	// Not yet observed in the wild, but just in case
+	beforeEach(async () => {
+		await setup({Descents: worldState.Descents.toReversed()}, MOCK_TIMESTAMP, {dict: loadMock('dicts/en.json')});
+	});
+
+	test('tabs are in activation order with the first future descent active', () => {
+		const tabs = [...document.querySelectorAll<HTMLElement>('#descendia-tabs .nav-link')];
+		expectActivationOrder(tabs);
+		// At MOCK_TIMESTAMP (Jan 10): descent 0 (Jan 5–12) is active, descent 1 (Jan 12) is first future
+		expect(tabs.findIndex(tab => tab.classList.contains('active'))).toBe(1);
+	});
+});
+
+describe('renderCalendarSeasonTabs — next season listed first', () => {
+	// Not yet observed in the wild, but just in case
+	beforeEach(async () => {
+		const current = worldState.KnownCalendarSeasons[0];
+		const next = {
+			...current,
+			Season: 'CST_WINTER',
+			...nextWeekDates(current),
+		};
+		await setup({KnownCalendarSeasons: [next, current]}, MOCK_TIMESTAMP, {setImageSource: true});
+	});
+
+	test('tabs are in activation order with the next season active', () => {
+		const tabs = [...document.querySelectorAll<HTMLElement>('#calendar-season-tabs .nav-link')];
+		expectActivationOrder(tabs);
+		expect(tabs.map(tab => tab.classList.contains('active'))).toEqual([false, true]);
+	});
+
+	test('columns are in activation order', () => {
+		const headings = [...document.querySelectorAll('#calendar-season-columns h5')].map(heading => heading.textContent);
+		expect(headings).toEqual(['🍂 Autumn', '❄️ Winter']);
 	});
 });
 

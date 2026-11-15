@@ -36,6 +36,13 @@ export const MILLIS_PER_HOUR = SECONDS_PER_HOUR * 1000;
 export const MILLIS_PER_DAY = SECONDS_PER_DAY * 1000;
 export const MILLIS_PER_WEEK = SECONDS_PER_WEEK * 1000;
 
+/**
+Converts a worldState date (`{$date: {$numberLong: "<ms>"}}`) to milliseconds since the epoch.
+*/
+export function mongoMs(d: IMongoDate): number {
+	return Number(d.$date.$numberLong);
+}
+
 // Warframe weekly reset epoch, sourced from the worldState WeekCount
 export const WEEK_EPOCH_MS = 1_391_990_400_000; // 2014-02-10T00:00:00Z
 

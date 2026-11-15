@@ -1,10 +1,21 @@
-import {getNextWeeklyResetMs} from '../helpers/time-helpers.js';
+import {getNextWeeklyResetMs, mongoMs} from '../helpers/time-helpers.js';
 import {isFilterEnabled} from '../card-filters.js';
 import {scheduleAt} from '../timer-registry.js';
 
 const STALE_DATA_RETRY_MS = 5000;
 
 let weeklyExpiry = 0;
+
+/**
+ Returns the Archimedea of a type that is active now.
+ Shortly before the weekly reset, worldState also lists next week's, in no guaranteed order.
+ Falls back to any one of that type so that stale data still triggers a retry.
+ */
+export function findCurrentConquest(conquests: any[], type: string): any {
+	const now = Date.now();
+	const ofType = conquests.filter(conquest => conquest.Type === type);
+	return ofType.find(conquest => mongoMs(conquest.Activation) <= now && now < mongoMs(conquest.Expiry)) ?? ofType[0];
+}
 
 export function updateWeekly(): void {
 	if (!(window as any).worldState?.Conquests) {
@@ -14,8 +25,8 @@ export function updateWeekly(): void {
 	}
 
 	Promise.all([window.dicts_promise, window.ExportMissionTypes_promise]).then(async () => {
-		const labConquest = (window as any).worldState.Conquests.find((c: any) => c.Type === 'CT_LAB');
-		const hexConquest = (window as any).worldState.Conquests.find((c: any) => c.Type === 'CT_HEX');
+		const labConquest = findCurrentConquest((window as any).worldState.Conquests, 'CT_LAB');
+		const hexConquest = findCurrentConquest((window as any).worldState.Conquests, 'CT_HEX');
 
 		let newWeeklyExpiry: number;
 		if (labConquest) {

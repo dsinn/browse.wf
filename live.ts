@@ -769,6 +769,7 @@ async function updateAlerts(shouldForceRender = false)
 							locationElement.appendChild(document.createTextNode(locationText));
 						}
 					}
+					locationElement.append(...await window.makeAlertMissionIcons!(alert.MissionInfo)); // Fork: mission requirement icons
 					span.appendChild(locationElement);
 					block.appendChild(span);
 				}

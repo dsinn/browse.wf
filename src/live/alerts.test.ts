@@ -1,5 +1,11 @@
-import {describe, test, expect} from 'vitest';
-import {formatAlertRewards} from './alerts';
+import {
+	describe,
+	test,
+	expect,
+	beforeEach,
+} from 'vitest';
+import {mockBootstrapTooltip} from '@test/helpers/dom-helpers';
+import {formatAlertRewards, makeAlertMissionIcons} from './alerts';
 
 describe('formatAlertRewards', () => {
 	test('credits-only reward has no delimiter', () => {
@@ -27,5 +33,29 @@ describe('formatAlertRewards', () => {
 
 	test('registers itself on window for live.ts', () => {
 		expect((window as any).formatAlertRewards).toBe(formatAlertRewards);
+	});
+});
+
+describe('makeAlertMissionIcons', () => {
+	beforeEach(() => {
+		mockBootstrapTooltip();
+		(globalThis as any).getItemNamePromise = async (uniqueName: string) =>
+			({'/Lotus/Types/Keys/JadeShadows/JadeShadowQuestKeyChain': 'Jade Shadows'})[uniqueName] ?? uniqueName;
+	});
+
+	test('returns nothing for an alert without requirements', async () => {
+		expect(await makeAlertMissionIcons({})).toEqual([]);
+	});
+
+	test('adds a lock with the required quest name as its tooltip', async () => {
+		const [space, lock] = await makeAlertMissionIcons({questReq: '/Lotus/Types/Keys/JadeShadows/JadeShadowQuestKeyChain'});
+		expect(space).toBe(' ');
+		expect(lock).toBeInstanceOf(HTMLElement);
+		expect((lock as HTMLElement).textContent).toBe('🔒\u{FE0E}');
+		expect((lock as HTMLElement).dataset.bsTitle).toBe('Requires quest: Jade Shadows');
+	});
+
+	test('registers itself on window for live.ts', () => {
+		expect(window.makeAlertMissionIcons).toBe(makeAlertMissionIcons);
 	});
 });

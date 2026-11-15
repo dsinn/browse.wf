@@ -95,3 +95,27 @@ test.describe('Live Page - Alerts Card rewards', () => {
 		]);
 	});
 });
+
+test.describe('Live Page - Alerts Card mission requirements', () => {
+	test.beforeEach(async ({page}) => {
+		await setupMockRoutes(page, {
+			worldStateFile: 'worldState-alerts.json',
+			frozenTime: ALERTS_FROZEN_TIMESTAMP,
+			modifyWorldState(worldState) {
+				worldState.Alerts[0].MissionInfo.questReq = '/Lotus/Types/Keys/JadeShadows/JadeShadowQuestKeyChain';
+			},
+		});
+		await page.route('**/browse.wf/Lotus/Types/Keys/JadeShadows/JadeShadowQuestKeyChain', route => {
+			void route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({name: 'Jade Shadows'})});
+		});
+		await page.goto('/live');
+		await page.waitForSelector('#alerts-body .card-block', {timeout: 10_000});
+	});
+
+	test('alert requiring a quest shows a lock with the quest name', async ({page}) => {
+		const lock = page.locator('#alerts-body .alert-quest-lock');
+		await expect(lock).toHaveCount(1);
+		await lock.hover();
+		await expect(page.locator('.tooltip')).toHaveText('Requires quest: Jade Shadows');
+	});
+});

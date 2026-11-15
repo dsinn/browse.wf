@@ -229,6 +229,9 @@ interface Window {
 	showHistory?: (currentWeek: number, cache: Record<number, any>) => void;
 	showResults?: (response: any, request: any) => void;
 
+	// src/live/alerts.ts
+	makeAlertMissionIcons?: (missionInfo: any) => Promise<Array<string | Node>>;
+
 	// src/live/bounties.ts
 	applyBountyFilters?: (syndicateTag: string, rows: NodeListOf<Element>) => void;
 	renderAllyIcon?: (allyName: string, allyCell: Element) => void;

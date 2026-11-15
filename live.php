@@ -10,6 +10,7 @@
 	<link rel="stylesheet" href="src/calendar-seasons/calendar-seasons.css">
 	<link rel="stylesheet" href="src/card-filters.css">
 	<link rel="stylesheet" href="src/descendia/descendia.css">
+	<link rel="stylesheet" href="src/live/alerts.css">
 	<link rel="stylesheet" href="src/live/bounty-filters.css">
 	<link rel="stylesheet" href="src/live/invasions.css">
 	<link rel="stylesheet" href="src/live/news.css">

@@ -844,7 +844,7 @@ async function updateGoals(shouldForceRender = false)
 	if (!shouldForceRender && content === renderedGoals) return;
 	renderedGoals = content;
 
-	document.getElementById("goals-body").textContent = content;
+	window.renderGoals!(document.getElementById("goals-body"), window.worldState.Goals, goal_names); // Fork: clan goal tooltips
 }
 
 function updateTeshin()

@@ -252,6 +252,9 @@ interface Window {
 	// src/live/fissures.ts
 	fissureTiers?: any;
 
+	// src/live/goals.ts
+	renderGoals?: (body: HTMLElement, goals: any[], names: string[]) => void;
+
 	// src/live/invasions.ts
 	updateInvasions?: () => Promise<void>;
 

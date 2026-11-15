@@ -37,6 +37,7 @@ import './live/checkbox-linking.js';
 import './live/circuit.js';
 import './live/completion-toggles.js';
 import './live/fissures.js';
+import './live/goals.js';
 import './live/incursions.js';
 import './live/invasions.js';
 import './live/news.js';

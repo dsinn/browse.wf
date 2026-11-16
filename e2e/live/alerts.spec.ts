@@ -50,14 +50,16 @@ test.describe('Live Page - Alerts Card', () => {
 		}
 	});
 
-	test('expired alert is removed from the DOM ~60 seconds after expiry', async ({page}) => {
+	test('expired alert stays with an Expired badge until worldState stops listing it', async ({page}) => {
 		await expect(page.locator('#alerts-body .card-block')).toHaveCount(3);
 
-		// Alpha expires at +5s; jump the frozen clock 65s ahead to clear its 60s grace period
-		// and let the queued setTimeout fire, without reloading or re-polling worldState.
-		await page.clock.fastForward(65_000);
+		// Alpha expires at +5s; jump the frozen clock past that without reloading or re-polling worldState.
+		await page.clock.fastForward(10_000);
 
-		await expect(page.locator('#alerts-body .card-block')).toHaveCount(2);
+		const badges = page.locator('#alerts-body .card-block .badge[data-expiry]');
+		await expect(page.locator('#alerts-body .card-block')).toHaveCount(3);
+		await expect(badges.first()).toHaveText('Expired');
+		await expect(badges.nth(1)).not.toHaveText('Expired');
 	});
 });
 

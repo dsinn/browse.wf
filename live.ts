@@ -207,7 +207,6 @@ const ExportBundles_promise = fetchExport("ExportBundles");
 const ExportBoosterPacks_promise = fetchExport("ExportBoosterPacks");
 const ExportBoosters_promise = fetchExport("ExportBoosters");
 
-const alertsScheduledExpiries = new Set<number>();
 let renderedAlertOids: Set<string> | undefined;
 let renderedGoals = "";
 
@@ -711,23 +710,6 @@ async function updateAlerts(shouldForceRender = false)
 			return a.Activation.$date.$numberLong - b.Activation.$date.$numberLong;
 		});
 
-		const activeAlertExpiries = new Set<number>(
-			sortedAlerts
-				.filter((a: any) => Date.now() >= a.Activation.$date.$numberLong && Date.now() < a.Expiry.$date.$numberLong)
-				.map((a: any) => Number(a.Expiry.$date.$numberLong))
-		);
-		for (const expiry of activeAlertExpiries)
-		{
-			if (alertsScheduledExpiries.has(expiry)) continue;
-
-			alertsScheduledExpiries.add(expiry);
-			window.scheduleAt!(expiry + 60_000, () =>
-			{
-				alertsScheduledExpiries.delete(expiry);
-				void updateAlerts(true);
-			});
-		}
-
 		const promises = [dict_promise, ExportMissionTypes_promise, ExportFactions_promise, ExportRegions_promise];
 		for (const alert of sortedAlerts)
 		{
@@ -748,8 +730,7 @@ async function updateAlerts(shouldForceRender = false)
 		}
 		await Promise.all(promises);
 
-		document.getElementById("alerts-body").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x)?.dispose());
-		document.getElementById("alerts-body").innerHTML = "";
+		const alertsFragment = document.createDocumentFragment();
 		for (const alert of sortedAlerts)
 		{
 			if (Date.now() < alert.Activation.$date.$numberLong)
@@ -822,7 +803,7 @@ async function updateAlerts(shouldForceRender = false)
 					span.textContent = (window as any).formatAlertRewards(rewards, alert.MissionInfo.missionReward.credits);
 					block.appendChild(span);
 				}
-				document.getElementById("alerts-body").appendChild(block);
+				alertsFragment.appendChild(block);
 
 				// Re-update checkbox state in case of cloud sync race condition
 				(window as any).setCompletionToggle(
@@ -831,6 +812,8 @@ async function updateAlerts(shouldForceRender = false)
 				);
 			}
 		}
+		document.getElementById("alerts-body").querySelectorAll("[data-bs-toggle=tooltip]").forEach(x => window.bootstrap.Tooltip.getInstance(x)?.dispose());
+		document.getElementById("alerts-body").replaceChildren(alertsFragment);
 	}
 	else
 	{

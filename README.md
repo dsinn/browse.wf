@@ -31,6 +31,15 @@ This is a fork of Sainan-senpai's [calamity-inc/browse.wf](https://github.com/ca
 - **Notification icons**: Bells now use a colour/fill pattern (coloured when enabled, grayscale when disabled) instead of bell/bell-slash icons, matching more modern UX patterns.
 - **Cross-platform UI**: System-independent checkbox styling
 
+#### [Riven calculator](https://dsinn.github.io/browse.wf/riven-calc)
+
+A rewrite of the upstream calculator (`/rivencalc` now redirects to `/riven-calc`):
+
+- **Fixed 1.2x multiplier**: Dispositions were retired in October 2026 via [Hotfix 44.1.3](https://www.warframe.com/en/patch-notes/pc/44-1-3). Prime, Lich, Wraith, Vandal, and other variants that only differ by disposition are hidden to keep the weapon list short
+- **Spliced traits**: Ranges and grades for the single positive trait a Riven can gain from Riven Splicing, which counts as one of the buffs
+- **Player-centric design**: Traits sorted and grouped logically. Faction damage buffs display as "1.##" instead of the internal "0.##"
+- **UI enhancements**: Added slider and stepper inputs for Riven grading to replace the old `window.prompt` workflow
+
 #### [Arbitrations page](https://dsinn.github.io/browse.wf/arbys)
 
 - **Custom timers**: Set custom countdown timers on the arbitration schedule page
@@ -250,11 +259,10 @@ For detailed setup instructions, see:
 - `*.php` - PHP page templates
 - `*.ts` - TypeScript source files
 - `components/` - Reusable PHP components (navbar, common JS includes)
-- `docs/` - Architecture decision records
+- `docs/` - Architecture decision records and design docs
 - `e2e/` - Playwright E2E tests
-- `helpers/` - Shared build utilities (PHP server, PHP renderer)
 - `public/` - Pre-rendered HTML for Vite dev server (generated, do not edit)
-- `scripts/` - Dev and build scripts (PHP page renderer, Discord post script)
+- `scripts/` - Dev and build scripts (dev server launcher, PHP page renderer, Discord post script)
 - `src/` - Fork-specific TypeScript modules and CSS files
 - `supplemental-data/` - Additional game data and utilities
 - `test/` - Vitest unit tests and test helpers

@@ -10,7 +10,7 @@
 	<?php require "components/navbar.php"; ?>
 	<div class="container pt-3">
 		<div id="cache-alert" class="alert d-none mb-3" role="alert"></div>
-		<div class="alert alert-warning mb-3" role="alert">As of Warframe's Narin update in September 2026, this page's data is often out of date.</div>
+		<div class="alert alert-warning mb-3" role="alert">As of Warframe's Narin update in September 2026, the predicted offerings are sometimes incorrect.</div>
 		<form onsubmit="doSubmit();return false;">
 			<input id="username" class="form-control mb-3" placeholder="Username (case-sensitive)" minlength="4" required />
 			<div class="form-check mb-3">

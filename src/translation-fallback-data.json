@@ -1,4 +1,10 @@
 {
+	"/Lotus/Language/Conquest/PersonalMod_AoeDebuff": "Low Yield",
+	"/Lotus/Language/Conquest/PersonalMod_AoeDebuff_Desc": "Blast radius of weapons with radial attacks is set to 3m.",
+	"/Lotus/Language/Conquest/PersonalMod_InfectedWounds": "Infected Wounds",
+	"/Lotus/Language/Conquest/PersonalMod_InfectedWounds_Desc": "Gain a Toxin Status Effect every time you take damage.",
+	"/Lotus/Language/Conquest/PersonalMod_RangeDebuff": "Shortened Reach",
+	"/Lotus/Language/Conquest/PersonalMod_RangeDebuff_Desc": "Ability range reduced by 50%.",
 	"/Lotus/Language/G1Quests/TacAlertHalloweenTitle": "Hallowed Nightmares",
 	"/Lotus/Language/TauPrologue/RoadToTauEventName": "Epoch Operation: Taubound",
 	"/Lotus/Language/Upgrades/Spliced/AmmoEfficiencyDesc": "|val|% Ammo Efficiency",

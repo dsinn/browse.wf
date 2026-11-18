@@ -102,8 +102,12 @@ test.describe('Live Page - Alerts Card mission requirements', () => {
 			worldStateFile: 'worldState-alerts.json',
 			frozenTime: ALERTS_FROZEN_TIMESTAMP,
 			modifyWorldState(worldState) {
-				worldState.Alerts[0].MissionInfo.questReq = '/Lotus/Types/Keys/JadeShadows/JadeShadowQuestKeyChain';
-				worldState.Alerts[1].MissionInfo.archwingRequired = true;
+				// One alert with every requirement, so all its icons render together
+				Object.assign(worldState.Alerts[0].MissionInfo, {
+					questReq: '/Lotus/Types/Keys/JadeShadows/JadeShadowQuestKeyChain',
+					archwingRequired: true,
+					nightmare: true,
+				});
 			},
 		});
 		await page.route('**/browse.wf/Lotus/Types/Keys/JadeShadows/JadeShadowQuestKeyChain', route => {
@@ -113,17 +117,13 @@ test.describe('Live Page - Alerts Card mission requirements', () => {
 		await page.waitForSelector('#alerts-body .card-block', {timeout: 10_000});
 	});
 
-	test('alert requiring a quest shows a lock with the quest name', async ({page}) => {
-		const lock = page.locator('#alerts-body .alert-quest-lock');
-		await expect(lock).toHaveCount(1);
-		await lock.hover();
-		await expect(page.locator('.tooltip')).toHaveText('Requires quest: Jade Shadows');
-	});
+	test('alert with every requirement shows all of their icons', async ({page}) => {
+		const alert = page.locator('#alerts-body .card-block').filter({has: page.getByRole('img', {name: 'Archwing'})});
+		await expect(alert).toHaveCount(1);
 
-	test('alert requiring Archwing shows the Archwing icon', async ({page}) => {
-		const icon = page.locator('#alerts-body img.alert-archwing-icon');
-		await expect(icon).toHaveCount(1);
-		await icon.hover();
-		await expect(page.locator('.tooltip')).toHaveText('Archwing');
+		for (const name of ['Archwing', 'Nightmare', 'Requires quest: Jade Shadows']) {
+			await alert.getByRole('img', {name}).hover();
+			await expect(page.locator('.tooltip').filter({hasText: name})).toBeVisible();
+		}
 	});
 });

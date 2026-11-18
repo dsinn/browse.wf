@@ -5,6 +5,11 @@ import {makeArchwingIcon} from '../archwing-icon.js';
 import {fetchExport} from '../public-export-fetcher.js';
 import {addTooltip} from '../tooltip.js';
 
+// `common.js`
+declare function setImageSource(img: HTMLImageElement, icon: string): void;
+
+const NIGHTMARE_ICON_PATH = '/Lotus/Interface/Icons/Episodes/Weekly/NightmareMissions.png';
+
 /**
  Joins an alert's reward names into one comma-delimited line.
  Credits always come last, regardless of how many other rewards there are.
@@ -28,6 +33,15 @@ async function makeQuestLockIcon(questRequest: string): Promise<HTMLElement> {
 	return lock;
 }
 
+function makeNightmareIcon(): HTMLImageElement {
+	const img = document.createElement('img');
+	img.className = 'alert-nightmare-icon';
+	img.alt = 'Nightmare';
+	setImageSource(img, NIGHTMARE_ICON_PATH);
+	addTooltip(img, 'Nightmare');
+	return img;
+}
+
 /**
  Creates the icons shown after an alert's location for its mission requirements,
  each preceded by a space so they can be appended directly.
@@ -36,13 +50,14 @@ async function makeQuestLockIcon(questRequest: string): Promise<HTMLElement> {
  */
 export async function makeAlertMissionIcons(missionInfo: any): Promise<Array<string | Node>> {
 	const isArchwing = Boolean(missionInfo.archwingRequired || missionInfo.isSharkwingMission);
-	if (isArchwing) {
-		// The Archwing icon's image source is looked up in ExportImages
+	if (isArchwing || missionInfo.nightmare) {
+		// The icons' image sources are looked up in ExportImages
 		window.ExportImages = await fetchExport('ExportImages');
 	}
 
 	const icons = [
 		...(isArchwing ? [makeArchwingIcon('alert-archwing-icon')] : []),
+		...(missionInfo.nightmare ? [makeNightmareIcon()] : []),
 		...(missionInfo.questReq ? [await makeQuestLockIcon(missionInfo.questReq)] : []),
 	];
 	return icons.flatMap(icon => [' ', icon]);

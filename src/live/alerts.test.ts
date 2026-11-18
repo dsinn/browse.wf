@@ -75,6 +75,12 @@ describe('makeAlertMissionIcons', () => {
 		expect(icons.filter(icon => typeof icon !== 'string')).toHaveLength(1);
 	});
 
+	test('adds the Nightmare icon when nightmare is set', async () => {
+		const [space, icon] = await makeAlertMissionIcons({nightmare: true});
+		expect(space).toBe(' ');
+		expect((icon as HTMLElement).dataset.bsTitle).toBe('Nightmare');
+	});
+
 	test('registers itself on window for live.ts', () => {
 		expect(window.makeAlertMissionIcons).toBe(makeAlertMissionIcons);
 	});

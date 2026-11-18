@@ -4,6 +4,8 @@ import {fileURLToPath} from 'node:url';
 import process from 'node:process';
 import {describe, test, expect} from 'vitest';
 import {TEST_FRONT_PROXY_BASE_URL} from './helpers/test-constants';
+import {formatReport, validate} from './worldstate-schema/rules';
+import {worldStateSchema} from './worldstate-schema/schema';
 
 /**
  API Structure Validation Tests
@@ -15,14 +17,14 @@ import {TEST_FRONT_PROXY_BASE_URL} from './helpers/test-constants';
  IMPORTANT: These tests DO NOT use mocks - they hit real external APIs.
  Run these manually or in CI to detect when mocks need updating.
 
+ The worldState test checks the live response against the declarative schema in
+ ./worldstate-schema/schema.ts. Errors fail the test; warnings are printed (and added to the
+ GitHub Actions job summary) without failing it.
+
  If a test fails:
  1. Check if the API structure actually changed
- 2. Update the mock file: ./test/update-mocks.sh
- 3. Update tests if new fields are critical for functionality
-
- @todo Add validation for array element structures. Current tests only check if
- arrays exist (Array.isArray), but don't validate the structure of items within
- those arrays (e.g., Events[0], Invasions[0], etc. should have specific fields).
+ 2. Update the schema (and the code that reads the changed data, if any)
+ 3. Update the mock file: ./test/update-mocks.sh
  */
 
 describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', () => {
@@ -51,29 +53,17 @@ describe.skipIf(process.env.API_VALIDATION !== '1')('API Structure Validation', 
 		expect(typeof realData.bounties).toBe('object');
 	});
 
-	test('worldState mock matches front proxy structure', async () => {
+	test('front proxy worldState matches the schema', async () => {
 		const response = await fetch(`${TEST_FRONT_PROXY_BASE_URL}/worldState`, {headers: frontProxyHeaders});
 		expect(response.ok).toBe(true);
 
-		const realData = await response.json();
-		const mockData = JSON.parse(fs.readFileSync(path.join(mocksDir, 'worldState.json'), 'utf8'));
+		const issues = validate(await response.json(), worldStateSchema);
+		const report = formatReport(issues);
+		console.log(report);
+		if (process.env.GITHUB_STEP_SUMMARY && issues.length > 0) {
+			fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## worldState validation\n\n\`\`\`\n${report}\n\`\`\`\n`);
+		}
 
-		// Validate top-level keys match
-		expect(Object.keys(realData).sort()).toEqual(Object.keys(mockData).sort());
-
-		// Validate critical arrays exist
-		expect(Array.isArray(realData.Alerts)).toBe(true);
-		expect(Array.isArray(realData.DailyDeals)).toBe(true);
-		expect(Array.isArray(realData.EndlessXpSchedule)).toBe(true);
-		expect(Array.isArray(realData.Events)).toBe(true);
-		expect(Array.isArray(realData.FlashSales)).toBe(true);
-		expect(Array.isArray(realData.Goals)).toBe(true);
-		expect(Array.isArray(realData.Invasions)).toBe(true);
-		expect(Array.isArray(realData.Sorties)).toBe(true);
-		expect(Array.isArray(realData.SyndicateMissions)).toBe(true);
-		expect(Array.isArray(realData.WeeklyVaultBonusRewards)).toBe(true);
-
-		// Validate timestamp exists
-		expect(typeof realData.Time).toBe('number');
+		expect(issues.filter(issue => issue.severity === 'error'), report).toEqual([]);
 	});
 });

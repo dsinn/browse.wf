@@ -127,6 +127,7 @@ e2e/                        # E2E tests (Playwright)
 - **API Validation Tests** (`test/api-validation.test.ts`) - Weekly structure validation (Vitest)
   - Hit real oracle.browse.wf APIs (not mocked)
   - Verify API response structure matches mock files
+  - Check worldState against the declarative schema in `test/worldstate-schema/schema.ts` (errors fail; warnings are printed)
   - Detect "mock drift" when upstream APIs change
   - Run via `npm run test:api-validation` (not part of regular test suite)
 

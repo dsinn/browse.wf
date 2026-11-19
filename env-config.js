@@ -1,0 +1,1 @@
+window.__ENV__ = {"VITE_ENV":"production","VITE_DATABASE_URL":"https://irizcljjteytozsfzbxe.supabase.co","VITE_DATABASE_ANON_KEY":"sb_publishable_evZ1tRDk8BexD7s5t95Fhw_sk-064sK","WARFRAME_API_FRONT_PROXY_BASE_URL":"","WARFRAME_API_FRONT_PROXY_TOKEN":"HZQDu8kwSgPmQDW7TwSt62bA93nNNFZD"};

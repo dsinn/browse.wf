@@ -1,0 +1,14 @@
+.alert-quest-lock {
+	filter: grayscale(1);
+}
+
+img.alert-archwing-icon,
+img.alert-nightmare-icon {
+	height: 16px;
+	vertical-align: text-bottom;
+	width: 16px;
+}
+
+img.alert-nightmare-icon {
+	cursor: help;
+}

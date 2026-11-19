@@ -1,0 +1,67 @@
+/*
+ Reduce layout shift for worldState content when it loads.
+ Heights are lower bounds of the rendered content at each Bootstrap breakpoint.
+ */
+.descendia-tab-content[aria-busy="true"] {
+	min-height: 2000px;
+}
+
+.archimedea-tab-content[aria-busy="true"] {
+	min-height: 200px;
+}
+
+.calendar-season-tab-content[aria-busy="true"] {
+	min-height: 1100px;
+}
+
+.clan-weekly-columns[aria-busy="true"] {
+	min-height: 320px;
+}
+
+@media (min-width: 576px) {
+	.descendia-tab-content[aria-busy="true"] {
+		min-height: 1240px;
+	}
+
+	.archimedea-tab-content[aria-busy="true"] {
+		min-height: 160px;
+	}
+
+	.clan-weekly-columns[aria-busy="true"] {
+		min-height: 220px;
+	}
+}
+
+@media (min-width: 768px) {
+	.descendia-tab-content[aria-busy="true"] {
+		min-height: 940px;
+	}
+
+	.archimedea-tab-content[aria-busy="true"] {
+		min-height: 117px;
+	}
+
+	.calendar-season-tab-content[aria-busy="true"] {
+		min-height: 880px;
+	}
+
+	.clan-weekly-columns[aria-busy="true"] {
+		min-height: 177px;
+	}
+}
+
+@media (min-width: 992px) {
+	.descendia-tab-content[aria-busy="true"] {
+		min-height: 760px;
+	}
+}
+
+@media (min-width: 1200px) {
+	.descendia-tab-content[aria-busy="true"] {
+		min-height: 680px;
+	}
+
+	.calendar-season-columns[aria-busy="true"] {
+		min-height: 930px;
+	}
+}

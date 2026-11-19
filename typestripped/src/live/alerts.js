@@ -1,0 +1,58 @@
+/**
+ Alerts card helpers (fork-specific)
+ */
+import { makeArchwingIcon } from '../archwing-icon.js';
+import { fetchExport } from '../public-export-fetcher.js';
+import { addTooltip } from '../tooltip.js';
+const NIGHTMARE_ICON_PATH = '/Lotus/Interface/Icons/Episodes/Weekly/NightmareMissions.png';
+/**
+ Joins an alert's reward names into one comma-delimited line.
+ Credits always come last, regardless of how many other rewards there are.
+
+ @param rewardNames - Display names of the non-credit rewards, in display order
+ @param credits - The credit reward
+ */
+export function formatAlertRewards(rewardNames, credits) {
+    return [...rewardNames, `${credits.toLocaleString()} Credits`].join(', ');
+}
+async function makeQuestLockIcon(questRequest) {
+    const title = `Requires quest: ${await window.getItemNamePromise(questRequest)}`;
+    const lock = document.createElement('span');
+    lock.className = 'alert-quest-lock';
+    lock.role = 'img';
+    lock.ariaLabel = title;
+    // U+FE0E (invisible) after the lock requests its monochrome text presentation
+    lock.textContent = '🔒︎';
+    addTooltip(lock, title);
+    return lock;
+}
+function makeNightmareIcon() {
+    const img = document.createElement('img');
+    img.className = 'alert-nightmare-icon';
+    img.alt = 'Nightmare';
+    setImageSource(img, NIGHTMARE_ICON_PATH);
+    addTooltip(img, 'Nightmare');
+    return img;
+}
+/**
+ Creates the icons shown after an alert's location for its mission requirements,
+ each preceded by a space so they can be appended directly.
+
+ @param missionInfo - The alert's mission details from worldState
+ */
+export async function makeAlertMissionIcons(missionInfo) {
+    const isArchwing = Boolean(missionInfo.archwingRequired || missionInfo.isSharkwingMission);
+    if (isArchwing || missionInfo.nightmare) {
+        // The icons' image sources are looked up in ExportImages
+        window.ExportImages = await fetchExport('ExportImages');
+    }
+    const icons = [
+        ...(isArchwing ? [makeArchwingIcon('alert-archwing-icon')] : []),
+        ...(missionInfo.nightmare ? [makeNightmareIcon()] : []),
+        ...(missionInfo.questReq ? [await makeQuestLockIcon(missionInfo.questReq)] : []),
+    ];
+    return icons.flatMap(icon => [' ', icon]);
+}
+window.formatAlertRewards = formatAlertRewards;
+window.makeAlertMissionIcons = makeAlertMissionIcons;
+//# sourceMappingURL=alerts.js.map

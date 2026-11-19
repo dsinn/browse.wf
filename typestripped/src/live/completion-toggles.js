@@ -1,0 +1,24 @@
+export function setCompletionToggle(elm, isCompleted) {
+    const { oid } = elm.dataset;
+    if (!oid) {
+        return;
+    }
+    if (window.isOidMarkedAsCompleted(oid) !== isCompleted) {
+        window.toggleOidCompletion(oid);
+    }
+    elm.innerHTML = isCompleted ? '<i class="bi bi-check-square"></i>' : '<i class="bi bi-square"></i>';
+    const tooltip = window.bootstrap?.Tooltip.getInstance(elm);
+    if (tooltip) {
+        tooltip.setContent({ '.tooltip-inner': (isCompleted ? 'Unmark as ' : 'Mark as ') + 'completed' });
+    }
+}
+export function refreshAllCompletionToggles() {
+    for (const elm of document.querySelectorAll('.completion-check')) {
+        const { oid } = elm.dataset;
+        if (oid) {
+            setCompletionToggle(elm, window.isOidMarkedAsCompleted(oid));
+        }
+    }
+}
+window.setCompletionToggle = setCompletionToggle;
+//# sourceMappingURL=completion-toggles.js.map

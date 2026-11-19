@@ -84,7 +84,7 @@ export function appendUnnamedToggle(container: HTMLElement, tbody: HTMLElement, 
 	});
 
 	const wrapper = document.createElement('label');
-	wrapper.className = 'unnamed-toggle d-flex align-items-center gap-2 small';
+	wrapper.className = 'unnamed-toggle d-inline-flex align-items-center gap-2 small';
 	wrapper.append(input, label);
 	container.replaceChildren(wrapper);
 }

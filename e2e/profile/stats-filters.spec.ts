@@ -131,7 +131,7 @@ test.describe('Profile Stats Filters', () => {
 
 	const checkSequentialRanks = (page: any, tbodyId: string) =>
 		page.evaluate((id: string) => {
-			// Rows hidden by a filter or by the unnamed toggle have blank ranks
+			// Only the rows shown are numbered; rows hidden by a filter or by the unnamed toggle keep any old rank
 			const rows = [...document.querySelectorAll<HTMLTableRowElement>(`#${id} tr`)]
 				.filter(tr => getComputedStyle(tr).display !== 'none');
 			const errors: string[] = [];

@@ -100,9 +100,17 @@ export function appendUnnamedToggle(container: HTMLElement, tbody: HTMLElement, 
  */
 export function makeRenumber(tbody: HTMLElement, previousObserver?: MutationObserver): {renumber: () => void; observer: MutationObserver} {
 	const renumber = () => {
+		const {filter, showUnnamed} = tbody.dataset;
+		const isHidden = (tr: HTMLTableRowElement) => {
+			const {category} = tr.dataset;
+			return filter ? category !== filter : (category === UNNAMED_CATEGORY && !showUnnamed);
+		};
+
 		let rank = 1;
 		for (const tr of tbody.querySelectorAll<HTMLTableRowElement>('tr')) {
-			tr.cells[0].textContent = getComputedStyle(tr).display === 'none' ? '' : String(rank++);
+			if (!isHidden(tr)) {
+				tr.cells[0].textContent = String(rank++);
+			}
 		}
 	};
 

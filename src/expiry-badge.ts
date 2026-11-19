@@ -1,5 +1,6 @@
 /**
- Expiry badge helpers extracted from upstream live.ts for performance refactoring and extension.
+ Expiry badge with a seconds-resolution countdown, e.g., "1d 2h 3m 04s".
+ These helpers were extracted from upstream live.ts for performance refactoring and extension.
  Badges register with the shared ticker in timer-registry.ts.
  */
 
